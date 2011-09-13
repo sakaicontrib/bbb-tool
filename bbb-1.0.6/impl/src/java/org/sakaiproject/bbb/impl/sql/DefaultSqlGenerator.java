@@ -47,7 +47,7 @@ public class DefaultSqlGenerator implements SqlGenerator
 	{
 		Map<String,String> statements = new HashMap<String, String>();
 		
-		statements.put("BBB_MEETING", "CREATE TABLE BBB_MEETING (MEETING_ID " + CHAR + "(36) NOT NULL,NAME " + VARCHAR + "(255) NOT NULL, HOST_URL " + VARCHAR + "(255) NOT NULL,SITE_ID " + VARCHAR + "(99) NOT NULL, ATTENDEE_PW " + VARCHAR + "(99) NOT NULL, MODERATOR_PW " + VARCHAR + "(99) NOT NULL,OWNER_ID " + VARCHAR + "(99) NOT NULL,START_DATE " + TIMESTAMP + ",END_DATE " + TIMESTAMP + ", PROPERTIES " + TEXT + ", CONSTRAINT bbb_meeting_pk PRIMARY KEY (MEETING_ID))");
+		statements.put("BBB_MEETING", "CREATE TABLE BBB_MEETING (MEETING_ID " + CHAR + "(36) NOT NULL,NAME " + VARCHAR + "(255) NOT NULL, HOST_URL " + VARCHAR + "(255) NOT NULL,SITE_ID " + VARCHAR + "(99) NOT NULL, ATTENDEE_PW " + VARCHAR + "(99) NOT NULL, MODERATOR_PW " + VARCHAR + "(99) NOT NULL,OWNER_ID " + VARCHAR + "(99) NOT NULL,START_DATE " + TIMESTAMP + ",END_DATE " + TIMESTAMP + ", RECORDING " + BOOL + ", PROPERTIES " + TEXT + ", CONSTRAINT bbb_meeting_pk PRIMARY KEY (MEETING_ID))");
 		statements.put("BBB_MEETING_PARTICIPANT", "CREATE TABLE BBB_MEETING_PARTICIPANT (MEETING_ID " + CHAR + "(36) NOT NULL, SELECTION_TYPE " + VARCHAR + "(99) NOT NULL, SELECTION_ID " + VARCHAR + "(99), ROLE " + VARCHAR + "(32) NOT NULL," + "CONSTRAINT bbb_meeting_participant_pk PRIMARY KEY (MEETING_ID,SELECTION_TYPE,SELECTION_ID))");
 
 		return statements;
@@ -61,7 +61,7 @@ public class DefaultSqlGenerator implements SqlGenerator
 	public List<PreparedStatement> getStoreMeetingStatements(BBBMeeting meeting,Connection connection) throws Exception
 	{
 		List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
-		PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?)");
+		PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?,?)");
 		meetingST.setString(1, meeting.getId());
 		meetingST.setString(2, meeting.getName());
 		meetingST.setString(3, meeting.getHostUrl());
@@ -71,7 +71,8 @@ public class DefaultSqlGenerator implements SqlGenerator
 		meetingST.setString(7, meeting.getOwnerId());
 		meetingST.setTimestamp(8, meeting.getStartDate() == null ? null : new Timestamp( meeting.getStartDate().getTime() ));
 		meetingST.setTimestamp(9, meeting.getEndDate() == null   ? null : new Timestamp( meeting.getEndDate().getTime() ));
-		meetingST.setString(10, XmlUtil.convertPropsToXml(meeting.getProps()));
+		meetingST.setBoolean(10, meeting.getRecording());
+		meetingST.setString(11, XmlUtil.convertPropsToXml(meeting.getProps()));
 		
 		statements.add(meetingST);
 		
@@ -93,7 +94,7 @@ public class DefaultSqlGenerator implements SqlGenerator
 	public List<PreparedStatement> getUpdateMeetingStatements(BBBMeeting meeting,Connection connection) throws Exception
 	{
 		List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
-		PreparedStatement meetingST = connection.prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, PROPERTIES=? WHERE MEETING_ID=?");
+		PreparedStatement meetingST = connection.prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, RECORDING=?, PROPERTIES=? WHERE MEETING_ID=?");
 		meetingST.setString(1, meeting.getName());
 		meetingST.setString(2, meeting.getSiteId());
 		meetingST.setString(3, meeting.getHostUrl());
@@ -102,8 +103,9 @@ public class DefaultSqlGenerator implements SqlGenerator
 		meetingST.setString(6, meeting.getOwnerId());
 		meetingST.setTimestamp(7, meeting.getStartDate() == null ? null : new Timestamp( meeting.getStartDate().getTime() ));
 		meetingST.setTimestamp(8, meeting.getEndDate() == null   ? null : new Timestamp( meeting.getEndDate().getTime() ));
-		meetingST.setString(9, XmlUtil.convertPropsToXml(meeting.getProps()));
-		meetingST.setString(10, meeting.getId());
+		meetingST.setBoolean(9, meeting.getRecording());
+		meetingST.setString(10, XmlUtil.convertPropsToXml(meeting.getProps()));
+		meetingST.setString(11, meeting.getId());
 		
 		statements.add(meetingST);
 		

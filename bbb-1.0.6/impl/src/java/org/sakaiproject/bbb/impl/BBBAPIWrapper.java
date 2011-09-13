@@ -31,6 +31,7 @@ import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.bbb.impl.bbbapi.BBBAPI;
 import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_063;
 import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_070;
+import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_080;
 import org.sakaiproject.bbb.impl.bbbapi.BaseBBBAPI;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.User;
@@ -310,6 +311,7 @@ public class BBBAPIWrapper/* implements Runnable*/ {
 					_version = _version.substring(0, _version.indexOf("-"));
 				}
 				
+				//logger.info("sdfgsdfg");
 				// version should be like x.x or x.xx
 				float versionNumber = Float.parseFloat(_version);
 				if(versionNumber < 0.63f) {
@@ -318,16 +320,17 @@ public class BBBAPIWrapper/* implements Runnable*/ {
 				}else if(versionNumber < 0.70f) {
 					BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_063,proxy.getUrl(),proxy.getSalt());
 					bbbProxyMap.put(proxy.getUrl(),newProxy);
-				}else if(versionNumber == 0.70f) {
+				}else if(versionNumber < 0.80f) {
 					BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_070,proxy.getUrl(),proxy.getSalt());
+					bbbProxyMap.put(proxy.getUrl(),newProxy);
+				}else if(versionNumber == 0.80f) {
+					BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_080,proxy.getUrl(),proxy.getSalt());
 					bbbProxyMap.put(proxy.getUrl(),newProxy);
 				}else {
 					BBBAPI newProxy = getAPI(defaultVersion,proxy.getUrl(),proxy.getSalt());
 					bbbProxyMap.put(proxy.getUrl(),newProxy);
 				}
 					
-				logger.info("sdfgsdfg");
-				
 			}
 			catch(NumberFormatException e) {
 				// invalid version => bind to latest
@@ -351,7 +354,12 @@ public class BBBAPIWrapper/* implements Runnable*/ {
 		// >= 0.70
 		}else if(BaseBBBAPI.APIVERSION_070.equals(_version)) {
 			newProxy = new BBBAPI_070(url,salt);
+		
+		// >= 0.80
+		} else if(BaseBBBAPI.APIVERSION_080.equals(_version)) {
+			newProxy = new BBBAPI_080(url,salt);
 		}
+		
 		logger.info("Sakai BigBlueButton Tool bound to API: "+newProxy.getClass().getSimpleName());
 		
 		return newProxy;

@@ -16,34 +16,17 @@
 
 package org.sakaiproject.bbb.impl.bbbapi;
 
-import java.util.Map;
-
-import org.sakaiproject.bbb.api.BBBException;
-
 /**
- * Class for interacting with BigBlueButton API 0.70+ version.
- * @author Nuno Fernandes
+ * Class for interacting with BigBlueButton API 0.8x version.
+ * @author Jesus Federico
  */
-public class BBBAPI_070 extends BaseBBBAPI {
+public class BBBAPI_080 extends BaseBBBAPI {
 	
-	public BBBAPI_070(String url,String salt) {
+	public BBBAPI_080(String url,String salt) {
 		super(url,salt);
 	}
 	
 	protected String getParametersEncoding() {
 		return "UTF-8";
 	}
-
-	// In 0.70 (<0.80) this is not implemented so, nullify all values!
-	public Map<String,Object> getRecordings(String meetingID, String password) throws BBBException {
-		Map<String,Object> map = super.getRecordings(meetingID, password);
-		for(String key : map.keySet()) {
-			if("participantCount".equals(key))
-				map.put(key, "-1");
-			else
-				map.put(key, null);
-		}
-		return map;
-	}
-
 }

@@ -203,6 +203,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			throw new IllegalArgumentException("Could not locate meeting to update");
 		}
 		
+		// update recording
+		String recordingStr = (String) params.get("recording");
+		boolean recording = recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true"));
+		meeting.setRecording(recording);
+		
 		// update dates
 		if(params.get("startDate") != null) meeting.setStartDate(newMeeting.getStartDate());
 		else meeting.setStartDate(null);

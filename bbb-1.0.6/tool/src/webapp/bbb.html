@@ -168,6 +168,13 @@ $(document).ready(function(){
             
         </td>
       </tr>
+      <tr>
+        <td class="lbl">${bbb_info_recording}</td>
+        <td>
+            {var recordingChecked = isNew ? true : meeting.recording }
+            <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
+        </td>
+      </tr>
     </table>
     
     <br/>
@@ -244,7 +251,8 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">${bbb_notification_notify}</td>
         <td>
-            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if isNew}checked{/if}/>
+            {var notifyParticipantsChecked = isNew ? true : false }
+            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if notifyParticipantsChecked}checked{/if}/>
         </td>
       </tr>
     </table>

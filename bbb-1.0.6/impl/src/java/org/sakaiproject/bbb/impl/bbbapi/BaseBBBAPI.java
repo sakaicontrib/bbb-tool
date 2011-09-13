@@ -76,6 +76,10 @@ public class BaseBBBAPI implements BBBAPI{
 	protected final static String			APICALL_JOIN				= "join";
 	protected final static String			APICALL_END					= "end";
 	protected final static String			APICALL_VERSION				= "";
+	protected final static String			APICALL_GETRECORDINGS		= "getRecordings";
+	protected final static String			APICALL_PUBLISHRECORDINGS	= "publishRecordings";
+	protected final static String			APICALL_DELETERECORDINGS	= "deleteRecordings";
+	
 
 	// API Response Codes
 	protected final static String			APIRESPONSE_SUCCESS			= "SUCCESS";
@@ -85,8 +89,10 @@ public class BaseBBBAPI implements BBBAPI{
 	public final static String				APIVERSION_063				= "0.63";
 	public final static String				APIVERSION_064				= "0.64";
 	public final static String				APIVERSION_070				= "0.70";
+	public final static String				APIVERSION_080				= "0.80";
 	public final static String				APIVERSION_MINIMUM			= APIVERSION_063;
-	public final static String				APIVERSION_LATEST			= APIVERSION_070;
+	public final static String				APIVERSION_LATEST			= APIVERSION_080;
+	//public final static String				APIVERSION_LATEST			= APIVERSION_070;
 
 	protected ServerConfigurationService	config;
 
@@ -166,7 +172,28 @@ public class BaseBBBAPI implements BBBAPI{
 	        	logoutUrl.append("/bbb-autoclose.html");
 	        	query.append(URLEncoder.encode(logoutUrl.toString(), getParametersEncoding()));
 	        }
-	        query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
+	        
+	    	//BSN: Parameters required for playback recording
+	        query.append("&record=");
+	        String recording = meeting.getRecording() != null && meeting.getRecording().booleanValue() 
+        	? "true" 
+        	: "false";
+        	query.append(recording);
+
+	        query.append("&duration=");
+	        String duration = meeting.getRecordingDuration() != null 
+        	? meeting.getRecording().toString() 
+        	: "0";
+        	query.append(duration);
+
+        	query.append("&meta_description=");
+	        String description = meeting.getRecordingDescription() != null && !"".equals(meeting.getRecordingDescription().trim()) 
+        	? meeting.getRecordingDescription() 
+        	: "";
+        	query.append(description);
+	    	//BSN: Ends
+
+        	query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 	        
 			// do API call
 	        Map<String,Object> response = doAPICall(APICALL_CREATE, query.toString());
@@ -325,7 +352,30 @@ public class BaseBBBAPI implements BBBAPI{
 		}
 		return _version;
 	}
-	
+
+	/** Get recordings from BBB server */
+	public Map<String,Object> getRecordings(String meetingID, String password) throws BBBException {
+        try {
+        	StringBuilder query = new StringBuilder();
+        	query.append("meetingID=");
+        	query.append(meetingID);
+    		query.append("&password=");
+    		query.append(password);
+        	query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
+        	
+        	Map<String,Object> response = doAPICall(APICALL_GETRECORDINGS, query.toString());
+        	for(String key : response.keySet()) {
+        		// nullify password fields
+        		if("attendeePW".equals(key) || "moderatorPW".equals(key)) 
+        			response.put(key, null);
+        	}
+        	
+    		return response;
+        }catch (Exception e){
+        	throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
+        }
+    }
+
 	
 	// -----------------------------------------------------------------------
 	// --- BBB API utility methods -------------------------------------------
