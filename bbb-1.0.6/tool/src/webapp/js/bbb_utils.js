@@ -344,7 +344,7 @@ var BBBUtils;
             var meeting = bbbCurrentMeetings[i];
         	BBBUtils.setAdditionalMeetingParams(meeting);
             if(meeting.joinable) {
-				var meetingInfo = BBBUtils.getMeetingInfo(meetingi.id);
+				var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
 
             	for(var p=0; p<meetingInfo.attendees.length; p++) {
                 	if(bbbCurrentUser.id === meetingInfo.attendees[p].userID) {

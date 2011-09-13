@@ -208,6 +208,11 @@ public class BBBAPIWrapper/* implements Runnable*/ {
 		hostProxy.makeSureMeetingExists(meeting);
 	}
 	
+	public Map<String,Object> getRecordings(String meetingID, String password) throws BBBException {
+		String hostUrl = storageManager.getMeetingHost(meetingID);
+		BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+		return hostProxy.getRecordings(meetingID, password);
+	}
 	
 	// -----------------------------------------------------------------------
 	// --- BBB API Version Check thread related methods ----------------------
