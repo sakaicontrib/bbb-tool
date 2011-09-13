@@ -1,0 +1,21 @@
+
+Integration of BigBlueButton with sakai. 
+for version 2.8
+
+
+Patch for the Nuno Fernandes & Adrian Fish plugin to allow access and administration
+of playback recordings (BigBLueButton ver 0.8)
+
+
+Authors:
+	Jesus Federico  (jesus [at] blindsidenetworks [dt] com)    
+
+
+@copyright 2010-2011 Blindside Networks
+
+@license   http://www.gnu.org/copyleft/gpl.html GNU GPL v2 or later
+
+
+--------------------------------------------------------
+
+09/09/2011	| Support for playback recording	
