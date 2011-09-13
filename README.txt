@@ -4,7 +4,7 @@ for version 2.8
 
 
 Patch for the Nuno Fernandes & Adrian Fish plugin to allow access and administration
-of playback recordings (BigBLueButton ver 0.8)
+of playback recordings (BigBlueButton ver 0.8)
 
 
 Authors:
