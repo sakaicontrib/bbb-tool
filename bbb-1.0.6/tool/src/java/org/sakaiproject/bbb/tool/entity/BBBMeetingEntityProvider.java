@@ -67,7 +67,7 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Adrian Fish, Nuno Fernandes
  */
 public class BBBMeetingEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, 
-	Inputable, Outputable, Createable, Updateable, Resolvable, Describeable, Deleteable,CollectionResolvable, 
+	Inputable, Outputable, Createable, Updateable, Resolvable, Describeable, Deleteable, CollectionResolvable, 
 	ActionsExecutable, Statisticable
 {
 	protected final Logger LOG = Logger.getLogger(getClass());
@@ -316,6 +316,24 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		}
 	}
 	
+	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
+	public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("getRecordings");
+		if(ref == null) {
+			throw new EntityNotFoundException("Meeting not found", null);
+		}
+		
+		try
+		{
+			return new ActionReturn( meetingManager.getRecordings(ref.getId()) );
+		}
+		catch(BBBException e)
+		{
+			return new ActionReturn(new HashMap<String,String>());
+		}
+	}
+
 	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
 	public String joinMeeting(OutputStream out, EntityView view, EntityReference ref) {
 		if(LOG.isDebugEnabled()) LOG.debug("joinMeeting");

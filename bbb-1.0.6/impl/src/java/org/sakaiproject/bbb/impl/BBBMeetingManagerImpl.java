@@ -345,6 +345,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager
     	return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
     }
     
+    public Map<String,Object> getRecordings(String meetingID) throws BBBException
+    {
+    	BBBMeeting meeting = storageManager.getMeeting(meetingID);
+    	//return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
+    	return bbbAPI.getRecordings(meeting.getId(), meeting.getModeratorPassword());
+    }
+
     public void logMeetingJoin(String meetingId)
     {
     	BBBMeeting meeting = storageManager.getMeeting(meetingId);

@@ -351,6 +351,13 @@ $(document).ready(function(){
             </span>
         </td>
       </tr>
+      {if meeting.finished }
+      <tr>
+        <td><h5>${bbb_info_recordings}</h5></td>
+        <td id="recordingLinks">
+        </td>
+      </tr>
+      {/if}
       {if bbbUserPerms.bbbEditAny}
       <tr>
         <td><h5>${bbb_meetinginfo_host}</h5></td>

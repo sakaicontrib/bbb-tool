@@ -303,6 +303,25 @@ var BBBUtils;
         return meetingInfo;
     }
     
+    // Get meeting recordings from BBB server
+    BBBUtils.getRecordings = function(meetingId) {  
+    	var recordings = null;
+        jQuery.ajax( {
+            url: "/direct/bbb-meeting/" + meetingId + "/getRecordings.json",
+            dataType : "json",
+            async : false,
+            success : function(data) {
+                recordings = data;
+                //if(!recordings) recordings = [];
+            },
+            error : function(xmlHttpRequest,status,error) {
+            	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                return null;
+            }
+        });
+        return recordings;
+    }
+
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
         jQuery.ajax( {
@@ -364,14 +383,53 @@ var BBBUtils;
                    .addClass('status_notstarted')
                    .text(bbb_status_notstarted);
             }else if(meeting.finished) {
+				var recordings = BBBUtils.getRecordings(meeting.id);
+				var htmlRecordings = '';
+				
+       			for(var p=0; p<recordings.recordings.length; p++) {
+       				for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+       					htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+					}
+				}				
+
+        		jQuery('#recordingLinks')
+        		   .html(htmlRecordings);
+            	
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
                 jQuery('#meeting_status_'+meeting.id)
                    .removeClass()
                    .addClass('status_finished')
                    .text(bbb_status_finished);
+                   
             }
         }
     }
+
+	// Get all meeting recordings
+	BBBUtils.setRecordingList = function(meetingId) {
+
+		var recordings = BBBUtils.getRecordings(meetingId);
+				
+		var bbbRecordings = new Array();
+		var i = 0;
+				
+				//var htmlRecordings = '';
+				
+       	for(var p=0; p<recordings.recordings.length; p++) {
+       		for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+       			//htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>';
+       			bbbRecordings[i]['type'] = recordings.recordings[p].playback[q].type;
+       			bbbRecordings[i]['url'] = recordings.recordings[p].playback[q].url;
+       			i++;
+			}
+		}				
+
+        //jQuery('#recordingLinks')
+        //   .text(htmlRecordings);
+            	
+       	BBBUtils.render('bbb_meeting-info_template',{'recordings':bbbRecordings},'bbb_content');
+
+	}
     
     // Get notice message to be displayed on the UI (first time access)
     BBBUtils.addNotice = function() {

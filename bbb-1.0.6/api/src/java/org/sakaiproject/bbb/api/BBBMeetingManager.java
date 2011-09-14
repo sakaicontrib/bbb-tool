@@ -122,6 +122,11 @@ public interface BBBMeetingManager
 	 */
 	public Map<String,Object> getMeetingInfo(String meetingID) throws BBBException;
 	
+	/**
+	 * Get playback recordings from BBB server.
+	 */
+	public Map<String,Object> getRecordings(String meetingID) throws BBBException;
+
 	/** 
 	 * Log an event indicating that the current user joined the specified meeting
 	 */
