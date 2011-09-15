@@ -222,6 +222,30 @@ var BBBUtils;
         }
 	}
 
+	// Add recordings as extra parameter to a meeting object
+	BBBUtils.setAdditionalMeetingRecordingParams = function(meeting) {
+
+        meeting.recordings = Array();
+		
+		var recordings = BBBUtils.getRecordings(meeting.id);
+        if( recordings == null )
+        	return;
+	
+       	for(var p=0; p<recordings.recordings.length; p++) {
+       		meeting.recordings[p] = Array();
+       		meeting.recordings[p].recordID = recordings.recordings[p].recordID;
+       		meeting.recordings[p].startTime = recordings.recordings[p].startTime;
+       		meeting.recordings[p].published = recordings.recordings[p].published;
+
+			meeting.recordings[p].playback = Array();
+			for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+      			meeting.recordings[p].playback[q] = Array();
+      			meeting.recordings[p].playback[q].url = recordings.recordings[p].playback[q].url;
+      			meeting.recordings[p].playback[q].type = recordings.recordings[p].playback[q].type;
+			}
+		}				
+	}
+
 	// Use EBs batch provider to DELETE all the meetings in the current site
 	BBBUtils.endAllMeetingsForCurrentSite = function() {
 		var refs = '';
@@ -258,7 +282,28 @@ var BBBUtils;
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
 	BBBUtils.endMeeting = function(name,meetingId) {
-		var question = bbb_end_meeting_question(unescape(name));
+		var question = bbb_action_end_meeting_question(unescape(name));
+	
+		if(!confirm(question)) return;
+		
+		jQuery.ajax( {
+	 		url : "/direct/bbb-meeting/" + meetingId,
+			dataType:'text',
+			type:"END",
+		   	success : function(result) {
+				switchState('currentMeetings');
+			},
+			error : function(xmlHttpRequest,status,error) {
+                var msg = bbb_err_end_meeting(name);
+                BBBUtils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
+			}
+	  	});
+	}
+
+	// Delete the specified meeting. The name parameter is required for the confirm
+	// dialog
+	BBBUtils.deleteMeeting = function(name,meetingId) {
+		var question = bbb_action_delete_meeting_question(unescape(name));
 	
 		if(!confirm(question)) return;
 		
@@ -284,6 +329,60 @@ var BBBUtils;
 	  	});
 	}
     
+	// Delete the specified recording from the BigBlueButton server. The name parameter is required for the confirm
+	// dialog
+	BBBUtils.deleteRecording = function(recordID) {
+	
+		if(!confirm(bbb_action_delete_recording_question)) return;
+		
+		jQuery.ajax( {
+	 		url : "/direct/bbb-meeting/" + recordID + "/deleteRecordings",
+			dataType:'text',
+			type:"DELETE",
+		   	success : function(result) {
+				// Remove the meeting from the cached meeting array
+				for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+					if(meetingId === bbbCurrentMeetings[i].id) {
+						bbbCurrentMeetings.splice(i,1);
+                        break;
+					}
+				}
+
+				switchState('currentMeetings');
+			},
+			error : function(xmlHttpRequest,status,error) {
+                var msg = bbb_err_end_meeting(name);
+                BBBUtils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
+			}
+	  	});
+	}
+
+
+//    BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
+//        jQuery.ajax( {
+//            url: "/direct/bbb-meeting/"+meetingId+"/joinMeeting",
+//            async : false,
+//            success : function(url) {
+//            	BBBUtils.hideMessage();
+//            	if(linkSelector) {
+//            		jQuery(linkSelector).attr('href', url);
+//					$('#meeting_joinlink_' + meetingId).hide();
+//            	}
+//            	return true;
+//            },
+//            error : function(xmlHttpRequest,status,error) {
+//                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+//                if(linkSelector) {
+//                	jQuery(linkSelector).removeAttr('href');
+//                }
+//                return false;
+//            }
+//        });
+//    }
+
+
+
+
     // Get meeting info from BBB server
     BBBUtils.getMeetingInfo = function(meetingId) {  
     	var meetingInfo = null;
@@ -412,9 +511,9 @@ var BBBUtils;
 				
 		var bbbRecordings = new Array();
 		var i = 0;
-				
-				//var htmlRecordings = '';
-				
+
+		//var htmlRecordings = '';
+
        	for(var p=0; p<recordings.recordings.length; p++) {
        		for(var q=0; q<recordings.recordings[p].playback.length; q++) {
        			//htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>';
@@ -426,7 +525,7 @@ var BBBUtils;
 
         //jQuery('#recordingLinks')
         //   .text(htmlRecordings);
-            	
+
        	BBBUtils.render('bbb_meeting-info_template',{'recordings':bbbRecordings},'bbb_content');
 
 	}

@@ -86,6 +86,9 @@ $(document).ready(function(){
           <span><a id="bbb_home_link" title="${bbb_home_tooltip}" href="javascript:;">${bbb_home_label}</a></span>
     </li>
     <li role="menuitem">
+          <span><a id="bbb_recordings_link" title="${bbb_recordings_tooltip}" href="javascript:;">${bbb_recordings_label}</a></span>
+    </li>
+    <li role="menuitem">
           <span><a id="bbb_create_meeting_link" title="${bbb_create_meeting_tooltip}" href="javascript:;">${bbb_create_meeting_label}</a></span>
     </li>
     <li role="menuitem">
@@ -122,11 +125,11 @@ $(document).ready(function(){
               <div class="itemAction" style="display: none; margin:0; padding:0;">
               <small>
                 {if m.canEdit}
-                    <a href="javascript:;" onclick="return switchState('addUpdateMeeting',{'meetingId':'${m.id}'});" title="${bbb_edit_meeting_tooltip}">${bbb_action_edit}</a>
+                    <a href="javascript:;" onclick="return switchState('addUpdateMeeting',{'meetingId':'${m.id}'});" title="${bbb_action_edit_meeting_tooltip}">${bbb_action_edit_meeting}</a>
                 {/if}
                 {if m.canDelete}
                     &nbsp;|&nbsp;
-                    <a href="javascript:;" onclick="return BBBUtils.endMeeting('${escape(m.name)}','${m.id}');" title="${bbb_end_meeting_tooltip}">${bbb_action_end}</a>
+                    <a href="javascript:;" onclick="return BBBUtils.deleteMeeting('${escape(m.name)}','${m.id}');" title="${bbb_action_delete_meeting_tooltip}">${bbb_action_delete_meeting}</a>
                 {/if}
               </small>
               </div> 
@@ -144,6 +147,63 @@ $(document).ready(function(){
 </table>
 -->
 </div>
+
+
+<div id="bbb_recordings_template" style="display:none"><!--
+<table id="bbb_meeting_table" class="listHier">
+    <thead>
+        <tr>
+            <th class="name">${bbb_th_name}</th>
+            <th class="startDate">${bbb_th_startdate}</th>
+            <th class="recordings">${bbb_th_recordings}</th>
+            <th class="status">${bbb_th_status}</th>
+        </tr>
+    </thead>
+    <tbody>
+{for m in meetings}
+	{for r in m.recordings}
+    <tr class="meetingRow">
+        <td>
+          <span>${m.name}</span>
+
+              <div class="itemAction" style="display: none; margin:0; padding:0;">
+              <small>
+                {if m.canEdit}
+                	{if r.published}
+                    	<a href="javascript:;" onclick="return BBBUtils.publishRecording('${r.recordID}', 'false');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
+                    {else}	
+                    	<a href="javascript:;" onclick="return BBBUtils.publishRecording('${r.recordID}', 'true');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
+                	{/if}
+                {/if}
+                {if m.canDelete}
+                    &nbsp;|&nbsp;
+                    <a href="javascript:;" onclick="return BBBUtils.deleteRecording('${r.recordID}');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
+                {/if}
+              </small>
+              </div> 
+        </td>
+        <td class="startDate">${r.startTime}</td>
+        <td>
+		{for p in r.playback}
+        	<a href="${p.url}" title="${p.type}" target="_blank">${p.type}</a>&nbsp;
+        {/for}
+        </td>
+        <td>
+        	{if r.published}
+        		${bbb_recording_status_shown}
+        	{else}
+        		${bbb_recording_status_hidden}
+            {/if}
+        </td>
+    </tr>
+	{/for}
+{/for}
+    </tbody>
+</table>
+-->
+</div>
+
+
 
 <div id="bbb_addUpdate_meeting_template" style="display:none"><!--
 <form id="bbb_add_update_form" action="${actionUrl}" method="post" enctype="multipart/form-data">

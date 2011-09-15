@@ -55,9 +55,14 @@ var bbbCurrentMeetings = [];
     $('#bbb_permissions_link').bind('click',function(e) {
         return switchState('permissions');
     });
+
+    $('#bbb_recordings_link').bind('click',function(e) {
+        return switchState('recordings');
+    });
     
     // This is always showing in every state.
     $('#bbb_home_link').show();
+    $('#bbb_recordings_link').show();
 
     // Now switch into the requested state
     if(bbbCurrentUser != null) {
@@ -78,6 +83,8 @@ function switchState(state,arg) {
     BBBUtils.hideMessage();
 
     if('currentMeetings' === state) {
+        $('#bbb_recordings_link').parent().parent().show();
+
         // show permissions links only if site maintainer
         if(bbbUserPerms.siteUpdate) {
             $('#bbb_permissions_link').parent().parent().show();
@@ -147,6 +154,7 @@ function switchState(state,arg) {
         
     }
     else if('addUpdateMeeting' === state) {
+        $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
@@ -217,6 +225,7 @@ function switchState(state,arg) {
         
     }
     else if('permissions' === state) {
+        $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
@@ -240,6 +249,7 @@ function switchState(state,arg) {
         });
     }
     else if('joinMeeting' === state || 'meetingInfo' === state) {
+        $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
@@ -260,6 +270,61 @@ function switchState(state,arg) {
         }else{
         	switchState('currentMeetings');
         }
+    }
+    else if('recordings' === state) {
+        $('#bbb_create_meeting_link').parent().parent().hide();
+        $('#bbb_end_meetings_link').parent().parent().hide();
+        $('#bbb_permissions_link').parent().parent().hide();
+
+        // show meeting list
+        if(bbbUserPerms.bbbViewMeetingList) {
+            // Get meeting list
+            refreshMeetingList();
+    
+            // watch for permissions changes, check meeting dates
+            for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+                BBBUtils.setAdditionalMeetingParams(bbbCurrentMeetings[i]);
+                BBBUtils.setAdditionalMeetingRecordingParams(bbbCurrentMeetings[i]);
+            }
+            
+            BBBUtils.render('bbb_recordings_template',{'meetings':bbbCurrentMeetings},'bbb_content');
+ 
+            $(document).ready(function() {
+                // auto hide actions
+                jQuery('.meetingRow')
+                    .bind('mouseenter', function() {
+                        jQuery(this).find('div.itemAction').show();
+                        jQuery(this).addClass('bbb_even_row');
+                    })
+                    .bind('mouseleave', function() {
+                        jQuery(this).find('div.itemAction').hide();
+                        jQuery(this).removeClass('bbb_even_row');
+                    }
+                );
+                
+                // add sorting capabilities
+                $("#bbb_meeting_table").tablesorter({
+                    cssHeader:'bbb_sortable_table_header',
+                    cssAsc:'bbb_sortable_table_header_sortup',
+                    cssDesc:'bbb_sortable_table_header_sortdown',
+                    headers: { /*3: {sorter: false}*/ },
+                    // Sort DESC status:
+                    sortList: (bbbCurrentMeetings.length > 0) ? [[1,1]] : []
+                });
+                
+                BBBUtils.adjustFrameHeight();
+            });
+            
+        }else{
+            // warn about lack of permissions
+            if(bbbUserPerms.siteUpdate) {
+                BBBUtils.showMessage(bbb_err_no_tool_permissions_maintainer);
+            }else{
+                BBBUtils.showMessage(bbb_err_no_tool_permissions);
+            }
+            $('#bbb_content').empty();
+        }
+        
     }
 }
 
