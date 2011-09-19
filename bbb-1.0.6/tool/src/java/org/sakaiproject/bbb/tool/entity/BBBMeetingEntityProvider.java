@@ -302,17 +302,20 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	public String endMeeting(Map<String,Object> params)
 	{
 		if(LOG.isDebugEnabled()) LOG.debug("endMeeting");
-		if(ref == null) {
-			throw new EntityNotFoundException("Meeting not found", null);
+		String meetingID = (String) params.get("meetingID");
+		if( meetingID == null )
+		{
+			throw new IllegalArgumentException("Missing required parameter [meetingID]");
 		}
 		
 		try
 		{
-			return new ActionReturn( meetingManager.endMeeting(ref.getId()) );
+			return Boolean.toString( meetingManager.endMeeting( meetingID ) );
 		}
 		catch(BBBException e)
 		{
-			return new ActionReturn(new HashMap<String,String>());
+			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
+			throw new EntityException(e.getPrettyMessage(), ref, 400);
 		}
 	}
 

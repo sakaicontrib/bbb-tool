@@ -283,13 +283,13 @@ var BBBUtils;
 	
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
-	BBBUtils.endMeeting = function(name,meetingId) {
+	BBBUtils.endMeeting = function(name, meetingID) {
 		var question = bbb_action_end_meeting_question(unescape(name));
 	
 		if(!confirm(question)) return;
 		
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/" + meetingId+ "/endMeeting",
+	 		url : "/direct/bbb-meeting/endMeeting?meetingID=" + meetingID,
 			dataType:'text',
 			type:"GET",
 		   	success : function(result) {
