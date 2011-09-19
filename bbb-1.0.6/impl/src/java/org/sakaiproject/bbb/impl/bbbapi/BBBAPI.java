@@ -23,6 +23,10 @@ public interface BBBAPI {
 
 	public boolean endMeeting(String meetingID, String password) throws BBBException;
 
+	public boolean deleteRecordings(String meetingID, String recordID) throws BBBException;
+
+	public boolean publishRecordings(String meetingID, String recordID, String publish) throws BBBException;
+
 	public String getJoinMeetingURL(String meetingID, User user, String password);
 
 	public void makeSureMeetingExists(BBBMeeting meeting) throws BBBException;

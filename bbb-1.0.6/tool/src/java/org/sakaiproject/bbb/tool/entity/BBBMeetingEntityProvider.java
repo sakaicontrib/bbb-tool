@@ -298,6 +298,24 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		}
 	}
 
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public String endMeeting(Map<String,Object> params)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("endMeeting");
+		if(ref == null) {
+			throw new EntityNotFoundException("Meeting not found", null);
+		}
+		
+		try
+		{
+			return new ActionReturn( meetingManager.endMeeting(ref.getId()) );
+		}
+		catch(BBBException e)
+		{
+			return new ActionReturn(new HashMap<String,String>());
+		}
+	}
+
 	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
 	public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref)
 	{
@@ -332,6 +350,65 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		{
 			return new ActionReturn(new HashMap<String,String>());
 		}
+	}
+
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public String publishRecordings(Map<String,Object> params)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("publishRecordings");
+		String meetingID = (String) params.get("meetingID");
+		String recordID = (String) params.get("recordID");
+		String publish = (String) params.get("publish");
+		if( meetingID == null )
+		{
+			throw new IllegalArgumentException("Missing required parameter [meetingID]");
+		}
+		if( recordID == null )
+		{
+			throw new IllegalArgumentException("Missing required parameter [recordID]");
+		}
+		if( publish == null )
+		{
+			throw new IllegalArgumentException("Missing required parameter [publish]");
+		}
+		
+		try
+		{
+			return Boolean.toString( meetingManager.publishRecordings( meetingID, recordID, publish ) );
+		}
+		catch(BBBException e)
+		{
+			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
+			throw new EntityException(e.getPrettyMessage(), ref, 400);
+		}
+		
+	}
+	
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public String deleteRecordings(Map<String,Object> params)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("deleteRecordings");
+		String meetingID = (String) params.get("meetingID");
+		String recordID = (String) params.get("recordID");
+		if( meetingID == null )
+		{
+			throw new IllegalArgumentException("Missing required parameter [meetingID]");
+		}
+		if( recordID == null )
+		{
+			throw new IllegalArgumentException("Missing required parameter [recordID]");
+		}
+		
+		try
+		{
+			return Boolean.toString( meetingManager.deleteRecordings( meetingID, recordID ) );
+		}
+		catch(BBBException e)
+		{
+			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
+			throw new EntityException(e.getPrettyMessage(), ref, 400);
+		}
+		
 	}
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)

@@ -348,7 +348,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager
     public Map<String,Object> getRecordings(String meetingID) throws BBBException
     {
     	BBBMeeting meeting = storageManager.getMeeting(meetingID);
-    	//return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
     	return bbbAPI.getRecordings(meeting.getId(), meeting.getModeratorPassword());
     }
 
@@ -372,6 +371,23 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager
 		// log event
 		logEvent(EVENT_MEETING_END, meeting);
 		
+		return true;
+	}
+	
+	public boolean deleteMeeting(String meetingId) throws SecurityException, BBBException
+	{
+		BBBMeeting meeting = storageManager.getMeeting(meetingId);
+		
+		if(!getCanDelete(meeting.getSiteId(), meeting)) {
+			throw new SecurityException("You are not allow to end this meeting");
+		}
+		
+		// end meeting on server, if running
+		bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
+		
+		// log event
+		logEvent(EVENT_MEETING_END, meeting);
+		
 		// remove event from Calendar
 		removeCalendarEvent(meeting);
 		
@@ -379,7 +395,18 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager
 		storageManager.deleteMeeting(meetingId);
 		return true;
 	}
-	
+
+	public boolean deleteRecordings(String meetingID, String recordID) throws SecurityException, BBBException
+	{
+		return bbbAPI.deleteRecordings(meetingID, recordID);
+	}
+
+	public boolean publishRecordings(String meetingID, String recordID, String publish ) throws SecurityException, BBBException
+	{
+		// publish or unpublish the recording
+		return bbbAPI.publishRecordings(meetingID, recordID, publish);
+	}
+
 	public void checkJoinMeetingPreConditions(BBBMeeting meeting) throws BBBException
 	{
 		// check if meeting is within dates

@@ -215,9 +215,11 @@ var BBBUtils;
         // specific meeting permissions
         if(bbbCurrentUser.id === meeting.ownerId) {
             meeting.canEdit = bbbUserPerms.bbbEditOwn | bbbUserPerms.bbbEditAny;
+            meeting.canEnd = bbbUserPerms.bbbEditOwn | bbbUserPerms.bbbEditAny;
             meeting.canDelete = bbbUserPerms.bbbDeleteOwn | bbbUserPerms.bbbDeleteAny;
         }else{
             meeting.canEdit = bbbUserPerms.bbbEditAny;
+            meeting.canEnd = bbbUserPerms.bbbEditAny;
             meeting.canDelete = bbbUserPerms.bbbDeleteAny;
         }
 	}
@@ -287,9 +289,9 @@ var BBBUtils;
 		if(!confirm(question)) return;
 		
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/" + meetingId,
+	 		url : "/direct/bbb-meeting/" + meetingId+ "/endMeeting",
 			dataType:'text',
-			type:"END",
+			type:"GET",
 		   	success : function(result) {
 				switchState('currentMeetings');
 			},
@@ -331,57 +333,59 @@ var BBBUtils;
     
 	// Delete the specified recording from the BigBlueButton server. The name parameter is required for the confirm
 	// dialog
-	BBBUtils.deleteRecording = function(recordID) {
+	BBBUtils.deleteRecordings = function(meetingID, recordID) {
 	
-		if(!confirm(bbb_action_delete_recording_question)) return;
+		var question = bbb_action_delete_recording_question(unescape(recordID));
+
+		if(!confirm(question)) return;
 		
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/" + recordID + "/deleteRecordings",
+	 		url : "/direct/bbb-meeting/deleteRecordings?meetingID=" + meetingID + "&recordID=" + recordID,
 			dataType:'text',
-			type:"DELETE",
+			type:"GET",
 		   	success : function(result) {
-				// Remove the meeting from the cached meeting array
-				for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-					if(meetingId === bbbCurrentMeetings[i].id) {
-						bbbCurrentMeetings.splice(i,1);
-                        break;
-					}
-				}
-
 				switchState('currentMeetings');
 			},
 			error : function(xmlHttpRequest,status,error) {
-                var msg = bbb_err_end_meeting(name);
+                	var msg = bbb_err_delete_recording(recordID);
                 BBBUtils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
 			}
 	  	});
 	}
 
+	// Publish the specified recording from the BigBlueButton server. 
+	BBBUtils.publishRecordings = function(meetingID, recordID) {
+	
+		BBBUtils.setRecordings(meetingID, recordID, "true");
+	
+	}
 
-//    BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
-//        jQuery.ajax( {
-//            url: "/direct/bbb-meeting/"+meetingId+"/joinMeeting",
-//            async : false,
-//            success : function(url) {
-//            	BBBUtils.hideMessage();
-//            	if(linkSelector) {
-//            		jQuery(linkSelector).attr('href', url);
-//					$('#meeting_joinlink_' + meetingId).hide();
-//            	}
-//            	return true;
-//            },
-//            error : function(xmlHttpRequest,status,error) {
-//                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-//                if(linkSelector) {
-//                	jQuery(linkSelector).removeAttr('href');
-//                }
-//                return false;
-//            }
-//        });
-//    }
+	// Unpublish the specified recording from the BigBlueButton server. 
+	BBBUtils.unpublishRecordings = function(meetingID, recordID) {
+	
+		BBBUtils.setRecordings(meetingID, recordID, "false");
+	
+	}
 
+	// Publish the specified recording from the BigBlueButton server. 
+	BBBUtils.setRecordings = function(meetingID, recordID, action) {
 
-
+		jQuery.ajax( {
+	 		url : "/direct/bbb-meeting/publishRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&publish=" + action,
+			dataType:'text',
+			type: "GET",
+		   	success : function(result) {
+				switchState('currentMeetings');
+			},
+			error : function(xmlHttpRequest,status,error) {
+				if( action == 'PUBLISH' )
+                	var msg = bbb_err_publish_recording(recordID);
+                else
+                	var msg = bbb_err_unpublish_recording(recordID);
+                BBBUtils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
+			}
+	  	});
+	}
 
     // Get meeting info from BBB server
     BBBUtils.getMeetingInfo = function(meetingId) {  

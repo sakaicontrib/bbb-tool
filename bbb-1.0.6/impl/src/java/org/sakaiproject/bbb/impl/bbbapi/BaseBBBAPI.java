@@ -292,6 +292,48 @@ public class BaseBBBAPI implements BBBAPI{
 		return true;
 	}
 	
+	/** Delete a recording on BBB server */
+	public boolean deleteRecordings(String meetingID, String recordID) throws BBBException {
+		StringBuilder query = new StringBuilder();
+		query.append("recordID=");
+		query.append(recordID);
+		query.append(getCheckSumParameterForQuery(APICALL_DELETERECORDINGS, query.toString()));
+    	
+		try{
+			doAPICall(APICALL_DELETERECORDINGS, query.toString());
+		}catch(BBBException e){
+			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
+				// we can safely ignore this one: the meeting is not running
+				return true;
+			}else{
+				throw e;
+			}
+		}
+		return true;
+	}
+
+	/** Publish/Unpublish a recording on BBB server */
+	public boolean publishRecordings(String meetingID, String recordID, String publish) throws BBBException {
+		StringBuilder query = new StringBuilder();
+		query.append("recordID=");
+		query.append(recordID);
+		query.append("&publish=");
+		query.append(publish);
+		query.append(getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, query.toString()));
+    	
+		try{
+			doAPICall(APICALL_PUBLISHRECORDINGS, query.toString());
+		}catch(BBBException e){
+			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
+				// we can safely ignore this one: the meeting is not running
+				return true;
+			}else{
+				throw e;
+			}
+		}
+		return true;
+	}
+
 	/** Build the join meeting url based on user role */
 	public String getJoinMeetingURL(String meetingID, User user, String password) {
 		String userDisplayName, userId;

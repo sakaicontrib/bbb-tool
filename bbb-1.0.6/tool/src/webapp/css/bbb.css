@@ -70,6 +70,9 @@ th.owner {
     text-align: left;
     width: 15%;
 }
+th.recStartDate {
+    width: 160px; max-width:160px;;
+}
 
 
 /** -------------------------------------------- */

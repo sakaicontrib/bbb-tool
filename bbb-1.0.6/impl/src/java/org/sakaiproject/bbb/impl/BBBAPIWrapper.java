@@ -195,7 +195,19 @@ public class BBBAPIWrapper/* implements Runnable*/ {
 		BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 		return hostProxy.endMeeting(meetingID, password);
 	}
-	
+
+	public boolean publishRecordings(String meetingID, String recordingID, String publish) throws BBBException {
+		String hostUrl = storageManager.getMeetingHost(meetingID);
+		BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+		return hostProxy.publishRecordings(meetingID, recordingID, publish);
+	}
+
+	public boolean deleteRecordings(String meetingID, String recordingID) throws BBBException {
+		String hostUrl = storageManager.getMeetingHost(meetingID);
+		BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+		return hostProxy.deleteRecordings(meetingID, recordingID);
+	}
+
 	public String getJoinMeetingURL(String meetingID, User user, String password) {
 		String hostUrl = storageManager.getMeetingHost(meetingID);
 		BBBAPI hostProxy = bbbProxyMap.get(hostUrl);

@@ -67,5 +67,13 @@ public class BBBAPI_063 extends BaseBBBAPI {
 		return map;
 	}
 
+	// In 0.63 (<0.80) this is not implemented so, nullify all values!
+	public boolean publishRecordings(String meetingID, String recordID, String publish) throws BBBException {
+		return super.publishRecordings(meetingID, recordID, publish);
+	}
+
+	public boolean deleteRecordings(String meetingID, String recordID) throws BBBException {
+		return super.deleteRecordings(meetingID, recordID);
+	}
 
 }

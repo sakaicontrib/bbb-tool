@@ -19,6 +19,8 @@ package org.sakaiproject.bbb.api;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.bbb.api.BBBException;
+
 /**
  * BBBMeetingManager is the API for managing BigBlueButton meetings.
  * @author Adrian Fish,Nuno Fernandes
@@ -69,6 +71,12 @@ public interface BBBMeetingManager
 	public static final String		EVENT_MEETING_END		= "bbb.end";
 	/** An user joined a meeting on the BBB server */
 	public static final String		EVENT_MEETING_JOIN		= "bbb.join";
+	/** A recording was deleted on the BBB server */
+	public static final String		EVENT_RECORDING_DELETE		= "bbb.recording.delete";
+	/** A recording was published on the BBB server */
+	public static final String		EVENT_RECORDING_PUBLISH		= "bbb.recording.publish";
+	/** A recording was unpublished on the BBB server */
+	public static final String		EVENT_RECORDING_UNPUBLISH		= "bbb.recording.unpublish";
 
 	/** ALL Log Events */
 	public static final String[]	EVENT_KEYS				= new String[] {
@@ -133,11 +141,25 @@ public interface BBBMeetingManager
 	public void logMeetingJoin(String meetingID);
 	
     /**
-     * Currently just clears up the Sakai records. endMeeting is not implemented
-     * in the BBB api yet.
+     * Currently clears up the Sakai records and endMeeting.
+     */
+	public boolean deleteMeeting(String id) throws SecurityException, BBBException;
+	
+    /**
+     * Only executes endMeeting.
      */
 	public boolean endMeeting(String id) throws SecurityException, BBBException;
-	
+
+	/**
+     * Deletes a recording on the BBB server
+     */
+	public boolean deleteRecordings(String meetingID, String recordID) throws SecurityException, BBBException;
+
+	/**
+     * Publish and unpublish recordings using the publishRecordings api command
+     */
+	public boolean publishRecordings(String meetingID, String recordID, String publish ) throws SecurityException, BBBException;
+
 	/**
 	 * Check if meeting is ready to be joined.
 	 */
