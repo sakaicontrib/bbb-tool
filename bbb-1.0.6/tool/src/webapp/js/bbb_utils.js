@@ -467,12 +467,13 @@ var BBBUtils;
         	BBBUtils.setAdditionalMeetingParams(meeting);
             if(meeting.joinable) {
 				var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
-
-            	for(var p=0; p<meetingInfo.attendees.length; p++) {
-                	if(bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
-            			jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
-					}
-          		}
+				
+                if ( meetingInfo.attendees != null )
+            		for(var p=0; p<meetingInfo.attendees.length; p++) {
+                		if(bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
+            				jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+						}
+          			}
 
             	jQuery('#meeting_status_'+meeting.id)
             	   .removeClass()
