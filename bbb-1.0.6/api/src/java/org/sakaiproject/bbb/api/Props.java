@@ -17,6 +17,7 @@
 package org.sakaiproject.bbb.api;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,4 +33,5 @@ public class Props implements Serializable {
 
 	private String				welcomeMessage		= null;
 	private String				calendarEventId		= null;
+
 }

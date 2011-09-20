@@ -208,6 +208,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		boolean recording = recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true"));
 		meeting.setRecording(recording);
 		
+		// update recordingDuration
+		String recordingDurationStr = (String) params.get("recordingDuration");
+		if(recordingDurationStr != null) meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
+		else meeting.setRecordingDuration(0L);
+
 		// update dates
 		if(params.get("startDate") != null) meeting.setStartDate(newMeeting.getStartDate());
 		else meeting.setStartDate(null);

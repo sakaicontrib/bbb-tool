@@ -241,6 +241,12 @@ $(document).ready(function(){
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
+      <tr>
+        <td class="lbl">${bbb_info_recording_duration}</td>
+        <td>
+            <input id="recordingDuration" name="recordingDuration" type="text" value="${meeting.recordingDuration}" class="time-picker-field"/>&nbsp;${bbb_info_recording_duration_units}
+        </td>
+      </tr>
     </table>
     
     <br/>

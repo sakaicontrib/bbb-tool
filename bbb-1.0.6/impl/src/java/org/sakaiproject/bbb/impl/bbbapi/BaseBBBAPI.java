@@ -153,8 +153,6 @@ public class BaseBBBAPI implements BBBAPI{
 			query.append(voiceBridge);
 	        query.append("&dialNumber=");
 			query.append(voiceBridge);
-	        query.append("&welcome=");
-	        query.append(URLEncoder.encode(meeting.getProps().getWelcomeMessage(), getParametersEncoding()));
 	        query.append("&attendeePW=");
 	        String attendeePW = meeting.getAttendeePassword() != null && !"".equals(meeting.getAttendeePassword().trim()) 
 	        	? meeting.getAttendeePassword() 
@@ -182,7 +180,7 @@ public class BaseBBBAPI implements BBBAPI{
 
 	        query.append("&duration=");
 	        String duration = meeting.getRecordingDuration() != null 
-        	? meeting.getRecording().toString() 
+        	? meeting.getRecordingDuration().toString() 
         	: "0";
         	query.append(duration);
 
@@ -193,6 +191,17 @@ public class BaseBBBAPI implements BBBAPI{
         	query.append(description);
 	    	//BSN: Ends
 
+        	//Composed Welcome message
+        	String welcomeMessage = meeting.getProps().getWelcomeMessage();
+        	if ( recording == "true" )
+        		welcomeMessage = welcomeMessage + "<br><br><b>This session is being recorded.</b>";
+        	if ( duration.compareTo("0") != 0 )
+        		welcomeMessage = welcomeMessage.concat("<br><br><b>The maximum duration for this session is " + duration + " minutes.");
+        		
+        	query.append("&welcome=");
+        	query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
+
+        	
         	query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 	        
 			// do API call

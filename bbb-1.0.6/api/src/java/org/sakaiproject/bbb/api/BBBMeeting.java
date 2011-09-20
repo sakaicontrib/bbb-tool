@@ -44,10 +44,11 @@ public class BBBMeeting implements Entity {
 	private String ownerDisplayName = null;
 	private Date startDate = null;
 	private Date endDate = null;
+	private Boolean waitformoderator = null;
 	//BSN: Properties required for playback recording
 	private Boolean recording = null; 
 	private String recordingDescription = null;
-	private Integer recordingDuration = null;
+	private Long recordingDuration = null;
 	private String recordingEmail = null;
 	//BSN: Ends
 	
