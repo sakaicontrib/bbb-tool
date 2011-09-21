@@ -13,7 +13,8 @@ Authors:
 
 @copyright 2010-2011 Blindside Networks
 
-@license   http://www.gnu.org/copyleft/gpl.html GNU GPL v2 or later
+@license   Educational Community License, Version 2.0 (ECL-2.0)
+           http://www.opensource.org/licenses/ecl2.php
 
 
 --------------------------------------------------------
