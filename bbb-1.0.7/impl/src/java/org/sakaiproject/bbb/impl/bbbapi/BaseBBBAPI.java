@@ -291,12 +291,15 @@ public class BaseBBBAPI implements BBBAPI{
 		try{
 			doAPICall(APICALL_END, query.toString());
 		}catch(BBBException e){
+			// COMMENTED OUT AS THE notFound MESSAGE SEEMS TO HAVE BEEN DUMPED BY BBB
+			/*
 			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
 				// we can safely ignore this one: the meeting is not running
 				return true;
 			}else{
 				throw e;
 			}
+			*/
 		}
 		return true;
 	}
@@ -311,12 +314,7 @@ public class BaseBBBAPI implements BBBAPI{
 		try{
 			doAPICall(APICALL_DELETERECORDINGS, query.toString());
 		}catch(BBBException e){
-			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
-				// we can safely ignore this one: the meeting is not running
-				return true;
-			}else{
-				throw e;
-			}
+			// SAME THAT FOR endMeeting METHOD
 		}
 		return true;
 	}
@@ -333,12 +331,7 @@ public class BaseBBBAPI implements BBBAPI{
 		try{
 			doAPICall(APICALL_PUBLISHRECORDINGS, query.toString());
 		}catch(BBBException e){
-			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
-				// we can safely ignore this one: the meeting is not running
-				return true;
-			}else{
-				throw e;
-			}
+			// SAME THAT FOR endMeeting METHOD
 		}
 		return true;
 	}
@@ -385,7 +378,6 @@ public class BaseBBBAPI implements BBBAPI{
 		createMeeting(meeting);
 	}
 	
-	@Override
 	public Map<String,Object> getMeetings() throws BBBException {
 		try {
         	StringBuilder query = new StringBuilder();

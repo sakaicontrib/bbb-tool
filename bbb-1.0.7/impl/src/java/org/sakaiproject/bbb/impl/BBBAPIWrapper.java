@@ -111,7 +111,9 @@ public class BBBAPIWrapper/* implements Runnable*/ {
 			bindAPIClassToBBBVersion(new BaseBBBAPI(bbbUrls[i],bbbSalts[i]));
 		}
 		
-		api = bbbProxyMap.get(liveUrls.get(0));
+		if(liveUrls != null && liveUrls.size() > 0){
+			api = bbbProxyMap.get(liveUrls.get(0));
+		}
 		
 		List<BBBMeeting> meetings = storageManager.getAllMeetings();
 		

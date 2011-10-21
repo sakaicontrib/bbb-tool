@@ -164,17 +164,14 @@ public class DefaultSqlGenerator implements SqlGenerator
 		return statements;
 	}
 
-	@Override
 	public String getSelectMeetingHostStatement(String meetingID) {
 		return "SELECT HOST_URL FROM BBB_MEETING WHERE MEETING_ID = '" + meetingID + "'";
 	}
 
-	@Override
 	public String getSelectAllMeetingsStatement() {
 		return "SELECT * FROM BBB_MEETING";
 	}
 
-	@Override
 	public PreparedStatement getUpdateHostForMeetingStatement(String meetingId, String url, Connection connection) throws Exception {
 		PreparedStatement st = connection.prepareStatement("UPDATE BBB_MEETING SET HOST_URL = ? WHERE MEETING_ID = ?");
 		st.setString(1,url);
