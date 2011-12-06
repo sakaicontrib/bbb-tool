@@ -473,6 +473,7 @@ var BBBUtils;
                 			.removeClass()
                 			.addClass('status_finished')
                 			.text(bbb_status_finished);
+                        updateMeetingInfo(meeting.id);
             			jQuery('#bbb_meeting_info_participants_count').html('0');
             		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();
                         jQuery('#bbb_meeting_info_participants_count_tr').hide();
@@ -489,7 +490,6 @@ var BBBUtils;
                         updateMeetingInfo(meeting.id);
                 	}
                 } else {
-    				console.log("2");
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
                     jQuery('#meeting_status_'+meeting.id)
                        .removeClass()
@@ -497,7 +497,7 @@ var BBBUtils;
                        .text(bbb_status_notstarted);
                 }
 
-            }else if(meeting.notStarted) {
+            } else if(meeting.notStarted) {
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
                 jQuery('#meeting_status_'+meeting.id)
                    .removeClass()

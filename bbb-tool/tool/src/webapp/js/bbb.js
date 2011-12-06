@@ -258,7 +258,8 @@ function switchState(state,arg) {
         	if(meeting) {
         	   BBBUtils.render('bbb_meeting-info_template', {'meeting': meeting}, 'bbb_content');
         	   $(document).ready(function() {
-        	   	   updateMeetingInfo(arg.meetingId);
+        	   	   //updateMeetingInfo(arg.meetingId);
+        		   BBBUtils.checkMeetingsAvailability();
                    BBBUtils.adjustFrameHeight();
         	   });
         	}else{
