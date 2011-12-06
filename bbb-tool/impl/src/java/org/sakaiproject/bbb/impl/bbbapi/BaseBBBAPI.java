@@ -238,21 +238,19 @@ public class BaseBBBAPI implements BBBAPI {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
             query.append(meetingID);
-            query.append(getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING,
-                    query.toString()));
+            query.append(getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING, query.toString()));
 
-            Map<String, Object> response = doAPICall(APICALL_ISMEETINGRUNNING,
-                    query.toString());
+            Map<String, Object> response = doAPICall(APICALL_ISMEETINGRUNNING, query.toString());
             return Boolean.parseBoolean((String) response.get("running"));
         } catch (Exception e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e
-                    .getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
 
     /** Get detailed live meeting information from BBB server */
     public Map<String, Object> getMeetingInfo(String meetingID, String password)
             throws BBBException {
+        
         try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");

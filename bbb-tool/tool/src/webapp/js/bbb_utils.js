@@ -396,7 +396,6 @@ var BBBUtils;
             async : false,
             success : function(data) {
                 meetingInfo = data;
-                //if(!meetingInfo) meetingInfo = [];
             },
             error : function(xmlHttpRequest,status,error) {
             	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -467,18 +466,36 @@ var BBBUtils;
         	BBBUtils.setAdditionalMeetingParams(meeting);
             if(meeting.joinable) {
 				var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
-				
-                if ( meetingInfo.attendees != null )
-            		for(var p=0; p<meetingInfo.attendees.length; p++) {
-                		if(bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
-            				jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
-						}
-          			}
-
-            	jQuery('#meeting_status_'+meeting.id)
-            	   .removeClass()
-            	   .addClass('status_inprogress')
-            	   .text(bbb_status_inprogress);
+                if ( meetingInfo.returncode != null) {
+                	if ( meetingInfo.hasBeenForciblyEnded == "true" ) {
+                		jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                		jQuery('#meeting_status_'+meeting.id)
+                			.removeClass()
+                			.addClass('status_finished')
+                			.text(bbb_status_finished);
+            			jQuery('#bbb_meeting_info_participants_count').html('0');
+            		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();
+                        jQuery('#bbb_meeting_info_participants_count_tr').hide();
+                	} else if ( meetingInfo.attendees != null ) {
+                		for(var p=0; p<meetingInfo.attendees.length; p++) {
+                			if(bbbCurrentUser.displayName === meetingInfo.attendees[p].fullName) {
+                				jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                			}
+                		}
+                        jQuery('#meeting_status_'+meeting.id)
+                			.removeClass()
+                			.addClass('status_inprogress')
+                			.text(bbb_status_inprogress);
+                        updateMeetingInfo(meeting.id);
+                	}
+                } else {
+    				console.log("2");
+                    jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                    jQuery('#meeting_status_'+meeting.id)
+                       .removeClass()
+                       .addClass('status_notstarted')
+                       .text(bbb_status_notstarted);
+                }
 
             }else if(meeting.notStarted) {
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();

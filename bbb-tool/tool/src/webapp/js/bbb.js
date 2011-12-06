@@ -81,7 +81,6 @@ var bbbCurrentMeetings = [];
 
 function switchState(state,arg) {
     BBBUtils.hideMessage();
-
     if('currentMeetings' === state) {
         $('#bbb_recordings_link').parent().parent().show();
 

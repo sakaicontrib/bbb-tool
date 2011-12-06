@@ -123,7 +123,8 @@ public interface BBBMeetingManager {
      * Check the BigBlueButton server to see if the meeting is running (i.e.
      * there is someone in the meeting)
      */
-    public boolean isMeetingRunning(String meetingID) throws BBBException;
+    public boolean isMeetingRunning(String meetingID) 
+            throws BBBException;
 
     /**
      * Get live meeting details from BBB server.

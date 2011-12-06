@@ -32,5 +32,5 @@ public interface BBBAPI {
 	public void makeSureMeetingExists(BBBMeeting meeting) throws BBBException;
 	
 	public Map<String, Object> getMeetings() throws BBBException;
-
+	
 }
