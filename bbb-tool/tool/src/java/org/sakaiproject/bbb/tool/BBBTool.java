@@ -32,61 +32,59 @@ import org.apache.log4j.Logger;
  * 
  * @author Adrian Fish
  */
-public class BBBTool extends HttpServlet
-{
-	private static final long	serialVersionUID	= 2801227086525605150L;
-	
-	private Logger logger = Logger.getLogger(BBBTool.class);
+public class BBBTool extends HttpServlet {
+    private static final long serialVersionUID = 2801227086525605150L;
 
-	private transient SakaiProxy sakaiProxy;
-	
-	public void init(ServletConfig config) throws ServletException
-	{
-		super.init(config);
-		
-		if (logger.isDebugEnabled()) logger.debug("init");
+    private Logger logger = Logger.getLogger(BBBTool.class);
 
-		try
-		{
-			sakaiProxy = SakaiProxy.getInstance();
-		}
-		catch (Throwable t)
-		{
-			throw new ServletException("Failed to initialise BBBTool servlet.", t);
-		}
-	}
+    private transient SakaiProxy sakaiProxy;
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-	{
-		if (logger.isDebugEnabled()) logger.debug("doGet()");
-		
-		// check if Sakai proxy was successfully initialized
-		if(sakaiProxy == null)
-			throw new ServletException("sakaiProxy MUST be initialised.");
-		
-		// check if user is logged in
-		if(sakaiProxy.getCurrentUser() == null)
-			throw new ServletException("You must be logged in to use this tool.");
-		
-		// check site permissions
-		sakaiProxy.checkPermissions();
-		
-		// parameters
-		String state = request.getParameter("state");
-		String meetingId = request.getParameter("meetingId");
-		if(state == null) state = "currentMeetings";
-		
-		// build url
-		StringBuilder url = new StringBuilder("/bbb-tool/bbb.html?");
-		url.append("&state=").append(state);
-		url.append("&siteId=").append(sakaiProxy.getCurrentSiteId());
-		url.append("&timestamp=").append(sakaiProxy.getServerTimeInUserTimezone());
-		url.append("&language=").append(sakaiProxy.getUserLanguageCode());
-		url.append("&skin=").append(sakaiProxy.getSakaiSkin());
-		if(meetingId != null)
-			url.append("&meetingId=").append(meetingId);
-		
-		// redirect...
-		response.sendRedirect(url.toString());
-	}
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+
+        if (logger.isDebugEnabled())
+            logger.debug("init");
+
+        try {
+            sakaiProxy = SakaiProxy.getInstance();
+        } catch (Throwable t) {
+            throw new ServletException("Failed to initialise BBBTool servlet.",
+                    t);
+        }
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (logger.isDebugEnabled())
+            logger.debug("doGet()");
+
+        // check if Sakai proxy was successfully initialized
+        if (sakaiProxy == null)
+            throw new ServletException("sakaiProxy MUST be initialised.");
+
+        // check if user is logged in
+        if (sakaiProxy.getCurrentUser() == null)
+            throw new ServletException("You must be logged in to use this tool.");
+
+        // check site permissions
+        sakaiProxy.checkPermissions();
+
+        // parameters
+        String state = request.getParameter("state");
+        String meetingId = request.getParameter("meetingId");
+        if (state == null)
+            state = "currentMeetings";
+
+        // build url
+        StringBuilder url = new StringBuilder("/bbb-tool/bbb.html?");
+        url.append("&state=").append(state);
+        url.append("&siteId=").append(sakaiProxy.getCurrentSiteId());
+        url.append("&timestamp=").append(sakaiProxy.getServerTimeInUserTimezone());
+        url.append("&language=").append(sakaiProxy.getUserLanguageCode());
+        url.append("&skin=").append(sakaiProxy.getSakaiSkin());
+        if (meetingId != null)
+            url.append("&meetingId=").append(meetingId);
+
+        // redirect...
+        response.sendRedirect(url.toString());
+    }
 }
