@@ -37,12 +37,6 @@ public class BBBAPI_063 extends BaseBBBAPI {
     }
 
     // In 0.63 (<0.70) this is not implemented so, nullify all values!
-    public boolean meetingHasBeenForciblyEnded(String meetingID, String password)
-            throws BBBException {
-        return super.meetingHasBeenForciblyEnded(meetingID, password);
-    }
-
-    // In 0.63 (<0.70) this is not implemented so, nullify all values!
     public Map<String, Object> getMeetingInfo(String meetingID, String password)
             throws BBBException {
         Map<String, Object> map = super.getMeetingInfo(meetingID, password);
