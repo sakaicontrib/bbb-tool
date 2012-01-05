@@ -272,7 +272,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		try
 		{
-			meetingManager.endMeeting(ref.getId());
+			meetingManager.deleteMeeting(ref.getId());
 		}
 		catch(BBBException e)
 		{
