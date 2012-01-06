@@ -173,6 +173,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		meeting.setOwnerId(userDirectoryService.getCurrentUser().getId());
 		meeting.setOwnerDisplayName(userDirectoryService.getCurrentUser().getDisplayName());
 		
+		// recording flag
+		String recordingStr = (String) params.get("recording");
+		boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
+		meeting.setRecording(recording? Boolean.TRUE: Boolean.FALSE);
+		
 		// participants
 		String meetingOwnerId = meeting.getOwnerId();
 		List<Participant> participants = extractParticipants(params, meetingOwnerId);
@@ -205,8 +210,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		// update recording
 		String recordingStr = (String) params.get("recording");
-		boolean recording = recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true"));
-		meeting.setRecording(recording);
+		boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
+		meeting.setRecording(Boolean.valueOf(recording));
 		
 		// update recordingDuration
 		String recordingDurationStr = (String) params.get("recordingDuration");
