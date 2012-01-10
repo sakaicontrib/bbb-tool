@@ -139,9 +139,9 @@ $(document).ready(function(){
               </div> 
           
         </td>
-        {var statusClass = m.joinable ? 'status_inprogress' : (m.notStarted ? 'status_notstarted' : 'status_finished')}
-        {var statusText = m.joinable ? bbb_status_inprogress : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
-        <td id="meeting_status_${m.id}" class="${statusClass}">${statusText}</td>
+        {var statusClass = m.joinable ? 'status_joinable_' : (m.notStarted ? 'status_notstarted' : 'status_finished')}
+        {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: bbb_status_joinable_unavailable ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
+        <td id="meeting_status_${m.id}" class="${statusClass}${m.joinableMode}">${statusText}</td>
         <td class="startDate">${m.startDate ? new Date(m.startDate).toISO8601String() : ''}</td>
         <td class="endDate">${m.endDate ? new Date(m.endDate).toISO8601String() : ''}</td>
         <td>${m.ownerDisplayName}</td>
@@ -407,11 +407,12 @@ $(document).ready(function(){
             {var dispNotStarted = meeting.notStarted ? 'display:inline' : 'display:none'}
             {var dispInProgress = meeting.joinable ? 'display:inline' : 'display:none'}
             {var dispFinished = meeting.finished ? 'display:inline' : 'display:none'}
+            {var labelJoinable = meeting.joinableMode == 'available'? bbb_status_joinable_available: meeting.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: bbb_status_joinable_unavailable}
             <span id="meeting_status_notstarted_${meeting.id}" class="status_notstarted" style="${dispNotStarted}">
                 ${bbb_status_notstarted}
             </span>
-            <span id="meeting_status_inprogress_${meeting.id}" class="status_inprogress" style="${dispInProgress}">
-                ${bbb_status_inprogress}
+            <span id="meeting_status_joinable_${meeting.id}" class="status_joinable_inprogress" style="${dispInProgress}">
+                ${labelJoinable}
             </span>
             <span id="meeting_status_finished_${meeting.id}" class="status_finished" style="${dispFinished}">
                 ${bbb_status_finished}

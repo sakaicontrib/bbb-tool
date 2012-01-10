@@ -150,9 +150,15 @@ table#bbb_meeting_info_table td h5  {
 .status_notstarted {
 	color: #777;
 }
-.status_inprogress {
+.status_joinable_available {
+    color: #087817;
+}
+.status_joinable_inprogress {
     color: #087817;
     font-style: italic;
+}
+.status_joinable_unavailable {
+    color: #EE9A00;
 }
 .status_finished {
 	color: #777;
