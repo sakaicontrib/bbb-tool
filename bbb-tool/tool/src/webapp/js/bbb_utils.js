@@ -518,7 +518,6 @@ var BBBUtils;
             			
                     // Update the actionbar on the list
                     if ( meeting.canEnd ){ 
-                		console.log("inprogress: canEnd=" + meeting.canEnd + ", ");
                         jQuery('#end_meeting_'+meeting.id)
                         .removeClass()
                         .addClass('end_meeting_shown');
