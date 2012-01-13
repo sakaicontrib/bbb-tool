@@ -493,6 +493,12 @@ var BBBUtils;
             if(meeting.joinable) {
                 if ( meeting.joinableMode === "available" ){
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                    // Update the actionbar on the list
+                    if ( meeting.canEnd ){ 
+                        jQuery('#end_meeting_'+meeting.id)
+                        .removeClass()
+                        .addClass('end_meeting_hidden');
+                    }
                     // Update for list
                     jQuery('#meeting_status_'+meeting.id)
                        .removeClass()
@@ -510,6 +516,13 @@ var BBBUtils;
             		else
                         jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
             			
+                    // Update the actionbar on the list
+                    if ( meeting.canEnd ){ 
+                		console.log("inprogress: canEnd=" + meeting.canEnd + ", ");
+                        jQuery('#end_meeting_'+meeting.id)
+                        .removeClass()
+                        .addClass('end_meeting_shown');
+                    }
                     // Update for list
                     jQuery('#meeting_status_'+meeting.id)
                        .removeClass()
@@ -524,6 +537,12 @@ var BBBUtils;
                     updateMeetingInfo(meeting.id);
             	} else {
                     jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                    // Update the actionbar on the list
+                    if ( meeting.canEnd ){ 
+                        jQuery('#end_meeting_'+meeting.id)
+                        .removeClass()
+                        .addClass('end_meeting_hidden');
+                    }
                     // Update for list
                     jQuery('#meeting_status_'+meeting.id)
                        .removeClass()

@@ -125,15 +125,22 @@ $(document).ready(function(){
               <div class="itemAction" style="display: none; margin:0; padding:0;">
               <small>
                 {if m.canEdit}
+                <div id="edit_meeting" style="display: inline; margin:0; padding:0;">
                     <a href="javascript:;" onclick="return switchState('addUpdateMeeting',{'meetingId':'${m.id}'});" title="${bbb_action_edit_meeting_tooltip}">${bbb_action_edit_meeting}</a>
-                {/if}
-                {if m.canEnd}
-                    &nbsp;|&nbsp;
-                    <a href="javascript:;" onclick="return BBBUtils.endMeeting('${escape(m.name)}','${m.id}');" title="${bbb_action_end_meeting_tooltip}">${bbb_action_end_meeting}</a>
+                </div> 
                 {/if}
                 {if m.canDelete}
+                <div id="delete_meeting" style="display: inline; margin:0; padding:0;">
                     &nbsp;|&nbsp;
                     <a href="javascript:;" onclick="return BBBUtils.deleteMeeting('${escape(m.name)}','${m.id}');" title="${bbb_action_delete_meeting_tooltip}">${bbb_action_delete_meeting}</a>
+                </div> 
+                {/if}
+                {if m.canEnd}
+        		{var end_meetingClass = (m.joinable && m.joinableMode == 'inprogress')? "end_meeting_shown": "end_meeting_hidden" }
+                <div id="end_meeting_${m.id}" class="${end_meetingClass}" >
+                    &nbsp;|&nbsp;
+                    <a href="javascript:;" onclick="return BBBUtils.endMeeting('${escape(m.name)}','${m.id}');" title="${bbb_action_end_meeting_tooltip}">${bbb_action_end_meeting}</a>
+                </div> 
                 {/if}
               </small>
               </div> 

@@ -73,7 +73,16 @@ th.owner {
 th.recStartDate {
     width: 160px; max-width:160px;;
 }
-
+div.end_meeting_hidden {
+	display: none; 
+	margin:0; 
+	padding:0; 
+}
+div.end_meeting_shown {
+	display: inline; 
+	margin:0; 
+	padding:0; 
+}
 
 /** -------------------------------------------- */
 /** --- Create/Update Meeting ------------------ */
