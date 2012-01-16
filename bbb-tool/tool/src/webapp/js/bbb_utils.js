@@ -262,39 +262,6 @@ var BBBUtils;
 		}				
 	}
 
-	// Use EBs batch provider to DELETE all the meetings in the current site
-	BBBUtils.endAllMeetingsForCurrentSite = function() {
-		var refs = '';
-		for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-			var url = '/direct/bbb-meeting/' + bbbCurrentMeetings[i].id;
-			refs += url;
-			if(i < j - 1) refs += ',';
-		}
-		
-		if(refs == '') {
-			BBBUtils.showMessage(bbb_err_meeting_list_empty);
-			return;
-		}
-		
-        if(!confirm(bbb_end_all_meetings_question)) return;
-
-		jQuery.ajax( {
-	 		url : "/direct/batch?_refs=" + refs,
-			dataType:'text',
-			type:"DELETE",
-			async : false,
-		   	success : function(result) {
-				bbbCurrentMeetings = [];
-				switchState('currentMeetings');
-			},
-			error : function(xmlHttpRequest,status,error) {
-				BBBUtils.handleError(bbb_err_end_all_meetings, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-
-		return false;
-	}
-	
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
 	BBBUtils.endMeeting = function(name, meetingID) {

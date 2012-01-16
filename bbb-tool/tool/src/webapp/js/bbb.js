@@ -39,8 +39,8 @@ var bbbCurrentMeetings = [];
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
     
-    // Check meeting availability periodically (10 secs)
-    setInterval(BBBUtils.checkMeetingsAvailability, 10000);
+    // Check meeting availability periodically (30 secs)
+    setInterval(BBBUtils.checkMeetingsAvailability, 30000);
 
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');
