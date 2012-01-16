@@ -103,7 +103,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		this.serverConfigurationService = serverConfigurationService;
 	}
 	
-	
 
 	// --- Outputable, Inputable -----------------------------------------------------
 	public String[] getHandledOutputFormats() {

@@ -48,8 +48,7 @@ public class BBBTool extends HttpServlet {
         try {
             sakaiProxy = SakaiProxy.getInstance();
         } catch (Throwable t) {
-            throw new ServletException("Failed to initialise BBBTool servlet.",
-                    t);
+            throw new ServletException("Failed to initialise BBBTool servlet.", t);
         }
     }
 
@@ -59,7 +58,7 @@ public class BBBTool extends HttpServlet {
 
         // check if Sakai proxy was successfully initialized
         if (sakaiProxy == null)
-            throw new ServletException("sakaiProxy MUST be initialised.");
+            throw new ServletException("sakaiProxy MUST be initialized.");
 
         // check if user is logged in
         if (sakaiProxy.getCurrentUser() == null)
@@ -83,7 +82,7 @@ public class BBBTool extends HttpServlet {
         url.append("&skin=").append(sakaiProxy.getSakaiSkin());
         if (meetingId != null)
             url.append("&meetingId=").append(meetingId);
-
+        
         // redirect...
         response.sendRedirect(url.toString());
     }

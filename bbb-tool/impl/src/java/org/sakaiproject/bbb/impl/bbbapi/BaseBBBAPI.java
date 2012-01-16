@@ -95,7 +95,6 @@ public class BaseBBBAPI implements BBBAPI {
     public final static String APIVERSION_080 = "0.80";
     public final static String APIVERSION_MINIMUM = APIVERSION_063;
     public final static String APIVERSION_LATEST = APIVERSION_080;
-    // public final static String APIVERSION_LATEST = APIVERSION_070;
 
     protected ServerConfigurationService config;
 
@@ -116,11 +115,9 @@ public class BaseBBBAPI implements BBBAPI {
         this.bbbSalt = salt;
 
         // read BBB settings from sakai.properties
-        config = (ServerConfigurationService) ComponentManager
-                .get(ServerConfigurationService.class);
+        config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
-        bbbAutocloseMeetingWindow = config.getBoolean(
-                BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
+        bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
 
         // Initialize XML libraries
         docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -176,8 +173,7 @@ public class BaseBBBAPI implements BBBAPI {
                         .getServerUrl());
                 logoutUrl.append(BBBMeetingManager.TOOL_WEBAPP);
                 logoutUrl.append("/bbb-autoclose.html");
-                query.append(URLEncoder.encode(logoutUrl.toString(),
-                        getParametersEncoding()));
+                query.append(URLEncoder.encode(logoutUrl.toString(), getParametersEncoding()));
             }
 
             // BSN: Parameters required for playback recording

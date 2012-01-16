@@ -225,8 +225,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return filteredMeetings;
     }
 
-    public boolean createMeeting(BBBMeeting meeting,
-            boolean notifyParticipants, boolean addToCalendar)
+    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
             throws SecurityException, BBBException {
         if (!getCanCreate(meeting.getSiteId())) {
             throw new SecurityException(
@@ -234,9 +233,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // convert dates from user timezone
-        meeting
-                .setStartDate(convertDateFromUserTimezone(meeting
-                        .getStartDate()));
+        meeting.setStartDate(convertDateFromUserTimezone(meeting.getStartDate()));
         meeting.setEndDate(convertDateFromUserTimezone(meeting.getEndDate()));
 
         // create meeting in BBB
@@ -255,9 +252,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
 
             // set meeting join url (for moderator, which is current user)
-            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(),
-                    userDirectoryService.getCurrentUser(), meeting
-                            .getModeratorPassword()));
+            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), meeting.getModeratorPassword()));
 
             // log event
             logEvent(EVENT_MEETING_CREATE, meeting);
