@@ -58,7 +58,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API */
     private BBBAPI api = null;
 
-    private static String DEFAULT_BBB_URL = "http://127.0.0.1/bigbluebutton";
+    //private static String DEFAULT_BBB_URL = "http://127.0.0.1/bigbluebutton";
+    //private static String DEFAULT_BBB_SALT = "";
+    private static String DEFAULT_BBB_URL = "http://test-install.blindsidenetworks.com/bigbluebutton";
+    private static String DEFAULT_BBB_SALT = "8cd8ef52e8e101574e400365b55e11a6";
 
     /** Sakai configuration service */
     protected ServerConfigurationService config = null;
@@ -91,24 +94,19 @@ public class BBBAPIWrapper/* implements Runnable */{
         if (logger.isDebugEnabled())
             logger.debug("init()");
 
-        String bbbUrlString = config.getString(BBBMeetingManager.CFG_URL,
-                DEFAULT_BBB_URL);
+        String bbbUrlString = config.getString(BBBMeetingManager.CFG_URL, DEFAULT_BBB_URL);
         bbbUrls = bbbUrlString.split(",");
 
-        String bbbSaltString = config.getString(BBBMeetingManager.CFG_SALT,
-                "xxxxxx");
-        if (bbbSaltString == null)
-            logger
-                    .warn("BigBlueButton salt key was not specified! Use 'bbb.salt = your_bbb_key' in sakai.properties.");
+        String bbbSaltString = config.getString(BBBMeetingManager.CFG_SALT, DEFAULT_BBB_SALT);
+        if (bbbSaltString == "")
+            logger.warn("BigBlueButton salt key was not specified! Use 'bbb.salt = your_bbb_key' in sakai.properties.");
         bbbSalts = bbbSaltString.split(",");
 
         if (bbbUrls.length < 1)
-            logger
-                    .warn("No BigBlueButton servers specified. The bbb.url property in sakai.properties must be either set to a single url or a comma separated list of urls. There should be a corresponding list of salts in the bbb.salt property.");
+            logger.warn("No BigBlueButton servers specified. The bbb.url property in sakai.properties must be either set to a single url or a comma separated list of urls. There should be a corresponding list of salts in the bbb.salt property.");
 
         if (bbbUrls.length != bbbSalts.length)
-            logger
-                    .warn("The number of BigBlueButton salts does not match the number of BigBlueButton urls! Check your bbb.salt and bbb.url properties in sakai.properties.");
+            logger.warn("The number of BigBlueButton salts does not match the number of BigBlueButton urls! Check your bbb.salt and bbb.url properties in sakai.properties.");
 
         liveUrls = new ArrayList<String>(bbbUrls.length);
 
