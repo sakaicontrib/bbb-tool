@@ -87,21 +87,30 @@ public class DefaultSqlGenerator implements SqlGenerator {
     public Map<String, String> getUpdateStatements() {
         Map<String, String> statements = new HashMap<String, String>();
 
-        statements.put("BBB_MEETING", 
+        statements.put("BBB_MEETING:HOST_URL", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL AFTER NAME;");
+        statements.put("BBB_MEETING:RECORDING", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE, " +
-        		"ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING" +
-        		"ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0 AFTER PROPERTIES;");
-        statements.put("BBB_MEETING_PARTICIPANT", 
+        		"ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
+        statements.put("BBB_MEETING:DELETED", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0 AFTER PROPERTIES;");
+        statements.put("BBB_MEETING_PARTICIPANT:DELETED", 
         		"ALTER TABLE BBB_MEETING_PARTICIPANT ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0;");
         
         return statements;
     }
 
-    public String getShowNewColumnStatement(String table){
+    public String getShowNewColumnStatement(String updateName){
         String statement = null;
 
-        if( table.equals("BBB_MEETING"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING like 'RECORDING%'";
+        if( updateName.equals("BBB_MEETING:HOST_URL"))
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'HOST_URL%'";
+        else if( updateName.equals("BBB_MEETING:RECORDING"))
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING%'";
+        else if( updateName.equals("BBB_MEETING:DELETED"))
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'DELETED%'";
+        else if( updateName.equals("BBB_MEETING_PARTICIPANT:DELETED"))
+            statement = "SHOW COLUMNS FROM BBB_MEETING_PARTICIPANT LIKE 'DELETED%'";
         
         return statement;
     }
