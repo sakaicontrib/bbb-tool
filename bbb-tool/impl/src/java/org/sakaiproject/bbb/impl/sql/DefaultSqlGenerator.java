@@ -42,6 +42,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
     protected String MEDIUMTEXT = "MEDIUMTEXT";
     protected String BOOL = "BOOL";
     protected String INT = "INT";
+    
+    protected String NODELETED = "0";
 
     public Map<String, String> getSetupStatements() {
         Map<String, String> statements = new HashMap<String, String>();
@@ -58,6 +60,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
                 "RECORDING " + BOOL + ", " +
                 "RECORDING_DURATION " + INT + ", " +
                 "PROPERTIES " + TEXT + ", " +
+                "DELETED " + INT + "(1) NOT NULL DEFAULT 0," +
                 "CONSTRAINT bbb_meeting_pk PRIMARY KEY (MEETING_ID))");
 
         statements.put("BBB_MEETING_PARTICIPANT", "CREATE TABLE BBB_MEETING_PARTICIPANT (" +
@@ -65,6 +68,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         	"SELECTION_TYPE " + VARCHAR + "(99) NOT NULL, " +
         	"SELECTION_ID " + VARCHAR + "(99), " +
         	"ROLE " + VARCHAR + "(32) NOT NULL," + 
+            "DELETED " + INT + "(1) NOT NULL DEFAULT 0," +
         	"CONSTRAINT bbb_meeting_participant_pk PRIMARY KEY (MEETING_ID,SELECTION_TYPE,SELECTION_ID))");
 
         return statements;
@@ -83,9 +87,13 @@ public class DefaultSqlGenerator implements SqlGenerator {
     public Map<String, String> getUpdateStatements() {
         Map<String, String> statements = new HashMap<String, String>();
 
-        statements.put("BBB_MEETING", "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING BOOLEAN AFTER END_DATE, " +
-        		"ADD COLUMN RECORDING_DURATION INT AFTER RECORDING;");
-
+        statements.put("BBB_MEETING", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE, " +
+        		"ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING" +
+        		"ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0 AFTER PROPERTIES;");
+        statements.put("BBB_MEETING_PARTICIPANT", 
+        		"ALTER TABLE BBB_MEETING_PARTICIPANT ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0;");
+        
         return statements;
     }
 
@@ -106,7 +114,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection
-                .prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+                .prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
         meetingST.setString(1, meeting.getId());
         meetingST.setString(2, meeting.getName());
         meetingST.setString(3, meeting.getHostUrl());
@@ -122,6 +130,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L
                 : meeting.getRecordingDuration());
         meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
+        meetingST.setString(13, NODELETED);
 
         statements.add(meetingST);
 
@@ -129,11 +138,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
         for (Participant participant : participants) {
             PreparedStatement pST = connection
-                    .prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?)");
+                    .prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?,?)");
             pST.setString(1, meeting.getId());
             pST.setString(2, participant.getSelectionType());
             pST.setString(3, participant.getSelectionId());
             pST.setString(4, participant.getRole());
+            meetingST.setString(5, NODELETED);
             statements.add(pST);
         }
 
@@ -208,17 +218,30 @@ public class DefaultSqlGenerator implements SqlGenerator {
     public List<PreparedStatement> getDeleteMeetingStatements(String meetingId,
             Connection connection) throws Exception {
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
-        PreparedStatement meetingST = connection
-                .prepareStatement("DELETE FROM BBB_MEETING WHERE MEETING_ID = ?");
+        PreparedStatement meetingST = connection.prepareStatement("DELETE FROM BBB_MEETING WHERE MEETING_ID = ?");
         meetingST.setString(1, meetingId);
         statements.add(meetingST);
-        PreparedStatement participantsST = connection
-                .prepareStatement("DELETE FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
+        PreparedStatement participantsST = connection.prepareStatement("DELETE FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
         participantsST.setString(1, meetingId);
         statements.add(participantsST);
         return statements;
     }
 
+    public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId,
+            Connection connection) throws Exception {
+        List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
+        PreparedStatement meetingST = connection
+                .prepareStatement("UPDATE BBB_MEETING SET DELETED = 1 WHERE MEETING_ID = ?");
+        meetingST.setString(1, meetingId);
+        statements.add(meetingST);
+        PreparedStatement participantsST = connection
+                .prepareStatement("UPDATE BBB_MEETING_PARTICIPANT SET DELETED = 1 WHERE MEETING_ID = ?");
+        participantsST.setString(1, meetingId);
+        statements.add(participantsST);
+        return statements;
+    }
+    
+    
     public String getSelectMeetingHostStatement(String meetingID) {
         return "SELECT HOST_URL FROM BBB_MEETING WHERE MEETING_ID = '"
                 + meetingID + "'";

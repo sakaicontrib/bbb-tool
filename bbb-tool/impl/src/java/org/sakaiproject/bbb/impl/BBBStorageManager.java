@@ -65,10 +65,7 @@ public class BBBStorageManager {
         else if (dbVendor.equals("hsqldb"))
             sqlGenerator = new HypersonicGenerator();
         else {
-            logger
-                    .warn("'"
-                            + dbVendor
-                            + "' not directly supported. Defaulting to DefaultSqlGenerator.");
+            logger.warn("'" + dbVendor + "' not directly supported. Defaulting to DefaultSqlGenerator.");
             sqlGenerator = new DefaultSqlGenerator();
         }
     }
@@ -77,8 +74,7 @@ public class BBBStorageManager {
         this.sqlService = sqlService;
     }
 
-    public void setServerConfigurationService(
-            ServerConfigurationService serverConfigurationService) {
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
     }
 
@@ -134,7 +130,6 @@ public class BBBStorageManager {
                 }
 
                 connection.commit();
-                
                 
                 //Code for database update starts here
                 statement = connection.createStatement();
@@ -364,6 +359,7 @@ public class BBBStorageManager {
             meeting.setRecording(meetingRS.getBoolean("RECORDING"));
             meeting.setRecordingDuration(meetingRS.getLong("RECORDING_DURATION"));
             meeting.setProps(XmlUtil.convertXmlToProps(meetingRS.getString("PROPERTIES")));
+            meeting.setDeleted(meetingRS.getBoolean("DELETED"));
             String particpantSql = sqlGenerator.getSelectMeetingParticipantsStatement(meeting.getId());
             ResultSet participantsRS = participantST.executeQuery(particpantSql);
             List<Participant> participants = new ArrayList<Participant>();
@@ -397,7 +393,8 @@ public class BBBStorageManager {
             connection.setAutoCommit(false);
 
             try {
-                statements = sqlGenerator.getDeleteMeetingStatements(meetingId, connection);
+                //statements = sqlGenerator.getDeleteMeetingStatements(meetingId, connection);
+                statements = sqlGenerator.getMarkMeetingAsDeletedStatements(meetingId, connection);
 
                 for (PreparedStatement statement : statements)
                     statement.execute();

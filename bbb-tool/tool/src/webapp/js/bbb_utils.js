@@ -533,18 +533,6 @@ var BBBUtils;
                    .addClass('status_notstarted')
                    .text(bbb_status_notstarted);
             }else if(meeting.finished) {
-				var recordings = BBBUtils.getRecordings(meeting.id);
-				var htmlRecordings = '';
-				
-       			for(var p=0; p<recordings.recordings.length; p++) {
-       				for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-       					htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
-					}
-				}				
-
-        		jQuery('#recordingLinks')
-        		   .html(htmlRecordings);
-            	
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
                 jQuery('#meeting_status_'+meeting.id)
                    .removeClass()
@@ -552,6 +540,18 @@ var BBBUtils;
                    .text(bbb_status_finished);
                    
             }
+			var recordings = BBBUtils.getRecordings(meeting.id);
+			var htmlRecordings = '';
+			
+   			for(var p=0; p<recordings.recordings.length; p++) {
+   				for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+   					htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+				}
+			}				
+
+   			//console.log(htmlRecordings);
+    		jQuery('#recordingLinks')
+    		   .html(htmlRecordings);
         }
     }
 

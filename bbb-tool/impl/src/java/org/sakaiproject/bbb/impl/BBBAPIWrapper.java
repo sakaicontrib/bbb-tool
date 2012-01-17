@@ -131,17 +131,15 @@ public class BBBAPIWrapper/* implements Runnable */{
             if (!bbbProxyMap.containsKey(hostUrl)) {
                 // The host for this meeting is not alive. Try and move the
                 // meeting.
-                logger
-                        .warn("'"
-                                + hostUrl
-                                + "', the host of meeting '"
-                                + meeting.getId()
-                                + "', was not available. The meeting will be moved to the first available host '"
-                                + api.getUrl() + "' ...");
+                logger.warn("'"
+                            + hostUrl
+                            + "', the host of meeting '"
+                            + meeting.getId()
+                            + "', was not available. The meeting will be moved to the first available host '"
+                            + api.getUrl() + "' ...");
                 try {
                     api.createMeeting(meeting);
-                    if (!storageManager.setMeetingHost(meeting.getId(), api
-                            .getUrl())) {
+                    if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
                         logger.error("Failed to set the host to '"
                                 + api.getUrl() + "' for meeting '"
                                 + meeting.getId() + "'");

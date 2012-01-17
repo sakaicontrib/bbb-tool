@@ -293,8 +293,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             return response;
         } catch (Exception e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e
-                    .getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
 
@@ -306,9 +305,7 @@ public class BaseBBBAPI implements BBBAPI {
         query.append(meetingID);
         query.append("&password=");
         query.append(password);
-        query
-                .append(getCheckSumParameterForQuery(APICALL_END, query
-                        .toString()));
+        query.append(getCheckSumParameterForQuery(APICALL_END, query.toString()));
 
         try {
             doAPICall(APICALL_END, query.toString());
@@ -330,8 +327,7 @@ public class BaseBBBAPI implements BBBAPI {
         StringBuilder query = new StringBuilder();
         query.append("recordID=");
         query.append(recordID);
-        query.append(getCheckSumParameterForQuery(APICALL_DELETERECORDINGS,
-                query.toString()));
+        query.append(getCheckSumParameterForQuery(APICALL_DELETERECORDINGS, query.toString()));
 
         try {
             doAPICall(APICALL_DELETERECORDINGS, query.toString());
@@ -342,8 +338,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Publish/Unpublish a recording on BBB server */
-    public boolean publishRecordings(String meetingID, String recordID,
-            String publish) throws BBBException {
+    public boolean publishRecordings(String meetingID, String recordID, String publish) throws BBBException {
         StringBuilder query = new StringBuilder();
         query.append("recordID=");
         query.append(recordID);
@@ -375,8 +370,7 @@ public class BaseBBBAPI implements BBBAPI {
         joinQuery.append(meetingID);
         joinQuery.append("&fullName=");
         try {
-            joinQuery.append(URLEncoder.encode(userDisplayName,
-                    getParametersEncoding()));
+            joinQuery.append(URLEncoder.encode(userDisplayName, getParametersEncoding()));
         } catch (UnsupportedEncodingException e) {
             joinQuery.append(userDisplayName);
         }
@@ -386,8 +380,7 @@ public class BaseBBBAPI implements BBBAPI {
             joinQuery.append("&userID=");
             joinQuery.append(userId);
         }
-        joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery
-                .toString()));
+        joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);
         url.append(API_SERVERPATH);
@@ -408,13 +401,11 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             StringBuilder query = new StringBuilder();
             query.append("random=xyz");
-            query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGS,
-                    query.toString()));
+            query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGS, query.toString()));
 
             return doAPICall(APICALL_GETMEETINGS, query.toString());
         } catch (Exception e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e
-                    .getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
 
@@ -458,8 +449,7 @@ public class BaseBBBAPI implements BBBAPI {
     protected String getCheckSumParameterForQuery(String apiCall,
             String queryString) {
         if (bbbSalt != null)
-            return "&checksum="
-                    + DigestUtils.shaHex(apiCall + queryString + bbbSalt);
+            return "&checksum=" + DigestUtils.shaHex(apiCall + queryString + bbbSalt);
         else
             return "";
     }
@@ -485,8 +475,7 @@ public class BaseBBBAPI implements BBBAPI {
             logger.debug("doAPICall.call: " + apiCall
                     + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
-            HttpURLConnection httpConnection = (HttpURLConnection) url
-                    .openConnection();
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
@@ -499,8 +488,7 @@ public class BaseBBBAPI implements BBBAPI {
                 BufferedReader reader = null;
                 StringBuilder xml = new StringBuilder();
                 try {
-                    isr = new InputStreamReader(
-                            httpConnection.getInputStream(), "UTF-8");
+                    isr = new InputStreamReader(httpConnection.getInputStream(), "UTF-8");
                     reader = new BufferedReader(isr);
                     String line = reader.readLine();
                     while (line != null) {
@@ -517,27 +505,23 @@ public class BaseBBBAPI implements BBBAPI {
 
                 // parse response
                 logger.debug("doAPICall.response: " + xml);
-                Document dom = docBuilder.parse(new InputSource(
-                        new StringReader(xml.toString())));
+                Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
                 Map<String, Object> response = getNodesAsMap(dom, "response");
 
                 String returnCode = (String) response.get("returncode");
                 if (APIRESPONSE_FAILED.equals(returnCode)) {
-                    throw new BBBException((String) response.get("messageKey"),
-                            (String) response.get("message"));
+                    throw new BBBException((String) response.get("messageKey"), (String) response.get("message"));
                 }
 
                 return response;
 
             } else {
-                throw new BBBException(BBBException.MESSAGEKEY_HTTPERROR,
-                        "BBB server responded with HTTP status code "
+                throw new BBBException(BBBException.MESSAGEKEY_HTTPERROR, "BBB server responded with HTTP status code "
                                 + responseCode);
             }
 
         } catch (Exception e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e
-                    .getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
 
@@ -545,8 +529,7 @@ public class BaseBBBAPI implements BBBAPI {
     // --- BBB Other utility methods -----------------------------------------
     // -----------------------------------------------------------------------
     /** Get all nodes under the specified element tag name as a Java map */
-    protected Map<String, Object> getNodesAsMap(Document dom,
-            String elementTagName) {
+    protected Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
         Node firstNode = dom.getElementsByTagName(elementTagName).item(0);
         return processNode(firstNode);
     }

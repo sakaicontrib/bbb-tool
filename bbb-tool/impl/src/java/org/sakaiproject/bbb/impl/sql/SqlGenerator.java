@@ -59,6 +59,9 @@ public interface SqlGenerator
 	/** SQL Statements to delete a meeting and its participants from DB */
 	List<PreparedStatement> getDeleteMeetingStatements(String meetingId,Connection connection) throws Exception;
 
+	/** SQL Statements to mark a meeting and its participants as deleted in DB */
+    List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId, Connection connection) throws Exception; 
+	
 	/** SQL Statement to get the HOST_URL for a specified meeting ID */
 	String getSelectMeetingHostStatement(String meetingID);
 

@@ -1036,15 +1036,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (date == null)
             return null;
 
-        Preferences prefs = preferencesService
-                .getPreferences(userDirectoryService.getCurrentUser().getId());
+        Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
         TimeZone timeZone = null;
         if (prefs != null) {
-            ResourceProperties props = prefs
-                    .getProperties(TimeService.APPLICATION_ID);
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
             String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
-            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr)
-                    : TimeZone.getDefault();
+            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr): TimeZone.getDefault();
         } else {
             timeZone = TimeZone.getDefault();
         }
@@ -1058,15 +1055,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (date == null)
             return null;
 
-        Preferences prefs = preferencesService
-                .getPreferences(userDirectoryService.getCurrentUser().getId());
+        Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
         TimeZone timeZone = null;
         if (prefs != null) {
-            ResourceProperties props = prefs
-                    .getProperties(TimeService.APPLICATION_ID);
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
             String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
-            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr)
-                    : TimeZone.getDefault();
+            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr): TimeZone.getDefault();
         } else {
             timeZone = TimeZone.getDefault();
         }
@@ -1087,15 +1081,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return tzDate;
     }
 
-    private boolean isUserAllowedInLocation(String userId, String permission,
-            String locationId) {
+    private boolean isUserAllowedInLocation(String userId, String permission, String locationId) {
         if (securityService.isSuperUser()) {
             return true;
         }
-        if (locationId != null
-                && !locationId.startsWith(SiteService.REFERENCE_ROOT)) {
-            locationId = SiteService.REFERENCE_ROOT + Entity.SEPARATOR
-                    + locationId;
+        if (locationId != null && !locationId.startsWith(SiteService.REFERENCE_ROOT)) {
+            locationId = SiteService.REFERENCE_ROOT + Entity.SEPARATOR + locationId;
         }
         if (securityService.unlock(userId, permission, locationId)) {
             return true;
@@ -1111,12 +1102,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     return site.getUserRole(userId).getId();
                 }
             } catch (IdUnusedException e) {
-                logger.error("No such site while resolving user role in site: "
-                        + siteId);
+                logger.error("No such site while resolving user role in site: " + siteId);
             } catch (Exception e) {
-                logger
-                        .error("Unknown error while resolving user role in site: "
-                                + siteId);
+                logger.error("Unknown error while resolving user role in site: " + siteId);
             }
         }
         return null;
@@ -1131,12 +1119,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 for (Group g : userGroups)
                     groupIds.add(g.getId());
             } catch (IdUnusedException e) {
-                logger.error("No such site while resolving user role in site: "
-                        + siteId);
+                logger.error("No such site while resolving user role in site: " + siteId);
             } catch (Exception e) {
-                logger
-                        .error("Unknown error while resolving user role in site: "
-                                + siteId);
+                logger.error("Unknown error while resolving user role in site: " + siteId);
             }
         }
         return groupIds;
@@ -1148,18 +1133,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
      */
     private String generateIcalFromMeeting(BBBMeeting meeting) {
         TimeZone defaultTimezone = TimeZone.getDefault();
-        Date startDate = convertDateToTimezone(meeting.getStartDate(),
-                defaultTimezone);
+        Date startDate = convertDateToTimezone(meeting.getStartDate(), defaultTimezone);
         if (startDate == null)
             return null;
-        Date endDate = convertDateToTimezone(meeting.getEndDate(),
-                defaultTimezone);
+        Date endDate = convertDateToTimezone(meeting.getEndDate(), defaultTimezone);
 
         // Create a TimeZone
-        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance()
-                .createRegistry();
-        net.fortuna.ical4j.model.TimeZone timezone = registry
-                .getTimeZone(defaultTimezone.getID());
+        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+        net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(defaultTimezone.getID());
         VTimeZone tz = timezone.getVTimeZone();
 
         // Create the event
@@ -1178,8 +1159,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // add description & url
         String meetingUrl = getDirectToolJoinUrl(meeting);
         try {
-            vEvent.getProperties().add(
-                    new Description(meeting.getProps().getWelcomeMessage()));
+            vEvent.getProperties().add(new Description(meeting.getProps().getWelcomeMessage()));
         } catch (Exception e1) {
             // ignore - no harm
         }
@@ -1203,8 +1183,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // create a calendar
         net.fortuna.ical4j.model.Calendar icsCalendar = new net.fortuna.ical4j.model.Calendar();
-        icsCalendar.getProperties().add(
-                new ProdId("-//Sakai Calendar//iCal4j 1.0//EN"));
+        icsCalendar.getProperties().add( new ProdId("-//Sakai Calendar//iCal4j 1.0//EN"));
         icsCalendar.getProperties().add(Version.VERSION_2_0);
         icsCalendar.getProperties().add(CalScale.GREGORIAN);
 

@@ -111,6 +111,7 @@ $(document).ready(function(){
     </thead>
     <tbody>
 {for m in meetings}
+    {if !m.deleted}
     <tr class="meetingRow">
         <td>
           {if m.joinUrl}
@@ -150,6 +151,7 @@ $(document).ready(function(){
         <td class="endDate">${m.endDate ? new Date(m.endDate).toISO8601String() : ''}</td>
         <td>${m.ownerDisplayName}</td>
     </tr>
+    {/if}  
 {/for}
     </tbody>
 </table>
@@ -428,13 +430,11 @@ $(document).ready(function(){
             </span>
         </td>
       </tr>
-      {if meeting.finished }
       <tr>
         <td><h5>${bbb_info_recordings}</h5></td>
         <td id="recordingLinks">
         </td>
       </tr>
-      {/if}
       {if bbbUserPerms.bbbEditAny}
       <tr>
         <td><h5>${bbb_meetinginfo_host}</h5></td>
