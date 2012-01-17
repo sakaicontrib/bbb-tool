@@ -60,7 +60,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
                 "RECORDING " + BOOL + ", " +
                 "RECORDING_DURATION " + INT + ", " +
                 "PROPERTIES " + TEXT + ", " +
-                "DELETED " + INT + "(1) NOT NULL DEFAULT 0," +
+                "DELETED " + INT + " DEFAULT 0 NOT NULL," +
                 "CONSTRAINT bbb_meeting_pk PRIMARY KEY (MEETING_ID))");
 
         statements.put("BBB_MEETING_PARTICIPANT", "CREATE TABLE BBB_MEETING_PARTICIPANT (" +
@@ -68,7 +68,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         	"SELECTION_TYPE " + VARCHAR + "(99) NOT NULL, " +
         	"SELECTION_ID " + VARCHAR + "(99), " +
         	"ROLE " + VARCHAR + "(32) NOT NULL," + 
-            "DELETED " + INT + "(1) NOT NULL DEFAULT 0," +
+            "DELETED " + INT + " DEFAULT 0 NOT NULL," +
         	"CONSTRAINT bbb_meeting_participant_pk PRIMARY KEY (MEETING_ID,SELECTION_TYPE,SELECTION_ID))");
 
         return statements;
@@ -88,14 +88,15 @@ public class DefaultSqlGenerator implements SqlGenerator {
         Map<String, String> statements = new HashMap<String, String>();
 
         statements.put("BBB_MEETING:HOST_URL", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL AFTER NAME;");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL;");
         statements.put("BBB_MEETING:RECORDING", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE, " +
-        		"ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + ";"); 
+        statements.put("BBB_MEETING:RECORDING_DURATION", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + ";");
         statements.put("BBB_MEETING:DELETED", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0 AFTER PROPERTIES;");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
         statements.put("BBB_MEETING_PARTICIPANT:DELETED", 
-        		"ALTER TABLE BBB_MEETING_PARTICIPANT ADD COLUMN DELETED " + INT + "(1) NOT NULL DEFAULT 0;");
+        		"ALTER TABLE BBB_MEETING_PARTICIPANT ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
         
         return statements;
     }
@@ -104,13 +105,15 @@ public class DefaultSqlGenerator implements SqlGenerator {
         String statement = null;
 
         if( updateName.equals("BBB_MEETING:HOST_URL"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'HOST_URL%'";
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'HOST_URL'";
         else if( updateName.equals("BBB_MEETING:RECORDING"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING%'";
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING'";
+        else if( updateName.equals("BBB_MEETING:RECORDING_DURATION"))
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING_DURATION'";
         else if( updateName.equals("BBB_MEETING:DELETED"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'DELETED%'";
+            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'DELETED'";
         else if( updateName.equals("BBB_MEETING_PARTICIPANT:DELETED"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING_PARTICIPANT LIKE 'DELETED%'";
+            statement = "SHOW COLUMNS FROM BBB_MEETING_PARTICIPANT LIKE 'DELETED'";
         
         return statement;
     }
@@ -131,13 +134,10 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(5, meeting.getAttendeePassword());
         meetingST.setString(6, meeting.getModeratorPassword());
         meetingST.setString(7, meeting.getOwnerId());
-        meetingST.setTimestamp(8, meeting.getStartDate() == null ? null
-                : new Timestamp(meeting.getStartDate().getTime()));
-        meetingST.setTimestamp(9, meeting.getEndDate() == null ? null
-                : new Timestamp(meeting.getEndDate().getTime()));
+        meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()));
+        meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()));
         meetingST.setBoolean(10, meeting.getRecording());
-        meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L
-                : meeting.getRecordingDuration());
+        meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
         meetingST.setString(13, NODELETED);
 
@@ -146,13 +146,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
         List<Participant> participants = meeting.getParticipants();
 
         for (Participant participant : participants) {
-            PreparedStatement pST = connection
-                    .prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?,?)");
+            PreparedStatement pST = connection.prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?,?)");
             pST.setString(1, meeting.getId());
             pST.setString(2, participant.getSelectionType());
             pST.setString(3, participant.getSelectionId());
             pST.setString(4, participant.getRole());
-            meetingST.setString(5, NODELETED);
+            pST.setString(5, NODELETED);
             statements.add(pST);
         }
 
