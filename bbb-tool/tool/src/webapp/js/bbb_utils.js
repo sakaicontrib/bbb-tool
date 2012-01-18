@@ -251,9 +251,7 @@ var BBBUtils;
        		meeting.recordings[p].recordID = recordings.recordings[p].recordID;
        		meeting.recordings[p].startTime = recordings.recordings[p].startTime;
        		meeting.recordings[p].published = recordings.recordings[p].published;
-
-       		//console.log('startTime=' + dateFormat(recordings.recordings[p].startTime) );
-       		
+            
 			meeting.recordings[p].playback = Array();
 			for(var q=0; q<recordings.recordings[p].playback.length; q++) {
       			meeting.recordings[p].playback[q] = Array();

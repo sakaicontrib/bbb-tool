@@ -191,7 +191,7 @@ $(document).ready(function(){
                     </small>
                 </div> 
             </td>
-            <td class="startDate">${r.startTime}</td>
+            <td class="startDate">${new Date(r.startTime).toISO8601String()}</td>
             <td>
 		      {for p in r.playback}
         	    <a href="${p.url}" title="${p.type}" target="_blank">${p.type}</a>&nbsp;
