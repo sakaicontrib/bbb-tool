@@ -34,9 +34,7 @@ public class Participant {
 	public static final String	SELECTION_USER	= "user";
 	
 	private String selectionType = null;
-	
 	private String selectionId = null;
-	
 	private String role = null;
 	
 	public Participant() {}

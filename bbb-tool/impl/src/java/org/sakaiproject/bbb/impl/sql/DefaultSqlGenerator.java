@@ -68,7 +68,6 @@ public class DefaultSqlGenerator implements SqlGenerator {
         	"SELECTION_TYPE " + VARCHAR + "(99) NOT NULL, " +
         	"SELECTION_ID " + VARCHAR + "(99), " +
         	"ROLE " + VARCHAR + "(32) NOT NULL," + 
-            "DELETED " + INT + " DEFAULT 0 NOT NULL," +
         	"CONSTRAINT bbb_meeting_participant_pk PRIMARY KEY (MEETING_ID,SELECTION_TYPE,SELECTION_ID))");
 
         return statements;
@@ -95,8 +94,6 @@ public class DefaultSqlGenerator implements SqlGenerator {
         		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + ";");
         statements.put("BBB_MEETING:DELETED", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
-        statements.put("BBB_MEETING_PARTICIPANT:DELETED", 
-        		"ALTER TABLE BBB_MEETING_PARTICIPANT ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
         
         return statements;
     }
@@ -112,8 +109,6 @@ public class DefaultSqlGenerator implements SqlGenerator {
             statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING_DURATION'";
         else if( updateName.equals("BBB_MEETING:DELETED"))
             statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'DELETED'";
-        else if( updateName.equals("BBB_MEETING_PARTICIPANT:DELETED"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING_PARTICIPANT LIKE 'DELETED'";
         
         return statement;
     }
@@ -170,13 +165,10 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(4, meeting.getAttendeePassword());
         meetingST.setString(5, meeting.getModeratorPassword());
         meetingST.setString(6, meeting.getOwnerId());
-        meetingST.setTimestamp(7, meeting.getStartDate() == null ? null
-                : new Timestamp(meeting.getStartDate().getTime()));
-        meetingST.setTimestamp(8, meeting.getEndDate() == null ? null
-                : new Timestamp(meeting.getEndDate().getTime()));
+        meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()));
+        meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()));
         meetingST.setBoolean(9, meeting.getRecording());
-        meetingST.setLong(10, meeting.getRecordingDuration() == null ? 0L
-                : meeting.getRecordingDuration());
+        meetingST.setLong(10, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(11, XmlUtil.convertPropsToXml(meeting.getProps()));
         meetingST.setString(12, meeting.getId());
 

@@ -48,8 +48,6 @@ public class HypersonicGenerator extends DefaultSqlGenerator
             statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING' AND COLUMN_NAME='RECORDING_DURATION'";
         else if( updateName.equals("BBB_MEETING:DELETED"))
             statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING' AND COLUMN_NAME='DELETED'";
-        else if( updateName.equals("BBB_MEETING_PARTICIPANT:DELETED"))
-            statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING_PARTICIPANT' AND COLUMN_NAME='DELETED'";
         
         return statement;
     }

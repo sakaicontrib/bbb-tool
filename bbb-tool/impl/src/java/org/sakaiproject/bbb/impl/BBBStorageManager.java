@@ -234,16 +234,14 @@ public class BBBStorageManager {
             connection.setAutoCommit(false);
 
             try {
-                statements = sqlGenerator.getUpdateMeetingStatements(meeting,
-                        connection);
+                statements = sqlGenerator.getUpdateMeetingStatements(meeting, connection);
                 if (updateParticipants) {
-                    statements.addAll(sqlGenerator
-                            .getUpdateMeetingParticipantsStatements(meeting,
-                                    connection));
+                    statements.addAll(sqlGenerator.getUpdateMeetingParticipantsStatements(meeting, connection));
                 }
 
-                for (PreparedStatement statement : statements)
+                for (PreparedStatement statement : statements){
                     statement.execute();
+                }
 
                 connection.commit();
 
