@@ -246,13 +246,14 @@ var BBBUtils;
 		var recordings = BBBUtils.getRecordings(meeting.id);
         if( recordings == null )
         	return;
-	
        	for(var p=0; p<recordings.recordings.length; p++) {
        		meeting.recordings[p] = Array();
        		meeting.recordings[p].recordID = recordings.recordings[p].recordID;
        		meeting.recordings[p].startTime = recordings.recordings[p].startTime;
        		meeting.recordings[p].published = recordings.recordings[p].published;
 
+       		//console.log('startTime=' + dateFormat(recordings.recordings[p].startTime) );
+       		
 			meeting.recordings[p].playback = Array();
 			for(var q=0; q<recordings.recordings[p].playback.length; q++) {
       			meeting.recordings[p].playback[q] = Array();
@@ -396,7 +397,6 @@ var BBBUtils;
             async : false,
             success : function(data) {
                 recordings = data;
-                //if(!recordings) recordings = [];
             },
             error : function(xmlHttpRequest,status,error) {
             	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -540,18 +540,19 @@ var BBBUtils;
                    .text(bbb_status_finished);
                    
             }
-			var recordings = BBBUtils.getRecordings(meeting.id);
 			var htmlRecordings = '';
-			
-   			for(var p=0; p<recordings.recordings.length; p++) {
-   				for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-   					htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+			var recordings = BBBUtils.getRecordings(meeting.id);
+			if( recordings.recordings ){
+				for(var p=0; p<recordings.recordings.length; p++) {
+					for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+						htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+					}
 				}
-			}				
-
-   			//console.log(htmlRecordings);
-    		jQuery('#recordingLinks')
-    		   .html(htmlRecordings);
+			}
+   			if( htmlRecordings != '' ){
+   				jQuery('#recording_link_'+meeting.id)
+   					.html(htmlRecordings);
+   			}
         }
     }
 

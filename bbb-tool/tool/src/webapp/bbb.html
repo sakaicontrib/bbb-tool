@@ -142,7 +142,6 @@ $(document).ready(function(){
                 {/if}
               </small>
               </div> 
-          
         </td>
         {var statusClass = m.joinable ? 'status_joinable_' : (m.notStarted ? 'status_notstarted' : 'status_finished')}
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: bbb_status_joinable_unavailable ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
@@ -171,45 +170,50 @@ $(document).ready(function(){
     </thead>
     <tbody>
 {for m in meetings}
-	{for r in m.recordings}
-   	{if m.canEdit || r.published == 'true'}
-    <tr class="meetingRow">
-        <td>
-          <span>${m.name}</span>
-
-              <div class="itemAction" style="display: none; margin:0; padding:0;">
-              <small>
-                {if m.canEdit}
-                	{if r.published == 'true'}
+    {for r in m.recordings}
+   	  {if m.canEdit || r.published == 'true'}
+        <tr class="meetingRow">
+            <td>
+                <span>${m.name}</span>
+                <div class="itemAction" style="display: none; margin:0; padding:0;">
+                    <small>
+                    {if m.canEdit}
+                	  {if r.published == 'true'}
                     	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${m.id}','${r.recordID}');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
-                    {else}	
+                      {else}	
                     	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${m.id}','${r.recordID}');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
-                	{/if}
-                {/if}
-                {if m.canDelete}
-                    &nbsp;|&nbsp;
-                    <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${m.id}','${r.recordID}');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
-                {/if}
-              </small>
-              </div> 
-        </td>
-        <td class="startDate">${r.startTime}</td>
-        <td>
-		{for p in r.playback}
-        	<a href="${p.url}" title="${p.type}" target="_blank">${p.type}</a>&nbsp;
-        {/for}
-        </td>
-        <td>
-        	{if r.published == 'true'}
+                	  {/if}
+                    {/if}
+                    {if m.canDelete}
+                        &nbsp;|&nbsp;
+                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${m.id}','${r.recordID}');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
+                    {/if}
+                    </small>
+                </div> 
+            </td>
+            <td class="startDate">${r.startTime}</td>
+            <td>
+		      {for p in r.playback}
+        	    <a href="${p.url}" title="${p.type}" target="_blank">${p.type}</a>&nbsp;
+              {/for}
+            </td>
+            <td>
+        	  {if r.published == 'true'}
         		${bbb_recording_status_shown}
-        	{else}
+        	  {else}
         		${bbb_recording_status_hidden}
-            {/if}
-        </td>
-    </tr>
-    {/if}
-	{/for}
+              {/if}
+            </td>
+        </tr>
+      {/if}
+    {/for}
 {/for}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
     </tbody>
 </table>
 -->
@@ -432,7 +436,7 @@ $(document).ready(function(){
       </tr>
       <tr>
         <td><h5>${bbb_info_recordings}</h5></td>
-        <td id="recordingLinks">
+        <td id="recording_link_${meeting.id}">
         </td>
       </tr>
       {if bbbUserPerms.bbbEditAny}
