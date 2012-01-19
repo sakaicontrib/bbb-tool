@@ -141,12 +141,11 @@ public class DefaultSqlGenerator implements SqlGenerator {
         List<Participant> participants = meeting.getParticipants();
 
         for (Participant participant : participants) {
-            PreparedStatement pST = connection.prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?,?)");
+            PreparedStatement pST = connection.prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?)");
             pST.setString(1, meeting.getId());
             pST.setString(2, participant.getSelectionType());
             pST.setString(3, participant.getSelectionId());
             pST.setString(4, participant.getRole());
-            pST.setString(5, NODELETED);
             statements.add(pST);
         }
 

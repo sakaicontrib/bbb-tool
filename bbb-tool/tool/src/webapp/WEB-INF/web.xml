@@ -12,7 +12,7 @@
         <load-on-startup>1</load-on-startup>
      </servlet>
      
-<!--sakai-->
+	<!--sakai-->
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
