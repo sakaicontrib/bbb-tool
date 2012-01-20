@@ -244,8 +244,10 @@ var BBBUtils;
         meeting.recordings = Array();
 		
 		var recordings = BBBUtils.getRecordings(meeting.id);
-        if( recordings == null )
+        if( recordings.recordings == null ){
+            BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         	return;
+        }
        	for(var p=0; p<recordings.recordings.length; p++) {
        		meeting.recordings[p] = Array();
        		meeting.recordings[p].recordID = recordings.recordings[p].recordID;
