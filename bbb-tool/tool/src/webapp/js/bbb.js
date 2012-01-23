@@ -39,9 +39,12 @@ var bbbCurrentMeetings = [];
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
     
-    // Check meeting availability periodically (30 secs)
+    // Check meeting availability periodically based on bbb.autorefreshInterval set up in the sakai.properties file  (30 secs by default)
     setInterval(BBBUtils.checkMeetingsAvailability, BBBUtils.autorefreshInterval());
 
+    // Check recording availability periodically (30 secs by default)
+    setInterval(BBBUtils.checkRecordingsAvailability, 60000);
+    
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');
     });
@@ -260,6 +263,7 @@ function switchState(state,arg) {
         	   $(document).ready(function() {
         	   	   //updateMeetingInfo(arg.meetingId);
         		   BBBUtils.checkMeetingsAvailability();
+        		   BBBUtils.checkRecordingsAvailability();
                    BBBUtils.adjustFrameHeight();
         	   });
         	}else{

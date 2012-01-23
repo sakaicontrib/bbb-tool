@@ -539,6 +539,12 @@ var BBBUtils;
                    .text(bbb_status_finished);
                    
             }
+        }
+    }
+
+    BBBUtils.checkRecordingsAvailability = function() {
+    	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            var meeting = bbbCurrentMeetings[i];
 			var htmlRecordings = '';
 			var recordings = BBBUtils.getRecordings(meeting.id);
 			if( recordings.recordings == null ){
@@ -554,9 +560,10 @@ var BBBUtils;
    				jQuery('#recording_link_'+meeting.id)
    					.html(htmlRecordings);
    			}
-        }
+    	}
     }
-
+    
+    
 	// Get all meeting recordings
 	BBBUtils.setRecordingList = function(meetingId) {
 
