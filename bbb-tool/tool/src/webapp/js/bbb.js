@@ -40,7 +40,7 @@ var bbbCurrentMeetings = [];
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
     
     // Check meeting availability periodically (30 secs)
-    setInterval(BBBUtils.checkMeetingsAvailability, 30000);
+    setInterval(BBBUtils.checkMeetingsAvailability, BBBUtils.autorefreshInterval());
 
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');

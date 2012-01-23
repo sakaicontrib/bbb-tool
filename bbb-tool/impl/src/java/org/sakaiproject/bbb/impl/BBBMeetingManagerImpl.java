@@ -544,6 +544,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                                                            // offset
     }
 
+    public String getAutorefreshInterval() {
+    	return "" + bbbAPI.getAutorefreshInterval();
+    }
+    
     public String getNoticeText() {
         String bbbNoticeText = serverConfigurationService.getString(
                 CFG_NOTICE_TEXT, null);
@@ -553,8 +557,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public String getNoticeLevel() {
-        return serverConfigurationService.getString(CFG_NOTICE_LEVEL, "info")
-                .trim().toLowerCase();
+        return serverConfigurationService.getString(CFG_NOTICE_LEVEL, "info").trim().toLowerCase();
     }
 
     // -----------------------------------------------------------------------

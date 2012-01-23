@@ -548,6 +548,17 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		return new ActionReturn(map);
 	}
 	
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public ActionReturn getAutorefreshInterval(Map<String,Object> params)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("getAutorefreshInterval");
+		Map<String,String> map = new HashMap<String, String>();
+		String autorefreshInterval = meetingManager.getAutorefreshInterval(); 
+		if(autorefreshInterval != null) {
+			map.put("interval", autorefreshInterval);
+		}
+		return new ActionReturn(map);
+	}
 	
 	// --- Statisticable -------------------------------------------------------------
 	public String getAssociatedToolId()

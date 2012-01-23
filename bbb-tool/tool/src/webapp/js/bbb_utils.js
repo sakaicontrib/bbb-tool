@@ -402,7 +402,6 @@ var BBBUtils;
             	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
-        console.log(recordings);
         return recordings;
     }
 
@@ -540,21 +539,21 @@ var BBBUtils;
                    .text(bbb_status_finished);
                    
             }
-			//var htmlRecordings = '';
+			var htmlRecordings = '';
 			var recordings = BBBUtils.getRecordings(meeting.id);
-			//if( recordings.recordings == null ){
-	        //    BBBUtils.showMessage(bbb_err_get_recording, 'warning');
-	        //} else {
-			//	for(var p=0; p<recordings.recordings.length; p++) {
-			//		for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-			//			htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
-			//		}
-			//	}
-			//}
-   			//if( htmlRecordings != '' ){
-   			//	jQuery('#recording_link_'+meeting.id)
-   			//		.html(htmlRecordings);
-   			//}
+			if( recordings.recordings == null ){
+	            BBBUtils.showMessage(bbb_err_get_recording, 'warning');
+	        } else {
+				for(var p=0; p<recordings.recordings.length; p++) {
+					for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+						htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+					}
+				}
+			}
+   			if( htmlRecordings != '' ){
+   				jQuery('#recording_link_'+meeting.id)
+   					.html(htmlRecordings);
+   			}
         }
     }
 
@@ -599,7 +598,8 @@ var BBBUtils;
         });
     }
 	
-	// Get the participant object associated with the specified userId
+
+    // Get the participant object associated with the specified userId
 	BBBUtils.getParticipantFromMeeting = function(meeting, userId) {
 		if(meeting && meeting.participants) {
             for(var i=0; i<meeting.participants.length; i++) {
@@ -663,6 +663,22 @@ var BBBUtils;
             }
         });
         return perms;
+    }
+
+	// Get notice message to be displayed on the UI (first time access)
+    BBBUtils.autorefreshInterval = function() {
+		var interval = 60000;
+        jQuery.ajax( {
+            url: "/direct/bbb-meeting/getAutorefreshInterval.json",
+            dataType : "json",
+            async : false,
+            success : function(autorefresh) {
+            	if(autorefresh) {
+            		interval = autorefresh.interval;
+            	}
+            }
+        });
+        return interval;
     }
     
     // Get the site permissions

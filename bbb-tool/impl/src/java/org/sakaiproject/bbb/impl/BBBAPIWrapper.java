@@ -52,8 +52,11 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API Snapshot Version ? */
     private boolean versionSnapshot = false;
 
-    /** BBB API version check interval (defaults to 5 min) */
+    /** BBB API version check interval (default to 5 min) */
     private long bbbVersionCheckInterval = 0;
+
+    /** BBB API auto refresh interval (default to 30 sec) */
+    private long bbbAutorefreshInterval = 30000L;
 
     /** BBB API */
     private BBBAPI api = null;
@@ -157,6 +160,8 @@ public class BBBAPIWrapper/* implements Runnable */{
             allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
         }
 
+
+        bbbAutorefreshInterval = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHINTERVAL, (int) bbbAutorefreshInterval);
         /*
          * bbbVersionCheckInterval = (long)
          * config.getInt(BBBMeetingManager.CFG_VERSIONCHECKINTERVAL, (int)
@@ -446,5 +451,10 @@ public class BBBAPIWrapper/* implements Runnable */{
             }
         }
     }
+
+    public long getAutorefreshInterval() {
+        return bbbAutorefreshInterval;
+    }
+
 
 }

@@ -46,6 +46,7 @@ public interface BBBMeetingManager {
     public final static String CFG_DEFAULT_PERMS_PRFX = "bbb.default.permissions.";
     public final static String CFG_DEFAULT_ALLUSERS = "bbb.default.participants.all_users";
     public final static String CFG_DEFAULT_OWNER = "bbb.default.participants.owner";
+    public final static String CFG_AUTOREFRESHINTERVAL = "bbb.autorefreshInterval";
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -233,5 +234,10 @@ public interface BBBMeetingManager {
      * (info | warn | success).
      */
     public String getNoticeLevel();
+
+    /**
+     * Returns autorefreshInterval parameter set up on sakai.properties or the one set up by defaul.
+     */
+    public String getAutorefreshInterval();
 
 }
