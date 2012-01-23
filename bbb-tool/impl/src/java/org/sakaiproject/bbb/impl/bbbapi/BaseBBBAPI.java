@@ -272,29 +272,23 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Get recordings from BBB server */
-    public Map<String, Object> getRecordings(String meetingID, String password)
+    public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
-        try {
+    	Map<String, Object> response = null;
+    	
+    	try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
             query.append(meetingID);
-            query.append("&password=");
-            query.append(password);
-            query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS,
-                    query.toString()));
+            query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
 
-            Map<String, Object> response = doAPICall(APICALL_GETRECORDINGS,
-                    query.toString());
-            for (String key : response.keySet()) {
-                // nullify password fields
-                if ("attendeePW".equals(key) || "moderatorPW".equals(key))
-                    response.put(key, null);
-            }
-
-            return response;
+            response = doAPICall(APICALL_GETRECORDINGS, query.toString());
         } catch (Exception e) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
+        
+        //logger.info("getRecordings for meetingID" + meetingID + " response=" + response);
+        return response;
     }
 
     /** End/delete a meeting on BBB server */
@@ -472,8 +466,7 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            logger.debug("doAPICall.call: " + apiCall
-                    + (query != null ? query : ""));
+            logger.debug("doAPICall.call: " + apiCall + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -492,7 +485,8 @@ public class BaseBBBAPI implements BBBAPI {
                     reader = new BufferedReader(isr);
                     String line = reader.readLine();
                     while (line != null) {
-                        xml.append(line);
+                    	if( !line.startsWith("<?xml version=\"1.0\"?>"))
+                    		xml.append(line.trim());
                         line = reader.readLine();
                     }
                 } finally {

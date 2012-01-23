@@ -202,11 +202,11 @@ public class BBBAPIWrapper/* implements Runnable */{
         return hostProxy.getMeetingInfo(meetingID, password);
     }
 
-    public Map<String, Object> getRecordings(String meetingID, String password)
+    public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
-        return hostProxy.getRecordings(meetingID, password);
+        return hostProxy.getRecordings(meetingID);
     }
 
     public boolean endMeeting(String meetingID, String password)

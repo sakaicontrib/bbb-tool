@@ -59,9 +59,9 @@ public class BBBAPI_063 extends BaseBBBAPI {
     }
 
     // In 0.63 (<0.80) this is not implemented so, nullify all values!
-    public Map<String, Object> getRecordings(String meetingID, String password)
+    public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
-        Map<String, Object> map = super.getRecordings(meetingID, password);
+        Map<String, Object> map = super.getRecordings(meetingID);
         for (String key : map.keySet()) {
             if ("participantCount".equals(key))
                 map.put(key, "-1");

@@ -19,7 +19,7 @@ public interface BBBAPI {
 
 	public Map<String, Object> getMeetingInfo(String meetingID, String password) throws BBBException;
 
-	public Map<String, Object> getRecordings(String meetingID, String password) throws BBBException;
+	public Map<String, Object> getRecordings(String meetingID) throws BBBException;
 
 	public boolean endMeeting(String meetingID, String password) throws BBBException;
 
