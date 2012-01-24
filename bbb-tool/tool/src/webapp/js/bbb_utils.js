@@ -243,7 +243,7 @@ var BBBUtils;
 
         meeting.recordings = Array();
 		
-		var recordings = BBBUtils.getRecordings(meeting.id);
+		var recordings = BBBUtils.getMeetingRecordings(meeting.id);
         if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         	return;
@@ -405,6 +405,38 @@ var BBBUtils;
         return recordings;
     }
 
+    // Get all meeting recordings from BBB server
+    BBBUtils.getAllRecordings = function() {  
+    	var recordings = null;
+        jQuery.ajax( {
+            url: "/direct/bbb-meeting/getAllRecordings.json",
+            dataType : "json",
+            async : false,
+            success : function(data) {
+                recordings = data;
+            },
+            error : function(xmlHttpRequest,status,error) {
+            	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
+        return recordings;
+    }
+    
+    BBBUtils.getMeetingRecordings = function(meetingId) {  
+    	var allRecordings = BBBUtils.getAllRecordings();
+    	var recordings = new Object();
+    	recordings.recordings = new Array();
+    	var k = 0;
+
+    	for(var i=0,j=allRecordings.recordings.length;i<j;i++) {
+    		if( allRecordings.recordings[i].meetingID == meetingId )
+    			recordings.recordings[k++] = allRecordings.recordings[i];
+    	}
+
+    	return recordings;
+    }
+
+    
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
         jQuery.ajax( {
@@ -451,145 +483,151 @@ var BBBUtils;
 		return false;
     }
     
-    // Check meetings availability and update meeting details page if appropriate
-    BBBUtils.checkMeetingsAvailability = function() {
+    // Check ONE meetings availability and update meeting details page if appropriate
+    BBBUtils.checkOneMeetingAvailability = function(meetingId) {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
             var meeting = bbbCurrentMeetings[i];
-        	BBBUtils.setAdditionalMeetingParams(meeting);
-            if(meeting.joinable) {
-                if ( meeting.joinableMode === "available" ){
+    		if( meeting.id == meetingId )
+    			BBBUtils.checkMeetingAvailability(meeting);
+    	}
+
+    }
+
+    // Check ALL meetings availability and update meeting details page if appropriate
+    BBBUtils.checkAllMeetingAvailability = function() {
+    	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
+    	}
+
+    }
+    
+    // Check specific meeting availability and update meeting details page if appropriate
+    BBBUtils.checkMeetingAvailability = function(meeting) {
+    	BBBUtils.setAdditionalMeetingParams(meeting);
+        if(meeting.joinable) {
+            if ( meeting.joinableMode === "available" ){
+                jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                // Update the actionbar on the list
+                if ( meeting.canEnd ){ 
+                    jQuery('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('end_meeting_hidden');
+                }
+                // Update for list
+                jQuery('#meeting_status_'+meeting.id)
+                   .removeClass()
+                   .addClass('status_joinable_available')
+                   .text(bbb_status_joinable_available);
+                // Update for detail
+                jQuery('#meeting_status_joinable_'+meeting.id)
+                	.removeClass()
+                	.addClass('status_joinable_available')
+                	.text(bbb_status_joinable_available);
+                updateMeetingInfo(meeting.id);
+        	} else if ( meeting.joinableMode === "inprogress" ){
+        		if( BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting.id) )
+    				jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+        		else
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
-                    // Update the actionbar on the list
-                    if ( meeting.canEnd ){ 
-                        jQuery('#end_meeting_'+meeting.id)
-                        .removeClass()
-                        .addClass('end_meeting_hidden');
-                    }
-                    // Update for list
-                    jQuery('#meeting_status_'+meeting.id)
-                       .removeClass()
-                       .addClass('status_joinable_available')
-                       .text(bbb_status_joinable_available);
-                    // Update for detail
-                    jQuery('#meeting_status_joinable_'+meeting.id)
-                    	.removeClass()
-                    	.addClass('status_joinable_available')
-                    	.text(bbb_status_joinable_available);
-                    updateMeetingInfo(meeting.id);
-            	} else if ( meeting.joinableMode === "inprogress" ){
-            		if( BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting.id) )
-        				jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
-            		else
-                        jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
-            			
-                    // Update the actionbar on the list
-                    if ( meeting.canEnd ){ 
-                        jQuery('#end_meeting_'+meeting.id)
-                        .removeClass()
-                        .addClass('end_meeting_shown');
-                    }
-                    // Update for list
-                    jQuery('#meeting_status_'+meeting.id)
-                       .removeClass()
-                       .addClass('status_joinable_inprogress')
-                       .text(bbb_status_joinable_inprogress);
-                    // Update for detail
-                    jQuery('#meeting_status_joinable_'+meeting.id)
-                    	.removeClass()
-                    	.addClass('status_joinable_inprogress')
-                    	.text(bbb_status_joinable_inprogress);
-
-                    updateMeetingInfo(meeting.id);
-            	} else {
-                    jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
-                    // Update the actionbar on the list
-                    if ( meeting.canEnd ){ 
-                        jQuery('#end_meeting_'+meeting.id)
-                        .removeClass()
-                        .addClass('end_meeting_hidden');
-                    }
-                    // Update for list
-                    jQuery('#meeting_status_'+meeting.id)
-                       .removeClass()
-                       .addClass('status_joinable_unavailable')
-                       .text(bbb_status_joinable_unavailable);
-                    // Update for detail
-                    jQuery('#meeting_status_joinable_'+meeting.id)
-                    	.removeClass()
-                    	.addClass('status_joinable_unavailable')
-                    	.text(bbb_status_joinable_unavailable);
-
-                    updateMeetingInfo(meeting.id);
-        			jQuery('#bbb_meeting_info_participants_count').html('0');
-        		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();
-                    jQuery('#bbb_meeting_info_participants_count_tr').hide();
-            	}
-            	
-            } else if(meeting.notStarted) {
-                jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+        			
+                // Update the actionbar on the list
+                if ( meeting.canEnd ){ 
+                    jQuery('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('end_meeting_shown');
+                }
+                // Update for list
                 jQuery('#meeting_status_'+meeting.id)
                    .removeClass()
-                   .addClass('status_notstarted')
-                   .text(bbb_status_notstarted);
-            }else if(meeting.finished) {
+                   .addClass('status_joinable_inprogress')
+                   .text(bbb_status_joinable_inprogress);
+                // Update for detail
+                jQuery('#meeting_status_joinable_'+meeting.id)
+                	.removeClass()
+                	.addClass('status_joinable_inprogress')
+                	.text(bbb_status_joinable_inprogress);
+
+                updateMeetingInfo(meeting.id);
+        	} else {
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                // Update the actionbar on the list
+                if ( meeting.canEnd ){ 
+                    jQuery('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('end_meeting_hidden');
+                }
+                // Update for list
                 jQuery('#meeting_status_'+meeting.id)
                    .removeClass()
-                   .addClass('status_finished')
-                   .text(bbb_status_finished);
-                   
-            }
+                   .addClass('status_joinable_unavailable')
+                   .text(bbb_status_joinable_unavailable);
+                // Update for detail
+                jQuery('#meeting_status_joinable_'+meeting.id)
+                	.removeClass()
+                	.addClass('status_joinable_unavailable')
+                	.text(bbb_status_joinable_unavailable);
+
+                updateMeetingInfo(meeting.id);
+    			jQuery('#bbb_meeting_info_participants_count').html('0');
+    		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();
+                jQuery('#bbb_meeting_info_participants_count_tr').hide();
+        	}
+        	
+        } else if(meeting.notStarted) {
+            jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+            jQuery('#meeting_status_'+meeting.id)
+               .removeClass()
+               .addClass('status_notstarted')
+               .text(bbb_status_notstarted);
+        }else if(meeting.finished) {
+            jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+            jQuery('#meeting_status_'+meeting.id)
+               .removeClass()
+               .addClass('status_finished')
+               .text(bbb_status_finished);
+               
         }
     }
-
-    BBBUtils.checkRecordingsAvailability = function() {
+    
+    // Check ONE recording availability and update recording details page if appropriate
+    BBBUtils.checkOneRecordingAvailability = function(meetingId) {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
             var meeting = bbbCurrentMeetings[i];
-			var htmlRecordings = '';
-			var recordings = BBBUtils.getRecordings(meeting.id);
-			if( recordings.recordings == null ){
-	            BBBUtils.showMessage(bbb_err_get_recording, 'warning');
-	        } else {
-				for(var p=0; p<recordings.recordings.length; p++) {
-					for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-						htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
-					}
-				}
-			}
-   			if( htmlRecordings != '' ){
-   				jQuery('#recording_link_'+meeting.id)
-   					.html(htmlRecordings);
-   			}
+    		if( meeting.id == meetingId )
+    			BBBUtils.checkRecordingAvailability(meeting);
     	}
+
+    }
+
+    // Check ALL recording availability and update meeting details page if appropriate
+    BBBUtils.checkAllRecordingAvailability = function() {
+    	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            BBBUtils.checkRecordingAvailability(bbbCurrentMeetings[i]);
+    	}
+
     }
     
-    
-	// Get all meeting recordings
-	BBBUtils.setRecordingList = function(meetingId) {
-
-		var recordings = BBBUtils.getRecordings(meetingId);
-				
-		var bbbRecordings = new Array();
-		var i = 0;
-
-		//var htmlRecordings = '';
-
-       	for(var p=0; p<recordings.recordings.length; p++) {
-       		for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-       			//htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>';
-       			bbbRecordings[i]['type'] = recordings.recordings[p].playback[q].type;
-       			bbbRecordings[i]['url'] = recordings.recordings[p].playback[q].url;
-       			i++;
+    BBBUtils.checkRecordingAvailability = function(meeting) {
+    	var htmlRecordings = '';
+		var recordings = BBBUtils.getMeetingRecordings(meeting.id);
+		if( recordings.recordings == null ){
+            BBBUtils.showMessage(bbb_err_get_recording, 'warning');
+        } else {
+			for(var p=0; p<recordings.recordings.length; p++) {
+				for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+					htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+				}
 			}
-		}				
+		}
 
-        //jQuery('#recordingLinks')
-        //   .text(htmlRecordings);
+		if( htmlRecordings != '' ){
+			jQuery('#recording_link_'+meeting.id)
+				.html(htmlRecordings);
+		}
+    	
+    }
 
-       	BBBUtils.render('bbb_meeting-info_template',{'recordings':bbbRecordings},'bbb_content');
 
-	}
-    
     // Get notice message to be displayed on the UI (first time access)
     BBBUtils.addNotice = function() {
         jQuery.ajax( {
@@ -674,14 +712,17 @@ var BBBUtils;
 
 	// Get notice message to be displayed on the UI (first time access)
     BBBUtils.autorefreshInterval = function() {
-		var interval = 60000;
+		var interval = [];
+		interval.meetings = 30000;
+		interval.recordings = 60000;
         jQuery.ajax( {
             url: "/direct/bbb-meeting/getAutorefreshInterval.json",
             dataType : "json",
             async : false,
             success : function(autorefresh) {
             	if(autorefresh) {
-            		interval = autorefresh.interval;
+            		interval.meetings = autorefresh.meetings;
+            		interval.recordings = autorefresh.recordings;
             	}
             }
         });

@@ -46,8 +46,9 @@ public interface BBBMeetingManager {
     public final static String CFG_DEFAULT_PERMS_PRFX = "bbb.default.permissions.";
     public final static String CFG_DEFAULT_ALLUSERS = "bbb.default.participants.all_users";
     public final static String CFG_DEFAULT_OWNER = "bbb.default.participants.owner";
-    public final static String CFG_AUTOREFRESHINTERVAL = "bbb.autorefreshInterval";
-
+    public final static String CFG_AUTOREFRESHMEETINGS = "bbb.autorefresh.meetings";
+    public final static String CFG_AUTOREFRESHRECORDINGS = "bbb.autorefresh.recordings";
+    
     // Permissions
     public static final String FN_PREFIX = "bbb.";
     public static final String FN_CREATE = "bbb.create";
@@ -139,6 +140,12 @@ public interface BBBMeetingManager {
     public Map<String, Object> getRecordings(String meetingID)
             throws BBBException;
 
+    /**
+     * Get ALL playback recordings from BBB server.
+     */
+    public Map<String, Object> getAllRecordings() 
+			throws BBBException;
+    
     /**
      * Log an event indicating that the current user joined the specified
      * meeting
@@ -236,8 +243,12 @@ public interface BBBMeetingManager {
     public String getNoticeLevel();
 
     /**
-     * Returns autorefreshInterval parameter set up on sakai.properties or the one set up by defaul.
+     * Returns bbb.autorefresh.meetings parameter set up on sakai.properties or the one set up by default.
      */
-    public String getAutorefreshInterval();
+    public String getAutorefreshForMeetings();
 
+    /**
+     * Returns bbb.autorefresh.recordings parameter set up on sakai.properties or the one set up by default.
+     */
+    public String getAutorefreshForRecordings();
 }

@@ -364,6 +364,23 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		}
 	}
 
+	
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public ActionReturn getAllRecordings(Map<String,Object> params)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("getAllRecordings");
+		
+		try
+		{
+			return new ActionReturn( meetingManager.getAllRecordings() );
+		}
+		catch(BBBException e)
+		{
+			return new ActionReturn(new HashMap<String,String>());
+		}
+	}
+	
+
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
 	public String publishRecordings(Map<String,Object> params)
 	{
@@ -553,9 +570,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	{
 		if(LOG.isDebugEnabled()) LOG.debug("getAutorefreshInterval");
 		Map<String,String> map = new HashMap<String, String>();
-		String autorefreshInterval = meetingManager.getAutorefreshInterval(); 
-		if(autorefreshInterval != null) {
-			map.put("interval", autorefreshInterval);
+		String autorefreshMeetings = meetingManager.getAutorefreshForMeetings(); 
+		if(autorefreshMeetings != null) {
+			map.put("meetings", autorefreshMeetings);
+		}
+		String autorefreshRecordings = meetingManager.getAutorefreshForRecordings(); 
+		if(autorefreshRecordings != null) {
+			map.put("recordings", autorefreshRecordings);
 		}
 		return new ActionReturn(map);
 	}

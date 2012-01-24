@@ -55,8 +55,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API version check interval (default to 5 min) */
     private long bbbVersionCheckInterval = 0;
 
-    /** BBB API auto refresh interval (default to 30 sec) */
-    private long bbbAutorefreshInterval = 30000L;
+    /** BBB API auto refresh interval for meetings (default to 30 sec) */
+    private long bbbAutorefreshMeetings = 30000L;
+    /** BBB API auto refresh interval for recordings(default to 60 sec) */
+    private long bbbAutorefreshRecordings = 60000L;
 
     /** BBB API */
     private BBBAPI api = null;
@@ -160,8 +162,8 @@ public class BBBAPIWrapper/* implements Runnable */{
             allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
         }
 
-
-        bbbAutorefreshInterval = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHINTERVAL, (int) bbbAutorefreshInterval);
+        bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
+        bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
         /*
          * bbbVersionCheckInterval = (long)
          * config.getInt(BBBMeetingManager.CFG_VERSIONCHECKINTERVAL, (int)
@@ -212,6 +214,13 @@ public class BBBAPIWrapper/* implements Runnable */{
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
         return hostProxy.getRecordings(meetingID);
+    }
+
+    public Map<String, Object> getAllRecordings()
+    		throws BBBException {
+    	String hostUrl = this.bbbUrls[0];
+    	BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+    	return hostProxy.getRecordings("");
     }
 
     public boolean endMeeting(String meetingID, String password)
@@ -452,9 +461,12 @@ public class BBBAPIWrapper/* implements Runnable */{
         }
     }
 
-    public long getAutorefreshInterval() {
-        return bbbAutorefreshInterval;
+    public long getAutorefreshForMeetings() {
+        return bbbAutorefreshMeetings;
     }
 
+    public long getAutorefreshForRecordings() {
+        return bbbAutorefreshRecordings;
+    }
 
 }

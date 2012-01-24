@@ -328,6 +328,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return bbbAPI.getRecordings(meeting.getId());
     }
 
+    public Map<String, Object> getAllRecordings() 
+    		throws BBBException {
+    	return bbbAPI.getAllRecordings();
+    }
+
     public void logMeetingJoin(String meetingId) {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
         logEvent(EVENT_MEETING_JOIN, meeting);
@@ -544,10 +549,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                                                            // offset
     }
 
-    public String getAutorefreshInterval() {
-    	return "" + bbbAPI.getAutorefreshInterval();
+    public String getAutorefreshForMeetings() {
+    	return "" + bbbAPI.getAutorefreshForMeetings();
     }
     
+    public String getAutorefreshForRecordings() {
+    	return "" + bbbAPI.getAutorefreshForRecordings();
+    }
+
     public String getNoticeText() {
         String bbbNoticeText = serverConfigurationService.getString(
                 CFG_NOTICE_TEXT, null);
