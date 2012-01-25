@@ -20,6 +20,11 @@ var bbbCurrentUser = null;
 var bbbServerTimeDiff = 0;
 var bbbUserPerms = null;
 var bbbCurrentMeetings = [];
+var bbbInterval = null;
+var bbbCheckAllMeetingAvailabilityId = null; 
+var bbbCheckMeetingAvailabilityId = null; 
+var bbbCheckRecordingAvailabilityId = null; 
+var bbbCheckOneMeetingAvailabilityId = null;
 
 (function() {
     // Setup Ajax defaults
@@ -39,13 +44,7 @@ var bbbCurrentMeetings = [];
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
     
-    var interval = BBBUtils.autorefreshInterval();
-    // Check meeting availability periodically based on bbb.autorefresh.meetings set up in the 
-    // sakai.properties file  (30 secs by default)
-    setInterval(BBBUtils.checkAllMeetingAvailability, interval.meetings);
-    // Check recording availability periodically based on bbb.autorefresh.recordings set up in the 
-    // sakai.properties file  (60 secs by default)
-    setInterval(BBBUtils.checkAllRecordingAvailability, interval.recordings);
+    bbbInterval = BBBUtils.autorefreshInterval();
     
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');
@@ -85,6 +84,10 @@ var bbbCurrentMeetings = [];
 })();
 
 function switchState(state,arg) {
+	if ( bbbCheckAllMeetingAvailabilityId != null ) clearInterval(bbbCheckAllMeetingAvailabilityId);
+	if ( bbbCheckRecordingAvailabilityId != null ) clearInterval(bbbCheckRecordingAvailabilityId);
+	if ( bbbCheckOneMeetingAvailabilityId != null ) clearInterval(bbbCheckOneMeetingAvailabilityId);
+	
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
         $('#bbb_recordings_link').parent().parent().show();
@@ -112,10 +115,12 @@ function switchState(state,arg) {
         if(bbbUserPerms.bbbViewMeetingList) {
             // Get meeting list
             refreshMeetingList();
-    
+            
             // watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-                BBBUtils.setAdditionalMeetingParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             }
             
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
@@ -145,7 +150,9 @@ function switchState(state,arg) {
                 
                 BBBUtils.adjustFrameHeight();
             });
-            
+
+            bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbInterval.meetings);
+
         }else{
             // warn about lack of permissions
             if(bbbUserPerms.siteUpdate) {
@@ -264,13 +271,17 @@ function switchState(state,arg) {
         	   BBBUtils.render('bbb_meeting-info_template', {'meeting': meeting}, 'bbb_content');
         	   $(document).ready(function() {
         		   BBBUtils.checkOneMeetingAvailability(arg.meetingId);
-        		   BBBUtils.checkOneRecordingAvailability(arg.meetingId);
+        		   BBBUtils.checkRecordingAvailability(arg.meetingId);
                    BBBUtils.adjustFrameHeight();
         	   });
+            
+               bbbCheckOneMeetingAvailabilityId = setInterval("BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbInterval.meetings);
+        	   bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbInterval.recordings);
+        	
         	}else{
-               BBBUtils.hideMessage();
+        	   BBBUtils.hideMessage();
         	   BBBUtils.showMessage(bbb_err_meeting_unavailable_instr, 'warning', bbb_err_meeting_unavailable, false);
-            BBBUtils.adjustFrameHeight();
+        	   BBBUtils.adjustFrameHeight();
         	}
         }else{
         	switchState('currentMeetings');
@@ -288,7 +299,7 @@ function switchState(state,arg) {
     
             // watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-                BBBUtils.setAdditionalMeetingParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
                 BBBUtils.setAdditionalMeetingRecordingParams(bbbCurrentMeetings[i]);
             }
             

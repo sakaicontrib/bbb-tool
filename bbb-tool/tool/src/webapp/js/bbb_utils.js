@@ -70,7 +70,7 @@ var BBBUtils;
             async : false,
             success : function(data) {
                 meeting = data;
-                BBBUtils.setAdditionalMeetingParams(meeting); 
+                BBBUtils.setMeetingPermissionParams(meeting); 
             },
             error : function(xmlHttpRequest,status,error) {
                 BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -94,7 +94,7 @@ var BBBUtils;
                 // Work out whether the current user is a moderator of any of the
                 // meetings. If so, mark the meeting with a moderator flag.
                 for(var i=0,j=list.length;i<j;i++) {
-                    BBBUtils.setAdditionalMeetingParams(list[i]);
+                    BBBUtils.setMeetingPermissionParams(list[i]);
                 }
             },
             error : function(xmlHttpRequest,status,error) {
@@ -202,8 +202,21 @@ var BBBUtils;
             }
         });
     }
+	BBBUtils.setMeetingInfoParams = function(meeting) {
+		//Clear attendees
+		if( meeting.attendees && meeting.attendees.length > 0 )
+			delete meeting.attendees;
+		meeting.attendees = new Array();
+		meeting.hasBeenForciblyEnded = "false";
+			
+		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
+		if ( meetingInfo.returncode != null) {
+			meeting.attendees = meetingInfo.attendees;
+			meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
+		}
+	}
 	
-	BBBUtils.setAdditionalMeetingParams = function(meeting) {
+	BBBUtils.setMeetingPermissionParams = function(meeting) {
         // joinable only if on specified date interval (if any)
         var timestamp = new Date().getTime() - bbbServerTimeDiff;
         var startOk = !meeting.startDate || meeting.startDate == 0 || timestamp >= meeting.startDate;
@@ -211,20 +224,6 @@ var BBBUtils;
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;
         meeting.joinable = startOk && endOk;
-        
-        //if joinable set the joinableMode
-    	meeting.joinableMode = "nojoinable";
-    	if( meeting.joinable ){
-    		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
-    		meeting.joinableMode = "available";
-    		if ( meetingInfo.returncode != null) {
-    			if ( meetingInfo.hasBeenForciblyEnded == "true" ) {
-    				meeting.joinableMode = "unavailable";
-    			} else if ( meetingInfo.participantCount != "0" ) {
-    				meeting.joinableMode = "inprogress";
-    			}
-    		}
-    	}
         
         // specific meeting permissions
         if(bbbCurrentUser.id === meeting.ownerId) {
@@ -238,6 +237,19 @@ var BBBUtils;
         }
 	}
 
+	BBBUtils.setMeetingJoinableModeParams = function(meeting) {
+	    //if joinable set the joinableMode
+		meeting.joinableMode = "nojoinable";
+		if( meeting.joinable ){
+			meeting.joinableMode = "available";
+			if ( meeting.hasBeenForciblyEnded == "true" ) {
+				meeting.joinableMode = "unavailable";
+			} else if ( meeting.attendees.length > 0 ) {
+				meeting.joinableMode = "inprogress";
+			}
+		}
+	}
+	
 	// Add recordings as extra parameter to a meeting object
 	BBBUtils.setAdditionalMeetingRecordingParams = function(meeting) {
 
@@ -423,15 +435,14 @@ var BBBUtils;
     }
     
     BBBUtils.getMeetingRecordings = function(meetingId) {  
-    	var allRecordings = BBBUtils.getAllRecordings();
+    	//var allRecordings = BBBUtils.getAllRecordings();
     	var recordings = new Object();
     	recordings.recordings = new Array();
-    	var k = 0;
-
-    	for(var i=0,j=allRecordings.recordings.length;i<j;i++) {
-    		if( allRecordings.recordings[i].meetingID == meetingId )
-    			recordings.recordings[k++] = allRecordings.recordings[i];
-    	}
+    	//var k = 0;
+    	//for(var i=0,j=allRecordings.recordings.length;i<j;i++) {
+    	//	if( allRecordings.recordings[i].meetingID == meetingId )
+    	//		recordings.recordings[k++] = allRecordings.recordings[i];
+    	//}
 
     	return recordings;
     }
@@ -473,10 +484,9 @@ var BBBUtils;
     }
 
     // Check if a user is already logged on a meeting
-    BBBUtils.isUserInMeeting = function(userName, meetingId) {
-    	var meetingInfo = BBBUtils.getMeetingInfo(meetingId);
-		for(var p=0; p<meetingInfo.attendees.length; p++) {
-			if(bbbCurrentUser.displayName === meetingInfo.attendees[p].fullName) {
+    BBBUtils.isUserInMeeting = function(userName, meeting) {
+		for(var p=0; p<meeting.attendees.length; p++) {
+			if(bbbCurrentUser.displayName === meeting.attendees[p].fullName) {
 				return true;
 			}
 		}
@@ -486,9 +496,12 @@ var BBBUtils;
     // Check ONE meetings availability and update meeting details page if appropriate
     BBBUtils.checkOneMeetingAvailability = function(meetingId) {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-            var meeting = bbbCurrentMeetings[i];
-    		if( meeting.id == meetingId )
-    			BBBUtils.checkMeetingAvailability(meeting);
+    		if( bbbCurrentMeetings[i].id == meetingId ) {
+                BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
+    			BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
+    			return;
+    		}
     	}
 
     }
@@ -496,6 +509,8 @@ var BBBUtils;
     // Check ALL meetings availability and update meeting details page if appropriate
     BBBUtils.checkAllMeetingAvailability = function() {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+            BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
     	}
 
@@ -503,7 +518,6 @@ var BBBUtils;
     
     // Check specific meeting availability and update meeting details page if appropriate
     BBBUtils.checkMeetingAvailability = function(meeting) {
-    	BBBUtils.setAdditionalMeetingParams(meeting);
         if(meeting.joinable) {
             if ( meeting.joinableMode === "available" ){
                 jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
@@ -523,9 +537,8 @@ var BBBUtils;
                 	.removeClass()
                 	.addClass('status_joinable_available')
                 	.text(bbb_status_joinable_available);
-                updateMeetingInfo(meeting.id);
         	} else if ( meeting.joinableMode === "inprogress" ){
-        		if( BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting.id) )
+        		if( BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) )
     				jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
         		else
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
@@ -547,7 +560,6 @@ var BBBUtils;
                 	.addClass('status_joinable_inprogress')
                 	.text(bbb_status_joinable_inprogress);
 
-                updateMeetingInfo(meeting.id);
         	} else {
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
                 // Update the actionbar on the list
@@ -607,9 +619,9 @@ var BBBUtils;
 
     }
     
-    BBBUtils.checkRecordingAvailability = function(meeting) {
+    BBBUtils.checkRecordingAvailability = function(meetingId) {
     	var htmlRecordings = '';
-		var recordings = BBBUtils.getMeetingRecordings(meeting.id);
+		var recordings = BBBUtils.getRecordings(meetingId);
 		if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
@@ -621,7 +633,7 @@ var BBBUtils;
 		}
 
 		if( htmlRecordings != '' ){
-			jQuery('#recording_link_'+meeting.id)
+			jQuery('#recording_link_'+meetingId)
 				.html(htmlRecordings);
 		}
     	
