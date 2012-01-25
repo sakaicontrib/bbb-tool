@@ -300,7 +300,7 @@ function switchState(state,arg) {
             // watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
                 BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
-                BBBUtils.setAdditionalMeetingRecordingParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingRecordingParams(bbbCurrentMeetings[i]);
             }
             
             BBBUtils.render('bbb_recordings_template',{'meetings':bbbCurrentMeetings},'bbb_content');

@@ -251,11 +251,11 @@ var BBBUtils;
 	}
 	
 	// Add recordings as extra parameter to a meeting object
-	BBBUtils.setAdditionalMeetingRecordingParams = function(meeting) {
+	BBBUtils.setMeetingRecordingParams = function(meeting) {
 
         meeting.recordings = Array();
 		
-		var recordings = BBBUtils.getMeetingRecordings(meeting.id);
+		var recordings = BBBUtils.getRecordings(meeting.id);
         if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         	return;
