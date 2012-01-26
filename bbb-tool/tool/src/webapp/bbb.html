@@ -180,9 +180,9 @@ $(document).ready(function(){
                     <small>
                     {if m.canEdit}
                 	  {if r.published == 'true'}
-                    	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${m.id}','${r.recordID}');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
+                    	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${m.id}','${r.recordID}','recordings');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
                       {else}	
-                    	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${m.id}','${r.recordID}');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
+                    	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${m.id}','${r.recordID}','recordings');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
                 	  {/if}
                     {/if}
                     {if m.canDelete}
