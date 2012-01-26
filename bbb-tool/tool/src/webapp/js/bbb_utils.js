@@ -202,6 +202,7 @@ var BBBUtils;
             }
         });
     }
+	
 	BBBUtils.setMeetingInfoParams = function(meeting) {
 		//Clear attendees
 		if( meeting.attendees && meeting.attendees.length > 0 )
@@ -339,28 +340,31 @@ var BBBUtils;
 	}
 
 	// Publish the specified recording from the BigBlueButton server. 
-	BBBUtils.publishRecordings = function(meetingID, recordID) {
+	BBBUtils.publishRecordings = function(meetingID, recordID, stateFunction) {
 	
 		BBBUtils.setRecordings(meetingID, recordID, "true");
 	
 	}
 
 	// Unpublish the specified recording from the BigBlueButton server. 
-	BBBUtils.unpublishRecordings = function(meetingID, recordID) {
+	BBBUtils.unpublishRecordings = function(meetingID, recordID, stateFunction) {
 	
-		BBBUtils.setRecordings(meetingID, recordID, "false");
+		BBBUtils.setRecordings(meetingID, recordID, "false", stateFunction);
 	
 	}
 
 	// Publish the specified recording from the BigBlueButton server. 
-	BBBUtils.setRecordings = function(meetingID, recordID, action) {
+	BBBUtils.setRecordings = function(meetingID, recordID, action, stateFunction) {
 
 		jQuery.ajax( {
 	 		url : "/direct/bbb-meeting/publishRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&publish=" + action,
 			dataType:'text',
 			type: "GET",
 		   	success : function(result) {
-				switchState('recordings');
+				if(stateFunction = 'recordings')
+					switchState('recordings');
+				else
+					switchState('recordings_meeting',"{'meetingId':'" + meetingID + "'}");
 			},
 			error : function(xmlHttpRequest,status,error) {
 				if( action == 'PUBLISH' )
@@ -615,11 +619,15 @@ var BBBUtils;
 		if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-			for(var p=0; p<recordings.recordings.length; p++) {
-				for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-					htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
-				}
-			}
+        	if(recordings.recordings.length > 0)
+				htmlRecordings += '<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">There are ' + recordings.recordings.length + ' recordings for this meeting</a>&nbsp;&nbsp;';
+        	else
+        		htmlRecordings += "There are no recordings for this meeting";
+			//for(var p=0; p<recordings.recordings.length; p++) {
+			//	for(var q=0; q<recordings.recordings[p].playback.length; q++) {
+			//		htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
+			//	}
+			//}
 		}
 
 		if( htmlRecordings != '' ){

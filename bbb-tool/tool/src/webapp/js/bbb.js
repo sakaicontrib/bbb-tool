@@ -327,7 +327,6 @@ function switchState(state,arg) {
             });
 
             bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
-            
         }else{
             // warn about lack of permissions
             if(bbbUserPerms.siteUpdate) {
@@ -337,9 +336,67 @@ function switchState(state,arg) {
             }
             $('#bbb_content').empty();
         }
-        
+    } else if('recordings_meeting' === state) {
+    	$('#bbb_create_meeting_link').parent().parent().hide();
+    	$('#bbb_end_meetings_link').parent().parent().hide();
+    	$('#bbb_permissions_link').parent().parent().hide();
+
+    	if(arg && arg.meetingId) {
+    	    if(bbbUserPerms.bbbViewMeetingList) {
+    	        var meetings = [];
+    	        var k = 0;
+    	        for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+    	        	if(bbbCurrentMeetings[i].id == arg.meetingId){
+    	                BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
+    	                BBBUtils.setMeetingRecordingParams(bbbCurrentMeetings[i]);
+    	        		meetings[k++] = bbbCurrentMeetings[i];
+    	        	}
+    	        }
+    	        BBBUtils.render('bbb_recordings_template',{'meetings':meetings},'bbb_content');
+    	        
+    	        $(document).ready(function() {
+    	            // auto hide actions
+    	            jQuery('.meetingRow')
+    	                .bind('mouseenter', function() {
+    	                    jQuery(this).find('div.itemAction').show();
+    	                    jQuery(this).addClass('bbb_even_row');
+    	                })
+    	                .bind('mouseleave', function() {
+    	                    jQuery(this).find('div.itemAction').hide();
+    	                    jQuery(this).removeClass('bbb_even_row');
+    	                }
+    	            );
+    	            
+    	            // add sorting capabilities
+    	            $("#bbb_meeting_table").tablesorter({
+    	                cssHeader:'bbb_sortable_table_header',
+    	                cssAsc:'bbb_sortable_table_header_sortup',
+    	                cssDesc:'bbb_sortable_table_header_sortdown',
+    	                headers: { /*3: {sorter: false}*/ },
+    	                // Sort DESC status:
+    	                sortList: (meetings.length > 0) ? [[1,1]] : []
+    	            });
+    	            
+    	            BBBUtils.adjustFrameHeight();
+    	        });
+
+    	        bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbInterval.recordings);
+            }else{
+                // warn about lack of permissions
+                if(bbbUserPerms.siteUpdate) {
+                    BBBUtils.showMessage(bbb_err_no_tool_permissions_maintainer);
+                }else{
+                    BBBUtils.showMessage(bbb_err_no_tool_permissions);
+                }
+                $('#bbb_content').empty();
+            }
+    	}else{
+    		switchState('recordings');
+    	}
     }
 }
+
+
 
 function refreshMeetingList() {
 	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
