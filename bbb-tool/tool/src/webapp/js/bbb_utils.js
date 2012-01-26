@@ -263,19 +263,7 @@ var BBBUtils;
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         	return;
         }
-       	for(var p=0; p<recordings.recordings.length; p++) {
-       		meeting.recordings[p] = Array();
-       		meeting.recordings[p].recordID = recordings.recordings[p].recordID;
-       		meeting.recordings[p].startTime = recordings.recordings[p].startTime;
-       		meeting.recordings[p].published = recordings.recordings[p].published;
-            
-			meeting.recordings[p].playback = Array();
-			for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-      			meeting.recordings[p].playback[q] = Array();
-      			meeting.recordings[p].playback[q].url = recordings.recordings[p].playback[q].url;
-      			meeting.recordings[p].playback[q].type = recordings.recordings[p].playback[q].type;
-			}
-		}				
+        meeting.recordings = recordings.recordings;
 	}
 
 	// End the specified meeting. The name parameter is required for the confirm
@@ -372,7 +360,7 @@ var BBBUtils;
 			dataType:'text',
 			type: "GET",
 		   	success : function(result) {
-				switchState('currentMeetings');
+				switchState('recordings');
 			},
 			error : function(xmlHttpRequest,status,error) {
 				if( action == 'PUBLISH' )
