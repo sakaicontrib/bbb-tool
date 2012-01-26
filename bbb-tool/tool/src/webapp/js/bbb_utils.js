@@ -619,15 +619,11 @@ var BBBUtils;
 		if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
+        	var bbb_meetinginfo_recordingsStr = bbb_meetinginfo_recordings(unescape(recordings.recordings.length))
         	if(recordings.recordings.length > 0)
-				htmlRecordings += '<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">There are ' + recordings.recordings.length + ' recordings for this meeting</a>&nbsp;&nbsp;';
+				htmlRecordings += '<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordingsStr + '</a>&nbsp;&nbsp;';
         	else
-        		htmlRecordings += "There are no recordings for this meeting";
-			//for(var p=0; p<recordings.recordings.length; p++) {
-			//	for(var q=0; q<recordings.recordings[p].playback.length; q++) {
-			//		htmlRecordings += '<a href="' + recordings.recordings[p].playback[q].url + '" title="' + recordings.recordings[p].playback[q].type + '" target="_blank">' + recordings.recordings[p].playback[q].type + '</a>&nbsp;&nbsp;';
-			//	}
-			//}
+        		htmlRecordings += bbb_meetinginfo_recordingsStr;
 		}
 
 		if( htmlRecordings != '' ){
