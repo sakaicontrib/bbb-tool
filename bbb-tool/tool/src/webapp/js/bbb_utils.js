@@ -208,11 +208,15 @@ var BBBUtils;
 			delete meeting.attendees;
 		meeting.attendees = new Array();
 		meeting.hasBeenForciblyEnded = "false";
+		meeting.participantCount = 0;
+		meeting.moderatorCount = 0;
 			
 		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
-		if ( meetingInfo.returncode != null) {
+		if ( meetingInfo != null && meetingInfo.returncode != null) {
 			meeting.attendees = meetingInfo.attendees;
 			meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
+			meeting.participantCount = meetingInfo.participantCount;
+			meeting.moderatorCount = meetingInfo.moderatorCount;
 		}
 	}
 	
@@ -252,7 +256,6 @@ var BBBUtils;
 	
 	// Add recordings as extra parameter to a meeting object
 	BBBUtils.setMeetingRecordingParams = function(meeting) {
-
         meeting.recordings = Array();
 		
 		var recordings = BBBUtils.getRecordings(meeting.id);
@@ -500,6 +503,7 @@ var BBBUtils;
                 BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
     			BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
+      	   	 	updateMeetingInfo(bbbCurrentMeetings[i]);
     			return;
     		}
     	}
@@ -579,12 +583,10 @@ var BBBUtils;
                 	.addClass('status_joinable_unavailable')
                 	.text(bbb_status_joinable_unavailable);
 
-                updateMeetingInfo(meeting.id);
     			jQuery('#bbb_meeting_info_participants_count').html('0');
     		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();
                 jQuery('#bbb_meeting_info_participants_count_tr').hide();
         	}
-        	
         } else if(meeting.notStarted) {
             jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
             jQuery('#meeting_status_'+meeting.id)

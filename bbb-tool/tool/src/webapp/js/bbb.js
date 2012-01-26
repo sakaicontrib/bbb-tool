@@ -163,8 +163,7 @@ function switchState(state,arg) {
             $('#bbb_content').empty();
         }
         
-    }
-    else if('addUpdateMeeting' === state) {
+    } else if('addUpdateMeeting' === state) {
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
@@ -184,8 +183,6 @@ function switchState(state,arg) {
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
 
         $(document).ready(function() {
-
-
             // Focus on meeting name/title
             $('#bbb_meeting_name_field').focus();
             
@@ -234,8 +231,7 @@ function switchState(state,arg) {
             BBBUtils.adjustFrameHeight();
         });
         
-    }
-    else if('permissions' === state) {
+    } else if('permissions' === state) {
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
@@ -258,8 +254,7 @@ function switchState(state,arg) {
 
             BBBUtils.adjustFrameHeight();
         });
-    }
-    else if('joinMeeting' === state || 'meetingInfo' === state) {
+    } else if('joinMeeting' === state || 'meetingInfo' === state) {
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
@@ -286,8 +281,7 @@ function switchState(state,arg) {
         }else{
         	switchState('currentMeetings');
         }
-    }
-    else if('recordings' === state) {
+    } else if('recordings' === state) {
         $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
@@ -469,9 +463,9 @@ function addParticipantRow(_selType, _id, _title, _moderator) {
     }
 }
 
-function updateMeetingInfo(meetingId) {
+function updateMeetingInfo(meeting) {
 	jQuery('#bbb_meeting_info_participants_count').html('?');
-	var meetingInfo = BBBUtils.getMeetingInfo(meetingId);
+	var meetingInfo = meeting;
 	if(meetingInfo != null) {
 		if(meetingInfo.participantCount != null && parseInt(meetingInfo.participantCount) >= 0) {
 			// prepare participant count text
@@ -517,7 +511,7 @@ function updateMeetingInfo(meetingId) {
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
                 if(bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
-					$('#meeting_joinlink_' + meetingId).hide();
+					$('#meeting_joinlink_' + meeting.id).hide();
 				}
           	}
 		}else if(meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1){
