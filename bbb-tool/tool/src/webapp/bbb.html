@@ -163,9 +163,10 @@ $(document).ready(function(){
     <thead>
         <tr>
             <th class="name">${bbb_th_name}</th>
-            <th class="recStartDate">${bbb_th_startdate}</th>
+            <th class="recStartDate">${bbb_th_recordingdate}</th>
             <th class="recordings">${bbb_th_recordings}</th>
             <th class="status">${bbb_th_status}</th>
+            <th class="length">${bbb_th_recordinglength}</th>
         </tr>
     </thead>
     <tbody>
@@ -203,6 +204,13 @@ $(document).ready(function(){
         	  {else}
         		${bbb_recording_status_hidden}
               {/if}
+            </td>
+            <td>
+		      {for p in r.playback}
+        	    {if p.type == 'slides'}
+        		${p.length}
+                {/if}
+              {/for}
             </td>
         </tr>
       {/if}

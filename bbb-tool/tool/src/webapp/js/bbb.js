@@ -21,10 +21,10 @@ var bbbServerTimeDiff = 0;
 var bbbUserPerms = null;
 var bbbCurrentMeetings = [];
 var bbbInterval = null;
-var bbbCheckAllMeetingAvailabilityId = null; 
-var bbbCheckMeetingAvailabilityId = null; 
-var bbbCheckRecordingAvailabilityId = null; 
 var bbbCheckOneMeetingAvailabilityId = null;
+var bbbCheckAllMeetingAvailabilityId = null; 
+var bbbCheckRecordingAvailabilityId = null; 
+var bbbRefreshRecordingListId = null;
 
 (function() {
     // Setup Ajax defaults
@@ -84,9 +84,10 @@ var bbbCheckOneMeetingAvailabilityId = null;
 })();
 
 function switchState(state,arg) {
+	if ( bbbCheckOneMeetingAvailabilityId != null ) clearInterval(bbbCheckOneMeetingAvailabilityId);
 	if ( bbbCheckAllMeetingAvailabilityId != null ) clearInterval(bbbCheckAllMeetingAvailabilityId);
 	if ( bbbCheckRecordingAvailabilityId != null ) clearInterval(bbbCheckRecordingAvailabilityId);
-	if ( bbbCheckOneMeetingAvailabilityId != null ) clearInterval(bbbCheckOneMeetingAvailabilityId);
+	if ( bbbRefreshRecordingListId != null ) clearInterval(bbbRefreshRecordingListId);
 	
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
@@ -324,6 +325,8 @@ function switchState(state,arg) {
                 
                 BBBUtils.adjustFrameHeight();
             });
+
+            bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
             
         }else{
             // warn about lack of permissions
