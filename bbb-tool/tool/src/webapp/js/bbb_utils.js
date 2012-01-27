@@ -319,9 +319,9 @@ var BBBUtils;
     
 	// Delete the specified recording from the BigBlueButton server. The name parameter is required for the confirm
 	// dialog
-	BBBUtils.deleteRecordings = function(meetingID, recordID) {
+	BBBUtils.deleteRecordings = function(meetingID, recordID, stateFunction, confirmationMsg) {
 	
-		var question = bbb_action_delete_recording_question(unescape(recordID));
+		var question = bbb_action_delete_recording_question(unescape(confirmationMsg));
 
 		if(!confirm(question)) return;
 		
@@ -330,7 +330,10 @@ var BBBUtils;
 			dataType:'text',
 			type:"GET",
 		   	success : function(result) {
-				switchState('currentMeetings');
+				if(stateFunction == 'recordings')
+					switchState('recordings');
+				else
+					switchState('recordings_meeting',{'meetingId':meetingID});
 			},
 			error : function(xmlHttpRequest,status,error) {
                 	var msg = bbb_err_delete_recording(recordID);
@@ -341,14 +344,12 @@ var BBBUtils;
 
 	// Publish the specified recording from the BigBlueButton server. 
 	BBBUtils.publishRecordings = function(meetingID, recordID, stateFunction) {
-	
-		BBBUtils.setRecordings(meetingID, recordID, "true");
+		BBBUtils.setRecordings(meetingID, recordID, "true", stateFunction);
 	
 	}
 
 	// Unpublish the specified recording from the BigBlueButton server. 
 	BBBUtils.unpublishRecordings = function(meetingID, recordID, stateFunction) {
-	
 		BBBUtils.setRecordings(meetingID, recordID, "false", stateFunction);
 	
 	}
@@ -361,10 +362,10 @@ var BBBUtils;
 			dataType:'text',
 			type: "GET",
 		   	success : function(result) {
-				if(stateFunction = 'recordings')
+				if(stateFunction == 'recordings')
 					switchState('recordings');
 				else
-					switchState('recordings_meeting',"{'meetingId':'" + meetingID + "'}");
+					switchState('recordings_meeting',{'meetingId':meetingID});
 			},
 			error : function(xmlHttpRequest,status,error) {
 				if( action == 'PUBLISH' )
