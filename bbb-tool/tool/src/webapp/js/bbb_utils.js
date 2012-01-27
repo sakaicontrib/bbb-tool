@@ -615,22 +615,18 @@ var BBBUtils;
     }
     
     BBBUtils.checkRecordingAvailability = function(meetingId) {
-    	var htmlRecordings = '';
 		var recordings = BBBUtils.getRecordings(meetingId);
 		if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-        	var bbb_meetinginfo_recordingsStr = bbb_meetinginfo_recordings(unescape(recordings.recordings.length > 0? bbb_meetinginfo_recordings_true: bbb_meetinginfo_recordings_false), unescape(recordings.recordings.length))
+        	var htmlRecordings = unescape(recordings.recordings.length > 0? bbb_meetinginfo_recordings_true: bbb_meetinginfo_recordings_false) + "&nbsp;";
         	if(recordings.recordings.length > 0)
-				htmlRecordings += '<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordingsStr + '</a>&nbsp;&nbsp;';
-        	else
-        		htmlRecordings += bbb_meetinginfo_recordingsStr;
-		}
+				htmlRecordings += '(<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.recordings.length)) + '</a>)&nbsp;&nbsp;';
 
-		if( htmlRecordings != '' ){
-			jQuery('#recording_link_'+meetingId)
+        	jQuery('#recording_link_'+meetingId)
 				.html(htmlRecordings);
 		}
+
     	
     }
 

@@ -141,12 +141,12 @@ function switchState(state,arg) {
                 
                 // add sorting capabilities
                 $("#bbb_meeting_table").tablesorter({
-                                    cssHeader:'bbb_sortable_table_header',
-                                    cssAsc:'bbb_sortable_table_header_sortup',
-                                    cssDesc:'bbb_sortable_table_header_sortdown',
-                                    headers: { /*3: {sorter: false}*/ },
-                                    // Sort DESC status:
-                                    sortList: (bbbCurrentMeetings.length > 0) ? [[1,1]] : []
+                    cssHeader:'bbb_sortable_table_header',
+                    cssAsc:'bbb_sortable_table_header_sortup',
+                    cssDesc:'bbb_sortable_table_header_sortdown',
+                    headers: { /*3: {sorter: false}*/ },
+                    // Sort DESC status:
+                    sortList: (bbbCurrentMeetings.length > 0) ? [[0,0]] : []
                 });
                 
                 BBBUtils.adjustFrameHeight();
@@ -320,7 +320,7 @@ function switchState(state,arg) {
                     cssDesc:'bbb_sortable_table_header_sortdown',
                     headers: { /*3: {sorter: false}*/ },
                     // Sort DESC status:
-                    sortList: (bbbCurrentMeetings.length > 0) ? [[1,1]] : []
+                    sortList: (bbbCurrentMeetings.length > 0) ? [[0,0],[2,0]] : []
                 });
                 
                 BBBUtils.adjustFrameHeight();
@@ -374,7 +374,7 @@ function switchState(state,arg) {
     	                cssDesc:'bbb_sortable_table_header_sortdown',
     	                headers: { /*3: {sorter: false}*/ },
     	                // Sort DESC status:
-    	                sortList: (meetings.length > 0) ? [[1,1]] : []
+    	                sortList: (meetings.length > 0) ? [[2,0]] : []
     	            });
 
     	            BBBUtils.adjustFrameHeight();
