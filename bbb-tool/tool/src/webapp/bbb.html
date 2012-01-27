@@ -180,14 +180,14 @@ $(document).ready(function(){
                     <small>
                     {if m.canEdit}
                 	  {if r.published == 'true'}
-                    	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${m.id}','${r.recordID}','recordings');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
+                    	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${m.id}','${r.recordID}','${stateFunction}');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
                       {else}	
-                    	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${m.id}','${r.recordID}','recordings');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
+                    	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${m.id}','${r.recordID}','${stateFunction}');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
                 	  {/if}
                     {/if}
                     {if m.canDelete}
                         &nbsp;|&nbsp;
-                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${m.id}','${r.recordID}');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
+                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${m.id}','${r.recordID}','${stateFunction}','${escape(m.name)} [${new Date(r.startTime).toISO8601String()}]');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
                     {/if}
                     </small>
                 </div> 

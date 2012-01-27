@@ -298,8 +298,8 @@ function switchState(state,arg) {
                 BBBUtils.setMeetingRecordingParams(bbbCurrentMeetings[i]);
             }
             
-            BBBUtils.render('bbb_recordings_template',{'meetings':bbbCurrentMeetings},'bbb_content');
- 
+	        BBBUtils.render('bbb_recordings_template',{'meetings':bbbCurrentMeetings, 'stateFunction':'recordings'},'bbb_content');
+
             $(document).ready(function() {
                 // auto hide actions
                 jQuery('.meetingRow')
@@ -352,7 +352,7 @@ function switchState(state,arg) {
     	        		meetings[k++] = bbbCurrentMeetings[i];
     	        	}
     	        }
-    	        BBBUtils.render('bbb_recordings_template',{'meetings':meetings},'bbb_content');
+    	        BBBUtils.render('bbb_recordings_template',{'meetings':meetings, 'stateFunction':'recordings_meeting'},'bbb_content');
     	        
     	        $(document).ready(function() {
     	            // auto hide actions
@@ -376,7 +376,7 @@ function switchState(state,arg) {
     	                // Sort DESC status:
     	                sortList: (meetings.length > 0) ? [[1,1]] : []
     	            });
-    	            
+
     	            BBBUtils.adjustFrameHeight();
     	        });
 
