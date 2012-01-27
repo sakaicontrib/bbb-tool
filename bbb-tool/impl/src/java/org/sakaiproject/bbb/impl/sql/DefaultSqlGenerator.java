@@ -229,14 +229,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
     public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId,
             Connection connection) throws Exception {
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
-        PreparedStatement meetingST = connection
-                .prepareStatement("UPDATE BBB_MEETING SET DELETED = 1 WHERE MEETING_ID = ?");
+        PreparedStatement meetingST = connection.prepareStatement("UPDATE BBB_MEETING SET DELETED = 1 WHERE MEETING_ID = ?");
         meetingST.setString(1, meetingId);
         statements.add(meetingST);
-        PreparedStatement participantsST = connection
-                .prepareStatement("UPDATE BBB_MEETING_PARTICIPANT SET DELETED = 1 WHERE MEETING_ID = ?");
-        participantsST.setString(1, meetingId);
-        statements.add(participantsST);
         return statements;
     }
     
