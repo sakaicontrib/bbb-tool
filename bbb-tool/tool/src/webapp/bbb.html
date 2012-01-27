@@ -457,7 +457,7 @@ $(document).ready(function(){
         <td><h5>${bbb_meetinginfo_participants_count}</h5></td>
         <td>
             <span id="bbb_meeting_info_participants_count"></span>
-            <a id="updateMeetingInfo" href="javascript:;" onclick="updateMeetingInfo('${meeting.id}'); return false;" title="${bbb_meetinginfo_updateinfo_tooltip}">
+            <a id="updateMeetingInfo" href="javascript:;" onclick="BBBUtils.checkOneMeetingAvailability('${meeting.id}'); return false;" title="${bbb_meetinginfo_updateinfo_tooltip}">
                 <img src="/library/image/silk/arrow_refresh_small.png" alt="(refresh)" style="vertical-align:middle"/>
             </a>
         </td>

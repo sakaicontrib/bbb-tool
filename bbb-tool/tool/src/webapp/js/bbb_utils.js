@@ -620,7 +620,7 @@ var BBBUtils;
 		if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-        	var bbb_meetinginfo_recordingsStr = bbb_meetinginfo_recordings(unescape(recordings.recordings.length))
+        	var bbb_meetinginfo_recordingsStr = bbb_meetinginfo_recordings(unescape(recordings.recordings.length > 0? bbb_meetinginfo_recordings_true: bbb_meetinginfo_recordings_false), unescape(recordings.recordings.length))
         	if(recordings.recordings.length > 0)
 				htmlRecordings += '<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordingsStr + '</a>&nbsp;&nbsp;';
         	else
