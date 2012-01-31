@@ -44,6 +44,7 @@ import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -190,6 +191,8 @@ public class BaseBBBAPI implements BBBAPI {
             // BSN: Parameters required for notification when recordings are done
 
             // BSN: Parameters required for monitoring
+            //ResourceLoader toolParameters = new ResourceLoader("bbb.build", "Tool");
+
             query.append("&meta_originApp=");
             String originAppSakaiVersion = config.getString("version.sakai", "");
             query.append("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[]");
