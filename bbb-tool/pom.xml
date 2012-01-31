@@ -62,7 +62,9 @@
     	<log4j.version>1.2.9</log4j.version>
     	<ical4j.version>1.0-rc3</ical4j.version>
     	<url.localsite>scp://source.sakaiproject.org/var/www/html/release/bbb/${project.version}</url.localsite>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
+    	<buildNumber>${maven.build.timestamp}</buildNumber>
     </properties>
     
     
