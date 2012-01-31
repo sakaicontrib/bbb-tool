@@ -204,7 +204,7 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(URLEncoder.encode(serverUrl.toString(), getParametersEncoding()));
 
             query.append("&meta_originServerName=");
-            String originServerName = config.getString("serverId", "");
+            String originServerName = config.getServerName();
             query.append(originServerName);
             // BSN: Ends
 
