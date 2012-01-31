@@ -221,7 +221,6 @@ public class BaseBBBAPI implements BBBAPI {
 
             query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 
-            logger.info("JF: createQueryString:" + query.toString());
             // do API call
             Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString());
             meeting.setAttendeePassword((String) response.get("attendeePW"));

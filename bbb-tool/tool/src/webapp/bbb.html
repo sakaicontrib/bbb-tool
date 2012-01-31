@@ -255,7 +255,7 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">${bbb_info_recording}</td>
         <td>
-            {var recordingChecked = isNew ? true : meeting.recording }
+            {var recordingChecked = isNew ? false : meeting.recording }
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
