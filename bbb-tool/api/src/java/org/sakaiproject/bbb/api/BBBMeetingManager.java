@@ -107,8 +107,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean createMeeting(BBBMeeting meeting,
-            boolean notifyParticipants, boolean addToCalendar)
+    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
             throws SecurityException, BBBException;
 
     /**

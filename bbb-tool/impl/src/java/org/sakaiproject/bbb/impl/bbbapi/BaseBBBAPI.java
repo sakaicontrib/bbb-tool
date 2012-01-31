@@ -156,21 +156,18 @@ public class BaseBBBAPI implements BBBAPI {
             query.append("&dialNumber=");
             query.append(voiceBridge);
             query.append("&attendeePW=");
-            String attendeePW = meeting.getAttendeePassword() != null
-                    && !"".equals(meeting.getAttendeePassword().trim()) ? meeting
-                    .getAttendeePassword()
+            String attendeePW = meeting.getAttendeePassword() != null && !"".equals(meeting.getAttendeePassword().trim()) 
+                    ? meeting.getAttendeePassword()
                     : generatePassword();
             query.append(attendeePW);
             query.append("&moderatorPW=");
-            String moderatorPW = meeting.getModeratorPassword() != null
-                    && !"".equals(meeting.getModeratorPassword().trim()) ? meeting
-                    .getModeratorPassword()
+            String moderatorPW = meeting.getModeratorPassword() != null && !"".equals(meeting.getModeratorPassword().trim()) 
+                    ? meeting.getModeratorPassword()
                     : generatePassword();
             query.append(moderatorPW);
             if (bbbAutocloseMeetingWindow) {
                 query.append("&logoutURL=");
-                StringBuilder logoutUrl = new StringBuilder(config
-                        .getServerUrl());
+                StringBuilder logoutUrl = new StringBuilder(config.getServerUrl());
                 logoutUrl.append(BBBMeetingManager.TOOL_WEBAPP);
                 logoutUrl.append("/bbb-autoclose.html");
                 query.append(URLEncoder.encode(logoutUrl.toString(), getParametersEncoding()));
@@ -178,51 +175,61 @@ public class BaseBBBAPI implements BBBAPI {
 
             // BSN: Parameters required for playback recording
             query.append("&record=");
-            String recording = meeting.getRecording() != null
-                    && meeting.getRecording().booleanValue() ? "true" : "false";
+            String recording = meeting.getRecording() != null && meeting.getRecording().booleanValue() ? "true" : "false";
             query.append(recording);
 
             query.append("&duration=");
-            String duration = meeting.getRecordingDuration() != null ? meeting
-                    .getRecordingDuration().toString() : "0";
+            String duration = meeting.getRecordingDuration() != null? meeting.getRecordingDuration().toString(): "0";
             query.append(duration);
 
             query.append("&meta_description=");
-            String description = meeting.getRecordingDescription() != null
-                    && !"".equals(meeting.getRecordingDescription().trim()) ? meeting
-                    .getRecordingDescription()
+            String description = meeting.getRecordingDescription() != null && !"".equals(meeting.getRecordingDescription().trim()) 
+                    ? meeting.getRecordingDescription()
                     : "";
             query.append(description);
+            // BSN: Parameters required for notification when recordings are done
+
+            // BSN: Parameters required for monitoring
+            query.append("&meta_originApp=");
+            String originAppSakaiVersion = config.getString("version.sakai", "");
+            query.append("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[]");
+
+            query.append("&meta_originServerId=");
+            String originServerId = config.getString("serverId", "");
+            query.append(originServerId);
+            
+            query.append("&meta_originServerUrl=");
+            StringBuilder serverUrl = new StringBuilder(config.getServerUrl());
+            //serverUrl.append(BBBMeetingManager.TOOL_WEBAPP);
+            query.append(URLEncoder.encode(serverUrl.toString(), getParametersEncoding()));
+
+            query.append("&meta_originServerName=");
+            String originServerName = config.getServerName();
+            query.append(originServerName);
             // BSN: Ends
 
             // Composed Welcome message
             String welcomeMessage = meeting.getProps().getWelcomeMessage();
             if (recording == "true")
-                welcomeMessage = welcomeMessage
-                        + "<br><br><b>This session is being recorded.</b>";
+                welcomeMessage = welcomeMessage + "<br><br><b>This session is being recorded.</b>";
             if (duration.compareTo("0") != 0)
-                welcomeMessage = welcomeMessage
-                        .concat("<br><br><b>The maximum duration for this session is "
+                welcomeMessage = welcomeMessage.concat("<br><br><b>The maximum duration for this session is "
                                 + duration + " minutes.");
 
             query.append("&welcome=");
-            query.append(URLEncoder.encode(welcomeMessage,
-                    getParametersEncoding()));
+            query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
 
-            query.append(getCheckSumParameterForQuery(APICALL_CREATE, query
-                    .toString()));
+            query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 
             // do API call
-            Map<String, Object> response = doAPICall(APICALL_CREATE, query
-                    .toString());
+            Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString());
             meeting.setAttendeePassword((String) response.get("attendeePW"));
             meeting.setModeratorPassword((String) response.get("moderatorPW"));
             meeting.setVoiceBridge(voiceBridge);
         } catch (BBBException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e
-                    .getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
 
         return meeting;
