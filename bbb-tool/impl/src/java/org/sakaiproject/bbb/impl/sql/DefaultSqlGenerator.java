@@ -120,8 +120,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
             BBBMeeting meeting, Connection connection) throws Exception {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
-        PreparedStatement meetingST = connection
-                .prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
         meetingST.setString(1, meeting.getId());
         meetingST.setString(2, meeting.getName());
         meetingST.setString(3, meeting.getHostUrl());

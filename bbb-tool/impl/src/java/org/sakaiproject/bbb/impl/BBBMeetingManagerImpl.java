@@ -228,8 +228,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
             throws SecurityException, BBBException {
         if (!getCanCreate(meeting.getSiteId())) {
-            throw new SecurityException(
-                    "You are not allow to create meetings in this site");
+            throw new SecurityException("You are not allow to create meetings in this site");
         }
 
         // convert dates from user timezone
@@ -580,8 +579,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // determine owner name
         if (meeting.getOwnerId() != null) {
             try {
-                String ownerDisplayName = userDirectoryService.getUser(
-                        meeting.getOwnerId()).getDisplayName();
+                String ownerDisplayName = userDirectoryService.getUser(meeting.getOwnerId()).getDisplayName();
                 meeting.setOwnerDisplayName(ownerDisplayName);
             } catch (UserNotDefinedException e) {
                 meeting.setOwnerDisplayName(meeting.getOwnerId());
@@ -592,18 +590,16 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         meeting.setStartDate(convertDateToUserTimezone(meeting.getStartDate()));
         meeting.setEndDate(convertDateToUserTimezone(meeting.getEndDate()));
 
-        Participant p = getParticipantFromMeeting(meeting, userDirectoryService
-                .getCurrentUser().getId());
+        Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 
         // Case #1: is participant
         if (getCanParticipate(meeting.getSiteId()) && p != null) {
             // build join url
             boolean isModerator = Participant.MODERATOR.equals(p.getRole());
-            String password = isModerator ? meeting.getModeratorPassword()
-                    : meeting.getAttendeePassword();
-            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(),
-                    userDirectoryService.getCurrentUser(), password);
+            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), password);
             meeting.setJoinUrl(joinURL);
+            //Set also metadata
 
             return meeting;
         }
