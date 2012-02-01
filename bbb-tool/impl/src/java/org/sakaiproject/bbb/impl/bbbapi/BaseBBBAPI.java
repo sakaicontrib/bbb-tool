@@ -191,11 +191,10 @@ public class BaseBBBAPI implements BBBAPI {
             // BSN: Parameters required for notification when recordings are done
 
             // BSN: Parameters required for monitoring
-            //ResourceLoader toolParameters = new ResourceLoader("bbb.build", "Tool");
-
+            ResourceLoader toolParameters = new ResourceLoader("Tool");
             query.append("&meta_originApp=");
             String originAppSakaiVersion = config.getString("version.sakai", "");
-            query.append("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[]");
+            query.append("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb.devBuild") + "]");
 
             query.append("&meta_originServerId=");
             String originServerId = config.getString("serverId", "");

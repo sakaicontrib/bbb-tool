@@ -86,32 +86,25 @@ public class DefaultSqlGenerator implements SqlGenerator {
     public Map<String, String> getUpdateStatements() {
         Map<String, String> statements = new HashMap<String, String>();
 
-        statements.put("BBB_MEETING:HOST_URL", 
+        statements.put("BBB_MEETING:HOST_URL:ADD", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL;");
-        statements.put("BBB_MEETING:RECORDING", 
+        statements.put("BBB_MEETING:RECORDING:ADD", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + ";"); 
-        statements.put("BBB_MEETING:RECORDING_DURATION", 
+        statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + ";");
-        statements.put("BBB_MEETING:DELETED", 
+        statements.put("BBB_MEETING:DELETED:ADD", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
+        statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
+        		"ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
         
         return statements;
     }
 
-    public String getShowNewColumnStatement(String updateName){
-        String statement = null;
-
-        if( updateName.equals("BBB_MEETING:HOST_URL"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'HOST_URL'";
-        else if( updateName.equals("BBB_MEETING:RECORDING"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING'";
-        else if( updateName.equals("BBB_MEETING:RECORDING_DURATION"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'RECORDING_DURATION'";
-        else if( updateName.equals("BBB_MEETING:DELETED"))
-            statement = "SHOW COLUMNS FROM BBB_MEETING LIKE 'DELETED'";
-        
-        return statement;
+    public String getShowColumnStatement(String tableName, String columnName)
+    {
+        return "SHOW COLUMNS FROM " + tableName + " LIKE '" + columnName + "'";
     }
+
     // 
     //Code for automatic updates to the database ends
     //

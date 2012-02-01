@@ -112,8 +112,7 @@ public class BBBStorageManager {
                     boolean create = true;
 
                     // Does the table already exist?
-                    String showTable = sqlGenerator
-                            .getShowTableStatement(tableName);
+                    String showTable = sqlGenerator.getShowTableStatement(tableName);
                     if (showTable != null) {
                         ResultSet rs = statement.executeQuery(showTable);
                         if (rs.next()) {
@@ -135,26 +134,22 @@ public class BBBStorageManager {
                 statement = connection.createStatement();
 
                 Map<String, String> updateStatements = sqlGenerator.getUpdateStatements();
-                for (String updateName : updateStatements.keySet()) {
+                for (String updateStatement : updateStatements.keySet()) {
+                	String updateElements[] = updateStatement.split(":");
                     boolean update = false;
 
-                    // Does the table need to be updated?
-                    String showNewColumn = sqlGenerator.getShowNewColumnStatement(updateName);
-                    if (showNewColumn != null) {
-                        ResultSet rs = statement.executeQuery(showNewColumn);
-                        if (!rs.next()) {
-                            update = true;
-                        }
+                    String showColumn = sqlGenerator.getShowColumnStatement(updateElements[0],updateElements[1]);
+                    ResultSet rs = statement.executeQuery(showColumn);
                     
-                    } 
-
+                    update = updateElements[2].equals("ADD")? !rs.next(): rs.next();
+                    
                     if ( update ){
                         // Update table
-                        logger.info("Updating " + updateName + " in DB.");
-                        statement.executeUpdate(updateStatements.get(updateName));
+                        logger.info("Updating " + updateElements[0] + " in DB with " + updateStatement + ".");
+                        statement.executeUpdate(updateStatements.get(updateStatement));
                     } else {
                         // Column it does exist. Table doesn't need to be updated
-                        logger.info("Update " + updateName + " does not need to be applied in DB.");
+                        logger.info("Update " + updateStatement + " does not need to be applied in DB.");
 
                     }
                 }
