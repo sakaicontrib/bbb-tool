@@ -253,8 +253,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Get detailed live meeting information from BBB server */
-    public Map<String, Object> getMeetingInfo(String meetingID, String password)
-            throws BBBException {
+    public Map<String, Object> getMeetingInfo(String meetingID, String password) throws BBBException {
         
         try {
             StringBuilder query = new StringBuilder();
@@ -281,8 +280,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Get recordings from BBB server */
-    public Map<String, Object> getRecordings(String meetingID)
-            throws BBBException {
+    public Map<String, Object> getRecordings(String meetingID) throws BBBException {
     	Map<String, Object> response = null;
     	
     	try {
@@ -296,13 +294,11 @@ public class BaseBBBAPI implements BBBAPI {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
         
-        //logger.info("getRecordings for meetingID" + meetingID + " response=" + response);
         return response;
     }
 
     /** End/delete a meeting on BBB server */
-    public boolean endMeeting(String meetingID, String password)
-            throws BBBException {
+    public boolean endMeeting(String meetingID, String password) throws BBBException {
         StringBuilder query = new StringBuilder();
         query.append("meetingID=");
         query.append(meetingID);
@@ -313,20 +309,18 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             doAPICall(APICALL_END, query.toString());
         } catch (BBBException e) {
-            // COMMENTED OUT AS THE notFound MESSAGE SEEMS TO HAVE BEEN DUMPED
-            // BY BBB
-            /*
-             * if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
-             * // we can safely ignore this one: the meeting is not running
-             * return true; }else{ throw e; }
-             */
+			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
+				// we can safely ignore this one: the meeting is not running
+				return true;
+			}else{
+				throw e;
+			}
         }
         return true;
     }
 
     /** Delete a recording on BBB server */
-    public boolean deleteRecordings(String meetingID, String recordID)
-            throws BBBException {
+    public boolean deleteRecordings(String meetingID, String recordID) throws BBBException {
         StringBuilder query = new StringBuilder();
         query.append("recordID=");
         query.append(recordID);
@@ -463,8 +457,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Make an API call */
-    protected Map<String, Object> doAPICall(String apiCall, String query)
-            throws BBBException {
+    protected Map<String, Object> doAPICall(String apiCall, String query) throws BBBException {
         StringBuilder urlStr = new StringBuilder(bbbUrl);
         urlStr.append(API_SERVERPATH);
         urlStr.append(apiCall);
@@ -519,13 +512,17 @@ public class BaseBBBAPI implements BBBAPI {
                 return response;
 
             } else {
-                throw new BBBException(BBBException.MESSAGEKEY_HTTPERROR, "BBB server responded with HTTP status code "
-                                + responseCode);
+                throw new BBBException(BBBException.MESSAGEKEY_HTTPERROR, "BBB server responded with HTTP status code " + responseCode);
             }
 
-        } catch (Exception e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
-        }
+        } catch(BBBException be) {
+			logger.debug("doAPICall.BBBException messageKey=" + be.getMessageKey() + ", message=" + be.getMessage());
+			throw new BBBException(be.getMessageKey(), be.getMessage(), be);
+			
+		} catch(Exception e) {
+			logger.debug("doAPICall.Exception Message=" + e.getMessage());
+			throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
+		}
     }
 
     // -----------------------------------------------------------------------
