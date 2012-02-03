@@ -67,8 +67,8 @@ public interface SqlGenerator
 
 	PreparedStatement getUpdateHostForMeetingStatement(String meetingId, String url, Connection connection) throws Exception;
 
-        Map<String, String> getUpdateStatements();
+	Map<String, String> getUpdateStatements();
 
-        String getShowNewColumnStatement(String table);
+	String getShowColumnStatement(String tableName, String columnName);
         
 }
