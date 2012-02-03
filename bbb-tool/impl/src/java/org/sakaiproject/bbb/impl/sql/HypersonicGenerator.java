@@ -37,20 +37,9 @@ public class HypersonicGenerator extends DefaultSqlGenerator
 		return "select TABLE_NAME from INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_NAME='" + table + "'";
 	}
 	
-    public String getShowNewColumnStatement(String updateName){
-        String statement = null;
-        
-        if( updateName.equals("BBB_MEETING:HOST_URL"))
-            statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING' AND COLUMN_NAME='HOST_URL'";
-        else if( updateName.equals("BBB_MEETING:RECORDING"))
-            statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING' AND COLUMN_NAME='RECORDING'";
-        else if( updateName.equals("BBB_MEETING:RECORDING_DURATION"))
-            statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING' AND COLUMN_NAME='RECORDING_DURATION'";
-        else if( updateName.equals("BBB_MEETING:DELETED"))
-            statement = "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='BBB_MEETING' AND COLUMN_NAME='DELETED'";
-        
-        return statement;
+    public String getShowColumnStatement(String tableName, String columnName)
+    {
+        return "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='" + tableName + "' AND COLUMN_NAME='" + columnName + "'";
     }
-	
 	
 }

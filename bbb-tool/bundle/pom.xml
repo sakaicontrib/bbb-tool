@@ -16,10 +16,16 @@
   	
   	<packaging>jar</packaging>
 
+	<properties>
+    	<maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
+    	<buildNumber>${maven.build.timestamp}</buildNumber>
+    </properties>
+
 	<build>
         <resources>
             <resource>
                 <directory>${basedir}/src/resources</directory>
+                <filtering>true</filtering>
                 <includes>
                     <include>**/*.properties</include>
                 </includes>

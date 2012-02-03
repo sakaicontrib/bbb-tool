@@ -603,7 +603,6 @@ var BBBUtils;
     		if( meeting.id == meetingId )
     			BBBUtils.checkRecordingAvailability(meeting);
     	}
-
     }
 
     // Check ALL recording availability and update meeting details page if appropriate
@@ -611,7 +610,6 @@ var BBBUtils;
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
             BBBUtils.checkRecordingAvailability(bbbCurrentMeetings[i]);
     	}
-
     }
     
     BBBUtils.checkRecordingAvailability = function(meetingId) {
@@ -619,15 +617,15 @@ var BBBUtils;
 		if( recordings.recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-        	var htmlRecordings = unescape(recordings.recordings.length > 0? bbb_meetinginfo_recordings_true: bbb_meetinginfo_recordings_false) + "&nbsp;";
+        	var htmlRecordings = "";
         	if(recordings.recordings.length > 0)
-				htmlRecordings += '(<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.recordings.length)) + '</a>)&nbsp;&nbsp;';
-
+				htmlRecordings = '(<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.recordings.length)) + '</a>)&nbsp;&nbsp;';
+        	else
+            	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.recordings.length)) + ")";
+        		
         	jQuery('#recording_link_'+meetingId)
 				.html(htmlRecordings);
 		}
-
-    	
     }
 
 

@@ -716,10 +716,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         for (String locale : meetingUsers.keySet()) {
             logger.debug("Sending " + locale + " notifications to "
                     + meetingUsers.get(locale).size() + " users.");
-            String sampleUserId = meetingUsers.get(locale).iterator().next()
-                    .getId();
-            ResourceLoader msgs = new ResourceLoader(sampleUserId,
-                    "EmailNotification");
+            String sampleUserId = meetingUsers.get(locale).iterator().next().getId();
+            ResourceLoader msgs = new ResourceLoader(sampleUserId, "EmailNotification");
 
             // Email message
             final String emailTitle = msgs.getFormattedMessage("email.title",
@@ -808,8 +806,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     private String getUserLocale(String userId) {
         Preferences prefs = preferencesService.getPreferences(userId);
-        ResourceProperties locProps = prefs
-                .getProperties(ResourceLoader.APPLICATION_ID);
+        ResourceProperties locProps = prefs.getProperties(ResourceLoader.APPLICATION_ID);
         String localeString = locProps.getProperty(ResourceLoader.LOCALE_KEY);
         if (localeString == null)
             localeString = Locale.getDefault().toString();
