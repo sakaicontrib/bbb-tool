@@ -68,6 +68,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         	"SELECTION_TYPE " + VARCHAR + "(99) NOT NULL, " +
         	"SELECTION_ID " + VARCHAR + "(99), " +
         	"ROLE " + VARCHAR + "(32) NOT NULL," + 
+            "DELETED " + INT + " DEFAULT 0 NOT NULL," +
         	"CONSTRAINT bbb_meeting_participant_pk PRIMARY KEY (MEETING_ID,SELECTION_TYPE,SELECTION_ID))");
 
         return statements;
