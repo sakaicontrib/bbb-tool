@@ -169,6 +169,9 @@ table#bbb_meeting_info_table td h5  {
 .status_joinable_unavailable {
     color: #EE9A00;
 }
+.status_joinable_unreachable {
+    color: #FF0000;
+}
 .status_finished {
 	color: #777;
 	font-style: oblique;

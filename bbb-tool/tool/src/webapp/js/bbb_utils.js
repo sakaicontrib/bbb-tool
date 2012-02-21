@@ -211,14 +211,20 @@ var BBBUtils;
 		meeting.hasBeenForciblyEnded = "false";
 		meeting.participantCount = 0;
 		meeting.moderatorCount = 0;
+		meeting.unreachableServer = "false";
 			
 		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
-			meeting.attendees = meetingInfo.attendees;
-			meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
-			meeting.participantCount = meetingInfo.participantCount;
-			meeting.moderatorCount = meetingInfo.moderatorCount;
+			if ( meetingInfo.returncode != 'FAILED' ) {
+				meeting.attendees = meetingInfo.attendees;
+				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
+				meeting.participantCount = meetingInfo.participantCount;
+				meeting.moderatorCount = meetingInfo.moderatorCount;
+			} else {
+				meeting.unreachableServer = "true";
+			}
 		}
+
 	}
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
@@ -246,12 +252,16 @@ var BBBUtils;
 	    //if joinable set the joinableMode
 		meeting.joinableMode = "nojoinable";
 		if( meeting.joinable ){
-			meeting.joinableMode = "available";
-			if ( meeting.hasBeenForciblyEnded == "true" ) {
-				meeting.joinableMode = "unavailable";
-			} else if ( meeting.attendees.length > 0 ) {
-				meeting.joinableMode = "inprogress";
-			}
+			if( meeting.unreachableServer == "false" ){
+				meeting.joinableMode = "available";
+				if ( meeting.hasBeenForciblyEnded == "true" ) {
+					meeting.joinableMode = "unavailable";
+				} else if ( meeting.attendees.length > 0 ) {
+					meeting.joinableMode = "inprogress";
+				}
+			} else
+				meeting.joinableMode = "unreachable";
+
 		}
 	}
 	
@@ -260,10 +270,13 @@ var BBBUtils;
         meeting.recordings = Array();
 		
 		var recordings = BBBUtils.getRecordings(meeting.id);
-        if( recordings.recordings == null ){
-            BBBUtils.showMessage(bbb_err_get_recording, 'warning');
+		if( recordings.returncode == 'FAILED'){
+			meeting.recordingError = recordings.message;
+			return;
+		} else if( recordings.recordings == null ){
+			meeting.recordingError = bbb_err_get_recording;
         	return;
-        }
+        } 
         meeting.recordings = recordings.recordings;
 	}
 
@@ -557,7 +570,7 @@ var BBBUtils;
                 	.addClass('status_joinable_inprogress')
                 	.text(bbb_status_joinable_inprogress);
 
-        	} else {
+        	} else if ( meeting.joinableMode === "unavailable" ){
                 jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
@@ -575,6 +588,29 @@ var BBBUtils;
                 	.removeClass()
                 	.addClass('status_joinable_unavailable')
                 	.text(bbb_status_joinable_unavailable);
+
+    			jQuery('#bbb_meeting_info_participants_count').html('0');
+    		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();
+                jQuery('#bbb_meeting_info_participants_count_tr').hide();
+
+        	} else if ( meeting.joinableMode === "unreachable" ){
+                jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                // Update the actionbar on the list
+                if ( meeting.canEnd ){ 
+                    jQuery('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('end_meeting_hidden');
+                }
+                // Update for list
+                jQuery('#meeting_status_'+meeting.id)
+                   .removeClass()
+                   .addClass('status_joinable_unreachable')
+                   .text(bbb_status_joinable_unreachable);
+                // Update for detail
+                jQuery('#meeting_status_joinable_'+meeting.id)
+                	.removeClass()
+                	.addClass('status_joinable_unreachable')
+                	.text(bbb_status_joinable_unreachable);
 
     			jQuery('#bbb_meeting_info_participants_count').html('0');
     		    jQuery('#bbb_meeting_info_participants_count_tr').fadeOut();

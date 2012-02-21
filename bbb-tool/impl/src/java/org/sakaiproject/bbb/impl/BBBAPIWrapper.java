@@ -63,10 +63,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API */
     private BBBAPI api = null;
 
-    //private static String DEFAULT_BBB_URL = "http://127.0.0.1/bigbluebutton";
-    //private static String DEFAULT_BBB_SALT = "";
-    private static String DEFAULT_BBB_URL = "http://test-install.blindsidenetworks.com/bigbluebutton";
-    private static String DEFAULT_BBB_SALT = "8cd8ef52e8e101574e400365b55e11a6";
+    private static String DEFAULT_BBB_URL = "";
+    private static String DEFAULT_BBB_SALT = "";
 
     /** Sakai configuration service */
     protected ServerConfigurationService config = null;
@@ -96,32 +94,37 @@ public class BBBAPIWrapper/* implements Runnable */{
     // --- Initialization related methods ------------------------------------
     // -----------------------------------------------------------------------
     public void start() {
-        if (logger.isDebugEnabled())
-            logger.debug("init()");
+        if (logger.isDebugEnabled()) logger.debug("init()");
 
         String bbbUrlString = config.getString(BBBMeetingManager.CFG_URL, DEFAULT_BBB_URL);
-        bbbUrls = bbbUrlString.split(",");
+        if (bbbUrlString == ""){
+            logger.warn("No BigBlueButton servers specified. The bbb.url property in sakai.properties must be either set to a single url or a comma separated list of urls. There should be a corresponding list of salts in the bbb.salt property.");
+            return;
+        }
 
         String bbbSaltString = config.getString(BBBMeetingManager.CFG_SALT, DEFAULT_BBB_SALT);
-        if (bbbSaltString == "")
+        if (bbbSaltString == ""){
             logger.warn("BigBlueButton salt key was not specified! Use 'bbb.salt = your_bbb_key' in sakai.properties.");
+            return;
+        }
+
+        bbbUrls = bbbUrlString.split(",");
         bbbSalts = bbbSaltString.split(",");
-
-        if (bbbUrls.length < 1)
-            logger.warn("No BigBlueButton servers specified. The bbb.url property in sakai.properties must be either set to a single url or a comma separated list of urls. There should be a corresponding list of salts in the bbb.salt property.");
-
-        if (bbbUrls.length != bbbSalts.length)
+        if (bbbUrls.length != bbbSalts.length){
             logger.warn("The number of BigBlueButton salts does not match the number of BigBlueButton urls! Check your bbb.salt and bbb.url properties in sakai.properties.");
+            return;
+        }
 
         liveUrls = new ArrayList<String>(bbbUrls.length);
 
-        // determine API version running on BBB server...
-
-        // Do an initial round of api mappings synchronously. This will break a
-        // Sakai startup if it
-        // fails, but at least you know it has broken.
+        logger.info("determine API version running on BBB server...");
         for (int i = 0; i < bbbUrls.length; i++) {
             bindAPIClassToBBBVersion(new BaseBBBAPI(bbbUrls[i], bbbSalts[i]));
+        }
+
+        if( bbbProxyMap.size() == 0 ){
+        	logger.warn("No BigBlueButton server has been properly initialized...");
+        	return;
         }
 
         if (liveUrls != null && liveUrls.size() > 0) {
@@ -136,23 +139,15 @@ public class BBBAPIWrapper/* implements Runnable */{
             if (!bbbProxyMap.containsKey(hostUrl)) {
                 // The host for this meeting is not alive. Try and move the
                 // meeting.
-                logger.warn("'"
-                            + hostUrl
-                            + "', the host of meeting '"
-                            + meeting.getId()
-                            + "', was not available. The meeting will be moved to the first available host '"
-                            + api.getUrl() + "' ...");
+                logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
+                            + "', was not available. The meeting will be moved to the first available host '" + api.getUrl() + "' ...");
                 try {
                     api.createMeeting(meeting);
                     if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
-                        logger.error("Failed to set the host to '"
-                                + api.getUrl() + "' for meeting '"
-                                + meeting.getId() + "'");
+                        logger.error("Failed to set the host to '" + api.getUrl() + "' for meeting '" + meeting.getId() + "'");
                     }
                 } catch (BBBException e) {
-                    logger.error("Failed to move meeting '" + meeting.getId()
-                            + "' from '" + meeting.getHostUrl() + "' to '"
-                            + api.getUrl() + "'", e);
+                    logger.error("Failed to move meeting '" + meeting.getId() + "' from '" + meeting.getHostUrl() + "' to '" + api.getUrl() + "'", e);
                 }
             }
         }
@@ -161,9 +156,6 @@ public class BBBAPIWrapper/* implements Runnable */{
             allocatorTimer = new Timer("BigBlueButton Allocator Timer");
             allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
         }
-
-        bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
-        bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
         /*
          * bbbVersionCheckInterval = (long)
          * config.getInt(BBBMeetingManager.CFG_VERSIONCHECKINTERVAL, (int)
@@ -171,6 +163,10 @@ public class BBBAPIWrapper/* implements Runnable */{
          * bbbVersionCheckInterval > 0; if(bbbVersionCheckThreadEnabled) {
          * startBBBVersionCheckThread(); }
          */
+
+
+        bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
+        bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
 
     }
 
@@ -180,8 +176,7 @@ public class BBBAPIWrapper/* implements Runnable */{
          */
     }
 
-    public void setServerConfigurationService(
-            ServerConfigurationService serverConfigurationService) {
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.config = serverConfigurationService;
     }
 
@@ -206,13 +201,21 @@ public class BBBAPIWrapper/* implements Runnable */{
             throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+
+        if (hostProxy == null)
+            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getMeetingInfo.");
+
         return hostProxy.getMeetingInfo(meetingID, password);
     }
-
+    
     public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+
+        if (hostProxy == null)
+            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getRecordings.");
+
         return hostProxy.getRecordings(meetingID);
     }
 
@@ -220,6 +223,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     		throws BBBException {
     	String hostUrl = this.bbbUrls[0];
     	BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+
+        if (hostProxy == null)
+            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getAllRecordings.");
+
     	return hostProxy.getRecordings("");
     }
 
@@ -227,21 +234,24 @@ public class BBBAPIWrapper/* implements Runnable */{
             throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
-        return hostProxy.endMeeting(meetingID, password);
+        
+        return hostProxy == null? false: hostProxy.endMeeting(meetingID, password);
     }
 
     public boolean publishRecordings(String meetingID, String recordingID,
             String publish) throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
-        return hostProxy.publishRecordings(meetingID, recordingID, publish);
+
+        return hostProxy == null? false: hostProxy.publishRecordings(meetingID, recordingID, publish);
     }
 
     public boolean deleteRecordings(String meetingID, String recordingID)
             throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
-        return hostProxy.deleteRecordings(meetingID, recordingID);
+        
+        return hostProxy == null? false: hostProxy.deleteRecordings(meetingID, recordingID);
     }
 
     public String getJoinMeetingURL(String meetingID, User user, String password) {
@@ -249,8 +259,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
         if (hostProxy == null) {
-            logger.warn("No proxy found for host '" + hostUrl
-                    + ". Returning \"\" for the join url ...");
+            logger.warn("No proxy found for host '" + hostUrl + ". Returning \"\" for the join url ...");
             return "";
         }
 
@@ -260,6 +269,9 @@ public class BBBAPIWrapper/* implements Runnable */{
     public void makeSureMeetingExists(BBBMeeting meeting) throws BBBException {
         String hostUrl = storageManager.getMeetingHost(meeting.getId());
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+        
+        if (hostProxy == null) return;
+        
         hostProxy.makeSureMeetingExists(meeting);
     }
 
@@ -320,6 +332,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     protected void bindAPIClassToBBBVersion(final BBBAPI proxy) {
         logger.debug("Checking BBB API version...");
+
         try {
             // get BBB API version
             String returnedVersion = proxy.getAPIVersion();
@@ -329,8 +342,7 @@ public class BBBAPIWrapper/* implements Runnable */{
             if (returnedVersion != null) {
                 liveUrls.add(proxy.getUrl());
             } else {
-                logger.debug("Error checking BigBlueButton version. Striking '"
-                        + proxy.getUrl() + " from the map ...");
+                logger.debug("Error checking BigBlueButton version. Striking '" + proxy.getUrl() + " from the map ...");
                 bbbProxyMap.remove(proxy.getUrl());
                 liveUrls.remove(proxy.getUrl());
                 return;
@@ -341,10 +353,8 @@ public class BBBAPIWrapper/* implements Runnable */{
                 String _version = returnedVersion;
                 // remove -SNAPSHOT, -FINAL, ...
                 if (_version.indexOf("-") != -1) {
-                    String stringPart = _version.substring(_version
-                            .indexOf("-") + 1);
-                    versionSnapshot = "SNAPSHOT".equalsIgnoreCase(stringPart
-                            .trim());
+                    String stringPart = _version.substring(_version.indexOf("-") + 1);
+                    versionSnapshot = "SNAPSHOT".equalsIgnoreCase(stringPart.trim());
                     _version = _version.substring(0, _version.indexOf("-"));
                 }
 
@@ -352,37 +362,30 @@ public class BBBAPIWrapper/* implements Runnable */{
                 // version should be like x.x or x.xx
                 float versionNumber = Float.parseFloat(_version);
                 if (versionNumber < 0.63f) {
-                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_MINIMUM,
-                            proxy.getUrl(), proxy.getSalt());
+                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_MINIMUM, proxy.getUrl(), proxy.getSalt());
                     bbbProxyMap.put(proxy.getUrl(), newProxy);
                 } else if (versionNumber < 0.70f) {
-                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_063, proxy
-                            .getUrl(), proxy.getSalt());
+                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_063, proxy.getUrl(), proxy.getSalt());
                     bbbProxyMap.put(proxy.getUrl(), newProxy);
                 } else if (versionNumber < 0.80f) {
-                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_070, proxy
-                            .getUrl(), proxy.getSalt());
+                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_070, proxy.getUrl(), proxy.getSalt());
                     bbbProxyMap.put(proxy.getUrl(), newProxy);
                 } else if (versionNumber == 0.80f) {
-                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_080, proxy
-                            .getUrl(), proxy.getSalt());
+                    BBBAPI newProxy = getAPI(BaseBBBAPI.APIVERSION_080, proxy.getUrl(), proxy.getSalt());
                     bbbProxyMap.put(proxy.getUrl(), newProxy);
                 } else {
-                    BBBAPI newProxy = getAPI(defaultVersion, proxy.getUrl(),
-                            proxy.getSalt());
+                    BBBAPI newProxy = getAPI(defaultVersion, proxy.getUrl(), proxy.getSalt());
                     bbbProxyMap.put(proxy.getUrl(), newProxy);
                 }
 
             } catch (NumberFormatException e) {
                 // invalid version => bind to latest
-                logger.warn("Invalid BigBlueButton version found (" + version
-                        + ") => binding to " + defaultVersion, e);
-                BBBAPI newProxy = getAPI(defaultVersion, proxy.getUrl(), proxy
-                        .getSalt());
+                logger.warn("Invalid BigBlueButton version found (" + version + ") => binding to " + defaultVersion, e);
+                BBBAPI newProxy = getAPI(defaultVersion, proxy.getUrl(), proxy.getSalt());
                 bbbProxyMap.put(proxy.getUrl(), newProxy);
             }
         } catch (Exception e) {
-            logger.error("Unable to check BigBlueButton version", e);
+            logger.error("Unable to check BigBlueButton version ", e);
         }
     }
 
@@ -402,8 +405,7 @@ public class BBBAPIWrapper/* implements Runnable */{
             newProxy = new BBBAPI_080(url, salt);
         }
 
-        logger.info("Sakai BigBlueButton Tool bound to API: "
-                + newProxy.getClass().getSimpleName());
+        logger.info("Sakai BigBlueButton Tool bound to API: " + newProxy.getClass().getSimpleName());
 
         return newProxy;
     }
@@ -443,13 +445,8 @@ public class BBBAPIWrapper/* implements Runnable */{
                     logger.error("No proxy mapped onto '" + newUrl + "'");
                 }
             } catch (Exception e) {
-                logger
-                        .error(
-                                "Failed to allocate a BigBlueButton instance. The getMeetings call failed against "
-                                        + bbbProxy.getUrl()
-                                        + ". It will be removed from the testUrls list for this allocation run.",
-                                e);
-
+                logger.error("Failed to allocate a BigBlueButton instance. The getMeetings call failed against "
+                             + bbbProxy.getUrl() + ". It will be removed from the testUrls list for this allocation run.", e);
                 testUrls.remove(bbbProxy.getUrl());
 
                 // Allow as many attempts as there are live urls
@@ -467,6 +464,17 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public long getAutorefreshForRecordings() {
         return bbbAutorefreshRecordings;
+    }
+
+    private Map<String, Object> noProxyFoundError(String message){
+        logger.warn(message);
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("returncode", "FAILED");
+        map.put("messageKey", "noProxyFound");
+        map.put("message", message);
+        return map;
+    	
     }
 
 }

@@ -149,8 +149,7 @@ public class BaseBBBAPI implements BBBAPI {
             query.append("meetingID=");
             query.append(meeting.getId());
             query.append("&name=");
-            query.append(URLEncoder.encode(meeting.getName(),
-                    getParametersEncoding()));
+            query.append(URLEncoder.encode(meeting.getName(), getParametersEncoding()));
             query.append("&voiceBridge=");
             Integer voiceBridge = 70000 + new Random().nextInt(10000);
             query.append(voiceBridge);
@@ -215,8 +214,7 @@ public class BaseBBBAPI implements BBBAPI {
             if (recording == "true")
                 welcomeMessage = welcomeMessage + "<br><br><b>This session is being recorded.</b>";
             if (duration.compareTo("0") != 0)
-                welcomeMessage = welcomeMessage.concat("<br><br><b>The maximum duration for this session is "
-                                + duration + " minutes.");
+                welcomeMessage = welcomeMessage.concat("<br><br><b>The maximum duration for this session is " + duration + " minutes.");
 
             query.append("&welcome=");
             query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
@@ -261,11 +259,9 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(meetingID);
             query.append("&password=");
             query.append(password);
-            query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGINFO,
-                    query.toString()));
+            query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, query.toString()));
 
-            Map<String, Object> response = doAPICall(APICALL_GETMEETINGINFO,
-                    query.toString());
+            Map<String, Object> response = doAPICall(APICALL_GETMEETINGINFO, query.toString());
             for (String key : response.keySet()) {
                 // nullify password fields
                 if ("attendeePW".equals(key) || "moderatorPW".equals(key))
@@ -274,8 +270,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             return response;
         } catch (Exception e) {
-            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e
-                    .getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
 
@@ -341,8 +336,7 @@ public class BaseBBBAPI implements BBBAPI {
         query.append(recordID);
         query.append("&publish=");
         query.append(publish);
-        query.append(getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS,
-                query.toString()));
+        query.append(getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, query.toString()));
 
         try {
             doAPICall(APICALL_PUBLISHRECORDINGS, query.toString());
@@ -413,8 +407,7 @@ public class BaseBBBAPI implements BBBAPI {
             Map<String, Object> response = doAPICall(APICALL_VERSION, null);
             _version = (String) response.get("version");
             _version = _version != null ? _version.trim() : null;
-            if (_version == null
-                    || Float.valueOf(_version.substring(0, 3)) < 0.0) {
+            if (_version == null || Float.valueOf(_version.substring(0, 3)) < 0.0) {
                 logger.warn("Invalid BigBlueButton version (" + _version + ")");
                 _version = null;
             }
@@ -426,14 +419,12 @@ public class BaseBBBAPI implements BBBAPI {
                 _version = APIVERSION_MINIMUM;
             } else {
                 // something went wrong => warn user
-                logger.warn("Unable to check BigBlueButton version: "
-                        + e.getMessage());
+                logger.warn("Unable to check BigBlueButton version: " + e.getMessage());
                 _version = null;
             }
         } catch (Exception e) {
             // something went wrong => warn user
-            logger.warn("Unable to check BigBlueButton version: "
-                    + e.getMessage());
+            logger.warn("Unable to check BigBlueButton version: " + e.getMessage());
             _version = null;
         }
         return _version;

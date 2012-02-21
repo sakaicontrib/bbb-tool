@@ -154,8 +154,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         this.bbbAPI = bbbAPI;
     }
 
-    public void setUserDirectoryService(
-            UserDirectoryService userDirectoryService) {
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
     }
 
@@ -188,8 +187,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         this.functionManager = functionManager;
     }
 
-    public void setServerConfigurationService(
-            ServerConfigurationService serverConfigurationService) {
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
     }
 
@@ -264,18 +262,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
     }
 
-    public boolean updateMeeting(BBBMeeting meeting,
-            boolean notifyParticipants, boolean addToCalendar)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
             throws SecurityException, BBBException {
         if (!getCanEdit(meeting.getSiteId(), meeting)) {
-            throw new SecurityException(
-                    "You are not allow to update this meeting");
+            throw new SecurityException("You are not allow to update this meeting");
         }
 
         // convert dates from user timezone
-        meeting
-                .setStartDate(convertDateFromUserTimezone(meeting
-                        .getStartDate()));
+        meeting.setStartDate(convertDateFromUserTimezone(meeting.getStartDate()));
         meeting.setEndDate(convertDateFromUserTimezone(meeting.getEndDate()));
 
         // store locally, in DB
@@ -297,9 +291,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
 
             // set meeting join url (for moderator, which is current user)
-            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(),
-                    userDirectoryService.getCurrentUser(), meeting
-                            .getModeratorPassword()));
+            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), meeting.getModeratorPassword()));
 
             // log event
             logEvent(EVENT_MEETING_EDIT, meeting);
@@ -337,8 +329,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         logEvent(EVENT_MEETING_JOIN, meeting);
     }
 
-    public boolean endMeeting(String meetingId) throws SecurityException,
-            BBBException {
+    public boolean endMeeting(String meetingId) 
+    		throws SecurityException, BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
         if (!getCanDelete(meeting.getSiteId(), meeting)) {
@@ -354,8 +346,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return true;
     }
 
-    public boolean deleteMeeting(String meetingId) throws SecurityException,
-            BBBException {
+    public boolean deleteMeeting(String meetingId) 
+    		throws SecurityException, BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
         if (!getCanDelete(meeting.getSiteId(), meeting)) {
@@ -376,13 +368,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return true;
     }
 
-    public boolean deleteRecordings(String meetingID, String recordID)
-            throws SecurityException, BBBException {
+    public boolean deleteRecordings(String meetingID, String recordID) 
+    		throws SecurityException, BBBException {
         return bbbAPI.deleteRecordings(meetingID, recordID);
     }
 
-    public boolean publishRecordings(String meetingID, String recordID,
-            String publish) throws SecurityException, BBBException {
+    public boolean publishRecordings(String meetingID, String recordID, String publish) 
+    		throws SecurityException, BBBException {
         // publish or unpublish the recording
         return bbbAPI.publishRecordings(meetingID, recordID, publish);
     }
@@ -441,8 +433,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (meeting != null) {
             // check if owns meeting
             if (currentUserId.equals(meeting.getOwnerId())) {
-                if (isUserAllowedInLocation(currentUserId, FN_DELETE_OWN,
-                        siteId))
+                if (isUserAllowedInLocation(currentUserId, FN_DELETE_OWN, siteId))
                     return true;
             }
         }
@@ -463,8 +454,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             boolean noPermsDefined = true;
             // get site
             // final Site site = siteService.getSite(siteId);
-            final AuthzGroup siteAuthz = authzGroupService
-                    .getAuthzGroup(siteService.siteReference(siteId));
+            final AuthzGroup siteAuthz = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
             // get roles
             roles = siteAuthz.getRoles();
             if (roles == null || roles.size() == 0)
@@ -512,15 +502,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 try {
                     exec.execute();
                 } catch (Exception e) {
-                    logger.warn(
-                            "Unable to apply default BBB permissions to site "
-                                    + siteId + ": " + e.getMessage(), e);
+                    logger.warn("Unable to apply default BBB permissions to site " + siteId + ": " + e.getMessage(), e);
                 }
             }
 
         } catch (Exception e) {
-            logger.warn("Unable to check tool permissions on site: "
-                    + e.getMessage(), e);
+            logger.warn("Unable to check tool permissions on site: " + e.getMessage(), e);
             return;
         }
     }
@@ -529,15 +516,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // --- Public utility methods --------------------------------------------
     // -----------------------------------------------------------------------
     public long getServerTimeInUserTimezone() {
-        Preferences prefs = preferencesService
-                .getPreferences(userDirectoryService.getCurrentUser().getId());
+        Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
         TimeZone timeZone = null;
         if (prefs != null) {
-            ResourceProperties props = prefs
-                    .getProperties(TimeService.APPLICATION_ID);
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
             String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
-            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr)
-                    : TimeZone.getDefault();
+            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr): TimeZone.getDefault();
         } else {
             timeZone = TimeZone.getDefault();
         }
@@ -557,8 +541,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public String getNoticeText() {
-        String bbbNoticeText = serverConfigurationService.getString(
-                CFG_NOTICE_TEXT, null);
+        String bbbNoticeText = serverConfigurationService.getString(CFG_NOTICE_TEXT, null);
         if (bbbNoticeText != null && "".equals(bbbNoticeText.trim()))
             bbbNoticeText = null;
         return bbbNoticeText;
@@ -605,8 +588,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // Case #2: is not a participant but can manage tool
-        else if (getCanEdit(meeting.getSiteId(), meeting)
-                || getCanDelete(meeting.getSiteId(), meeting)) {
+        else if (getCanEdit(meeting.getSiteId(), meeting) || getCanDelete(meeting.getSiteId(), meeting)) {
             // reset join url
             meeting.setJoinUrl(null);
 
@@ -622,8 +604,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         try {
             site = siteService.getSite(meeting.getSiteId());
         } catch (IdUnusedException e) {
-            logger.error("Unable to send notifications for '"
-                    + meeting.getName() + "' meeting participants.", e);
+            logger.error("Unable to send notifications for '" + meeting.getName() + "' meeting participants.", e);
             return;
         }
         String siteTitle = site.getTitle();
@@ -643,9 +624,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                         localeUsers.add(userDirectoryService.getUser(userId));
                         meetingUsers.put(userLocale, localeUsers);
                     } catch (UserNotDefinedException e) {
-                        logger.warn("Unable to notify user '" + userId
-                                + "' about '" + meeting.getName()
-                                + "' meeting.", e);
+                        logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                     }
                 }
                 break;
@@ -662,15 +641,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                         localeUsers.add(userDirectoryService.getUser(userId));
                         meetingUsers.put(userLocale, localeUsers);
                     } catch (UserNotDefinedException e) {
-                        logger.warn("Unable to notify user '" + userId
-                                + "' about '" + meeting.getName()
-                                + "' meeting.", e);
+                        logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                     }
                 }
             }
             if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
-                Set<String> roleUserIds = site.getUsersHasRole(p
-                        .getSelectionId());
+                Set<String> roleUserIds = site.getUsersHasRole(p.getSelectionId());
                 for (String userId : roleUserIds) {
                     try {
                         String userLocale = getUserLocale(userId);
@@ -680,9 +656,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                         localeUsers.add(userDirectoryService.getUser(userId));
                         meetingUsers.put(userLocale, localeUsers);
                     } catch (UserNotDefinedException e) {
-                        logger.warn("Unable to notify user '" + userId
-                                + "' about '" + meeting.getName()
-                                + "' meeting.", e);
+                        logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                     }
                 }
             }
@@ -696,10 +670,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     localeUsers.add(userDirectoryService.getUser(userId));
                     meetingUsers.put(userLocale, localeUsers);
                 } catch (UserNotDefinedException e) {
-                    logger
-                            .warn("Unable to notify user '"
-                                    + p.getSelectionId() + "' about '"
-                                    + meeting.getName() + "' meeting.", e);
+                    logger.warn("Unable to notify user '" + p.getSelectionId() + "' about '" + meeting.getName() + "' meeting.", e);
                 }
             }
         }
@@ -707,32 +678,27 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // generate an ical to attach to email (if, at least, start date is
         // defined)
         String icalFilename = generateIcalFromMeeting(meeting);
-        final File icalFile = icalFilename != null ? new File(icalFilename)
-                : null;
+        final File icalFile = icalFilename != null ? new File(icalFilename): null;
         if (icalFile != null)
             icalFile.deleteOnExit();
 
         // iterate over all user locales found
         for (String locale : meetingUsers.keySet()) {
-            logger.debug("Sending " + locale + " notifications to "
-                    + meetingUsers.get(locale).size() + " users.");
+            logger.debug("Sending " + locale + " notifications to " + meetingUsers.get(locale).size() + " users.");
             String sampleUserId = meetingUsers.get(locale).iterator().next().getId();
             ResourceLoader msgs = new ResourceLoader(sampleUserId, "EmailNotification");
 
             // Email message
-            final String emailTitle = msgs.getFormattedMessage("email.title",
-                    new Object[] { siteTitle, meeting.getName() });
+            final String emailTitle = msgs.getFormattedMessage("email.title", new Object[] { siteTitle, meeting.getName() });
             StringBuilder msg = new StringBuilder();
-            msg.append(msgs
-                    .getFormattedMessage("email.header", new Object[] {}));
+            msg.append(msgs.getFormattedMessage("email.header", new Object[] {}));
             msg.append(msgs.getFormattedMessage("email.body", new Object[] {
                     siteTitle,
                     serverConfigurationService.getString("ui.institution"),
                     directToolJoinUrl, meeting.getName() }));
             String meetingOwnerEid = null;
             try {
-                meetingOwnerEid = userDirectoryService.getUserEid(meeting
-                        .getOwnerId());
+                meetingOwnerEid = userDirectoryService.getUserEid(meeting.getOwnerId());
             } catch (UserNotDefinedException e1) {
                 meetingOwnerEid = meeting.getOwnerId();
             }
@@ -741,11 +707,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                             meeting.getName(),
                             meeting.getProps().getWelcomeMessage(),
                             meeting.getStartDate() == null ? "-"
-                                    : convertDateToUserTimezone(meeting
-                                            .getStartDate()),
+                                    : convertDateToUserTimezone(meeting.getStartDate()),
                             meeting.getEndDate() == null ? "-"
-                                    : convertDateToUserTimezone(meeting
-                                            .getEndDate()),
+                                    : convertDateToUserTimezone(meeting.getEndDate()),
                             meeting.getOwnerDisplayName() + " ("
                                     + meetingOwnerEid + ")" }));
             msg.append(msgs.getFormattedMessage("email.footer", new Object[] {
@@ -761,45 +725,29 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 new Thread(new Runnable() {
                     public void run() {
                         for (User emailRecipient : emailRecipients) {
-                            if (emailRecipient.getEmail() != null
-                                    && !emailRecipient.getEmail().trim()
-                                            .equals("")) {
+                            if (emailRecipient.getEmail() != null && !emailRecipient.getEmail().trim().equals("")) {
                                 EmailMessage email = new EmailMessage();
-                                email.setFrom(new EmailAddress("no-reply@"
-                                        + serverConfigurationService
-                                                .getServerName(),
-                                        serverConfigurationService
-                                                .getString("ui.institution")));
-                                email.setRecipients(RecipientType.TO, Arrays
-                                        .asList(new EmailAddress(emailRecipient
-                                                .getEmail(), emailRecipient
-                                                .getDisplayName())));
-                                email.addHeader("Content-Type",
-                                        "text/html; charset=ISO-8859-1");
+                                email.setFrom(new EmailAddress("no-reply@" + serverConfigurationService.getServerName(),
+                                        serverConfigurationService.getString("ui.institution")));
+                                email.setRecipients(RecipientType.TO, Arrays.asList(new EmailAddress(emailRecipient.getEmail(), emailRecipient.getDisplayName())));
+                                email.addHeader("Content-Type", "text/html; charset=ISO-8859-1");
                                 email.setContentType(ContentType.TEXT_HTML);
                                 email.setSubject(emailTitle);
                                 email.setBody(emailMessage);
                                 if (icalFile != null && icalFile.canRead()) {
-                                    email.addAttachment(new Attachment(
-                                            icalFile, "Calendar_Event.ics"));
+                                    email.addAttachment(new Attachment( icalFile, "Calendar_Event.ics"));
                                 }
                                 try {
                                     emailService.send(email);
                                 } catch (Exception e) {
-                                    logger.warn(
-                                            "Unable to send email notification to "
-                                                    + emailRecipient.getEmail()
-                                                    + " about new BBB meeting",
-                                            e);
+                                    logger.warn("Unable to send email notification to " + emailRecipient.getEmail() + " about new BBB meeting", e);
                                 }
                             }
                         }
                     }
                 }).start();
             } catch (Exception e) {
-                logger.error("Unable to send " + locale
-                        + " notifications for '" + meeting.getName()
-                        + "' meeting participants.", e);
+                logger.error("Unable to send " + locale + " notifications for '" + meeting.getName() + "' meeting participants.", e);
             }
         }
     }
@@ -826,8 +774,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             url.append(meeting.getId());
             return url.toString();
         } catch (IdUnusedException e) {
-            logger.warn("Unable to determine siteId from meeting with id: "
-                    + meeting.getId(), e);
+            logger.warn("Unable to determine siteId from meeting with id: " + meeting.getId(), e);
             StringBuilder url = new StringBuilder();
             url.append(serverConfigurationService.getServerUrl());
             url.append("/portal");
@@ -842,8 +789,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         boolean newEvent = eventId == null;
         try {
             // get CalendarService
-            Object calendarService = ComponentManager
-                    .get("org.sakaiproject.calendar.api.CalendarService");
+            Object calendarService = ComponentManager.get("org.sakaiproject.calendar.api.CalendarService");
 
             // get site calendar
             String calendarRef = (String) calendarService.getClass().getMethod(
@@ -892,44 +838,39 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     new Class[] { String.class }).invoke(event,
                     new Object[] { meeting.getName() });
             event.getClass().getMethod("setDescription",
-                    new Class[] { String.class }).invoke(
-                    event,
-                    new Object[] { "Meeting '" + meeting.getName()
-                            + "' scheduled."/* meeting.getWelcome() */});
-            event.getClass().getMethod("setType", new Class[] { String.class })
-                    .invoke(event, new Object[] { "Meeting" });
+                    new Class[] { String.class }).invoke(event,
+                    new Object[] { "Meeting '" + meeting.getName() + "' scheduled."/* meeting.getWelcome() */});
+            event.getClass().getMethod("setType", 
+            		new Class[] { String.class }).invoke(event, 
+            		new Object[] { "Meeting" });
             event.getClass().getMethod("setRange",
                     new Class[] { TimeRange.class }).invoke(event,
                     new Object[] { range });
-            event.getClass().getMethod("setModifiedBy", new Class[] {}).invoke(
-                    event, new Object[] {});
-            event.getClass().getMethod("clearGroupAccess", new Class[] {})
-                    .invoke(event, new Object[] {});
+            event.getClass().getMethod("setModifiedBy", 
+            		new Class[] {}).invoke(event, 
+            		new Object[] {});
+            event.getClass().getMethod("clearGroupAccess", 
+            		new Class[] {}).invoke(event, 
+            		new Object[] {});
             event.getClass().getMethod("setField",
                     new Class[] { String.class, String.class }).invoke(event,
                     new Object[] { "meetingId", meeting.getId() });
 
             // commit event
-            calendar
-                    .getClass()
-                    .getMethod(
-                            "commitEvent",
-                            new Class[] { Class
-                                    .forName("org.sakaiproject.calendar.api.CalendarEventEdit") })
-                    .invoke(calendar, new Object[] { event });
+            calendar.getClass().getMethod( "commitEvent",
+                    new Class[] { Class.forName("org.sakaiproject.calendar.api.CalendarEventEdit") }).invoke(calendar, 
+                    new Object[] { event });
 
             // update calendar eventId locally, in DB
             if (newEvent && eventId != null) {
                 meeting.getProps().setCalendarEventId(eventId);
                 if (!storageManager.updateMeeting(meeting, false)) {
-                    logger
-                            .error("Unable to update BBB meeting with Calendar.eventId in Sakai");
+                    logger.error("Unable to update BBB meeting with Calendar.eventId in Sakai");
                     return false;
                 }
             }
         } catch (Exception e) {
-            logger
-                    .warn("Unable to add event to Calendar (no permissions or site has no Calendar tool).");
+            logger.warn("Unable to add event to Calendar (no permissions or site has no Calendar tool).");
             return false;
         }
         return true;
@@ -941,8 +882,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (eventId != null) {
             try {
                 // get CalendarService
-                Object calendarService = ComponentManager
-                        .get("org.sakaiproject.calendar.api.CalendarService");
+                Object calendarService = ComponentManager.get("org.sakaiproject.calendar.api.CalendarService");
 
                 // get site calendar
                 String calendarRef = (String) calendarService.getClass()
@@ -965,20 +905,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                         calendar, new Object[] { eventId, eventRemove });
 
                 // commit event
-                calendar
-                        .getClass()
-                        .getMethod(
-                                "removeEvent",
-                                new Class[] { Class
-                                        .forName("org.sakaiproject.calendar.api.CalendarEventEdit") })
-                        .invoke(calendar, new Object[] { event });
+                calendar.getClass().getMethod("removeEvent",
+                        new Class[] { Class.forName("org.sakaiproject.calendar.api.CalendarEventEdit") }).invoke(calendar, 
+                        new Object[] { event });
 
                 meeting.getProps().setCalendarEventId(null);
             } catch (Exception e) {
-                logger
-                        .warn(
-                                "Unable to remove event from Calendar (no permissions or site has no Calendar tool).",
-                                e);
+                logger.warn("Unable to remove event from Calendar (no permissions or site has no Calendar tool).", e);
                 return false;
             }
         }
@@ -986,13 +919,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     private void logEvent(String event, BBBMeeting meeting) {
-        eventTrackingService.post(eventTrackingService.newEvent(event, meeting
-                .getId(), meeting.getSiteId(), true,
-                NotificationService.NOTI_OPTIONAL));
+        eventTrackingService.post(eventTrackingService.newEvent(event, meeting.getId(), meeting.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
     }
 
-    private Participant getParticipantFromMeeting(BBBMeeting meeting,
-            String userId) {
+    private Participant getParticipantFromMeeting(BBBMeeting meeting, String userId) {
         // 1. we want to first check individual user selection as it may
         // override all/group/role selection...
         List<Participant> unprocessed1 = new ArrayList<Participant>();
@@ -1007,8 +937,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // 2. ... then with group/role selection types...
         String userRole = getUserRoleInSite(userId, meeting.getSiteId());
-        List<String> userGroups = getUserGroupIdsInSite(userId, meeting
-                .getSiteId());
+        List<String> userGroups = getUserGroupIdsInSite(userId, meeting.getSiteId());
         List<Participant> unprocessed2 = new ArrayList<Participant>();
         for (Participant p : unprocessed1) {
             if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
@@ -1030,8 +959,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // 4. If not found, just check if is superuser
         if (securityService.isSuperUser()) {
-            return new Participant(Participant.SELECTION_USER, "admin",
-                    Participant.MODERATOR);
+            return new Participant(Participant.SELECTION_USER, "admin", Participant.MODERATOR);
         }
 
         return null;
@@ -1215,8 +1143,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     /** Inner class to execute code as Sakai Administrator */
     abstract class AdminExecution {
-        public AdminExecution() {
-        };
+        public AdminExecution() {};
 
         public abstract Object execution() throws Exception;
 
