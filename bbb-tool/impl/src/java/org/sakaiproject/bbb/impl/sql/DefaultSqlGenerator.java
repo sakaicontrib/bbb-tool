@@ -87,13 +87,13 @@ public class DefaultSqlGenerator implements SqlGenerator {
         Map<String, String> statements = new HashMap<String, String>();
 
         statements.put("BBB_MEETING:HOST_URL:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL;");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL AFTER NAME;");
         statements.put("BBB_MEETING:RECORDING:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + ";"); 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;"); 
         statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + ";");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
         statements.put("BBB_MEETING:DELETED:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL AFTER PROPERTIES;");
         statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
         		"ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
         
@@ -113,7 +113,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
             BBBMeeting meeting, Connection connection) throws Exception {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
-        PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING " +
+        		"(MEETING_ID, NAME, HOST_URL, SITE_ID, ATTENDEE_PW, MODERATOR_PW, OWNER_ID, START_DATE, END_DATE, RECORDING, RECORDING_DURATION, PROPERTIES, DELETED)" +
+        		" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
         meetingST.setString(1, meeting.getId());
         meetingST.setString(2, meeting.getName());
         meetingST.setString(3, meeting.getHostUrl());
@@ -133,7 +135,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
         List<Participant> participants = meeting.getParticipants();
 
         for (Participant participant : participants) {
-            PreparedStatement pST = connection.prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?)");
+            PreparedStatement pST = connection.prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT " +
+            		"(MEETING_ID, SELECTION_TYPE, SELECTION_ID, ROLE)" +
+            		" VALUES(?,?,?,?)");
             pST.setString(1, meeting.getId());
             pST.setString(2, participant.getSelectionType());
             pST.setString(3, participant.getSelectionId());
@@ -181,7 +185,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
         List<Participant> participants = meeting.getParticipants();
         for (Participant participant : participants) {
             PreparedStatement pST = connection
-                    .prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT VALUES(?,?,?,?)");
+                    .prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT " +
+                    		"(MEETING_ID, SELECTION_TYPE, SELECTION_ID, ROLE)" +
+                    		" VALUES(?,?,?,?)");
             pST.setString(1, meeting.getId());
             pST.setString(2, participant.getSelectionType());
             pST.setString(3, participant.getSelectionId());
