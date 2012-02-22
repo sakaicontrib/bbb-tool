@@ -211,18 +211,17 @@ var BBBUtils;
 		meeting.hasBeenForciblyEnded = "false";
 		meeting.participantCount = 0;
 		meeting.moderatorCount = 0;
-		meeting.unreachableServer = "false";
+		meeting.unreachableServer = "true";
 			
 		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
+		console.log(meeting);
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
 			if ( meetingInfo.returncode != 'FAILED' ) {
 				meeting.attendees = meetingInfo.attendees;
 				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
-			} else {
-				//Different errors can be handled here
-				meeting.unreachableServer = "true";
+				meeting.unreachableServer = "false";
 			}
 		}
 

@@ -88,7 +88,8 @@ public interface BBBMeetingManager {
     /**
      * Get the meeting identified by the supplied meetingId
      */
-    public BBBMeeting getMeeting(String meetingId) throws SecurityException;
+    public BBBMeeting getMeeting(String meetingId) 
+    		throws SecurityException, Exception;
 
     /**
      * Returns the meetings for the supplied site that the current Sakai user
@@ -99,7 +100,7 @@ public interface BBBMeetingManager {
      * @return A list of BBBMeeting objects
      */
     public List<BBBMeeting> getSiteMeetings(String siteId)
-            throws SecurityException;
+            throws SecurityException, Exception;
 
     /**
      * Creates a meeting using the passed in object. Populates the id, password

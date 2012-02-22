@@ -245,8 +245,8 @@ function switchState(state,arg) {
                BBBUtils.setSitePermissions('.bbb_permission_checkbox', function() {
                    // success callback
                    bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
-                   if(bbbUserPerms.bbbViewMeetingList) 
-                        bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
+                   if(bbbUserPerms.bbbViewMeetingList)
+                       refreshMeetingList();
                    switchState('currentMeetings');
                    if(bbbUserPerms.bbbViewMeetingList) 
                         BBBUtils.showMessage(bbb_permissions_saved, 'success');

@@ -63,6 +63,7 @@ import org.sakaiproject.bbb.api.BBBException;
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.bbb.api.Participant;
+import org.sakaiproject.bbb.impl.bbbapi.BaseBBBAPI;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.AddressValidationException;
@@ -202,12 +203,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // -----------------------------------------------------------------------
     // --- BBB Implementation related methods --------------------------------
     // -----------------------------------------------------------------------
-    public BBBMeeting getMeeting(String meetingId) throws SecurityException {
+    public BBBMeeting getMeeting(String meetingId) 
+    		throws SecurityException, Exception {
         return processMeeting(storageManager.getMeeting(meetingId));
     }
 
     public List<BBBMeeting> getSiteMeetings(String siteId)
-            throws SecurityException {
+            throws SecurityException, Exception {
         List<BBBMeeting> filteredMeetings = new ArrayList<BBBMeeting>();
 
         // Grab all the meetings for this site
@@ -408,8 +410,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public boolean getCanCreate(String siteId) {
-        return isUserAllowedInLocation(userDirectoryService.getCurrentUser()
-                .getId(), FN_CREATE, siteId);
+        return isUserAllowedInLocation(userDirectoryService.getCurrentUser().getId(), FN_CREATE, siteId);
     }
 
     public boolean getCanEdit(String siteId, BBBMeeting meeting) {
@@ -443,8 +444,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public boolean getCanParticipate(String siteId) {
-        return isUserAllowedInLocation(userDirectoryService.getCurrentUser()
-                .getId(), FN_PARTICIPATE, siteId);
+        return isUserAllowedInLocation(userDirectoryService.getCurrentUser().getId(), FN_PARTICIPATE, siteId);
     }
 
     public void checkPermissions(String siteId) {
@@ -555,9 +555,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // --- BBB Private methods -----------------------------------------------
     // -----------------------------------------------------------------------
     private BBBMeeting processMeeting(BBBMeeting meeting)
-            throws SecurityException {
-        if (meeting == null)
-            return null;
+            throws SecurityException, Exception {
+        if (meeting == null) return null;
 
         // determine owner name
         if (meeting.getOwnerId() != null) {

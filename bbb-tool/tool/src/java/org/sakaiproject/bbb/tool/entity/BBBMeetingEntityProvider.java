@@ -122,24 +122,36 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	
 	public Object getEntity(EntityReference ref) {		
 		if(LOG.isDebugEnabled()) LOG.debug("getEntity(" + ref.getId() + ")");
-
+		
 		String id = ref.getId();
 		
 		if (id == null || "".equals(id)) {
 			return new BBBMeeting();
 		}
 		  
-		BBBMeeting meeting = meetingManager.getMeeting(id);
+		try
+		{
+			BBBMeeting meeting = meetingManager.getMeeting(id);
+			
+			if (meeting == null) {
+				throw new EntityNotFoundException("Meeting not found", ref.getReference());
+			}
 
-		if (meeting == null) {
-			throw new EntityNotFoundException("Meeting not found", ref.getReference());
+			// for security reasons, clear passwords and meeting token
+			meeting.setAttendeePassword(null);
+			meeting.setModeratorPassword(null);
+
+			return meeting;
+
 		}
-		
-		// for security reasons, clear passwords and meeting token
-		meeting.setAttendeePassword(null);
-		meeting.setModeratorPassword(null);
-		
-		return meeting;
+		catch(SecurityException se){
+			throw new EntityException(se.getMessage(), ref.getReference(), 400);
+		}
+		catch(Exception e)
+		{
+			throw new EntityException(e.getMessage(), ref.getReference(), 400);
+		}
+
 	}	
 	  
 	public boolean entityExists(String id)
@@ -149,7 +161,17 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		if(id == null || "".equals(id))
 			return false;
 		
-		return (meetingManager.getMeeting(id) != null);
+		try
+		{
+			return (meetingManager.getMeeting(id) != null);
+		}
+		catch(SecurityException se){
+			return false;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
 	}
 	
 	
@@ -202,42 +224,50 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		if(LOG.isDebugEnabled()) LOG.debug("updateMeeting");
 		
 		BBBMeeting newMeeting = (BBBMeeting) entity;
-		BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
-		if(meeting == null){
-			throw new IllegalArgumentException("Could not locate meeting to update");
-		}
-		
-		// update recording
-		String recordingStr = (String) params.get("recording");
-		boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
-		meeting.setRecording(Boolean.valueOf(recording));
-		
-		// update recordingDuration
-		String recordingDurationStr = (String) params.get("recordingDuration");
-		if(recordingDurationStr != null) meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
-		else meeting.setRecordingDuration(0L);
-
-		// update dates
-		if(params.get("startDate") != null) meeting.setStartDate(newMeeting.getStartDate());
-		else meeting.setStartDate(null);
-		if(params.get("endDate") != null) meeting.setEndDate(newMeeting.getEndDate());
-		else meeting.setEndDate(null);
-		
-		// update participants
-		String meetingOwnerId = meeting.getOwnerId();
-		List<Participant> participants = extractParticipants(params, meetingOwnerId);
-		meeting.setParticipants(participants);
-		
-		// store meeting
-		String addToCalendarStr = (String) params.get("addToCalendar");
-		String notifyParticipantsStr = (String) params.get("notifyParticipants");
-		boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
-		boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
 		try {
-			if(!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
-				throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
-		}catch(BBBException e){
-			throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
+			if(meeting == null){
+				throw new IllegalArgumentException("Could not locate meeting to update");
+			}
+			// update recording
+			String recordingStr = (String) params.get("recording");
+			boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
+			meeting.setRecording(Boolean.valueOf(recording));
+			
+			// update recordingDuration
+			String recordingDurationStr = (String) params.get("recordingDuration");
+			if(recordingDurationStr != null) meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
+			else meeting.setRecordingDuration(0L);
+
+			// update dates
+			if(params.get("startDate") != null) meeting.setStartDate(newMeeting.getStartDate());
+			else meeting.setStartDate(null);
+			if(params.get("endDate") != null) meeting.setEndDate(newMeeting.getEndDate());
+			else meeting.setEndDate(null);
+			
+			// update participants
+			String meetingOwnerId = meeting.getOwnerId();
+			List<Participant> participants = extractParticipants(params, meetingOwnerId);
+			meeting.setParticipants(participants);
+			
+			// store meeting
+			String addToCalendarStr = (String) params.get("addToCalendar");
+			String notifyParticipantsStr = (String) params.get("notifyParticipants");
+			boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
+			boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+			try {
+				if(!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
+					throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
+			}catch(BBBException e){
+				throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+			}
+		}
+		catch(SecurityException se){
+			throw new EntityException(se.getMessage(), ref.getReference(), 400);
+		}
+		catch(Exception e)
+		{
+			throw new EntityException(e.getMessage(), ref.getReference(), 400);
 		}
 	}
 	
@@ -256,7 +286,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
         	}else{
         		context = location;
         	}
-			meetings = meetingManager.getSiteMeetings(context);
+    		try {
+    			meetings = meetingManager.getSiteMeetings(context);
+    		} catch(Exception e) {
+    			throw new EntityException(e.getMessage(), ref.getReference(), 400);
+    		}
+    		
         }
         else
         {
@@ -448,25 +483,30 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		}		
 		
 		// get join url
-		BBBMeeting meeting = meetingManager.getMeeting(ref.getId());	
-		if(meeting == null) {
-			throw new EntityException("This meeting is no longer available.", null, 404);
-		}
-		String joinUrl = meeting.getJoinUrl();		
-		if(joinUrl == null) {
-			throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
-		}
+		try {
+			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());	
+			if(meeting == null) {
+				throw new EntityException("This meeting is no longer available.", null, 404);
+			}
+			String joinUrl = meeting.getJoinUrl();		
+			if(joinUrl == null) {
+				throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
+			}
+
+			try{
+				meetingManager.checkJoinMeetingPreConditions(meeting);
+			}catch(BBBException e){
+				throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+			}
+			
+			// log meeting join event
+			meetingManager.logMeetingJoin(ref.getId());
+			return joinUrl;
 		
+		} catch(Exception e) {
+			throw new EntityException(e.getMessage(), ref.getReference(), 400);
+		}
 		// pre-join meeting
-		try{
-			meetingManager.checkJoinMeetingPreConditions(meeting);
-		}catch(BBBException e){
-			throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
-		}
-		
-		// log meeting join event
-		meetingManager.logMeetingJoin(ref.getId());
-		return joinUrl;
 	}
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
