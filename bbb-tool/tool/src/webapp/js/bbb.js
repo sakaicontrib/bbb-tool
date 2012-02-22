@@ -291,14 +291,28 @@ function switchState(state,arg) {
         if(bbbUserPerms.bbbViewMeetingList) {
             // Get meeting list
             refreshMeetingList();
+
+            var errorLog = new Object();
+            errorLog.keys = Array();
+        	var errorIndex = 0;
     
             // watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
                 BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingRecordingParams(bbbCurrentMeetings[i]);
+                if( bbbCurrentMeetings[i].recordingErrorMessageKey ){
+                	if( !errorLog[bbbCurrentMeetings[i].recordingErrorMessageKey] ){
+                		errorLog[bbbCurrentMeetings[i].recordingErrorMessageKey] = true;
+                		errorLog.keys[errorIndex++] = bbbCurrentMeetings[i].recordingErrorMessage;
+                	}
+	
+                }
             }
             
 	        BBBUtils.render('bbb_recordings_template',{'meetings':bbbCurrentMeetings, 'stateFunction':'recordings'},'bbb_content');
+            for(var i=0,j=errorLog.keys.length;i<j;i++) {
+            	BBBUtils.showMessage(errorLog.keys[i], 'warning');
+            }
 
             $(document).ready(function() {
                 // auto hide actions

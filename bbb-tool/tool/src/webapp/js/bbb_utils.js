@@ -221,6 +221,7 @@ var BBBUtils;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
 			} else {
+				//Different errors can be handled here
 				meeting.unreachableServer = "true";
 			}
 		}
@@ -271,10 +272,15 @@ var BBBUtils;
 		
 		var recordings = BBBUtils.getRecordings(meeting.id);
 		if( recordings.returncode == 'FAILED'){
-			meeting.recordingError = recordings.message;
+			meeting.recordingErrorMessageKey = recordings.messageKey;
+			if(recordings.messageKey == 'noProxyFound' )
+				meeting.recordingErrorMessage = bbb_err_get_recording + ", " + bbb_err_unreachable_server;
+			else
+				meeting.recordingErrorMessage = bbb_err_get_recording + ", " + recordings.message;
 			return;
 		} else if( recordings.recordings == null ){
-			meeting.recordingError = bbb_err_get_recording;
+			meeting.recordingErrorMessageKey = recordings.messageKey;
+			meeting.recordingErrorMessage = bbb_err_get_recording;
         	return;
         } 
         meeting.recordings = recordings.recordings;
