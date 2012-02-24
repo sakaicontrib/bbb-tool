@@ -23,13 +23,14 @@ package org.sakaiproject.bbb.api;
 public class BBBException extends Exception {
 	private static final long	serialVersionUID			= 2421100107566638321L;
 
-	public static final String	MESSAGEKEY_HTTPERROR		= "httpError";
-	public static final String	MESSAGEKEY_NOTFOUND			= "notFound";
-	public static final String	MESSAGEKEY_NOACTION			= "noActionSpecified";
-	public static final String	MESSAGEKEY_IDNOTUNIQUE		= "idNotUnique";
-	public static final String	MESSAGEKEY_NOTSTARTED		= "notStarted";
-	public static final String	MESSAGEKEY_ALREADYENDED		= "alreadyEnded";
-	public static final String	MESSAGEKEY_INTERNALERROR	= "internalError";
+	public static final String	MESSAGEKEY_HTTPERROR        = "httpError";
+	public static final String	MESSAGEKEY_NOTFOUND         = "notFound";
+	public static final String	MESSAGEKEY_NOACTION         = "noActionSpecified";
+	public static final String	MESSAGEKEY_IDNOTUNIQUE      = "idNotUnique";
+	public static final String	MESSAGEKEY_NOTSTARTED       = "notStarted";
+	public static final String	MESSAGEKEY_ALREADYENDED     = "alreadyEnded";
+	public static final String	MESSAGEKEY_INTERNALERROR    = "internalError";
+	public static final String	MESSAGEKEY_UNREACHABLE      = "unreachableServerError";
 	
 	private String messageKey;
 

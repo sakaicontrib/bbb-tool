@@ -211,17 +211,19 @@ var BBBUtils;
 		meeting.hasBeenForciblyEnded = "false";
 		meeting.participantCount = 0;
 		meeting.moderatorCount = 0;
-		meeting.unreachableServer = "true";
+		meeting.unreachableServer = "false";
 			
 		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
-		console.log(meeting);
+		//console.log(meetingInfo);
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
 			if ( meetingInfo.returncode != 'FAILED' ) {
 				meeting.attendees = meetingInfo.attendees;
 				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
-				meeting.unreachableServer = "false";
+			} else {
+				//Different errors can be handled here
+				meeting.unreachableServer = "true";
 			}
 		}
 
@@ -272,7 +274,7 @@ var BBBUtils;
 		var recordings = BBBUtils.getRecordings(meeting.id);
 		if( recordings.returncode == 'FAILED'){
 			meeting.recordingErrorMessageKey = recordings.messageKey;
-			if(recordings.messageKey == 'noProxyFound' )
+			if(recordings.messageKey == 'noProxyFound' || recordings.messageKey == 'unreachableServerError')
 				meeting.recordingErrorMessage = bbb_err_get_recording + ", " + bbb_err_unreachable_server;
 			else
 				meeting.recordingErrorMessage = bbb_err_get_recording + ", " + recordings.message;

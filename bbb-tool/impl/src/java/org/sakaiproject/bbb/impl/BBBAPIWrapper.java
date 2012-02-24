@@ -126,28 +126,28 @@ public class BBBAPIWrapper/* implements Runnable */{
         List<BBBMeeting> meetings = storageManager.getAllMeetings();
 
         // Let's make sure that our meetings are all running on accessible hosts
-        for (BBBMeeting meeting : meetings) {
-            String hostUrl = meeting.getHostUrl();
-            if (!bbbProxyMap.containsKey(hostUrl)) {
-                // The host for this meeting is not alive. Try and move the
-                // meeting.
-                logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
-                            + "', was not available. The meeting will be moved to the first available host '" + api.getUrl() + "' ...");
-                try {
-                    api.createMeeting(meeting);
-                    if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
-                        logger.error("Failed to set the host to '" + api.getUrl() + "' for meeting '" + meeting.getId() + "'");
-                    }
-                } catch (BBBException e) {
-                    logger.error("Failed to move meeting '" + meeting.getId() + "' from '" + meeting.getHostUrl() + "' to '" + api.getUrl() + "'", e);
-                }
-            }
-        }
+        //for (BBBMeeting meeting : meetings) {
+        //    String hostUrl = meeting.getHostUrl();
+        //    if (!bbbProxyMap.containsKey(hostUrl)) {
+        //        // The host for this meeting is not alive. Try and move the
+        //        // meeting.
+        //        logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
+        //                    + "', was not available. The meeting will be moved to the first available host '" + api.getUrl() + "' ...");
+        //        try {
+        //            api.createMeeting(meeting);
+        //            if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
+        //                logger.error("Failed to set the host to '" + api.getUrl() + "' for meeting '" + meeting.getId() + "'");
+        //            }
+        //        } catch (BBBException e) {
+        //            logger.error("Failed to move meeting '" + meeting.getId() + "' from '" + meeting.getHostUrl() + "' to '" + api.getUrl() + "'", e);
+        //        }
+        //    }
+        //}
 
-        if (bbbUrls.length > 1) {
-            allocatorTimer = new Timer("BigBlueButton Allocator Timer");
-            allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
-        }
+        //if (bbbUrls.length > 1) {
+        //    allocatorTimer = new Timer("BigBlueButton Allocator Timer");
+        //    allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
+        //}
         /*
          * bbbVersionCheckInterval = (long)
          * config.getInt(BBBMeetingManager.CFG_VERSIONCHECKINTERVAL, (int)
@@ -196,29 +196,89 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public Map<String, Object> getMeetingInfo(String meetingID, String password)
             throws BBBException {
+
+        Map<String, Object> meetingInfoResponse = new HashMap<String, Object>();
         String hostUrl = storageManager.getMeetingHost(meetingID);
-        BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+        
+        try{
+            if( bbbProxyMap.size() == 0 && !doLoadBBBProxyMap() ) 
+                throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
 
-        if (hostProxy == null && !doLoadBBBProxyMap() )
-            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getMeetingInfo.");
+            BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-        return hostProxy.getMeetingInfo(meetingID, password);
+            meetingInfoResponse = hostProxy.getMeetingInfo(meetingID, password); 
+            
+        } catch ( BBBException e){
+        	if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ){
+        	    doRestartBBBProxyMap();
+            	return responseError(e.getMessageKey(), e.getMessage() );
+        	}
+        } catch ( Exception e){
+            doRestartBBBProxyMap();
+            return responseError(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage() );
+        }
+
+        return meetingInfoResponse;
+
+    }
+
+    public String getJoinMeetingURL(String meetingID, User user, String password)
+            throws BBBException {
+        
+        String joinMeetingURLResponse = "";
+        String hostUrl = storageManager.getMeetingHost(meetingID);
+
+        try{
+            if( bbbProxyMap.size() == 0 && !doLoadBBBProxyMap() ) 
+                throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
+
+            BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+
+            joinMeetingURLResponse = hostProxy.getJoinMeetingURL(meetingID, user, password); 
+            
+        } catch ( BBBException e){
+            if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ){
+                doRestartBBBProxyMap();
+            }
+        } catch ( Exception e){
+            doRestartBBBProxyMap();
+        }
+
+        return joinMeetingURLResponse;
+
     }
     
     public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
+        
+        Map<String, Object> recordingsResponse = new HashMap<String, Object>();
         String hostUrl = storageManager.getMeetingHost(meetingID);
-        BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+        
+        try{
+            if( bbbProxyMap.size() == 0 && !doLoadBBBProxyMap() ) 
+                throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
 
-        if (hostProxy == null && !doLoadBBBProxyMap() )
-            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getRecordings.");
+            BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-        return hostProxy.getRecordings(meetingID);
+            recordingsResponse = hostProxy.getRecordings(meetingID); 
+            
+        } catch ( BBBException e){
+            if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ){
+                doRestartBBBProxyMap();
+                return responseError(e.getMessageKey(), e.getMessage() );
+            }
+        } catch ( Exception e){
+            doRestartBBBProxyMap();
+            return responseError(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage() );
+        }
+
+        return recordingsResponse;
     }
 
     public Map<String, Object> getAllRecordings()
     		throws BBBException {
-    	String hostUrl = this.bbbUrls[0];
+
+        String hostUrl = this.bbbUrls[0];
     	BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
         if (hostProxy == null && !doLoadBBBProxyMap() )
@@ -258,19 +318,6 @@ public class BBBAPIWrapper/* implements Runnable */{
         	return false;
         
         return hostProxy.deleteRecordings(meetingID, recordingID);
-    }
-
-    public String getJoinMeetingURL(String meetingID, User user, String password)
-        	throws BBBException {
-        String hostUrl = storageManager.getMeetingHost(meetingID);
-        BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
-
-        if (hostProxy == null && !doLoadBBBProxyMap() ) {
-            logger.warn("No proxy found for host '" + hostUrl + ". Returning \"\" for the join url ...");
-            return "";
-        }
-
-        return hostProxy.getJoinMeetingURL(meetingID, user, password);
     }
 
     public void makeSureMeetingExists(BBBMeeting meeting) 
@@ -338,7 +385,8 @@ public class BBBAPIWrapper/* implements Runnable */{
         return versionSnapshot;
     }
 
-    protected void bindAPIClassToBBBVersion(final BBBAPI proxy) {
+    protected void bindAPIClassToBBBVersion(final BBBAPI proxy) 
+            throws BBBException {
         logger.debug("Checking BBB API version...");
 
         try {
@@ -484,20 +532,42 @@ public class BBBAPIWrapper/* implements Runnable */{
         return map;
     	
     }
-    
-    private boolean doLoadBBBProxyMap(){
+
+    private boolean doLoadBBBProxyMap() {
+
         logger.info("determine API version running on BBB server...");
-        for (int i = 0; i < bbbUrls.length; i++) {
-            bindAPIClassToBBBVersion(new BaseBBBAPI(bbbUrls[i], bbbSalts[i]));
+        
+        try {
+            for (int i = 0; i < bbbUrls.length; i++) {
+                BaseBBBAPI baseBBBAPI = new BaseBBBAPI(bbbUrls[i], bbbSalts[i]);
+                bindAPIClassToBBBVersion(baseBBBAPI);
+            }
+        } catch(Exception e) {
+            doRestartBBBProxyMap();
         }
 
         if( bbbProxyMap.size() == 0 ){
-        	logger.warn("No BigBlueButton server has been properly initialized...");
+            logger.warn("No BigBlueButton server has been properly initialized...");
             return false;
-        }
+        } else
+            return true;
         
-        return true;
-    	
     }
 
+    private void doRestartBBBProxyMap(){
+        bbbProxyMap = new HashMap<String, BBBAPI>();
+        
+    }
+
+    private Map<String, Object> responseError(String messageKey, String message){
+        logger.warn(messageKey + ":" + message);
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("returncode", "FAILED");
+        map.put("messageKey", messageKey);
+        map.put("message", message);
+        return map;
+        
+    }
+    
 }
