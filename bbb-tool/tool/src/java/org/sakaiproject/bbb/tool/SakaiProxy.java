@@ -17,6 +17,7 @@
 package org.sakaiproject.bbb.tool;
 
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
@@ -145,10 +146,17 @@ class SakaiProxy
 	
 	public long getServerTimeInUserTimezone()
 	{
-		return bbbMeetingManager.getServerTimeInUserTimezone();
+	    Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
+		return Long.parseLong( (String) serverTimeInUserTimezone.get("timestamp"));
 	}
 	
-	public void checkPermissions()
+    public long getUserTimezone()
+    {
+        Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
+        return Long.parseLong( (String) serverTimeInUserTimezone.get("timezoneOffset"));
+    }
+
+    public void checkPermissions()
 	{
 		bbbMeetingManager.checkPermissions(getCurrentSiteId());
 	}

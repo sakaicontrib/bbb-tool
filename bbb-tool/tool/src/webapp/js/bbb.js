@@ -18,6 +18,7 @@
 var bbbSiteId = null;
 var bbbCurrentUser = null;
 var bbbServerTimeDiff = 0;
+var bbbServerTimeStamp = Object();
 var bbbUserPerms = null;
 var bbbCurrentMeetings = [];
 var bbbInterval = null;
@@ -39,6 +40,8 @@ var bbbRefreshRecordingListId = null;
     bbbSiteId = arg.siteId;
     bbbCurrentUser = BBBUtils.getCurrentUser();
     bbbServerTimeDiff = new Date().getTime() - arg.timestamp;
+    bbbServerTimeStamp.timestamp = arg.timestamp;
+    bbbServerTimeStamp.timezoneOffset = arg.timezoneoffset;
     bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
     
     // We need the toolbar in a template so we can swap in the translations
@@ -78,6 +81,7 @@ var bbbRefreshRecordingListId = null;
     
     // Make sure we have the correct server time (needed if user duplicated tab/window)
     BBBUtils.updateServerTime();
+    console.log(bbbServerTimeStamp);
     
     // If configured, show text notice (first time access)
     BBBUtils.addNotice();

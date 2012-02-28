@@ -515,7 +515,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // -----------------------------------------------------------------------
     // --- Public utility methods --------------------------------------------
     // -----------------------------------------------------------------------
-    public long getServerTimeInUserTimezone() {
+    public Map<String, Object> getServerTimeInUserTimezone() {
+        
+        Map<String, Object> responseMap = new HashMap<String,Object>();
+        
         Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
         TimeZone timeZone = null;
         if (prefs != null) {
@@ -525,11 +528,19 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         } else {
             timeZone = TimeZone.getDefault();
         }
+
         long timeMs = System.currentTimeMillis();
-        return timeMs // server time in millis
-                + timeZone.getOffset(timeMs) // user timezone offset
-                - TimeZone.getDefault().getOffset(timeMs); // server timezone
-                                                           // offset
+        timeMs =  timeMs                                   // server time in millis
+                + timeZone.getOffset(timeMs)               // user timezone offset
+                - TimeZone.getDefault().getOffset(timeMs); // server timezone offset
+        
+        responseMap.put("timestamp", "" + timeMs);
+        responseMap.put("timezone", "" + timeZone.getDisplayName() );
+        responseMap.put("timezoneID", "" + timeZone.getID() );
+        responseMap.put("timezoneOffset", "" + timeZone.getOffset(timeMs));
+        responseMap.put("defaultOffset", "" + TimeZone.getDefault().getOffset(timeMs));
+        
+        return responseMap;
     }
 
     public String getAutorefreshForMeetings() {
@@ -571,6 +582,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // convert dates to user timezone
         meeting.setStartDate(convertDateToUserTimezone(meeting.getStartDate()));
         meeting.setEndDate(convertDateToUserTimezone(meeting.getEndDate()));
+
+        if( meeting.getDeleted() == Boolean.FALSE ){
+            Date date = convertDateToUserTimezone(new Date());
+        }
+        
 
         Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 

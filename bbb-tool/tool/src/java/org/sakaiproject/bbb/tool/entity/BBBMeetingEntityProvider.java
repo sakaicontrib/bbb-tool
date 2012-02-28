@@ -586,10 +586,15 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	}
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public String getServerTimeInUserTimezone(Map<String,Object> params)
+	public ActionReturn getServerTimeInUserTimezone(Map<String,Object> params)
 	{
 		if(LOG.isDebugEnabled()) LOG.debug("getServerTimeInUserTimezone");
-		return Long.toString(meetingManager.getServerTimeInUserTimezone());
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        map = meetingManager.getServerTimeInUserTimezone();
+        
+        return new ActionReturn(map);
+		
 	}
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)

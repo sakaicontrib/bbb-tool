@@ -78,6 +78,7 @@ public class BBBTool extends HttpServlet {
         url.append("&state=").append(state);
         url.append("&siteId=").append(sakaiProxy.getCurrentSiteId());
         url.append("&timestamp=").append(sakaiProxy.getServerTimeInUserTimezone());
+        url.append("&timezoneoffset=").append(sakaiProxy.getUserTimezone());
         url.append("&language=").append(sakaiProxy.getUserLanguageCode());
         url.append("&skin=").append(sakaiProxy.getSakaiSkin());
         if (meetingId != null)

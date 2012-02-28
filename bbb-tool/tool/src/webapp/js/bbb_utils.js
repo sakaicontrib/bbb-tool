@@ -214,7 +214,6 @@ var BBBUtils;
 		meeting.unreachableServer = "false";
 			
 		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
-		//console.log(meetingInfo);
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
 			if ( meetingInfo.returncode != 'FAILED' ) {
 				meeting.attendees = meetingInfo.attendees;
@@ -229,11 +228,18 @@ var BBBUtils;
 
 	}
 	
+	BBBUtils.timestamp2String = function(stamp) {
+		return new Date(stamp).toString();
+	}
+	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
         // joinable only if on specified date interval (if any)
-        var timestamp = new Date().getTime() - bbbServerTimeDiff;
-        var startOk = !meeting.startDate || meeting.startDate == 0 || timestamp >= meeting.startDate;
-        var endOk = !meeting.endDate || meeting.endDate == 0 || timestamp < meeting.endDate;
+        var startOk = !meeting.startDate || meeting.startDate == 0 || bbbServerTimeStamp.timestamp >= meeting.startDate;
+        var endOk = !meeting.endDate || meeting.endDate == 0 || bbbServerTimeStamp.timestamp < meeting.endDate;
+
+        var offset = bbbServerTimeStamp.timezoneOffset;
+        meeting.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
+        
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;
         meeting.joinable = startOk && endOk;
@@ -494,7 +500,8 @@ var BBBUtils;
             dataType : "json",
             async : true,
             success : function(timestamp) {
-            	bbbServerTimeDiff = new Date().getTime() - timestamp;
+            	bbbServerTimeStamp = timestamp;
+            	bbbServerTimeDiff = new Date().getTime() - timestamp.timestamp;
             }
         });
     }

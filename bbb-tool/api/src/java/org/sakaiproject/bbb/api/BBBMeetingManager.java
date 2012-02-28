@@ -228,7 +228,7 @@ public interface BBBMeetingManager {
     /**
      * Returns current server time (in milliseconds) in user timezone.
      */
-    public long getServerTimeInUserTimezone();
+    public Map<String, Object> getServerTimeInUserTimezone();
 
     /**
      * Returns the text notice (if any) to be displayed on the first time the
