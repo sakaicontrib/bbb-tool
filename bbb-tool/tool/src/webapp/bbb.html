@@ -409,13 +409,13 @@ $(document).ready(function(){
       {if meeting.startDate}
       <tr>
         <td><h5>${bbb_availability_startdate}</h5></td>
-        <td>${new Date(meeting.startDate).toISO8601String()}</td>
+        <td>${new Date(meeting.startDate).toISO8601String()} ${meeting.timezoneOffset}</td>
       </tr>
       {/if}
       {if meeting.endDate}
       <tr>
         <td><h5>${bbb_availability_enddate}</h5></td>
-        <td>${new Date(meeting.endDate).toISO8601String()}</td>
+        <td>${new Date(meeting.endDate).toISO8601String()} ${meeting.timezoneOffset}</td>
       </tr>
       {/if}
       <tr>
