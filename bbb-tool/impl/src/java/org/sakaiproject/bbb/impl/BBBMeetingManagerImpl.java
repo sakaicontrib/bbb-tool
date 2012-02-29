@@ -205,7 +205,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // -----------------------------------------------------------------------
     public BBBMeeting getMeeting(String meetingId) 
     		throws SecurityException, Exception {
-        return processMeeting(storageManager.getMeeting(meetingId));
+        BBBMeeting meeting = storageManager.getMeeting(meetingId);
+        
+        return processMeeting(meeting);
     }
 
     public List<BBBMeeting> getSiteMeetings(String siteId)
@@ -384,18 +386,19 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public void checkJoinMeetingPreConditions(BBBMeeting meeting)
             throws BBBException {
         // check if meeting is within dates
-        Date now = new Date();
+
+        Map<String, Object> serverTimeInUserTimezone = getServerTimeInUserTimezone();
+        Date now = new Date(Long.parseLong((String) serverTimeInUserTimezone.get("timestamp")));
+        
         boolean startOk = meeting.getStartDate() == null
                 || meeting.getStartDate().before(now);
-        boolean endOk = meeting.getEndDate() == null
+        boolean endOk = meeting.getEndDate() == null 
                 || meeting.getEndDate().after(now);
-        
+
         if (!startOk)
-            throw new BBBException(BBBException.MESSAGEKEY_NOTSTARTED,
-                    "Meeting has not started yet.");
+            throw new BBBException(BBBException.MESSAGEKEY_NOTSTARTED, "Meeting has not started yet.");
         if (!endOk)
-            throw new BBBException(BBBException.MESSAGEKEY_ALREADYENDED,
-                    "Meeting has already ended.");
+            throw new BBBException(BBBException.MESSAGEKEY_ALREADYENDED, "Meeting has already ended.");
 
         // check if is running, (re)create it if not
         bbbAPI.makeSureMeetingExists(meeting);
@@ -582,11 +585,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // convert dates to user timezone
         meeting.setStartDate(convertDateToUserTimezone(meeting.getStartDate()));
         meeting.setEndDate(convertDateToUserTimezone(meeting.getEndDate()));
-
-        if( meeting.getDeleted() == Boolean.FALSE ){
-            Date date = convertDateToUserTimezone(new Date());
-        }
-        
 
         Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 

@@ -81,7 +81,6 @@ var bbbRefreshRecordingListId = null;
     
     // Make sure we have the correct server time (needed if user duplicated tab/window)
     BBBUtils.updateServerTime();
-    console.log(bbbServerTimeStamp);
     
     // If configured, show text notice (first time access)
     BBBUtils.addNotice();

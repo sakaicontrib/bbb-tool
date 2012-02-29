@@ -484,7 +484,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		// get join url
 		try {
-			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());	
+			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
+			
 			if(meeting == null) {
 				throw new EntityException("This meeting is no longer available.", null, 404);
 			}
@@ -589,8 +590,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	public ActionReturn getServerTimeInUserTimezone(Map<String,Object> params)
 	{
 		if(LOG.isDebugEnabled()) LOG.debug("getServerTimeInUserTimezone");
-        Map<String, Object> map = new HashMap<String, Object>();
 
+		Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getServerTimeInUserTimezone();
         
         return new ActionReturn(map);

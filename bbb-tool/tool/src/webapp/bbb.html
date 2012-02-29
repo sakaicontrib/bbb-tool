@@ -146,8 +146,8 @@ $(document).ready(function(){
         {var statusClass = m.joinable ? 'status_joinable_' : (m.notStarted ? 'status_notstarted' : 'status_finished')}
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: m.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: bbb_status_joinable_unreachable ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
         <td id="meeting_status_${m.id}" class="${statusClass}${m.joinableMode}">${statusText}</td>
-        <td class="startDate">${m.startDate ? new Date(m.startDate).toISO8601String() : ''} ${m.timezoneOffset}</td>
-        <td class="endDate">${m.endDate ? new Date(m.endDate).toISO8601String() : ''} ${m.timezoneOffset}</td>
+        <td class="startDate">${m.startDate ? (new Date(m.startDate).toISO8601String()) + ' ' + m.timezoneOffset: ''}</td>
+        <td class="endDate">${m.endDate ? new Date(m.endDate).toISO8601String() + ' ' + m.timezoneOffset: ''}</td>
         <td>${m.ownerDisplayName}</td>
     </tr>
     {/if}  
