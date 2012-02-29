@@ -456,20 +456,6 @@ var BBBUtils;
         return recordings;
     }
     
-    BBBUtils.getMeetingRecordings = function(meetingId) {  
-    	//var allRecordings = BBBUtils.getAllRecordings();
-    	var recordings = new Object();
-    	recordings.recordings = new Array();
-    	//var k = 0;
-    	//for(var i=0,j=allRecordings.recordings.length;i<j;i++) {
-    	//	if( allRecordings.recordings[i].meetingID == meetingId )
-    	//		recordings.recordings[k++] = allRecordings.recordings[i];
-    	//}
-
-    	return recordings;
-    }
-
-    
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
         jQuery.ajax( {
