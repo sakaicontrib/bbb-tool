@@ -488,7 +488,6 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             // open connection
             logger.debug("doAPICall.call: " + apiCall + (query != null ? query : ""));
-            logger.info("JF: doAPICall.call: " + apiCall + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -521,8 +520,11 @@ public class BaseBBBAPI implements BBBAPI {
 
                 // parse response
                 logger.debug("doAPICall.response: " + xml);
-                logger.info("JF: doAPICall.response: " + xml);
-                Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
+                //Patch to fix the NaN error
+                String stringXml = xml.toString();
+                stringXml = stringXml.replaceAll(">.\\s+?<", "><");
+                Document dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
+                //Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
                 Map<String, Object> response = getNodesAsMap(dom, "response");
 
                 String returnCode = (String) response.get("returncode");

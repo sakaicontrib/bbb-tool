@@ -155,7 +155,6 @@ public class BBBAPIWrapper/* implements Runnable */{
          * startBBBVersionCheckThread(); }
          */
 
-
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
 
@@ -429,7 +428,6 @@ public class BBBAPIWrapper/* implements Runnable */{
                     _version = _version.substring(0, _version.indexOf("-"));
                 }
 
-                // logger.info("sdfgsdfg");
                 // version should be like x.x or x.xx
                 float versionNumber = Float.parseFloat(_version);
                 if (versionNumber < 0.63f) {
@@ -476,7 +474,7 @@ public class BBBAPIWrapper/* implements Runnable */{
             newProxy = new BBBAPI_080(url, salt);
         }
 
-        logger.info("Sakai BigBlueButton Tool bound to API: " + newProxy.getClass().getSimpleName());
+        logger.debug("Sakai BigBlueButton Tool bound to API: " + newProxy.getClass().getSimpleName());
 
         return newProxy;
     }
@@ -550,7 +548,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     private boolean doLoadBBBProxyMap() {
 
-        logger.info("determine API version running on BBB server...");
+        logger.debug("determine API version running on BBB server...");
         
         try {
             for (int i = 0; i < bbbUrls.length; i++) {
