@@ -491,7 +491,6 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             // open connection
             logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
-            logger.info("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -565,7 +564,6 @@ public class BaseBBBAPI implements BBBAPI {
         NodeList responseNodes = _node.getChildNodes();
         for (int i = 0; i < responseNodes.getLength(); i++) {
             Node node = responseNodes.item(i);
-            logger.info("node=" + node.toString() + ", nodeName=" + node.getNodeName() + ", nodeValue=" + node.getNodeValue() + ", nodeChilds=" + node.getChildNodes().getLength() + ", nodeType=" + node.getNodeType());
             String nodeName = node.getNodeName().trim();
             if (node.getChildNodes().getLength() == 1
                     && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
