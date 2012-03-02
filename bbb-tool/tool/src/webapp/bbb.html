@@ -170,24 +170,23 @@ $(document).ready(function(){
         </tr>
     </thead>
     <tbody>
-{for m in meetings}
-    {for r in m.recordings}
-   	  {if m.canEdit || r.published == 'true'}
+    {for r in recordings}
+   	  {if r.canEdit || r.published == 'true'}
         <tr class="meetingRow">
             <td>
-                <span>${m.name}</span>
+                <span>${r.name}</span>
                 <div class="itemAction" style="display: none; margin:0; padding:0;">
                     <small>
-                    {if m.canEdit}
+                    {if r.canEdit}
                 	  {if r.published == 'true'}
-                    	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${m.id}','${r.recordID}','${stateFunction}');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
+                    	<a href="javascript:;" onclick="return BBBUtils.unpublishRecordings('${r.meetingID}','${r.recordID}','${stateFunction}');" title="${bbb_action_hide_tooltip}">${bbb_action_hide}</a>
                       {else}	
-                    	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${m.id}','${r.recordID}','${stateFunction}');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
+                    	<a href="javascript:;" onclick="return BBBUtils.publishRecordings('${r.meetingID}','${r.recordID}','${stateFunction}');" title="${bbb_action_show_tooltip}">${bbb_action_show}</a>
                 	  {/if}
                     {/if}
-                    {if m.canDelete}
+                    {if r.canDelete}
                         &nbsp;|&nbsp;
-                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${m.id}','${r.recordID}','${stateFunction}','${escape(m.name)} [${new Date(r.startTime).toISO8601String()}]');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
+                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${r.meetingID}','${r.recordID}','${stateFunction}','${escape(r.name)} [${new Date(r.startTime).toISO8601String()}]');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
                     {/if}
                     </small>
                 </div> 
@@ -215,7 +214,6 @@ $(document).ready(function(){
         </tr>
       {/if}
     {/for}
-{/for}
         <tr>
             <td></td>
             <td></td>

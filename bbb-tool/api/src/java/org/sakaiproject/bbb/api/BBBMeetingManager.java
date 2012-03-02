@@ -117,8 +117,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean updateMeeting(BBBMeeting meeting,
-            boolean notifyParticipants, boolean addToCalendar)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
             throws SecurityException, BBBException;
 
     /**
@@ -145,6 +144,12 @@ public interface BBBMeetingManager {
      */
     public Map<String, Object> getAllRecordings() 
 			throws BBBException;
+
+    /**
+     * Get ALL playback recordings from BBB server for the current Site.
+     */
+    public Map<String, Object> getSiteRecordings(String siteId) 
+            throws SecurityException, Exception;
     
     /**
      * Log an event indicating that the current user joined the specified
@@ -155,13 +160,14 @@ public interface BBBMeetingManager {
     /**
      * Currently clears up the Sakai records and endMeeting.
      */
-    public boolean deleteMeeting(String id) throws SecurityException,
-            BBBException;
+    public boolean deleteMeeting(String id) 
+            throws SecurityException, BBBException;
 
     /**
      * Only executes endMeeting.
      */
-    public boolean endMeeting(String id) throws SecurityException, BBBException;
+    public boolean endMeeting(String id) 
+            throws SecurityException, BBBException;
 
     /**
      * Deletes a recording on the BBB server

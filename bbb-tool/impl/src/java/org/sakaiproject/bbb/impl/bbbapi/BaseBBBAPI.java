@@ -183,17 +183,15 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(duration);
 
             query.append("&meta_description=");
-            String description = meeting.getRecordingDescription() != null && !"".equals(meeting.getRecordingDescription().trim()) 
-                    ? meeting.getRecordingDescription()
-                    : "";
-            query.append(description);
+            String description = meeting.getRecordingDescription();
+            query.append(URLEncoder.encode(description == null? "": description.trim(), getParametersEncoding()));
             // BSN: Parameters required for notification when recordings are done
 
             // BSN: Parameters required for monitoring
             ResourceLoader toolParameters = new ResourceLoader("Tool");
             query.append("&meta_originApp=");
             String originAppSakaiVersion = config.getString("version.sakai", "");
-            query.append("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb.devBuild") + "]");
+            query.append(URLEncoder.encode("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb.devBuild") + "]", getParametersEncoding()));
 
             query.append("&meta_originServerId=");
             String originServerId = config.getString("serverId", "");
@@ -201,12 +199,11 @@ public class BaseBBBAPI implements BBBAPI {
             
             query.append("&meta_originServerUrl=");
             StringBuilder serverUrl = new StringBuilder(config.getServerUrl());
-            //serverUrl.append(BBBMeetingManager.TOOL_WEBAPP);
             query.append(URLEncoder.encode(serverUrl.toString(), getParametersEncoding()));
 
             query.append("&meta_originServerName=");
             String originServerName = config.getServerName();
-            query.append(originServerName);
+            query.append(URLEncoder.encode(originServerName, getParametersEncoding()));
             // BSN: Ends
 
             // Composed Welcome message
@@ -562,20 +559,25 @@ public class BaseBBBAPI implements BBBAPI {
             Node node = responseNodes.item(i);
             String nodeName = node.getNodeName().trim();
             if (node.getChildNodes().getLength() == 1
-                    && node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
+                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
                 String nodeValue = node.getTextContent();
                 map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
+            
             } else if (node.getChildNodes().getLength() == 0
-                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
+                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE 
+                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
-            } else if (node.getChildNodes().getLength() >= 1
-                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
+            
+            } else if ( (node.getChildNodes().getLength() >= 1 
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE 
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
                 List<Object> list = new ArrayList<Object>();
                 for (int c = 0; c < node.getChildNodes().getLength(); c++) {
                     Node n = node.getChildNodes().item(c);
                     list.add(processNode(n));
                 }
                 map.put(nodeName, list);
+            
             } else {
                 map.put(nodeName, processNode(node));
             }

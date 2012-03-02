@@ -323,6 +323,21 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return bbbAPI.getRecordings(meeting.getId());
     }
 
+    public Map<String, Object> getSiteRecordings(String siteId) 
+            throws SecurityException, Exception {
+        
+        String meetingIDs = "";
+
+        List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId);
+        for (BBBMeeting meeting : meetings) {
+            if( !meetingIDs.equals("") )
+                meetingIDs += ",";
+            meetingIDs += meeting.getId();
+        }
+
+        return bbbAPI.getSiteRecordings(meetingIDs);
+    }
+        
     public Map<String, Object> getAllRecordings() 
     		throws BBBException {
     	return bbbAPI.getAllRecordings();

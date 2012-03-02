@@ -275,6 +275,22 @@ public class BBBAPIWrapper/* implements Runnable */{
         return recordingsResponse;
     }
 
+    public Map<String, Object> getSiteRecordings(String meetingIDs)
+            throws BBBException {
+
+        String hostUrl = this.bbbUrls[0];
+        BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+
+        if (hostProxy == null && !doLoadBBBProxyMap() )
+            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
+
+        if( meetingIDs == null || meetingIDs.equals("") )
+            return new HashMap<String, Object>();
+        else
+            return hostProxy.getRecordings(meetingIDs);
+
+    }    
+    
     public Map<String, Object> getAllRecordings()
     		throws BBBException {
 
