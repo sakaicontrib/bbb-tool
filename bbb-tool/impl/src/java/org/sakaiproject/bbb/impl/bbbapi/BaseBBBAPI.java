@@ -490,7 +490,8 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            logger.debug("doAPICall.call: " + apiCall + (query != null ? query : ""));
+            logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
+            logger.info("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -523,9 +524,13 @@ public class BaseBBBAPI implements BBBAPI {
 
                 // parse response
                 logger.debug("doAPICall.response: " + xml);
-                Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
+                //Patch to fix the NaN error
+                String stringXml = xml.toString();
+                stringXml = stringXml.replaceAll(">.\\s+?<", "><");
+                Document dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
+                //Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
                 Map<String, Object> response = getNodesAsMap(dom, "response");
-
+                
                 String returnCode = (String) response.get("returncode");
                 if (APIRESPONSE_FAILED.equals(returnCode)) {
                     throw new BBBException((String) response.get("messageKey"), (String) response.get("message"));
@@ -560,22 +565,28 @@ public class BaseBBBAPI implements BBBAPI {
         NodeList responseNodes = _node.getChildNodes();
         for (int i = 0; i < responseNodes.getLength(); i++) {
             Node node = responseNodes.item(i);
+            logger.info("node=" + node.toString() + ", nodeName=" + node.getNodeName() + ", nodeValue=" + node.getNodeValue() + ", nodeChilds=" + node.getChildNodes().getLength() + ", nodeType=" + node.getNodeType());
             String nodeName = node.getNodeName().trim();
             if (node.getChildNodes().getLength() == 1
-                    && node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
+                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
                 String nodeValue = node.getTextContent();
                 map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
+            
             } else if (node.getChildNodes().getLength() == 0
-                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
+                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE 
+                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
-            } else if (node.getChildNodes().getLength() >= 1
-                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
+            
+            } else if ( node.getChildNodes().getLength() >= 1 
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE 
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
                 List<Object> list = new ArrayList<Object>();
                 for (int c = 0; c < node.getChildNodes().getLength(); c++) {
                     Node n = node.getChildNodes().item(c);
                     list.add(processNode(n));
                 }
                 map.put(nodeName, list);
+            
             } else {
                 map.put(nodeName, processNode(node));
             }

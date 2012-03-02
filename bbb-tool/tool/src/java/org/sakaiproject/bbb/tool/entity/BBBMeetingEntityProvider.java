@@ -391,7 +391,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		try
 		{
-			return new ActionReturn( meetingManager.getRecordings(ref.getId()) );
+		    return new ActionReturn( meetingManager.getRecordings(ref.getId()) );
 		}
 		catch(BBBException e)
 		{
