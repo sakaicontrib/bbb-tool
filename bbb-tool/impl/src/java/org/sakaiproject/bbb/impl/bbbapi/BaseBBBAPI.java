@@ -488,6 +488,7 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             // open connection
             logger.debug("doAPICall.call: " + apiCall + (query != null ? query : ""));
+            logger.info("JF: doAPICall.call: " + apiCall + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -520,6 +521,7 @@ public class BaseBBBAPI implements BBBAPI {
 
                 // parse response
                 logger.debug("doAPICall.response: " + xml);
+                logger.info("JF: doAPICall.response: " + xml);
                 Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
                 Map<String, Object> response = getNodesAsMap(dom, "response");
 
