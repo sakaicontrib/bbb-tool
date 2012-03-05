@@ -487,7 +487,7 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            logger.debug("doAPICall.call: " + apiCall + (query != null ? query : ""));
+            logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -526,7 +526,7 @@ public class BaseBBBAPI implements BBBAPI {
                 Document dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
                 //Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
                 Map<String, Object> response = getNodesAsMap(dom, "response");
-
+                
                 String returnCode = (String) response.get("returncode");
                 if (APIRESPONSE_FAILED.equals(returnCode)) {
                     throw new BBBException((String) response.get("messageKey"), (String) response.get("message"));
@@ -572,9 +572,15 @@ public class BaseBBBAPI implements BBBAPI {
                     && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
             
+<<<<<<< HEAD
             } else if ( (node.getChildNodes().getLength() >= 1 
                     && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE 
                     && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
+=======
+            } else if ( node.getChildNodes().getLength() >= 1 
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE 
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
+>>>>>>> master
                 List<Object> list = new ArrayList<Object>();
                 for (int c = 0; c < node.getChildNodes().getLength(); c++) {
                     Node n = node.getChildNodes().item(c);

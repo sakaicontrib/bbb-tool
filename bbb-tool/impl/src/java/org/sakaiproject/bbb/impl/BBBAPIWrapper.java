@@ -117,15 +117,15 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         liveUrls = new ArrayList<String>(bbbUrls.length);
 
-        if( !doLoadBBBProxyMap() ) return;
-
-        if (liveUrls != null && liveUrls.size() > 0) {
-            api = bbbProxyMap.get(liveUrls.get(0));
+        if( doLoadBBBProxyMap() ) {
+        	if (liveUrls != null && liveUrls.size() > 0) {
+        		api = bbbProxyMap.get(liveUrls.get(0));
+        	}
         }
 
-        List<BBBMeeting> meetings = storageManager.getAllMeetings();
 
         // Let's make sure that our meetings are all running on accessible hosts
+<<<<<<< HEAD
         for (BBBMeeting meeting : meetings) {
             String hostUrl = meeting.getHostUrl();
             if (!bbbProxyMap.containsKey(hostUrl)) {
@@ -142,7 +142,46 @@ public class BBBAPIWrapper/* implements Runnable */{
                 }
             }
         }
+=======
+        //for (BBBMeeting meeting : meetings) {
+        //    String hostUrl = meeting.getHostUrl();
+        //    if (!bbbProxyMap.containsKey(hostUrl)) {
+        //        // The host for this meeting is not alive. Try and move the meeting.
+        //        logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
+        //                    + "', was not available. The meeting will be moved to the first available host '" + api.getUrl() + "' ...");
+        //        try {
+        //            api.createMeeting(meeting);
+        //            if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
+        //                logger.error("Failed to set the host to '" + api.getUrl() + "' for meeting '" + meeting.getId() + "'");
+        //            }
+        //        } catch (BBBException e) {
+        //            logger.error("Failed to move meeting '" + meeting.getId() + "' from '" + meeting.getHostUrl() + "' to '" + api.getUrl() + "'", e);
+        //        }
+        //    }
+        //}
+>>>>>>> master
 
+
+        // Since the former validation was removed, 
+        // let's make sure that our meetings are all set up at least with a configured hosts
+        List<BBBMeeting> meetings = storageManager.getAllMeetings();
+        for (BBBMeeting meeting : meetings) {
+            String hostUrl = meeting.getHostUrl();
+            if (!bbbProxyMap.containsKey(hostUrl)) {
+                // The host for this meeting is not alive. Try and move the meeting.
+                logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
+                          + "', was not available. The meeting will be moved to the first available host ...");
+            	
+                //Assign the first server available in the map if there is some, or the first configured URL
+            	if( api != null )
+            		storageManager.setMeetingHost(meeting.getId(), api.getUrl());
+            	else
+            		storageManager.setMeetingHost(meeting.getId(), bbbUrls[0]);
+            		
+            }
+        }
+
+        
         //if (bbbUrls.length > 1) {
         //    allocatorTimer = new Timer("BigBlueButton Allocator Timer");
         //    allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
