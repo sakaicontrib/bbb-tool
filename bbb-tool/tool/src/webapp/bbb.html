@@ -334,13 +334,13 @@ $(document).ready(function(){
     
     <br/>
     <h3>${bbb_notification}</h3>
-    <p class="instruction">${bbb_notification_instr}</p>
+    <p class="instruction">{if isNew}${bbb_notification_instr}{else}${bbb_notification_instr_edit}{/if}</p>
     <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
       <tr>
-        <td class="lbl">${bbb_notification_notify}</td>
+        <td class="lbl">{if isNew}${bbb_notification_notify}{else}${bbb_notification_notify_edit}{/if}</td>
         <td>
             {var notifyParticipantsChecked = isNew ? true : false }
-            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if notifyParticipantsChecked}checked{/if}/>
+            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" checked/>
         </td>
       </tr>
     </table>

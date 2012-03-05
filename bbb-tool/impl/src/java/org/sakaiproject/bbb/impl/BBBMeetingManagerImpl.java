@@ -244,7 +244,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.storeMeeting(meeting)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting);
+                notifyParticipants(meeting, true);
             }
 
             // add start date to Calendar
@@ -280,7 +280,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.updateMeeting(meeting, true)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting);
+                notifyParticipants(meeting, false);
             }
 
             // add start date to Calendar
@@ -626,7 +626,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return null;
     }
 
-    private void notifyParticipants(BBBMeeting meeting) {
+    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting) {
         // Site title, url and directtool (universal) url for joining meeting
         Site site;
         try {
@@ -714,7 +714,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         for (String locale : meetingUsers.keySet()) {
             logger.debug("Sending " + locale + " notifications to " + meetingUsers.get(locale).size() + " users.");
             String sampleUserId = meetingUsers.get(locale).iterator().next().getId();
-            ResourceLoader msgs = new ResourceLoader(sampleUserId, "EmailNotification");
+            //ResourceLoader msgs = new ResourceLoader(sampleUserId, "EmailNotification");
+            ResourceLoader msgs = null;
+            if (true == isNewMeeting) {
+            	msgs = new ResourceLoader(sampleUserId, "EmailNotification");
+            } else {
+            	msgs = new ResourceLoader(sampleUserId, "EmailNotificationUpdate");
+            }
 
             // Email message
             final String emailTitle = msgs.getFormattedMessage("email.title", new Object[] { siteTitle, meeting.getName() });

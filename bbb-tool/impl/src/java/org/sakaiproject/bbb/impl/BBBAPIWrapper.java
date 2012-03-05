@@ -125,24 +125,6 @@ public class BBBAPIWrapper/* implements Runnable */{
 
 
         // Let's make sure that our meetings are all running on accessible hosts
-<<<<<<< HEAD
-        for (BBBMeeting meeting : meetings) {
-            String hostUrl = meeting.getHostUrl();
-            if (!bbbProxyMap.containsKey(hostUrl)) {
-                // The host for this meeting is not alive. Try and move the meeting.
-                logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
-                            + "', was not available. The meeting will be moved to the first available host '" + api.getUrl() + "' ...");
-                try {
-                    api.createMeeting(meeting);
-                    if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
-                        logger.error("Failed to set the host to '" + api.getUrl() + "' for meeting '" + meeting.getId() + "'");
-                    }
-                } catch (BBBException e) {
-                    logger.error("Failed to move meeting '" + meeting.getId() + "' from '" + meeting.getHostUrl() + "' to '" + api.getUrl() + "'", e);
-                }
-            }
-        }
-=======
         //for (BBBMeeting meeting : meetings) {
         //    String hostUrl = meeting.getHostUrl();
         //    if (!bbbProxyMap.containsKey(hostUrl)) {
@@ -159,7 +141,6 @@ public class BBBAPIWrapper/* implements Runnable */{
         //        }
         //    }
         //}
->>>>>>> master
 
 
         // Since the former validation was removed, 

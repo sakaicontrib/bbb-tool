@@ -572,16 +572,11 @@ public class BaseBBBAPI implements BBBAPI {
                     && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
             
-<<<<<<< HEAD
-            } else if ( (node.getChildNodes().getLength() >= 1 
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE 
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
-=======
             } else if ( node.getChildNodes().getLength() >= 1 
                     && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE 
                     && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
->>>>>>> master
-                List<Object> list = new ArrayList<Object>();
+
+            	List<Object> list = new ArrayList<Object>();
                 for (int c = 0; c < node.getChildNodes().getLength(); c++) {
                     Node n = node.getChildNodes().item(c);
                     list.add(processNode(n));
