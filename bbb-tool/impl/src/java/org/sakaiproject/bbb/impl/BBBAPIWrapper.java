@@ -60,6 +60,9 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API auto refresh interval for recordings(default to 60 sec) */
     private long bbbAutorefreshRecordings = 60000L;
 
+    /** BBB API getSiteRecordings active flag (default to true) */
+    private boolean bbbGetSiteRecordings = true;
+    
     /** BBB API */
     private BBBAPI api = null;
 
@@ -177,6 +180,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
+        bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
 
     }
 
@@ -296,18 +300,74 @@ public class BBBAPIWrapper/* implements Runnable */{
     public Map<String, Object> getSiteRecordings(String meetingIDs)
             throws BBBException {
 
+    	Map<String, Object> mapResult = new HashMap<String, Object>();
+    	
         String hostUrl = this.bbbUrls[0];
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-        if (hostProxy == null && !doLoadBBBProxyMap() )
-            return noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
+        if (hostProxy == null && !doLoadBBBProxyMap() ) {
+        	mapResult = noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
+        
+        } else {
+            if( meetingIDs == null || meetingIDs.equals("") ) {
+            	//Do nothing
+            } else {
+            	if( bbbGetSiteRecordings ){
+            		logger.info("JF: go for them all together bbbGetSiteRecordings=" + bbbGetSiteRecordings);
+            		mapResult = hostProxy.getRecordings(meetingIDs);
+            	} else {
+            		logger.info("JF: go for them one by one bbbGetSiteRecordings=" + bbbGetSiteRecordings);
+            	    String[] MeetingIdArray = {};
+            	    MeetingIdArray = meetingIDs.split(",");
+                    if (MeetingIdArray.length >= 0 ){
+                    	for(int i=0; i < MeetingIdArray.length; i++){
+                    		logger.info("JF: meetingId=" + MeetingIdArray[i]);
+                    		mapResult = getMergedMap(mapResult, hostProxy.getRecordings(MeetingIdArray[i]));
+                    	}
+                    }
+            	}
+            }
+        }
+    	return mapResult;
+    }
+    
+    private Map<String, Object> getMergedMap(Map<String, Object> target, Map<String, Object> source) {
 
-        if( meetingIDs == null || meetingIDs.equals("") )
-            return new HashMap<String, Object>();
-        else
-            return hostProxy.getRecordings(meetingIDs);
+    	Map<String, Object> responseMap = new HashMap<String, Object>();
+    	
+    	if( !source.containsValue("noRecordings") ){
+    		logger.info("JF: source has at least one recording: returncode=" + source.get("returncode"));
+    		
+        	if( !target.containsValue("returncode") ){
+        		logger.info("JF: target is empty: returncode=" + source.get("returncode"));
+        		responseMap = source;
+        	} else if( target.containsValue("noRecordings") ){
+        		logger.info("JF: target has no recordings: returncode=" + source.get("returncode"));
+        		target.remove("messageKey");
+        		target.remove("message");
+        		target.remove("recordings");
+        		target.put("recordings", source.get("recordings"));
+        	} else {
+        		logger.info("JF: target has some recordings already: returncode=" + source.get("returncode"));
+            	ArrayList<Object> targetRecordingList = (ArrayList<Object>) target.get("recordings");
+            	ArrayList<Object> sourceRecordingList = (ArrayList<Object>) source.get("recordings");
 
-    }    
+            	Object[] elements = sourceRecordingList.toArray();
+                for(int i=0; i < elements.length ; i++)        
+            		targetRecordingList.add(elements[i]);
+
+        	}
+    		responseMap = target;
+    	} else {
+    		logger.info("JF: source has not contain any recording: returncode=" + source.get("returncode"));
+        	if( !target.containsValue("returncode") ){
+        		responseMap = source;
+        	}
+    	}
+    	
+    	return responseMap;
+    	
+    }
     
     public Map<String, Object> getAllRecordings()
     		throws BBBException {

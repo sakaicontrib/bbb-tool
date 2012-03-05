@@ -48,6 +48,7 @@ public interface BBBMeetingManager {
     public final static String CFG_DEFAULT_OWNER = "bbb.default.participants.owner";
     public final static String CFG_AUTOREFRESHMEETINGS = "bbb.autorefresh.meetings";
     public final static String CFG_AUTOREFRESHRECORDINGS = "bbb.autorefresh.recordings";
+    public final static String CFG_GETSITERECORDINGS = "bbb.getsiterecordings";
     
     // Permissions
     public static final String FN_PREFIX = "bbb.";

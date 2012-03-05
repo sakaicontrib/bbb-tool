@@ -294,7 +294,7 @@ function switchState(state,arg) {
         // show meeting list
         if(bbbUserPerms.bbbViewMeetingList) {
             // Get recording list
-        	refreshRecordingList();
+        	bbbCurrentRecordings = Array();
         	console.log(bbbCurrentRecordings);
 
             var errorLog = new Object();
@@ -365,6 +365,7 @@ function switchState(state,arg) {
     	    if(bbbUserPerms.bbbViewMeetingList) {
                 // Get meeting list
             	refreshRecordingList(arg.meetingId);
+            	console.log(bbbCurrentRecordings);
 
             	var errorLog = new Object();
                 errorLog.keys = Array();
