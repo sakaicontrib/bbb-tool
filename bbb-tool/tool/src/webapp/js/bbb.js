@@ -21,6 +21,7 @@ var bbbServerTimeDiff = 0;
 var bbbServerTimeStamp = Object();
 var bbbUserPerms = null;
 var bbbCurrentMeetings = [];
+var bbbCurrentRecordings = Array();
 var bbbInterval = null;
 var bbbCheckOneMeetingAvailabilityId = null;
 var bbbCheckAllMeetingAvailabilityId = null; 
@@ -292,28 +293,30 @@ function switchState(state,arg) {
 
         // show meeting list
         if(bbbUserPerms.bbbViewMeetingList) {
-            // Get meeting list
-            refreshMeetingList();
+            // Get recording list
+        	bbbCurrentRecordings = Array();
+        	refreshRecordingList();
 
             var errorLog = new Object();
             errorLog.keys = Array();
         	var errorIndex = 0;
     
-            // watch for permissions changes, check meeting dates
-            for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-                BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
-                BBBUtils.setMeetingRecordingParams(bbbCurrentMeetings[i]);
-                if( bbbCurrentMeetings[i].recordingErrorMessageKey ){
-                	if( !errorLog[bbbCurrentMeetings[i].recordingErrorMessageKey] ){
-                		errorLog[bbbCurrentMeetings[i].recordingErrorMessageKey] = true;
-                		errorLog.keys[errorIndex++] = bbbCurrentMeetings[i].recordingErrorMessage;
+	        // watch for permissions changes, check meeting dates
+            for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
+            	bbbCurrentRecordings[i].ownerId = "";
+                BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
+
+        		if( bbbCurrentRecordings[i].recordingErrorMessageKey ){
+                	if( !errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] ){
+                		errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] = true;
+                		errorLog.keys[errorIndex++] = bbbCurrentRecordings[i].recordingErrorMessage;
                 	}
-	
                 }
             }
             
-	        BBBUtils.render('bbb_recordings_template',{'meetings':bbbCurrentMeetings, 'stateFunction':'recordings'},'bbb_content');
-            for(var i=0,j=errorLog.keys.length;i<j;i++) {
+	        BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings,'stateFunction':'recordings'},'bbb_content');
+
+	        for(var i=0,j=errorLog.keys.length;i<j;i++) {
             	BBBUtils.showMessage(errorLog.keys[i], 'warning');
             }
 
@@ -337,7 +340,7 @@ function switchState(state,arg) {
                     cssDesc:'bbb_sortable_table_header_sortdown',
                     headers: { /*3: {sorter: false}*/ },
                     // Sort DESC status:
-                    sortList: (bbbCurrentMeetings.length > 0) ? [[0,0],[2,0]] : []
+                    sortList: (bbbCurrentRecordings.length > 0) ? [[0,0],[2,0]] : []
                 });
                 
                 BBBUtils.adjustFrameHeight();
@@ -360,16 +363,32 @@ function switchState(state,arg) {
 
     	if(arg && arg.meetingId) {
     	    if(bbbUserPerms.bbbViewMeetingList) {
-    	        var meetings = [];
+                // Get meeting list
+            	refreshRecordingList(arg.meetingId);
+
+            	var errorLog = new Object();
+                errorLog.keys = Array();
+            	var errorIndex = 0;
+
+            	var recordings = [];
     	        var k = 0;
-    	        for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-    	        	if(bbbCurrentMeetings[i].id == arg.meetingId){
-    	                BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
-    	                BBBUtils.setMeetingRecordingParams(bbbCurrentMeetings[i]);
-    	        		meetings[k++] = bbbCurrentMeetings[i];
+    	        for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
+    	        	if(bbbCurrentRecordings[i].meetingID == arg.meetingId){
+    	            	bbbCurrentRecordings[i].ownerId = "";
+    	                BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
+
+    	        		if( bbbCurrentRecordings[i].recordingErrorMessageKey ){
+    	                	if( !errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] ){
+    	                		errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] = true;
+    	                		errorLog.keys[errorIndex++] = bbbCurrentRecordings[i].recordingErrorMessage;
+    	                	}
+    	                }
     	        	}
     	        }
-    	        BBBUtils.render('bbb_recordings_template',{'meetings':meetings, 'stateFunction':'recordings_meeting'},'bbb_content');
+    	        BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
+                for(var i=0,j=errorLog.keys.length;i<j;i++) {
+                	BBBUtils.showMessage(errorLog.keys[i], 'warning');
+                }
     	        
     	        $(document).ready(function() {
     	            // auto hide actions
@@ -391,7 +410,7 @@ function switchState(state,arg) {
     	                cssDesc:'bbb_sortable_table_header_sortdown',
     	                headers: { /*3: {sorter: false}*/ },
     	                // Sort DESC status:
-    	                sortList: (meetings.length > 0) ? [[2,0]] : []
+    	                sortList: (recordings.length > 0) ? [[2,0]] : []
     	            });
 
     	            BBBUtils.adjustFrameHeight();
@@ -413,10 +432,15 @@ function switchState(state,arg) {
     }
 }
 
-
-
 function refreshMeetingList() {
 	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
+}
+
+function refreshRecordingList(meetingId) {
+	if(meetingId == null)
+		bbbCurrentRecordings = BBBUtils.getSiteRecordingList(bbbSiteId);
+	else
+		bbbCurrentRecordings = BBBUtils.getMeetingRecordingList(meetingId);
 }
 
 function allSiteMembersCanParticipate() {

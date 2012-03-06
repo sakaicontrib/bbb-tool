@@ -227,9 +227,18 @@ var BBBUtils;
 		}
 
 	}
-	
-	BBBUtils.timestamp2String = function(stamp) {
-		return new Date(stamp).toString();
+
+	BBBUtils.setRecordingPermissionParams = function(recording) {
+        // specific meeting permissions
+        if(bbbCurrentUser.id === recording.ownerId) {
+            recording.canEdit = bbbUserPerms.bbbEditOwn | bbbUserPerms.bbbEditAny;
+            recording.canEnd = bbbUserPerms.bbbEditOwn | bbbUserPerms.bbbEditAny;
+            recording.canDelete = bbbUserPerms.bbbDeleteOwn | bbbUserPerms.bbbDeleteAny;
+        }else{
+        	recording.canEdit = bbbUserPerms.bbbEditAny;
+        	recording.canEnd = bbbUserPerms.bbbEditAny;
+        	recording.canDelete = bbbUserPerms.bbbDeleteAny;
+        }
 	}
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
@@ -267,32 +276,12 @@ var BBBUtils;
 				} else if ( meeting.attendees.length > 0 ) {
 					meeting.joinableMode = "inprogress";
 				}
-			} else
+			} else {
 				meeting.joinableMode = "unreachable";
-
+			}
 		}
 	}
 	
-	// Add recordings as extra parameter to a meeting object
-	BBBUtils.setMeetingRecordingParams = function(meeting) {
-        meeting.recordings = Array();
-		
-		var recordings = BBBUtils.getRecordings(meeting.id);
-		if( recordings.returncode == 'FAILED'){
-			meeting.recordingErrorMessageKey = recordings.messageKey;
-			if(recordings.messageKey == 'noProxyFound' || recordings.messageKey == 'unreachableServerError')
-				meeting.recordingErrorMessage = bbb_err_get_recording + ", " + bbb_err_unreachable_server;
-			else
-				meeting.recordingErrorMessage = bbb_err_get_recording + ", " + recordings.message;
-			return;
-		} else if( recordings.recordings == null ){
-			meeting.recordingErrorMessageKey = recordings.messageKey;
-			meeting.recordingErrorMessage = bbb_err_get_recording;
-        	return;
-        } 
-        meeting.recordings = recordings.recordings;
-	}
-
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
 	BBBUtils.endMeeting = function(name, meetingID) {
@@ -422,15 +411,36 @@ var BBBUtils;
         return meetingInfo;
     }
     
+    // Get site recordings from BBB server
+    BBBUtils.getSiteRecordingList = function(siteId) {
+    	if (siteId == null) siteId = "";
+    		
+    	var recordings = null;
+        jQuery.ajax( {
+            url: "/direct/bbb-meeting/getSiteRecordings.json?siteId=" + siteId,
+            dataType : "json",
+            async : false,
+            success : function(data) {
+                recordings = data.recordings;
+            },
+            error : function(xmlHttpRequest,status,error) {
+            	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
+        return recordings;
+    }
+    
     // Get meeting recordings from BBB server
-    BBBUtils.getRecordings = function(meetingId) {  
+    BBBUtils.getMeetingRecordingList = function(meetingId) {
+    	if (meetingId == null) meetingId = "";
+
     	var recordings = null;
         jQuery.ajax( {
             url: "/direct/bbb-meeting/" + meetingId + "/getRecordings.json",
             dataType : "json",
             async : false,
             success : function(data) {
-                recordings = data;
+                recordings = data.recordings;
             },
             error : function(xmlHttpRequest,status,error) {
             	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -439,37 +449,6 @@ var BBBUtils;
         return recordings;
     }
 
-    // Get all meeting recordings from BBB server
-    BBBUtils.getAllRecordings = function() {  
-    	var recordings = null;
-        jQuery.ajax( {
-            url: "/direct/bbb-meeting/getAllRecordings.json",
-            dataType : "json",
-            async : false,
-            success : function(data) {
-                recordings = data;
-            },
-            error : function(xmlHttpRequest,status,error) {
-            	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-            }
-        });
-        return recordings;
-    }
-    
-    BBBUtils.getMeetingRecordings = function(meetingId) {  
-    	//var allRecordings = BBBUtils.getAllRecordings();
-    	var recordings = new Object();
-    	recordings.recordings = new Array();
-    	//var k = 0;
-    	//for(var i=0,j=allRecordings.recordings.length;i<j;i++) {
-    	//	if( allRecordings.recordings[i].meetingID == meetingId )
-    	//		recordings.recordings[k++] = allRecordings.recordings[i];
-    	//}
-
-    	return recordings;
-    }
-
-    
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
         jQuery.ajax( {
@@ -663,21 +642,19 @@ var BBBUtils;
     }
     
     BBBUtils.checkRecordingAvailability = function(meetingId) {
-		var recordings = BBBUtils.getRecordings(meetingId);
-		if( recordings.recordings == null ){
+		var recordings = BBBUtils.getMeetingRecordingList(meetingId);
+		if( recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
         	var htmlRecordings = "";
-        	if(recordings.recordings.length > 0)
-				htmlRecordings = '(<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.recordings.length)) + '</a>)&nbsp;&nbsp;';
+        	if(recordings.length > 0)
+				htmlRecordings = '(<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
         	else
-            	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.recordings.length)) + ")";
+            	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
         		
-        	jQuery('#recording_link_'+meetingId)
-				.html(htmlRecordings);
+        	jQuery('#recording_link_'+meetingId).html(htmlRecordings);
 		}
     }
-
 
     // Get notice message to be displayed on the UI (first time access)
     BBBUtils.addNotice = function() {

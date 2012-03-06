@@ -48,7 +48,6 @@ public class BBBMeeting implements Entity {
 	private Boolean deleted = null;
 	//BSN: Properties required for playback recording
 	private Boolean recording = null; 
-	private String recordingDescription = null;
 	private Long recordingDuration = null;
 	private String recordingEmail = null;
 	//BSN: Ends
@@ -92,6 +91,10 @@ public class BBBMeeting implements Entity {
 	
 	public String getUrl(String arg0) {
 		return getUrl();
+	}
+	
+	public String getRecordingDescription() {
+	    return this.props.getWelcomeMessage();
 	}
 	
 	public Element toXml(Document arg0, Stack arg1) {
