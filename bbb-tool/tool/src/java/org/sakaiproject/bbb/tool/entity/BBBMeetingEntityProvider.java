@@ -288,6 +288,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
         	}
     		try {
     			meetings = meetingManager.getSiteMeetings(context);
+    			
+                // for security reasons, clear passwords and meeting token
+                for( BBBMeeting meeting: meetings ){
+                    meeting.setAttendeePassword(null);
+                    meeting.setModeratorPassword(null);
+                }
+    			
     		} catch(Exception e) {
     			throw new EntityException(e.getMessage(), ref.getReference(), 400);
     		}
@@ -385,9 +392,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref)
 	{
 		if(LOG.isDebugEnabled()) LOG.debug("getRecordings");
-		if(ref == null) {
-			throw new EntityNotFoundException("Meeting not found", null);
-		}
+
+		if(ref == null) throw new EntityNotFoundException("Meeting not found", null);
 		
 		try
 		{
@@ -400,20 +406,23 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	}
 
 	
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public ActionReturn getAllRecordings(Map<String,Object> params)
-	{
-		if(LOG.isDebugEnabled()) LOG.debug("getAllRecordings");
-		
-		try
-		{
-			return new ActionReturn( meetingManager.getAllRecordings() );
-		}
-		catch(BBBException e)
-		{
-			return new ActionReturn(new HashMap<String,String>());
-		}
-	}
+    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+    public ActionReturn getSiteRecordings(Map<String,Object> params)
+    {
+        if(LOG.isDebugEnabled()) LOG.debug("getSiteRecordings");
+
+        String siteId = (String) params.get("siteId");
+
+        try {
+            Map<String, Object> recordingsResponse = meetingManager.getSiteRecordings(siteId);
+            return new ActionReturn( recordingsResponse );
+
+        } catch(Exception e) {
+            LOG.warn("getSiteRecordings Error: " + e.getMessage());
+            return new ActionReturn(new HashMap<String,String>());
+        } 
+
+    }
 	
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)

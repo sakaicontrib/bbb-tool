@@ -60,6 +60,9 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API auto refresh interval for recordings(default to 60 sec) */
     private long bbbAutorefreshRecordings = 60000L;
 
+    /** BBB API getSiteRecordings active flag (default to true) */
+    private boolean bbbGetSiteRecordings = true;
+    
     /** BBB API */
     private BBBAPI api = null;
 
@@ -175,9 +178,9 @@ public class BBBAPIWrapper/* implements Runnable */{
          * startBBBVersionCheckThread(); }
          */
 
-
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
+        bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
 
     }
 
@@ -294,6 +297,75 @@ public class BBBAPIWrapper/* implements Runnable */{
         return recordingsResponse;
     }
 
+    public Map<String, Object> getSiteRecordings(String meetingIDs)
+            throws BBBException {
+
+    	Map<String, Object> mapResult = new HashMap<String, Object>();
+    	
+        String hostUrl = this.bbbUrls[0];
+        BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
+
+        if (hostProxy == null && !doLoadBBBProxyMap() ) {
+        	mapResult = noProxyFoundError("No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
+        
+        } else {
+            if( meetingIDs == null || meetingIDs.equals("") ) {
+            	//Do nothing
+            } else {
+            	if( bbbGetSiteRecordings ){
+            		mapResult = hostProxy.getRecordings(meetingIDs);
+            	} else {
+            	    String[] MeetingIdArray = {};
+            	    MeetingIdArray = meetingIDs.split(",");
+                    if (MeetingIdArray.length >= 0 ){
+                    	for(int i=0; i < MeetingIdArray.length; i++){
+                    		mapResult = getMergedMap(mapResult, hostProxy.getRecordings(MeetingIdArray[i]));
+                    	}
+                    }
+            	}
+            }
+        }
+    	return mapResult;
+    }
+    
+    private Map<String, Object> getMergedMap(Map<String, Object> target, Map<String, Object> source) {
+
+    	Map<String, Object> responseMap = new HashMap<String, Object>();
+    	
+    	if( source.containsValue("noRecordings") ){
+        	if( !target.containsKey("returncode") ){
+        		responseMap = source;
+        	} else {
+        		responseMap = target;
+        	}
+    	} else {
+        	if( !target.containsKey("returncode") ){
+        		responseMap = source;
+        	} else if( target.containsValue("noRecordings") ){
+        		target.remove("messageKey");
+        		target.remove("message");
+        		target.remove("recordings");
+        		target.put("recordings", source.get("recordings"));
+        		responseMap = target;
+        	} else {
+            	ArrayList<Object> targetRecordingList = (ArrayList<Object>) target.get("recordings");
+            	ArrayList<Object> sourceRecordingList = (ArrayList<Object>) source.get("recordings");
+
+            	Object[] elements = sourceRecordingList.toArray();
+                for(int i=0; i < elements.length ; i++)        
+            		targetRecordingList.add(elements[i]);
+
+                target.remove("recordings");
+        		target.put("recordings", targetRecordingList);
+
+        		responseMap = target;
+        	}
+    	}
+    	
+    	return responseMap;
+    	
+    }
+    
     public Map<String, Object> getAllRecordings()
     		throws BBBException {
 
@@ -433,7 +505,6 @@ public class BBBAPIWrapper/* implements Runnable */{
                     _version = _version.substring(0, _version.indexOf("-"));
                 }
 
-                // logger.info("sdfgsdfg");
                 // version should be like x.x or x.xx
                 float versionNumber = Float.parseFloat(_version);
                 if (versionNumber < 0.63f) {
@@ -480,7 +551,7 @@ public class BBBAPIWrapper/* implements Runnable */{
             newProxy = new BBBAPI_080(url, salt);
         }
 
-        logger.info("Sakai BigBlueButton Tool bound to API: " + newProxy.getClass().getSimpleName());
+        logger.debug("Sakai BigBlueButton Tool bound to API: " + newProxy.getClass().getSimpleName());
 
         return newProxy;
     }
@@ -554,7 +625,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     private boolean doLoadBBBProxyMap() {
 
-        logger.info("determine API version running on BBB server...");
+        logger.debug("determine API version running on BBB server...");
         
         try {
             for (int i = 0; i < bbbUrls.length; i++) {
