@@ -313,15 +313,12 @@ public class BBBAPIWrapper/* implements Runnable */{
             	//Do nothing
             } else {
             	if( bbbGetSiteRecordings ){
-            		logger.info("JF: go for them all together bbbGetSiteRecordings=" + bbbGetSiteRecordings);
             		mapResult = hostProxy.getRecordings(meetingIDs);
             	} else {
-            		logger.info("JF: go for them one by one bbbGetSiteRecordings=" + bbbGetSiteRecordings);
             	    String[] MeetingIdArray = {};
             	    MeetingIdArray = meetingIDs.split(",");
                     if (MeetingIdArray.length >= 0 ){
                     	for(int i=0; i < MeetingIdArray.length; i++){
-                    		logger.info("JF: meetingId=" + MeetingIdArray[i]);
                     		mapResult = getMergedMap(mapResult, hostProxy.getRecordings(MeetingIdArray[i]));
                     	}
                     }
@@ -335,20 +332,22 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     	Map<String, Object> responseMap = new HashMap<String, Object>();
     	
-    	if( !source.containsValue("noRecordings") ){
-    		logger.info("JF: source has at least one recording: returncode=" + source.get("returncode"));
-    		
-        	if( !target.containsValue("returncode") ){
-        		logger.info("JF: target is empty: returncode=" + source.get("returncode"));
+    	if( source.containsValue("noRecordings") ){
+        	if( !target.containsKey("returncode") ){
+        		responseMap = source;
+        	} else {
+        		responseMap = target;
+        	}
+    	} else {
+        	if( !target.containsKey("returncode") ){
         		responseMap = source;
         	} else if( target.containsValue("noRecordings") ){
-        		logger.info("JF: target has no recordings: returncode=" + source.get("returncode"));
         		target.remove("messageKey");
         		target.remove("message");
         		target.remove("recordings");
         		target.put("recordings", source.get("recordings"));
+        		responseMap = target;
         	} else {
-        		logger.info("JF: target has some recordings already: returncode=" + source.get("returncode"));
             	ArrayList<Object> targetRecordingList = (ArrayList<Object>) target.get("recordings");
             	ArrayList<Object> sourceRecordingList = (ArrayList<Object>) source.get("recordings");
 
@@ -356,12 +355,10 @@ public class BBBAPIWrapper/* implements Runnable */{
                 for(int i=0; i < elements.length ; i++)        
             		targetRecordingList.add(elements[i]);
 
-        	}
-    		responseMap = target;
-    	} else {
-    		logger.info("JF: source has not contain any recording: returncode=" + source.get("returncode"));
-        	if( !target.containsValue("returncode") ){
-        		responseMap = source;
+                target.remove("recordings");
+        		target.put("recordings", targetRecordingList);
+
+        		responseMap = target;
         	}
     	}
     	

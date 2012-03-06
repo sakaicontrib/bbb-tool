@@ -414,7 +414,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
         String siteId = (String) params.get("siteId");
 
         try {
-            return new ActionReturn( meetingManager.getSiteRecordings(siteId) );
+            Map<String, Object> recordingsResponse = meetingManager.getSiteRecordings(siteId);
+            return new ActionReturn( recordingsResponse );
 
         } catch(Exception e) {
             LOG.warn("getSiteRecordings Error: " + e.getMessage());

@@ -335,7 +335,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             meetingIDs += meeting.getId();
         }
 
-        return bbbAPI.getSiteRecordings(meetingIDs);
+        Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
+        return recordingsResponse;
     }
         
     public Map<String, Object> getAllRecordings() 
