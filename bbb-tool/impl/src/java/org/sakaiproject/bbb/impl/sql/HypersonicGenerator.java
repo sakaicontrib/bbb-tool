@@ -16,6 +16,9 @@
 
 package org.sakaiproject.bbb.impl.sql;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * HSQLDB Database implementation for Sakai BigBlueButton persistence.
  * @author Adrian Fish, Nuno Fernandes
@@ -42,4 +45,20 @@ public class HypersonicGenerator extends DefaultSqlGenerator
         return "select COLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME='" + tableName + "' AND COLUMN_NAME='" + columnName + "'";
     }
 	
+    public Map<String, String> getUpdateStatements() {
+        Map<String, String> statements = new HashMap<String, String>();
+
+        statements.put("BBB_MEETING:HOST_URL:ADD", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL " + VARCHAR + "(255) NOT NULL AFTER NAME;");
+        statements.put("BBB_MEETING:RECORDING:ADD", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " BEFORE PROPERTIES;"); 
+        statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + " BEFORE PROPERTIES;");
+        statements.put("BBB_MEETING:DELETED:ADD", 
+        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
+        statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
+        		"ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
+        
+        return statements;
+    }
 }

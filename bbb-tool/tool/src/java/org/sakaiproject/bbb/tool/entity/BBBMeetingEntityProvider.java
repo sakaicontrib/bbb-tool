@@ -302,7 +302,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
         }
         else
         {
-        	throw new IllegalArgumentException("Missing required parameter "+CollectionResolvable.SEARCH_LOCATION_REFERENCE);
+        	throw new IllegalArgumentException("Missing required parameter " + CollectionResolvable.SEARCH_LOCATION_REFERENCE);
         }
         
 		return meetings;
@@ -418,7 +418,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
             return new ActionReturn( recordingsResponse );
 
         } catch(Exception e) {
-            LOG.warn("getSiteRecordings Error: " + e.getMessage());
             return new ActionReturn(new HashMap<String,String>());
         } 
 

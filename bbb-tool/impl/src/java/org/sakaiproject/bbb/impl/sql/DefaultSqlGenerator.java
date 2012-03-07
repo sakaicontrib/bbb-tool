@@ -87,7 +87,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         Map<String, String> statements = new HashMap<String, String>();
 
         statements.put("BBB_MEETING:HOST_URL:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL VARCHAR(255) NOT NULL AFTER NAME;");
+        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL " + VARCHAR + "(255) NOT NULL AFTER NAME;");
         statements.put("BBB_MEETING:RECORDING:ADD", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;"); 
         statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
