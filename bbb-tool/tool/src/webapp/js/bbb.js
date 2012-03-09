@@ -27,6 +27,7 @@ var bbbCheckOneMeetingAvailabilityId = null;
 var bbbCheckAllMeetingAvailabilityId = null; 
 var bbbCheckRecordingAvailabilityId = null; 
 var bbbRefreshRecordingListId = null;
+var bbbErrorLog = new Object();
 
 (function() {
     // Setup Ajax defaults
@@ -294,31 +295,8 @@ function switchState(state,arg) {
         // show meeting list
         if(bbbUserPerms.bbbViewMeetingList) {
             // Get recording list
-        	bbbCurrentRecordings = Array();
         	refreshRecordingList();
-
-            var errorLog = new Object();
-            errorLog.keys = Array();
-        	var errorIndex = 0;
-    
-	        // watch for permissions changes, check meeting dates
-            for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
-            	bbbCurrentRecordings[i].ownerId = "";
-                BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
-
-        		if( bbbCurrentRecordings[i].recordingErrorMessageKey ){
-                	if( !errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] ){
-                		errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] = true;
-                		errorLog.keys[errorIndex++] = bbbCurrentRecordings[i].recordingErrorMessage;
-                	}
-                }
-            }
-            
 	        BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings,'stateFunction':'recordings'},'bbb_content');
-
-	        for(var i=0,j=errorLog.keys.length;i<j;i++) {
-            	BBBUtils.showMessage(errorLog.keys[i], 'warning');
-            }
 
             $(document).ready(function() {
                 // auto hide actions
@@ -361,35 +339,13 @@ function switchState(state,arg) {
     	$('#bbb_end_meetings_link').parent().parent().hide();
     	$('#bbb_permissions_link').parent().parent().hide();
 
+    	console.log(bbbCurrentRecordings);
     	if(arg && arg.meetingId) {
     	    if(bbbUserPerms.bbbViewMeetingList) {
                 // Get meeting list
             	refreshRecordingList(arg.meetingId);
-
-            	var errorLog = new Object();
-                errorLog.keys = Array();
-            	var errorIndex = 0;
-
-            	var recordings = [];
-    	        var k = 0;
-    	        for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
-    	        	if(bbbCurrentRecordings[i].meetingID == arg.meetingId){
-    	            	bbbCurrentRecordings[i].ownerId = "";
-    	                BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
-
-    	        		if( bbbCurrentRecordings[i].recordingErrorMessageKey ){
-    	                	if( !errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] ){
-    	                		errorLog[bbbCurrentRecordings[i].recordingErrorMessageKey] = true;
-    	                		errorLog.keys[errorIndex++] = bbbCurrentRecordings[i].recordingErrorMessage;
-    	                	}
-    	                }
-    	        	}
-    	        }
     	        BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
-                for(var i=0,j=errorLog.keys.length;i<j;i++) {
-                	BBBUtils.showMessage(errorLog.keys[i], 'warning');
-                }
-    	        
+
     	        $(document).ready(function() {
     	            // auto hide actions
     	            jQuery('.meetingRow')
@@ -430,17 +386,6 @@ function switchState(state,arg) {
     		switchState('recordings');
     	}
     }
-}
-
-function refreshMeetingList() {
-	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
-}
-
-function refreshRecordingList(meetingId) {
-	if(meetingId == null)
-		bbbCurrentRecordings = BBBUtils.getSiteRecordingList(bbbSiteId);
-	else
-		bbbCurrentRecordings = BBBUtils.getMeetingRecordingList(meetingId);
 }
 
 function allSiteMembersCanParticipate() {
@@ -626,3 +571,27 @@ function updateMeetingInfo(meeting) {
 	    jQuery('#bbb_meeting_info_participants_count_tr').hide();
 	}
 }
+
+function refreshMeetingList() {
+	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
+}
+
+function refreshRecordingList(meetingId) {
+	
+	var getRecordingResponse = meetingId == null? BBBUtils.getSiteRecordingList(bbbSiteId): BBBUtils.getMeetingRecordingList(meetingId);
+	
+	if ( getRecordingResponse.returncode == 'SUCCESS' ){
+		bbbCurrentRecordings = getRecordingResponse.recordings;
+	} else {
+		//Something went wrong
+		bbbCurrentRecordings = new Array();
+		
+		if ( getRecordingResponse.messageKey != null ){
+	    	BBBUtils.showMessage(getRecordingResponse.messageKey + ":" + getRecordingResponse.message, 'warning');
+		} else {
+	    	BBBUtils.showMessage("An unidentified error has just happened", 'warning');
+		}
+	}
+
+}
+

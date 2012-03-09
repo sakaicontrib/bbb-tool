@@ -523,8 +523,10 @@ public class BaseBBBAPI implements BBBAPI {
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
-                Document dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
-                //Document dom = docBuilder.parse(new InputSource( new StringReader(xml.toString())));
+                
+                Document dom = null;
+                dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
+                
                 Map<String, Object> response = getNodesAsMap(dom, "response");
                 
                 String returnCode = (String) response.get("returncode");
@@ -541,6 +543,18 @@ public class BaseBBBAPI implements BBBAPI {
 		} catch(BBBException e) {
             logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
 			throw new BBBException( e.getMessageKey(), e.getMessage(), e);
+        } catch(IOException e) { 
+            logger.debug("doAPICall.IOException: Message=" + e.getMessage());
+        	throw new BBBException(BBBException.MESSAGEKEY_INVALIDRESPONSE, e.getMessage(), e);
+        	
+        } catch(SAXException e) {
+            logger.debug("doAPICall.SAXException: Message=" + e.getMessage());
+        	throw new BBBException(BBBException.MESSAGEKEY_INVALIDRESPONSE, e.getMessage(), e);
+
+        } catch(IllegalArgumentException e) {
+            logger.debug("doAPICall.IllegalArgumentException: Message=" + e.getMessage());
+        	throw new BBBException(BBBException.MESSAGEKEY_INVALIDRESPONSE, e.getMessage(), e);
+        
         } catch(Exception e) {
             logger.debug("doAPICall.Exception: Message=" + e.getMessage());
             throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage(), e);
