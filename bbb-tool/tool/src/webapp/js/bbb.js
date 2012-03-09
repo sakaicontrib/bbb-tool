@@ -128,9 +128,8 @@ function switchState(state,arg) {
                 BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             }
-            
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
-    
+
             $(document).ready(function() {
                 // auto hide actions
                 jQuery('.meetingRow')
@@ -296,7 +295,14 @@ function switchState(state,arg) {
         if(bbbUserPerms.bbbViewMeetingList) {
             // Get recording list
         	refreshRecordingList();
-	        BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings,'stateFunction':'recordings'},'bbb_content');
+
+        	// watch for permissions changes, check meeting dates
+            for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
+            	bbbCurrentRecordings[i].ownerId = "";
+                BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
+            }
+            
+            BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings,'stateFunction':'recordings'},'bbb_content');
 
             $(document).ready(function() {
                 // auto hide actions
@@ -339,12 +345,18 @@ function switchState(state,arg) {
     	$('#bbb_end_meetings_link').parent().parent().hide();
     	$('#bbb_permissions_link').parent().parent().hide();
 
-    	console.log(bbbCurrentRecordings);
     	if(arg && arg.meetingId) {
     	    if(bbbUserPerms.bbbViewMeetingList) {
                 // Get meeting list
             	refreshRecordingList(arg.meetingId);
-    	        BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
+
+            	// watch for permissions changes, check meeting dates
+                for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
+                	bbbCurrentRecordings[i].ownerId = "";
+                    BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
+                }
+    	        
+                BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
 
     	        $(document).ready(function() {
     	            // auto hide actions
@@ -366,7 +378,7 @@ function switchState(state,arg) {
     	                cssDesc:'bbb_sortable_table_header_sortdown',
     	                headers: { /*3: {sorter: false}*/ },
     	                // Sort DESC status:
-    	                sortList: (recordings.length > 0) ? [[2,0]] : []
+    	                sortList: (bbbCurrentRecordings.length > 0) ? [[2,0]] : []
     	            });
 
     	            BBBUtils.adjustFrameHeight();
@@ -574,11 +586,13 @@ function updateMeetingInfo(meeting) {
 
 function refreshMeetingList() {
 	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
+	if( bbbCurrentMeetings.length == null ) bbbCurrentMeetings = Array();
+		
 }
 
 function refreshRecordingList(meetingId) {
 	
-	var getRecordingResponse = meetingId == null? BBBUtils.getSiteRecordingList(bbbSiteId): BBBUtils.getMeetingRecordingList(meetingId);
+	var getRecordingResponse = (meetingId == null)? BBBUtils.getSiteRecordingList(bbbSiteId): BBBUtils.getMeetingRecordingList(meetingId);
 	
 	if ( getRecordingResponse.returncode == 'SUCCESS' ){
 		bbbCurrentRecordings = getRecordingResponse.recordings;
