@@ -497,7 +497,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			if(meeting == null) {
 				throw new EntityException("This meeting is no longer available.", null, 404);
 			}
-			String joinUrl = meeting.getJoinUrl();		
+			String joinUrl = meeting.getJoinUrl();
+			
 			if(joinUrl == null) {
 				throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
 			}

@@ -31,6 +31,8 @@ public class BBBException extends Exception {
 	public static final String	MESSAGEKEY_ALREADYENDED     = "alreadyEnded";
 	public static final String	MESSAGEKEY_INTERNALERROR    = "internalError";
 	public static final String	MESSAGEKEY_UNREACHABLE      = "unreachableServerError";
+	public static final String	MESSAGEKEY_INVALIDRESPONSE  = "invalidResponseError";
+	public static final String	MESSAGEKEY_GENERALERROR     = "generalError";
 	
 	private String messageKey;
 
