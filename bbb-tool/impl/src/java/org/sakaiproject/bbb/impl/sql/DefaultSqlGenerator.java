@@ -100,8 +100,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public String getShowColumnStatement(String tableName, String columnName)
-    {
+    public String getShowColumnStatement(String tableName, String columnName) {
         return "SHOW COLUMNS FROM " + tableName + " LIKE '" + columnName + "'";
     }
 
@@ -109,8 +108,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
     //Code for automatic updates to the database ends
     //
     
-    public List<PreparedStatement> getStoreMeetingStatements(
-            BBBMeeting meeting, Connection connection) throws Exception {
+    public List<PreparedStatement> getStoreMeetingStatements(BBBMeeting meeting, Connection connection) 
+    		throws Exception {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING " +
@@ -148,8 +147,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public List<PreparedStatement> getUpdateMeetingStatements(
-            BBBMeeting meeting, Connection connection) throws Exception {
+    public List<PreparedStatement> getUpdateMeetingStatements(BBBMeeting meeting, Connection connection) 
+    		throws Exception {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection
@@ -172,8 +171,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public List<PreparedStatement> getUpdateMeetingParticipantsStatements(
-            BBBMeeting meeting, Connection connection) throws Exception {
+    public List<PreparedStatement> getUpdateMeetingParticipantsStatements(BBBMeeting meeting, Connection connection) 
+    		throws Exception {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
 
@@ -199,21 +198,19 @@ public class DefaultSqlGenerator implements SqlGenerator {
     }
 
     public String getSelectSiteMeetingsStatement(String siteId) {
-        return "SELECT * FROM BBB_MEETING WHERE SITE_ID = '" + siteId + "'";
+        return "SELECT * FROM BBB_MEETING WHERE SITE_ID = '" + siteId + "' AND DELETED=0";
     }
 
     public String getSelectMeetingParticipantsStatement(String meetingId) {
-        return "SELECT * FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = '"
-                + meetingId + "'";
+        return "SELECT * FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = '" + meetingId + "'";
     }
 
     public String getSelectMeetingStatement(String meetingId) {
-        return "SELECT * FROM BBB_MEETING WHERE MEETING_ID = '" + meetingId
-                + "'";
+        return "SELECT * FROM BBB_MEETING WHERE MEETING_ID = '" + meetingId + "'";
     }
 
-    public List<PreparedStatement> getDeleteMeetingStatements(String meetingId,
-            Connection connection) throws Exception {
+    public List<PreparedStatement> getDeleteMeetingStatements(String meetingId, Connection connection) 
+    		throws Exception {
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection.prepareStatement("DELETE FROM BBB_MEETING WHERE MEETING_ID = ?");
         meetingST.setString(1, meetingId);
@@ -224,8 +221,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId,
-            Connection connection) throws Exception {
+    public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId, Connection connection) 
+    		throws Exception {
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection.prepareStatement("UPDATE BBB_MEETING SET DELETED = 1 WHERE MEETING_ID = ?");
         meetingST.setString(1, meetingId);
@@ -235,18 +232,16 @@ public class DefaultSqlGenerator implements SqlGenerator {
     
     
     public String getSelectMeetingHostStatement(String meetingID) {
-        return "SELECT HOST_URL FROM BBB_MEETING WHERE MEETING_ID = '"
-                + meetingID + "'";
+        return "SELECT HOST_URL FROM BBB_MEETING WHERE MEETING_ID = '" + meetingID + "'";
     }
 
     public String getSelectAllMeetingsStatement() {
         return "SELECT * FROM BBB_MEETING";
     }
 
-    public PreparedStatement getUpdateHostForMeetingStatement(String meetingId,
-            String url, Connection connection) throws Exception {
-        PreparedStatement st = connection
-                .prepareStatement("UPDATE BBB_MEETING SET HOST_URL = ? WHERE MEETING_ID = ?");
+    public PreparedStatement getUpdateHostForMeetingStatement(String meetingId, String url, Connection connection)
+    		throws Exception {
+        PreparedStatement st = connection.prepareStatement("UPDATE BBB_MEETING SET HOST_URL = ? WHERE MEETING_ID = ?");
         st.setString(1, url);
         st.setString(2, meetingId);
         return st;
