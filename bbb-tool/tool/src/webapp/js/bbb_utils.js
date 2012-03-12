@@ -415,38 +415,38 @@ var BBBUtils;
     BBBUtils.getSiteRecordingList = function(siteId) {
     	if (siteId == null) siteId = "";
     		
-    	var recordings = null;
+    	var response = Object();
         jQuery.ajax( {
             url: "/direct/bbb-meeting/getSiteRecordings.json?siteId=" + siteId,
             dataType : "json",
             async : false,
             success : function(data) {
-                recordings = data.recordings;
+        		response = data;
             },
             error : function(xmlHttpRequest,status,error) {
             	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
-        return recordings;
+        return response;
     }
     
     // Get meeting recordings from BBB server
     BBBUtils.getMeetingRecordingList = function(meetingId) {
     	if (meetingId == null) meetingId = "";
 
-    	var recordings = null;
+    	var response = Object();
         jQuery.ajax( {
             url: "/direct/bbb-meeting/" + meetingId + "/getRecordings.json",
             dataType : "json",
             async : false,
             success : function(data) {
-                recordings = data.recordings;
+    			response = data;
             },
             error : function(xmlHttpRequest,status,error) {
             	BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
-        return recordings;
+        return response;
     }
 
     // Log an event indicating user is joining meeting
@@ -642,10 +642,12 @@ var BBBUtils;
     }
     
     BBBUtils.checkRecordingAvailability = function(meetingId) {
-		var recordings = BBBUtils.getMeetingRecordingList(meetingId);
+		var recordings = BBBUtils.getMeetingRecordingList(meetingId).recordings;
 		if( recordings == null ){
             BBBUtils.showMessage(bbb_err_get_recording, 'warning');
         } else {
+        	BBBUtils.hideMessage();	
+        	
         	var htmlRecordings = "";
         	if(recordings.length > 0)
 				htmlRecordings = '(<a href="javascript:;" onclick="return switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
@@ -908,40 +910,58 @@ var BBBUtils;
     	var useAlternateStyle = true;
     	if(typeof hideMsgBody == 'undefined' && msgTitle && msgBody) hideMsgBody = true;
     	
-        // severity
-        var msgClass = null;
-        if(!severity || severity == 'info' || severity == 'information')
-            msgClass = !useAlternateStyle ? 'information' : 'messageInformation';
-        else if(severity == 'success')
-            msgClass = !useAlternateStyle ? 'success' : 'messageSuccess';
-        else if(severity == 'warn' || severity == 'warning' || severity == 'error' || severity == 'fail') 
-            msgClass = !useAlternateStyle ? 'alertMessage' : 'messageError';
-        
-        // add contents
-        var id = Math.floor(Math.random()*1000);
-        var msgId = 'msg-'+id;
-        var msgDiv = jQuery('<div class="bbb_message" id="'+msgId+'"></div>');
-        var msgsDiv = jQuery('#bbb_messages').append(msgDiv);
-        var message = jQuery('<div class="'+msgClass+'"></div>');
-        if(msgTitle && msgTitle != '') {
-            message.append('<h4>'+msgTitle+'</h4>');
-            if(hideMsgBody) message.append('<span id="msgShowDetails-'+id+'">&nbsp;<small>(<a href="#" onclick="jQuery(\'#msgBody-'+id+'\').slideDown();jQuery(\'#msgShowDetails-'+id+'\').hide();BBBUtils.adjustFrameHeight();return false;">'+bbb_err_details+'</a>)</small></span>');
+    	if( !bbbErrorLog[msgBody] ){
+			bbbErrorLog[msgBody] = true;
+
+	        // severity
+	        var msgClass = null;
+	        if(!severity || severity == 'info' || severity == 'information')
+	            msgClass = !useAlternateStyle ? 'information' : 'messageInformation';
+	        else if(severity == 'success')
+	            msgClass = !useAlternateStyle ? 'success' : 'messageSuccess';
+	        else if(severity == 'warn' || severity == 'warning' || severity == 'error' || severity == 'fail') 
+	            msgClass = !useAlternateStyle ? 'alertMessage' : 'messageError';
+	        
+	        // add contents
+	        var id = Math.floor(Math.random()*1000);
+	        var msgId = 'msg-'+id;
+	        var msgDiv = jQuery('<div class="bbb_message" id="'+msgId+'"></div>');
+	        var msgsDiv = jQuery('#bbb_messages').append(msgDiv);
+	        var message = jQuery('<div class="'+msgClass+'"></div>');
+	        if(msgTitle && msgTitle != '') {
+	            message.append('<h4>'+msgTitle+'</h4>');
+	            if(hideMsgBody) message.append('<span id="msgShowDetails-'+id+'">&nbsp;<small>(<a href="#" onclick="jQuery(\'#msgBody-'+id+'\').slideDown();jQuery(\'#msgShowDetails-'+id+'\').hide();BBBUtils.adjustFrameHeight();return false;">'+bbb_err_details+'</a>)</small></span>');
+	        }
+	        jQuery('<p class="closeMe">  (x) </p>').click(function(){ BBBUtils.hideMessage(msgId); }).appendTo(message);
+	        if(msgBody) {
+	            var msgBodyContent = jQuery('<div id="msgBody-'+id+'" class="content">'+msgBody+'</div>');
+	            message.append(msgBodyContent);
+	            if(hideMsgBody) msgBodyContent.hide();
+	        }
+	        
+	        // display, adjust frame height, scroll to top
+	        msgDiv.html(message);
+	        msgsDiv.fadeIn(function(){ BBBUtils.adjustFrameHeight(); });
+	        jQuery('html, body').animate({scrollTop:0}, 'slow');
+			
+    	}
+
+/*		
+    	if( !bbbErrorLog[getRecordingResponse.messageKey] ){
+			bbbErrorLog[getRecordingResponse.messageKey] = true;
+			bbbErrorLog.keys[bbbErrorLog.keys.length] = getRecordingResponse.messageKey + ":" + getRecordingResponse.message;
+		}
+        for(var i=0;i<bbbErrorLog.keys.length;i++) {
+        	BBBUtils.showMessage(bbbErrorLog.keys[i], 'warning');
         }
-        jQuery('<p class="closeMe">  (x) </p>').click(function(){ BBBUtils.hideMessage(msgId); }).appendTo(message);
-        if(msgBody) {
-            var msgBodyContent = jQuery('<div id="msgBody-'+id+'" class="content">'+msgBody+'</div>');
-            message.append(msgBodyContent);
-            if(hideMsgBody) msgBodyContent.hide();
-        }
+*/
         
-        // display, adjust frame height, scroll to top
-        msgDiv.html(message);
-        msgsDiv.fadeIn(function(){ BBBUtils.adjustFrameHeight(); });
-        jQuery('html, body').animate({scrollTop:0}, 'slow');
     }
         
     /** Hide message box */
     BBBUtils.hideMessage = function(id) {
+    	delete bbbErrorLog;
+    	bbbErrorLog = new Object();
     	if(id) {
     		jQuery('#'+id).fadeOut();
     	}else{
