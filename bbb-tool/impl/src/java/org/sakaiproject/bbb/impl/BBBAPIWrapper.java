@@ -304,6 +304,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     public Map<String, Object> getSiteRecordings(String meetingIDs)
             throws BBBException {
 
+        if (logger.isDebugEnabled()) logger.debug("getSiteRecordings(): for meetingIDs=" + meetingIDs);
+
         String hostUrl = this.bbbUrls[0];
     	Map<String, Object> siteRecordingsResponse = new HashMap<String, Object>();
 
@@ -315,10 +317,12 @@ public class BBBAPIWrapper/* implements Runnable */{
             if (hostProxy == null && !doLoadBBBProxyMap() ) {
             	siteRecordingsResponse = responseError("noProxyFound", "No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
             } else {
-                if( meetingIDs != null || !meetingIDs.equals("") ) {
+                if( meetingIDs != null && !meetingIDs.trim().equals("") ) {
                 	if( bbbGetSiteRecordings ){
+                		logger.debug("getting site recordings all in one call");
                 		siteRecordingsResponse = hostProxy.getRecordings(meetingIDs);
                 	} else {
+                		logger.debug("getting site recordings one by one");
                 	    String[] MeetingIdArray = {};
                 	    MeetingIdArray = meetingIDs.split(",");
                         if (MeetingIdArray.length >= 0 ){
@@ -327,7 +331,12 @@ public class BBBAPIWrapper/* implements Runnable */{
                         	}
                         }
                 	}
+                } else {
+                	//siteRecordingsResponse = responseError(BBBException.MESSAGEKEY_NOTFOUND, "No recordings were found for this Site" );
+                	siteRecordingsResponse.put("recordings", new Object());
+                	siteRecordingsResponse.put("returncode", "SUCCESS");
                 }
+                	
             }
             
             

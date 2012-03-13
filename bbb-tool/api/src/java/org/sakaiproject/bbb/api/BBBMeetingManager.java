@@ -82,6 +82,11 @@ public interface BBBMeetingManager {
     public static final String[] EVENT_KEYS = new String[] {
             EVENT_MEETING_CREATE, EVENT_MEETING_EDIT, EVENT_MEETING_END,
             EVENT_MEETING_JOIN };
+    
+
+    public static final boolean INCLUDE_DELETED_MEETINGS = true;
+    public static final boolean NOT_INCLUDE_DELETED_MEETINGS = false;
+
 
     // -----------------------------------------------------------------------
     // --- BBB Implementation related methods --------------------------------
