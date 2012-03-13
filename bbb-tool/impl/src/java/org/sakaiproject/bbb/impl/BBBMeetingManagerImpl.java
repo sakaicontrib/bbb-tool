@@ -215,7 +215,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         List<BBBMeeting> filteredMeetings = new ArrayList<BBBMeeting>();
 
         // Grab all the meetings for this site
-        List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId);
+        List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, NOT_INCLUDE_DELETED_MEETINGS);
         for (BBBMeeting meeting : meetings) {
             meeting = processMeeting(meeting);
             if (meeting != null) {
@@ -328,7 +328,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         
         String meetingIDs = "";
 
-        List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId);
+        List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
         for (BBBMeeting meeting : meetings) {
             if( !meetingIDs.equals("") )
                 meetingIDs += ",";
