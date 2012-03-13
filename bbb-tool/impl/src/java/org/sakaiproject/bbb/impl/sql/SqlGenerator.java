@@ -46,7 +46,7 @@ public interface SqlGenerator
 	List<PreparedStatement> getUpdateMeetingParticipantsStatements(BBBMeeting meeting,Connection connection) throws Exception;
 	
 	/** SQL Statement to list site meetings from DB */
-	String getSelectSiteMeetingsStatement(String siteId);
+	String getSelectSiteMeetingsStatement(String siteId, boolean includeDeletedMeetings);
 
 	/** SQL Statement to list meeting participants for the specified meeting from DB */
 	String getSelectMeetingParticipantsStatement(String meetingId);

@@ -264,7 +264,7 @@ public class BBBStorageManager {
         return false;
     }
 
-    public List<BBBMeeting> getSiteMeetings(String siteId) {
+    public List<BBBMeeting> getSiteMeetings(String siteId, boolean mode) {
         List<BBBMeeting> meetings = new ArrayList<BBBMeeting>();
 
         Connection connection = null;
@@ -273,7 +273,7 @@ public class BBBStorageManager {
         try {
             connection = sqlService.borrowConnection();
             meetingST = connection.createStatement();
-            String sql = sqlGenerator.getSelectSiteMeetingsStatement(siteId);
+            String sql = sqlGenerator.getSelectSiteMeetingsStatement(siteId, mode);
             ResultSet meetingRS = meetingST.executeQuery(sql);
 
             while (meetingRS.next()) {
