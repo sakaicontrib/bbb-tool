@@ -339,8 +339,8 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">{if isNew}${bbb_notification_notify}{else}${bbb_notification_notify_edit}{/if}</td>
         <td>
-            {var notifyParticipantsChecked = isNew ? true : false }
-            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" checked/>
+            {var notifyParticipantsChecked = false }
+            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if notifyParticipantsChecked}checked{/if}/>
         </td>
       </tr>
     </table>
