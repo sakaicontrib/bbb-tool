@@ -15,14 +15,14 @@
 	<name>BigBlueButton</name>
 	<groupId>org.sakaiproject.bbb</groupId>
 	<artifactId>bbb</artifactId>
-    <version>1.0.7</version>
-    <description>Sakai BigBlueButton integrates a Sakai instance with a BigBlueButton server, allowing Sakai users to easily create and join BigBlueButton meetings from a Sakai worksite.</description>
+    <version>1.0.7-b2-SNAPSHOT</version>
+    <description>Sakai BigBlueButton integrates a Sakai instance with a BigBlueButton server, allowing Sakai users to easily create and join BigBlueButton meetings from a Sakai worksite and access playback recording.</description>
     
     <url>http://confluence.sakaiproject.org/confluence/display/BBB</url>
 	
 	<organization>
-        <name>Lancaster University (Centre for e-Science), Universidade Fernando Pessoa (UFPUV)</name>
-        <url>http://e-science.lancs.ac.uk http://www.ufp.pt</url>
+        <name>Lancaster University (Centre for e-Science), Universidade Fernando Pessoa (UFPUV), Blindside Networks Inc(BN)</name>
+        <url>http://e-science.lancs.ac.uk http://www.ufp.pt http://blindsidenetworks.com</url>
     </organization>    
     <inceptionYear>2010</inceptionYear>
 	
@@ -30,7 +30,7 @@
 	<developers>
 		<developer>
             <name>Adrian Fish</name>
-			<email>a.fish@lancaster.ac.uk</email>
+            <email>a.fish@lancaster.ac.uk</email>
             <organization>Lancaster University, Centre for e-Science</organization>
             <organizationUrl>http://e-science.lancs.ac.uk</organizationUrl>
             <roles>
@@ -41,7 +41,7 @@
 		</developer>
 		<developer>
             <name>Nuno Fernandes</name>
-			<email>nuno@ufp.edu.pt</email>
+            <email>nuno@ufp.edu.pt</email>
             <organization>Universidade Fernando Pessoa</organization>
             <organizationUrl>http://www.ufp.pt</organizationUrl>
             <roles>
@@ -49,6 +49,17 @@
                 <role>Developer</role>
             </roles>
             <timezone>0</timezone>
+		</developer>
+		<developer>
+            <name>Jesus Federico</name>
+            <email>jesus@blindsidenetworks.com</email>
+            <organization>Blindside Networks Inc</organization>
+            <organizationUrl>http://blindsidenetworks.com</organizationUrl>
+            <roles>
+                <role>Project Manager</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
 		</developer>
 	</developers>
 	
