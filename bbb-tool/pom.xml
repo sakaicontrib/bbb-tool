@@ -11,7 +11,6 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
     
-    
 	<name>BigBlueButton</name>
 	<groupId>org.sakaiproject.bbb</groupId>
 	<artifactId>bbb</artifactId>
@@ -20,12 +19,11 @@
     
     <url>http://confluence.sakaiproject.org/confluence/display/BBB</url>
 	
-	<organization>
+    <organization>
         <name>Lancaster University (Centre for e-Science), Universidade Fernando Pessoa (UFPUV), Blindside Networks Inc(BN)</name>
         <url>http://e-science.lancs.ac.uk http://www.ufp.pt http://blindsidenetworks.com</url>
     </organization>    
     <inceptionYear>2010</inceptionYear>
-	
 	
 	<developers>
 		<developer>
@@ -63,7 +61,6 @@
 		</developer>
 	</developers>
 	
-	
 	<properties>
 		<entitybroker.version>[1.3.9,1.3.20)</entitybroker.version>
 		<entitybroker-utils.version>1.3.7</entitybroker-utils.version>
@@ -75,7 +72,6 @@
     	<url.localsite>scp://source.sakaiproject.org/var/www/html/release/bbb/${project.version}</url.localsite>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
     
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/contrib/bigbluebutton/trunk</connection>
@@ -98,7 +94,6 @@
         </license>
     </licenses>
     
-    
     <modules>
         <module>api</module>
         <module>bundle</module>
@@ -107,7 +102,6 @@
         <module>tool</module>
         <module>assembly</module>
     </modules>
-    
     
     <distributionManagement>
       <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
@@ -131,7 +125,6 @@
             <url>${url.localsite}</url>
         </site>
     </distributionManagement>
-	
 	
 	<repositories>
 		<repository>
@@ -187,7 +180,6 @@
 		</repository>
 	</repositories>
     
-    
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-central-repo</id>
@@ -212,7 +204,6 @@
         </pluginRepository>
     </pluginRepositories>
     
-    
     <profiles>
         <profile>
             <id>release</id>
@@ -230,7 +221,6 @@
             </properties>
         </profile>
     </profiles>
-    
     
     <dependencyManagement>
     	<dependencies>
@@ -294,7 +284,6 @@
     	</dependencies>
     </dependencyManagement>
     
-    
     <build>
     	<plugins>
     		<plugin>
@@ -356,7 +345,6 @@
             </plugin>
     	</plugins>
     </build>
-    
     
     <reporting>
         <plugins>
