@@ -61,7 +61,7 @@ th.status {
     width: 10%; max-width:10%;  
 }
 th.startDate, th.endDate {
-    width: 140px; max-width:140px;;
+    width: 140px; max-width:140px;
 }
 td.startDate, td.endDate {
     text-align: center;
@@ -70,8 +70,17 @@ th.owner {
     text-align: left;
     width: 15%;
 }
+th.recStatus {
+    width: 100px; max-width:100px;
+    text-align: left;
+}
 th.recStartDate {
-    width: 160px; max-width:160px;;
+    width: 200px; max-width:200px;
+    text-align: left;
+}
+th.recLength {
+    width: 60px; max-width:60px;
+    text-align: center;
 }
 div.end_meeting_hidden {
 	display: none; 

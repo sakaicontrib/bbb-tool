@@ -162,11 +162,11 @@ $(document).ready(function(){
 <table id="bbb_meeting_table" class="listHier">
     <thead>
         <tr>
-            <th class="name">${bbb_th_recordingname}</th>
-            <th class="status">${bbb_th_status}</th>
+            <th class="recName">${bbb_th_recordingname}</th>
+            <th class="recStatus">${bbb_th_status}</th>
             <th class="recStartDate">${bbb_th_recordingdate}</th>
-            <th class="recordings">${bbb_th_recordings}</th>
-            <th class="length">${bbb_th_recordinglength}</th>
+            <th class="recLinks">${bbb_th_recordings}</th>
+            <th class="recLength">${bbb_th_recordinglength}</th>
         </tr>
     </thead>
     <tbody>
@@ -198,9 +198,9 @@ $(document).ready(function(){
         		${bbb_recording_status_hidden}
               {/if}
             </td>
-            <td class="startDate">${new Date(r.startTime%1000).toISO8601String()}</td>
+            <td class="startDate">${r.startTime ? (new Date(parseInt(r.startTime)).toISO8601String()) + ' ' + r.timezoneOffset: ''}</td>
             <td>
-		      {for p in r.playback}
+              {for p in r.playback}
         	    <a href="${p.url}" title="${p.type}" target="_blank">${p.type}</a>&nbsp;
               {/for}
             </td>

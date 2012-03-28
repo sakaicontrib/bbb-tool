@@ -27,10 +27,12 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.Random;
+import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -311,10 +313,17 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
 
             response = doAPICall(APICALL_GETRECORDINGS, query.toString());
+            //It makes sure that the data retrived is a unix timestamp
+            for (Object recordingEntry : (List<Object>)response.get("recordings")) {
+                Map<String,String> items = (Map<String,String>)recordingEntry;
+                items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
+                items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
+            }
+            
 
             return response;
         } catch (BBBException e) {
-            logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
+            logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
         
@@ -609,4 +618,25 @@ public class BaseBBBAPI implements BBBAPI {
         return Long.toHexString(randomGenerator.nextLong());
     }
 
+    /** To fix the old format of getRecordings, it parses a data string ant convert it to unix timestamp */
+    protected String getDateAsStringTimestamp( String input ) {
+    	
+    	long timestamp;
+        try {  
+            timestamp = Long.parseLong( input );
+            timestamp = timestamp/1000*1000;
+            return Long.toString(timestamp);  
+         }  
+         catch( Exception e )  {  
+             try {  
+                 java.text.DateFormat formatter = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+                 Date date = (Date)formatter.parse(input);
+                 timestamp = Long.valueOf(date.getTime());  
+                 timestamp = timestamp/1000*1000;
+                 return Long.toString(timestamp);  
+              }  catch( Exception e2 )  {  
+              	return "";
+              }
+         }  
+    }  
 }
