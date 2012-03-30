@@ -313,13 +313,15 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
 
             response = doAPICall(APICALL_GETRECORDINGS, query.toString());
-            //It makes sure that the data retrived is a unix timestamp
-            for (Object recordingEntry : (List<Object>)response.get("recordings")) {
-                Map<String,String> items = (Map<String,String>)recordingEntry;
-                items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
-                items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
+
+            //It makes sure that the date retrived is a unix timestamp
+            if( response.get("returncode").equals("SUCCESS") && response.get("messageKey") == null  ){
+            	for (Object recordingEntry : (List<Object>)response.get("recordings")) {
+            		Map<String,String> items = (Map<String,String>)recordingEntry;
+            		items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
+            		items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
+            	}
             }
-            
 
             return response;
         } catch (BBBException e) {
