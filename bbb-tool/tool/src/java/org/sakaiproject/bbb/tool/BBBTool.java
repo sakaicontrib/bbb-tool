@@ -83,6 +83,8 @@ public class BBBTool extends HttpServlet {
         url.append("&skin=").append(sakaiProxy.getSakaiSkin());
         if (meetingId != null)
             url.append("&meetingId=").append(meetingId);
+
+        logger.debug("doGet(): " + url.toString());
         
         // redirect...
         response.sendRedirect(url.toString());
