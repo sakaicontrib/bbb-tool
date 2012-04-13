@@ -488,6 +488,23 @@ var BBBUtils;
         });
     }
 
+    // Get tool version
+    BBBUtils.getToolVersion = function() {
+
+    	var response = Object();
+
+    	jQuery.ajax( {
+            url: "/direct/bbb-meeting/getToolVersion.json",
+            dataType : "json",
+            async : false,
+            success : function(version) {
+            	response = version;
+            }
+        });
+
+    	return response;
+    }
+
     // Check if a user is already logged on a meeting
     BBBUtils.isUserInMeeting = function(userName, meeting) {
 		for(var p=0; p<meeting.attendees.length; p++) {
@@ -729,11 +746,12 @@ var BBBUtils;
             async : false,
             success : function(userPermissions) {
             	if(userPermissions != null) perms = userPermissions.data;
+            	if(bbbCurrentUser.id == 'admin') perms.push("bbb.admin");
             },
             error : function(xmlHttpRequest,status,error) {
             	if(bbbCurrentUser.id == 'admin') {
             		// Workaround for SAK-18534
-            		perms = ["bbb.create", "bbb.edit.any", "bbb.delete.any", "bbb.participate",
+            		perms = ["bbb.admin", "bbb.create", "bbb.edit.any", "bbb.delete.any", "bbb.participate",
                              "site.upd", "site.viewRoster", "calendar.new", "calendar.revise.any", "calendar.delete.any"];
             	}else{
                     BBBUtils.handleError(bbb_err_get_user_permissions, xmlHttpRequest.status, xmlHttpRequest.statusText);

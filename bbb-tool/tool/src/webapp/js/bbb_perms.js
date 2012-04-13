@@ -19,7 +19,9 @@ function BBBPermissions(data) {
 		for(var i=0,j=data.length;i<j;i++) {
 			
 			// BBB specific permissions
-			if('bbb.create' === data[i]) {
+			if('bbb.admin' === data[i]) {
+				this.bbbAdmin = true;
+			}else if('bbb.create' === data[i]) {
 				this.bbbCreate = true;
 			}else if('bbb.edit.own' === data[i]) {
 				this.bbbEditOwn = true;
