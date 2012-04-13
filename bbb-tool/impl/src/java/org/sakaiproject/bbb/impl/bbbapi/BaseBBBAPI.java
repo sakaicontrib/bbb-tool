@@ -193,7 +193,7 @@ public class BaseBBBAPI implements BBBAPI {
             ResourceLoader toolParameters = new ResourceLoader("Tool");
             query.append("&meta_originApp=");
             String originAppSakaiVersion = config.getString("version.sakai", "");
-            query.append(URLEncoder.encode("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb.devBuild") + "]", getParametersEncoding()));
+            query.append(URLEncoder.encode("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb_version") + '_' + toolParameters.getString("bbb_buildSerial") + "]", getParametersEncoding()));
 
             query.append("&meta_originServerId=");
             String originServerId = config.getString("serverId", "");

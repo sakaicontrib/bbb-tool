@@ -608,6 +608,18 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	}
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public ActionReturn getToolVersion(Map<String,Object> params)
+	{
+		if(LOG.isDebugEnabled()) LOG.debug("getToolVersion");
+
+		Map<String, Object> map = new HashMap<String, Object>();
+        map = meetingManager.getToolVersion();
+        
+        return new ActionReturn(map);
+		
+	}
+
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
 	public ActionReturn getNoticeText(Map<String,Object> params)
 	{
 		if(LOG.isDebugEnabled()) LOG.debug("getNoticeText");

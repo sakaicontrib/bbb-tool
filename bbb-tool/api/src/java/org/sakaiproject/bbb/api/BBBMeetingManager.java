@@ -243,6 +243,11 @@ public interface BBBMeetingManager {
     public Map<String, Object> getServerTimeInUserTimezone();
 
     /**
+     * Returns server version.
+     */
+    public Map<String, Object> getToolVersion();
+    
+    /**
      * Returns the text notice (if any) to be displayed on the first time the
      * tool is accessed by an user.
      */

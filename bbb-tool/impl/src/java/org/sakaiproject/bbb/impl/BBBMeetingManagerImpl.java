@@ -562,6 +562,17 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return responseMap;
     }
 
+    public Map<String, Object> getToolVersion() {
+        
+        Map<String, Object> responseMap = new HashMap<String,Object>();
+        
+        ResourceLoader toolParameters = new ResourceLoader("Tool");
+        responseMap.put("version", toolParameters.getString("bbb_version") );
+        responseMap.put("buildSerial", toolParameters.getString("bbb_buildSerial") );
+        
+        return responseMap;
+    }
+
     public String getAutorefreshForMeetings() {
     	return "" + bbbAPI.getAutorefreshForMeetings();
     }
