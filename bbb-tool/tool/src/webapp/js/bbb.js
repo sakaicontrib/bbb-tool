@@ -130,6 +130,13 @@ function switchState(state,arg) {
             }
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
 
+            // show tool footer message only if site maintainer
+            //if(bbbUserPerms.bbbAdmin) {
+            if(bbbUserPerms.siteUpdate) {
+            	bbbToolVersion = BBBUtils.getToolVersion();
+            	BBBUtils.render('bbb_toolfooter_template',{'bbbTool':bbbToolVersion},'bbb_footer');
+            }
+
             $(document).ready(function() {
                 // auto hide actions
                 jQuery('.meetingRow')
