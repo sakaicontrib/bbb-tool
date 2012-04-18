@@ -135,7 +135,9 @@ public class BBBStorageManager {
 
                 Map<String, String> updateStatements = sqlGenerator.getUpdateStatements();
                 for (String updateStatement : updateStatements.keySet()) {
-                	String updateElements[] = updateStatement.split(":");
+                    logger.debug("Processing " + updateStatement);
+
+                    String updateElements[] = updateStatement.split(":");
                     boolean update = false;
 
                     String showColumn = sqlGenerator.getShowColumnStatement(updateElements[0],updateElements[1]);
@@ -148,7 +150,7 @@ public class BBBStorageManager {
                         logger.info("Updating " + updateElements[0] + " in DB with " + updateStatement + ".");
                         statement.executeUpdate(updateStatements.get(updateStatement));
                     } else {
-                        // Column it does exist. Table doesn't need to be updated
+                        // Table doesn't need to be updated
                         logger.info("Update " + updateStatement + " does not need to be applied in DB.");
 
                     }

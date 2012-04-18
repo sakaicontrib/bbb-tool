@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,7 +85,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
     //only add the table and the code that need to be updated
     //                              JFederico
     public Map<String, String> getUpdateStatements() {
-        Map<String, String> statements = new HashMap<String, String>();
+        Map<String, String> statements = new LinkedHashMap<String, String>();
 
         statements.put("BBB_MEETING:HOST_URL:ADD", 
         		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL " + VARCHAR + "(255) NOT NULL AFTER NAME;");
