@@ -14,7 +14,7 @@
 	<name>BigBlueButton</name>
 	<groupId>org.sakaiproject.bbb</groupId>
 	<artifactId>bbb</artifactId>
-    <version>1.0.7-b3</version>
+    <version>1.0.7-b3-SNAPSHOT</version>
     <description>Sakai BigBlueButton integrates a Sakai instance with a BigBlueButton server, allowing Sakai users to easily create and join BigBlueButton meetings from a Sakai worksite and access playback recording.</description>
     
     <url>http://confluence.sakaiproject.org/confluence/display/BBB</url>
@@ -65,7 +65,7 @@
 	    <!-- Build tracking  -->
         <maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
         <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
-	    <buildSerial>20120413_174500</buildSerial>
+	    <buildSerial>20120418_153000</buildSerial>
         <!-- Regular properties -->
 		<entitybroker.version>[1.3.9,1.3.20)</entitybroker.version>
 		<entitybroker-utils.version>1.3.7</entitybroker-utils.version>
