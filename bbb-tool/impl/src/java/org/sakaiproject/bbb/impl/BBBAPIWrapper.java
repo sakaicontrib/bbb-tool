@@ -249,7 +249,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public String getJoinMeetingURL(String meetingID, User user, String password)
             throws BBBException {
-        if (logger.isDebugEnabled()) logger.debug("getJoinMeetingURL()");
+        //if (logger.isDebugEnabled()) logger.debug("getJoinMeetingURL()");
 
         String hostUrl = storageManager.getMeetingHost(meetingID);
         String joinMeetingURLResponse = "";

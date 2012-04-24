@@ -187,7 +187,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		logger.debug("EntityReference:" + ref.toString() + ", Entity:" +  entity.toString() + ", params:" + params.toString());
 		
 		BBBMeeting meeting = (BBBMeeting) entity;
-		logger.debug("Meeting:" + meeting.toString() );
 		
 		// generate uuid
 		meeting.setId(idManager.createUuid());
@@ -231,6 +230,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			if(meeting == null){
 				throw new IllegalArgumentException("Could not locate meeting to update");
 			}
+            // update name
+            String nameStr = (String) params.get("name");
+            if( nameStr != null ) meeting.setName( nameStr );
+
+            // update description
+            String welcomeMessageStr = (String) params.get("props.welcomeMessage");
+            if( welcomeMessageStr != null )  logger.debug(welcomeMessageStr); //meeting.setName( nameStr );
+
 			// update recording
 			String recordingStr = (String) params.get("recording");
 			boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
@@ -295,8 +302,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
     			
                 // for security reasons, clear passwords and meeting token
                 for( BBBMeeting meeting: meetings ){
-                    logger.debug(meeting.toString());
-                
                     meeting.setAttendeePassword(null);
                     meeting.setModeratorPassword(null);
                 }
@@ -609,8 +614,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getServerTimeInUserTimezone();
         
-        logger.debug(map);
-        
         return new ActionReturn(map);
 		
 	}
@@ -622,8 +625,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 
         Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getServerTimeInDefaultTimezone();
-        
-        logger.debug(map);
         
         return new ActionReturn(map);
         
