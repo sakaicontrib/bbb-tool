@@ -248,12 +248,13 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">${bbb_info_description}</td>
         <td>
+            <textarea id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual" class="inlineFCKEditor">
             {if isNew}
-               <textarea id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">${bbb_default_welcome_message}</textarea>
+            ${bbb_default_welcome_message}
             {else}
-               <textarea id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">${meeting.props.welcomeMessage}</textarea>
+            ${meeting.props.welcomeMessage}
             {/if}
-            
+            </textarea>
         </td>
       </tr>
       <tr>

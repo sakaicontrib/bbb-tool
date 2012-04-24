@@ -196,8 +196,7 @@ function switchState(state,arg) {
             $('#bbb_meeting_name_field').focus();
             
             // Setup description/welcome msg editor
-            if(isNew)
-                BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
+            BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
             
             // Setup dates
             var startDate = (!isNew && meeting.startDate) ? new Date(meeting.startDate) : new Date();
