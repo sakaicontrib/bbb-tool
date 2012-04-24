@@ -242,18 +242,19 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">${bbb_info_title}</td>
         <td>
-            <input id="bbb_meeting_name_field" name="name" type="text" {if !isNew}value="${meeting.name}" disabled="disabled"{/if}/>
+            <input id="bbb_meeting_name_field" name="name" type="text" {if !isNew}value="${meeting.name}"{/if}/>
         </td>
       </tr>
       <tr>
         <td class="lbl">${bbb_info_description}</td>
         <td>
+            <textarea id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual" class="inlineFCKEditor">
             {if isNew}
-               <textarea id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">${bbb_default_welcome_message}</textarea>
+            ${bbb_default_welcome_message}
             {else}
-               <div id="bbb_welcome_message_textarea" class="inlineFCKEditor disabled">${meeting.props.welcomeMessage}</div>
+            ${meeting.props.welcomeMessage}
             {/if}
-            
+            </textarea>
         </td>
       </tr>
       <tr>

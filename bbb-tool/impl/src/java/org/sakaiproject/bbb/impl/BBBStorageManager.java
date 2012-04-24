@@ -190,10 +190,11 @@ public class BBBStorageManager {
             connection.setAutoCommit(false);
 
             try {
-                statements = sqlGenerator.getStoreMeetingStatements(meeting,connection);
+                statements = sqlGenerator.getStoreMeetingStatements(meeting, connection);
 
-                for (PreparedStatement statement : statements)
+                for (PreparedStatement statement : statements){
                     statement.execute();
+                }
 
                 connection.commit();
 

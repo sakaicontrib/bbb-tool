@@ -243,6 +243,11 @@ public interface BBBMeetingManager {
     public Map<String, Object> getServerTimeInUserTimezone();
 
     /**
+     * Returns current server time (in milliseconds) in user timezone.
+     */
+    public Map<String, Object> getServerTimeInDefaultTimezone();
+
+    /**
      * Returns server version.
      */
     public Map<String, Object> getToolVersion();
