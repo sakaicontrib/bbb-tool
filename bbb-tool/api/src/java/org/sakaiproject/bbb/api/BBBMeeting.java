@@ -99,5 +99,9 @@ public class BBBMeeting implements Entity {
 	public Element toXml(Document arg0, Stack arg1) {
 		return null;
 	}
+	
+	public void setWelcomeMessage(String welcomeMessage){
+	    this.props.setWelcomeMessage(welcomeMessage);
+	}
 
 }

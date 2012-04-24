@@ -236,7 +236,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 
             // update description
             String welcomeMessageStr = (String) params.get("props.welcomeMessage");
-            if( welcomeMessageStr != null )  logger.debug(welcomeMessageStr); //meeting.setName( nameStr );
+            if( welcomeMessageStr != null )  meeting.setWelcomeMessage( welcomeMessageStr );
 
 			// update recording
 			String recordingStr = (String) params.get("recording");
@@ -621,7 +621,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
     public ActionReturn getServerTimeInDefaultTimezone(Map<String,Object> params)
     {
-        if(logger.isDebugEnabled()) logger.debug("getServerTimeInUserTimezone");
+        if(logger.isDebugEnabled()) logger.debug("getServerTimeInDefaultTimezone");
 
         Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getServerTimeInDefaultTimezone();
