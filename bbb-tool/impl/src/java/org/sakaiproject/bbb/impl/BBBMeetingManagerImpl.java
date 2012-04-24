@@ -233,10 +233,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throw new SecurityException("You are not allow to create meetings in this site");
         }
 
-        // convert dates from user timezone
-        meeting.setStartDate(convertDateFromUserTimezone(meeting.getStartDate()));
-        meeting.setEndDate(convertDateFromUserTimezone(meeting.getEndDate()));
-
         // create meeting in BBB
         meeting = bbbAPI.createMeeting(meeting);
 
@@ -271,10 +267,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (!getCanEdit(meeting.getSiteId(), meeting)) {
             throw new SecurityException("You are not allow to update this meeting");
         }
-
-        // convert dates from user timezone
-        meeting.setStartDate(convertDateFromUserTimezone(meeting.getStartDate()));
-        meeting.setEndDate(convertDateFromUserTimezone(meeting.getEndDate()));
 
         // store locally, in DB
         if (storageManager.updateMeeting(meeting, true)) {
@@ -562,6 +554,26 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return responseMap;
     }
 
+    public Map<String, Object> getServerTimeInDefaultTimezone() {
+        
+        Map<String, Object> responseMap = new HashMap<String,Object>();
+        
+        TimeZone timeZone = TimeZone.getDefault();
+
+        long timeMs = System.currentTimeMillis();
+        timeMs =  timeMs                                   // server time in millis
+                + timeZone.getOffset(timeMs)               // user timezone offset
+                - TimeZone.getDefault().getOffset(timeMs); // server timezone offset
+        
+        responseMap.put("timestamp", "" + timeMs);
+        responseMap.put("timezone", "" + timeZone.getDisplayName() );
+        responseMap.put("timezoneID", "" + timeZone.getID() );
+        responseMap.put("timezoneOffset", "" + timeZone.getOffset(timeMs));
+        responseMap.put("defaultOffset", "" + TimeZone.getDefault().getOffset(timeMs));
+        
+        return responseMap;
+    }
+
     public Map<String, Object> getToolVersion() {
         
         Map<String, Object> responseMap = new HashMap<String,Object>();
@@ -609,9 +621,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
 
-        // convert dates to user timezone
-        meeting.setStartDate(convertDateToUserTimezone(meeting.getStartDate()));
-        meeting.setEndDate(convertDateToUserTimezone(meeting.getEndDate()));
 
         Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 

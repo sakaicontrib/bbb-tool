@@ -23,6 +23,7 @@ import java.util.Stack;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -33,7 +34,7 @@ import org.w3c.dom.Element;
  * Sakai model object for a BigBlueButton meeting.
  * @author Adrian Fish
  */
-@Getter @Setter
+@Getter @Setter @ToString
 public class BBBMeeting implements Entity {
 	private String id = null;
 	private String name = null;
@@ -46,11 +47,9 @@ public class BBBMeeting implements Entity {
 	private Date endDate = null;
 	private Boolean waitformoderator = null;
 	private Boolean deleted = null;
-	//BSN: Properties required for playback recording
 	private Boolean recording = null; 
 	private Long recordingDuration = null;
 	private String recordingEmail = null;
-	//BSN: Ends
 	
 	@Getter (AccessLevel.NONE)
 	private Props props = null;

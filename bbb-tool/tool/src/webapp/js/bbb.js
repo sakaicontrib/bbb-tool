@@ -41,9 +41,6 @@ var bbbErrorLog = new Object();
     }
     bbbSiteId = arg.siteId;
     bbbCurrentUser = BBBUtils.getCurrentUser();
-    bbbServerTimeDiff = new Date().getTime() - arg.timestamp;
-    bbbServerTimeStamp.timestamp = arg.timestamp;
-    bbbServerTimeStamp.timezoneOffset = arg.timezoneoffset;
     bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
     
     // We need the toolbar in a template so we can swap in the translations
@@ -81,9 +78,6 @@ var bbbErrorLog = new Object();
         jQuery('#bbb_container').empty();
     }
     
-    // Make sure we have the correct server time (needed if user duplicated tab/window)
-    BBBUtils.updateServerTime();
-    
     // If configured, show text notice (first time access)
     BBBUtils.addNotice();
 })();
@@ -94,6 +88,9 @@ function switchState(state,arg) {
 	if ( bbbCheckRecordingAvailabilityId != null ) clearInterval(bbbCheckRecordingAvailabilityId);
 	if ( bbbRefreshRecordingListId != null ) clearInterval(bbbRefreshRecordingListId);
 	
+    // Make sure we have the correct server time (needed if user duplicated tab/window)
+	bbbServerTimeStamp = BBBUtils.updateServerTime();
+
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
         $('#bbb_recordings_link').parent().parent().show();
