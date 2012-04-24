@@ -295,7 +295,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             return response;
         } catch (BBBException e) {
-            logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
+            //logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
     }
@@ -498,7 +498,7 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
+            //logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -530,7 +530,7 @@ public class BaseBBBAPI implements BBBAPI {
                 httpConnection.disconnect();
 
                 // parse response
-                logger.debug("doAPICall.response: " + xml);
+                //logger.debug("doAPICall.response: " + xml);
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
@@ -552,7 +552,7 @@ public class BaseBBBAPI implements BBBAPI {
             }
 
 		} catch(BBBException e) {
-            logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
+            //logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
 			throw new BBBException( e.getMessageKey(), e.getMessage(), e);
         } catch(IOException e) { 
             logger.debug("doAPICall.IOException: Message=" + e.getMessage());

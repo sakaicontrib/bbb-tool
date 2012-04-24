@@ -246,12 +246,12 @@ var BBBUtils;
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
         // joinable only if on specified date interval (if any)
-        var startOk = !meeting.startDate || meeting.startDate == 0 || bbbServerTimeStamp.timestamp >= meeting.startDate;
-        var endOk = !meeting.endDate || meeting.endDate == 0 || bbbServerTimeStamp.timestamp < meeting.endDate;
+        var startOk = !meeting.startDate || meeting.startDate == 0 || (bbbServerTimeStamp.timestamp - bbbServerTimeStamp.timestamp % 1000) >= meeting.startDate;
+        var endOk = !meeting.endDate || meeting.endDate == 0 || (bbbServerTimeStamp.timestamp - bbbServerTimeStamp.timestamp % 1000) < meeting.endDate;
 
         var offset = bbbServerTimeStamp.timezoneOffset;
-        meeting.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
-        
+        meeting.timezoneOffset = "GMT" + (offset > 0? "+": "") + (offset/3600000);
+
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;
         meeting.joinable = startOk && endOk;
@@ -477,15 +477,16 @@ var BBBUtils;
     
     // Get current server time (in milliseconds) in user timezone
     BBBUtils.updateServerTime = function() {
+    	var response = Object();
     	jQuery.ajax( {
-            url: "/direct/bbb-meeting/getServerTimeInUserTimezone.json",
+            url: "/direct/bbb-meeting/getServerTimeInDefaultTimezone.json",
             dataType : "json",
-            async : true,
+            async : false,
             success : function(timestamp) {
-            	bbbServerTimeStamp = timestamp;
-            	bbbServerTimeDiff = new Date().getTime() - timestamp.timestamp;
+            	response = timestamp;
             }
         });
+        return response;
     }
 
     // Get tool version
@@ -532,7 +533,7 @@ var BBBUtils;
     // Check ALL meetings availability and update meeting details page if appropriate
     BBBUtils.checkAllMeetingAvailability = function() {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-            BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+    		BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
             BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
     	}
