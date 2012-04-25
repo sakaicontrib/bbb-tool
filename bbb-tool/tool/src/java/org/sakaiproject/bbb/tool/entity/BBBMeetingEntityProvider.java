@@ -671,7 +671,23 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		return new ActionReturn(map);
 	}
 	
-	// --- Statisticable -------------------------------------------------------------
+    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+    public ActionReturn getAddUpdateFormConfigParameters(Map<String,Object> params)
+    {
+        if(logger.isDebugEnabled()) logger.debug("getAddUpdateFormConfiguration");
+        Map<String,String> map = new HashMap<String, String>();
+        String recordingEnabled = meetingManager.isRecordingEnabled(); 
+        if(recordingEnabled != null) {
+            map.put("recording", recordingEnabled);
+        }
+        String descriptionMaxLength = meetingManager.getMaxLengthForDescription(); 
+        if(descriptionMaxLength != null) {
+            map.put("descriptionMaxLength", descriptionMaxLength);
+        }
+        return new ActionReturn(map);
+    }
+
+    // --- Statisticable -------------------------------------------------------------
 	public String getAssociatedToolId()
 	{
 		return BBBMeetingManager.TOOL_ID;

@@ -257,6 +257,7 @@ $(document).ready(function(){
             </textarea>
         </td>
       </tr>
+      {if isRecording}
       <tr>
         <td class="lbl">${bbb_info_recording}</td>
         <td>
@@ -264,6 +265,7 @@ $(document).ready(function(){
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
+      {/if}
       <tr>
         <td class="lbl">${bbb_info_duration}</td>
         <td>

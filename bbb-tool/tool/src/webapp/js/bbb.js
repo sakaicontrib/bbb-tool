@@ -47,6 +47,7 @@ var bbbErrorLog = new Object();
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
     
     bbbInterval = BBBUtils.autorefreshInterval();
+	bbbAddUpdateFormConfigParameters = BBBUtils.addUpdateFormConfigParameters();
     
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');
@@ -90,7 +91,7 @@ function switchState(state,arg) {
 	
     // Make sure we have the correct server time (needed if user duplicated tab/window)
 	bbbServerTimeStamp = BBBUtils.updateServerTime();
-
+	
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
         $('#bbb_recordings_link').parent().parent().show();
@@ -186,6 +187,7 @@ function switchState(state,arg) {
                 'selTypes':     BBBUtils.getUserSelectionTypes(),
                 'selOptions':   BBBUtils.getUserSelectionOptions(),
                 'siteId':       bbbSiteId,
+                'isRecording': 	bbbAddUpdateFormConfigParameters.recording,
                 'actionUrl':    isNew ? "/direct/bbb-meeting/new" : "/direct/bbb-meeting/"+meeting.id+"/edit"
         };
         

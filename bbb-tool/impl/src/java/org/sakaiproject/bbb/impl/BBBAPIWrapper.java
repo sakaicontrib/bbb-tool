@@ -59,9 +59,13 @@ public class BBBAPIWrapper/* implements Runnable */{
     private long bbbAutorefreshMeetings = 30000L;
     /** BBB API auto refresh interval for recordings(default to 60 sec) */
     private long bbbAutorefreshRecordings = 60000L;
-
     /** BBB API getSiteRecordings active flag (default to true) */
     private boolean bbbGetSiteRecordings = true;
+    /** BBB API recording flag to activate recording parameters in the client (default to true) */
+    private boolean bbbRecording = true;
+    /** BBB API maximum length allowed for meeting description (default 2083) */
+    private int bbbDescriptionMaxLength = 2083;
+
     
     /** BBB API */
     private BBBAPI api = null;
@@ -181,6 +185,8 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
         bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
+        bbbRecording = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING, bbbRecording);
+        bbbDescriptionMaxLength = (int) config.getInt(BBBMeetingManager.CFG_DESCRIPTIONMAXLENGTH, bbbDescriptionMaxLength);
 
     }
 
@@ -631,6 +637,14 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public long getAutorefreshForRecordings() {
         return bbbAutorefreshRecordings;
+    }
+    
+    public boolean isRecordingEnabled(){
+        return bbbRecording;
+    }
+    
+    public int getMaxLengthForDescription(){
+        return bbbDescriptionMaxLength;
     }
 
     private boolean doLoadBBBProxyMap() {

@@ -554,7 +554,8 @@ public class BaseBBBAPI implements BBBAPI {
             }
 
 		} catch(BBBException e) {
-            logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
+		    if( !e.getMessageKey().equals("notFound") )
+		        logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
 			throw new BBBException( e.getMessageKey(), e.getMessage(), e);
         } catch(IOException e) { 
             logger.debug("doAPICall.IOException: Message=" + e.getMessage());
