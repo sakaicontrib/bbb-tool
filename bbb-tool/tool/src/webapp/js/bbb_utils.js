@@ -838,7 +838,7 @@ var BBBUtils;
     }
 
 	// Convenience function for rendering a trimpath template
-	BBBUtils.render = function(templateName,contextObject,output) {	
+	BBBUtils.render = function(templateName, contextObject, output) {	
 		contextObject._MODIFIERS = BBBUtils.getTrimpathModifiers();
 		var templateNode = document.getElementById(templateName);
 		var firstNode = templateNode.firstChild;

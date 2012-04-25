@@ -275,7 +275,7 @@ public class BBBAPIWrapper/* implements Runnable */{
     
     public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
-        if (logger.isDebugEnabled()) logger.debug("getRecordings()");
+        //if (logger.isDebugEnabled()) logger.debug("getRecordings()");
         
         String hostUrl = storageManager.getMeetingHost(meetingID);
         Map<String, Object> recordingsResponse = new HashMap<String, Object>();

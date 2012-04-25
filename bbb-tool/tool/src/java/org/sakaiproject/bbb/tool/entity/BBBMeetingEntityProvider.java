@@ -402,7 +402,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
 	public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref)
 	{
-		if(logger.isDebugEnabled()) logger.debug("getRecordings");
+		//if(logger.isDebugEnabled()) logger.debug("getRecordings");
 
 		if(ref == null) throw new EntityNotFoundException("Meeting not found", null);
 		
