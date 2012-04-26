@@ -593,6 +593,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     	return "" + bbbAPI.getAutorefreshForRecordings();
     }
 
+    public String isRecordingEnabled(){
+        return "" + bbbAPI.isRecordingEnabled();
+    }
+    
+    public String getMaxLengthForDescription(){
+        return "" + bbbAPI.getMaxLengthForDescription();
+    }
+    
+    
     public String getNoticeText() {
         String bbbNoticeText = serverConfigurationService.getString(CFG_NOTICE_TEXT, null);
         if (bbbNoticeText != null && "".equals(bbbNoticeText.trim()))

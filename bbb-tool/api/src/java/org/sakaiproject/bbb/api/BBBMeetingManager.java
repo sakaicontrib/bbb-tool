@@ -49,6 +49,8 @@ public interface BBBMeetingManager {
     public final static String CFG_AUTOREFRESHMEETINGS = "bbb.autorefresh.meetings";
     public final static String CFG_AUTOREFRESHRECORDINGS = "bbb.autorefresh.recordings";
     public final static String CFG_GETSITERECORDINGS = "bbb.getsiterecordings";
+    public final static String CFG_RECORDING = "bbb.recording";
+    public final static String CFG_DESCRIPTIONMAXLENGTH = "bbb.descriptionmaxlength";
     
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -273,4 +275,9 @@ public interface BBBMeetingManager {
      * Returns bbb.autorefresh.recordings parameter set up on sakai.properties or the one set up by default.
      */
     public String getAutorefreshForRecordings();
+
+    public String isRecordingEnabled();
+    
+    public String getMaxLengthForDescription();
+
 }
