@@ -162,6 +162,13 @@ var BBBUtils;
             }
         }
         
+        // Validate description length
+        var maxchars = bbbAddUpdateFormConfigParameters.descriptionMaxLength;
+        if(jQuery('#bbb_welcome_message_textarea').val().length > maxchars) {
+            BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxchars), 'warning');
+            errors = true;
+        }
+        
         if(errors) return false
         
         // Get description/welcome msg from FCKEditor
@@ -781,6 +788,24 @@ var BBBUtils;
         return interval;
     }
     
+    BBBUtils.addUpdateFormConfigParameters = function() {
+		var addUpdateFormConfigParams = [];
+		addUpdateFormConfigParams.recording = true;
+		addUpdateFormConfigParams.descriptionMaxLength = 60000;
+        jQuery.ajax( {
+            url: "/direct/bbb-meeting/getAddUpdateFormConfigParameters.json",
+            dataType : "json",
+            async : false,
+            success : function(formConfigParams) {
+            	if(formConfigParams) {
+            		addUpdateFormConfigParams.recording = (formConfigParams.recording == 'true');
+            		addUpdateFormConfigParams.descriptionMaxLength = formConfigParams.descriptionMaxLength;
+            	}
+            }
+        });
+        return addUpdateFormConfigParams;
+    }
+
     // Get the site permissions
     BBBUtils.getSitePermissions = function() {
         var perms = [];
@@ -838,7 +863,7 @@ var BBBUtils;
     }
 
 	// Convenience function for rendering a trimpath template
-	BBBUtils.render = function(templateName,contextObject,output) {	
+	BBBUtils.render = function(templateName, contextObject, output) {	
 		contextObject._MODIFIERS = BBBUtils.getTrimpathModifiers();
 		var templateNode = document.getElementById(templateName);
 		var firstNode = templateNode.firstChild;

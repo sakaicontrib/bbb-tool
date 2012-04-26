@@ -17,7 +17,9 @@
 package org.sakaiproject.bbb.impl.bbbapi;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -498,7 +500,7 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            //logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
+            if( apiCall.equals(APICALL_CREATE) ) logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -552,7 +554,8 @@ public class BaseBBBAPI implements BBBAPI {
             }
 
 		} catch(BBBException e) {
-            //logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
+		    if( !e.getMessageKey().equals("notFound") )
+		        logger.debug("doAPICall.BBBException: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage());
 			throw new BBBException( e.getMessageKey(), e.getMessage(), e);
         } catch(IOException e) { 
             logger.debug("doAPICall.IOException: Message=" + e.getMessage());
@@ -572,6 +575,7 @@ public class BaseBBBAPI implements BBBAPI {
         }
     }
 
+    
     // -----------------------------------------------------------------------
     // --- BBB Other utility methods -----------------------------------------
     // -----------------------------------------------------------------------
