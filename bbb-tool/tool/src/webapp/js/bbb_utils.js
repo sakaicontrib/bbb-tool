@@ -162,17 +162,19 @@ var BBBUtils;
             }
         }
         
+        // Get description/welcome msg from FCKEditor
+        BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+
         // Validate description length
-        var maxchars = bbbAddUpdateFormConfigParameters.descriptionMaxLength;
-        if(jQuery('#bbb_welcome_message_textarea').val().length > maxchars) {
-            BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxchars), 'warning');
+        var maxLength = bbbAddUpdateFormConfigParameters.descriptionMaxLength;
+        var descriptionLength = jQuery('#bbb_welcome_message_textarea').val().length;
+        if( descriptionLength > maxLength ) {
+            BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
             errors = true;
         }
         
         if(errors) return false
         
-        // Get description/welcome msg from FCKEditor
-        BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
         
         $('.bbb_site_member,.bbb_site_member_role').removeAttr('disabled');
         
