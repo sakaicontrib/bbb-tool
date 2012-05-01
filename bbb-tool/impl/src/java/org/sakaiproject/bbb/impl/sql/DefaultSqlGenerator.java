@@ -199,7 +199,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
     }
 
     public String getSelectSiteMeetingsStatement(String siteId, boolean includeDeletedMeetings) {
-        return "SELECT * FROM BBB_MEETING WHERE SITE_ID = '" + siteId + (includeDeletedMeetings? "' AND DELETED=0": "'");
+        return "SELECT * FROM BBB_MEETING WHERE SITE_ID = '" + siteId + (includeDeletedMeetings? "'": "' AND DELETED=0");
     }
 
     public String getSelectMeetingParticipantsStatement(String meetingId) {
