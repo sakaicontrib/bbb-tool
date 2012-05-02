@@ -175,7 +175,6 @@ var BBBUtils;
         
         if(errors) return false
         
-        
         $('.bbb_site_member,.bbb_site_member_role').removeAttr('disabled');
         
         // Submit!
@@ -1093,7 +1092,7 @@ var BBBUtils;
     BBBUtils.updateFromInlineFCKEditor = function(textAreaId) {
         if(typeof FCKeditorAPI != "undefined") {
             var editor = FCKeditorAPI.GetInstance(textAreaId);
-            if(editor != null) {
+            if(editor != null && editor.IsDirty()) {
                 var ta_temp = document.createElement("textarea");
                 ta_temp.innerHTML = editor.GetData().replace(/</g,"&lt;").replace(/>/g,"&gt;");
                 var decoded_html = ta_temp.value;
