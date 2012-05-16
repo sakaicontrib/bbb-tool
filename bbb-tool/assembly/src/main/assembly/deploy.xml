@@ -9,6 +9,7 @@
 		<!-- shared -->
 		<dependencySet>
 			<outputDirectory>shared/lib</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.bbb:bbb-api:jar:*</include>
@@ -17,6 +18,7 @@
 		<!-- components -->
 		<dependencySet>
 			<outputDirectory>components/bbb-pack</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.bbb:bbb-pack:war:*</include>
@@ -26,6 +28,7 @@
 		<!-- webapps -->
 		<dependencySet>
             <outputDirectory>webapps/</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>

@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-standard-tool</artifactId>
-        <version>2.8-SNAPSHOT</version>
+        <version>2.8.4</version>
     </parent>
     
 	<name>BigBlueButton</name>
@@ -74,14 +74,13 @@
         <commons-betwixt.version>0.8</commons-betwixt.version>
         <log4j.version>1.2.9</log4j.version>
         <ical4j.version>1.0-rc3</ical4j.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/bbb/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/bigbluebutton/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/bigbluebutton/trunk</developerConnection>
-        <url>http://source.sakaiproject.org/viewsvn/bigbluebutton/trunk/?root=contrib</url>
+		<connection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</connection>
+		<developerConnection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</developerConnection>
+		<url>https://github.com/blindsidenetworks/bigbluebutton-sakai.git</url>
     </scm>
     
     
@@ -109,65 +108,14 @@
     </modules>
     
     <distributionManagement>
-      <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai Release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/bbb/${project.version}</url>
         </site>
     </distributionManagement>
 	
 	<repositories>
-		<repository>
-			<id>sakai-maven</id>
-			<name>Sakai Maven Repo</name>
-			<layout>default</layout>
-			<url>http://source.sakaiproject.org/maven2</url>
-			<releases>
-                <enabled>true</enabled>
-            </releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-      		<id>sakai-maven2-snapshots</id>
-      		<name>Sakai Maven Repo</name>
-      		<layout>default</layout>
-      		<url>http://source.sakaiproject.org/maven2-snapshots</url>
-      		<releases>
-                <enabled>false</enabled>
-            </releases>
-      		<snapshots>
-        		<enabled>true</enabled>
-      		</snapshots>
-    	</repository>
-    	<repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
         <repository>
             <id>modularity-releases</id>
             <name>Modularity Releases Repository</name>
@@ -179,35 +127,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-			<id>projectlombok.org</id>
-			<url>http://projectlombok.org/mavenrepo</url>
-		</repository>
 	</repositories>
-    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
     
     <profiles>
         <profile>
@@ -332,7 +252,7 @@
                     <useDefaultMapping>true</useDefaultMapping>
                     <properties>
                         <!-- <name>${project.name}</name> -->
-                        <year>${project.inceptionYear}-2009</year>
+                        <year>${project.inceptionYear}-2012</year>
                         <holder>The Sakai Foundation</holder>
                         <!-- <contact>info@sakaiproject.org</contact> -->
                     </properties>
