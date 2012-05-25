@@ -55,10 +55,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API version check interval (default to 5 min) */
     private long bbbVersionCheckInterval = 0;
 
-    /** BBB API auto refresh interval for meetings (default to 30 sec) */
-    private long bbbAutorefreshMeetings = 30000L;
-    /** BBB API auto refresh interval for recordings(default to 60 sec) */
-    private long bbbAutorefreshRecordings = 60000L;
+    /** BBB API auto refresh interval for meetings (default to 0 sec means it is not activated) */
+    private long bbbAutorefreshMeetings = 0;
+    /** BBB API auto refresh interval for recordings(default to 0 sec means it is not activated) */
+    private long bbbAutorefreshRecordings = 0;
     /** BBB API getSiteRecordings active flag (default to true) */
     private boolean bbbGetSiteRecordings = true;
     /** BBB API recording flag to activate recording parameters in the client (default to true) */
@@ -320,7 +320,7 @@ public class BBBAPIWrapper/* implements Runnable */{
                 throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
             BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-            if (hostProxy == null && !doLoadBBBProxyMap() ) {
+            if (hostProxy == null || !doLoadBBBProxyMap() ) {
             	siteRecordingsResponse = responseError("noProxyFound", "No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
             } else {
                 if( meetingIDs != null && !meetingIDs.trim().equals("") ) {

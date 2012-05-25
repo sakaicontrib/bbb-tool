@@ -161,7 +161,7 @@ function switchState(state,arg) {
                 BBBUtils.adjustFrameHeight();
             });
 
-            bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbInterval.meetings);
+            if(bbbInterval.meetings > 0) bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbInterval.meetings);
 
         }else{
             // warn about lack of permissions
@@ -280,8 +280,8 @@ function switchState(state,arg) {
                    BBBUtils.adjustFrameHeight();
         	   });
             
-               bbbCheckOneMeetingAvailabilityId = setInterval("BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbInterval.meetings);
-        	   bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbInterval.recordings);
+               if(bbbInterval.meetings > 0) bbbCheckOneMeetingAvailabilityId = setInterval("BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbInterval.meetings);
+        	   //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbInterval.recordings);
         	
         	}else{
         	   BBBUtils.hideMessage();
@@ -335,7 +335,7 @@ function switchState(state,arg) {
                 BBBUtils.adjustFrameHeight();
             });
 
-            bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
+            if(bbbInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
         }else{
             // warn about lack of permissions
             if(bbbUserPerms.siteUpdate) {
@@ -389,7 +389,7 @@ function switchState(state,arg) {
     	            BBBUtils.adjustFrameHeight();
     	        });
 
-    	        bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbInterval.recordings);
+    	        if(bbbInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbInterval.recordings);
             }else{
                 // warn about lack of permissions
                 if(bbbUserPerms.siteUpdate) {
