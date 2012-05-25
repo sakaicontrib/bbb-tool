@@ -320,7 +320,7 @@ public class BBBAPIWrapper/* implements Runnable */{
                 throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
             BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-            if (hostProxy == null && !doLoadBBBProxyMap() ) {
+            if (hostProxy == null || !doLoadBBBProxyMap() ) {
             	siteRecordingsResponse = responseError("noProxyFound", "No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
             } else {
                 if( meetingIDs != null && !meetingIDs.trim().equals("") ) {
