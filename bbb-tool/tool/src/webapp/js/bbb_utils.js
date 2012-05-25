@@ -469,7 +469,11 @@ var BBBUtils;
             	BBBUtils.hideMessage();
             	if(linkSelector) {
             		jQuery(linkSelector).attr('href', url);
-					$('#meeting_joinlink_' + meetingId).hide();
+            		$('#meeting_joinlink_' + meetingId).hide();
+
+            		//After joining stop requesting updates
+            		clearInterval(bbbCheckOneMeetingAvailabilityId);
+					clearInterval(bbbCheckRecordingAvailabilityId);
             	}
             	return true;
             },

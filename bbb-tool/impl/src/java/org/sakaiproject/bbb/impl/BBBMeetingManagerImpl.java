@@ -868,12 +868,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
             // build time range (with dates on user timezone - calendar does
             // conversion)
-            Time startTime = timeService.newTime(convertDateToUserTimezone(
-                    meeting.getStartDate()).getTime());
+            Time startTime = timeService.newTime(convertDateToUserTimezone(meeting.getStartDate()).getTime());
             TimeRange range = null;
             if (meeting.getEndDate() != null) {
-                Time endTime = timeService.newTime(convertDateToUserTimezone(
-                        meeting.getEndDate()).getTime());
+                Time endTime = timeService.newTime(convertDateToUserTimezone(meeting.getEndDate()).getTime());
                 range = timeService.newTimeRange(startTime, endTime);
             } else {
                 range = timeService.newTimeRange(startTime);
