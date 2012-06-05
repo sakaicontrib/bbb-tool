@@ -64,7 +64,7 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API recording flag to activate recording parameters in the client (default to true) */
     private boolean bbbRecording = true;
     /** BBB API maximum length allowed for meeting description (default 2083) */
-    private int bbbDescriptionMaxLength = 2083;
+    private int bbbDescriptionMaxLength = 2048;
 
     
     /** BBB API */
@@ -313,6 +313,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         if (logger.isDebugEnabled()) logger.debug("getSiteRecordings(): for meetingIDs=" + meetingIDs);
 
         String hostUrl = this.bbbUrls[0];
+        logger.debug("getSiteRecordings(): hostUrl=[" + hostUrl + "]");
     	Map<String, Object> siteRecordingsResponse = new HashMap<String, Object>();
 
         try{
@@ -320,7 +321,7 @@ public class BBBAPIWrapper/* implements Runnable */{
                 throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
             BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-            if (hostProxy == null || !doLoadBBBProxyMap() ) {
+            if (hostProxy == null) {
             	siteRecordingsResponse = responseError("noProxyFound", "No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
             } else {
                 if( meetingIDs != null && !meetingIDs.trim().equals("") ) {
