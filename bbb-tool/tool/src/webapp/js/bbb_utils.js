@@ -893,17 +893,17 @@ var BBBUtils;
 		var arg = new Object();
 		var href = document.location.href;
 
-		if ( href.indexOf( "?") != -1) {
-			var paramString = href.split( "?")[1];
+		if ( href.indexOf('?') != -1) {
+			var paramString = href.split('?')[1];
 			
-			if(paramString.indexOf("#") != -1)
+			if(paramString.indexOf('#') != -1)
 				paramString = paramString.split("#")[0];
 				
-			var params = paramString.split("&");
+			var params = paramString.split('&');
 
 			for (var i = 0; i < params.length; ++i) {
-				var name = params[i].split( "=")[0];
-				var value = params[i].split( "=")[1];
+				var name = params[i].split('=')[0];
+				var value = params[i].split('=')[1];
 				arg[name] = unescape(value);
 			}
 		}
@@ -1209,6 +1209,28 @@ Date.prototype.toISO8601String = function (format, offset) {
     return str;
 }
 
+if (!Array.prototype.indexOf)
+{
+  Array.prototype.indexOf = function(elt /*, from*/)
+  {
+    var len = this.length >>> 0;
+
+    var from = Number(arguments[1]) || 0;
+    from = (from < 0)
+         ? Math.ceil(from)
+         : Math.floor(from);
+    if (from < 0)
+      from += len;
+
+    for (; from < len; from++)
+    {
+      if (from in this &&
+          this[from] === elt)
+        return from;
+    }
+    return -1;
+  };
+}
 /** Automatically transfer focus to FCKEditor when loaded */
 function FCKeditor_OnComplete(editorInstance) {editorInstance.Focus();}
 
