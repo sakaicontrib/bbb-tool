@@ -83,12 +83,10 @@
 		<url>https://github.com/blindsidenetworks/bigbluebutton-sakai.git</url>
     </scm>
     
-    
     <issueManagement>
         <system>JIRA</system>
         <url>http://jira.sakaiproject.org/jira/browse/BBB</url>
     </issueManagement>
-    
     
     <licenses>
         <license>
@@ -116,6 +114,42 @@
     </distributionManagement>
 	
 	<repositories>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo Snapshots</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2</id>
+            <name>Sakai Maven Repository</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository> 
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>modularity-releases</id>
             <name>Modularity Releases Repository</name>
