@@ -64,14 +64,14 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB API recording flag to activate recording parameters in the client (default to true) */
     private boolean bbbRecording = true;
     /** BBB API maximum length allowed for meeting description (default 2083) */
-    private int bbbDescriptionMaxLength = 2083;
+    private int bbbDescriptionMaxLength = 2048;
 
     
     /** BBB API */
     private BBBAPI api = null;
 
-    private static String DEFAULT_BBB_URL = "";
-    private static String DEFAULT_BBB_SALT = "";
+    private static String DEFAULT_BBB_URL = "http://test-install.blindsidenetworks.com/bigbluebutton";
+    private static String DEFAULT_BBB_SALT = "8cd8ef52e8e101574e400365b55e11a6";
 
     /** Sakai configuration service */
     protected ServerConfigurationService config = null;
@@ -122,35 +122,20 @@ public class BBBAPIWrapper/* implements Runnable */{
             return;
         }
 
+        //Clean Urls
+        for (int i = 0; i < bbbUrls.length; i++){
+            if( bbbUrls[i].substring(bbbUrls[i].length()-1, bbbUrls[i].length()).equals("/") )
+                bbbUrls[i] = bbbUrls[i].substring(0, bbbUrls[i].length()-1);
+        }
+        
         liveUrls = new ArrayList<String>(bbbUrls.length);
-
         if( doLoadBBBProxyMap() ) {
-        	if (liveUrls != null && liveUrls.size() > 0) {
-        		api = bbbProxyMap.get(liveUrls.get(0));
+        	if (bbbUrls.length > 0) {
+        		api = bbbProxyMap.get(bbbUrls[0]);
         	}
         }
 
 
-        // Let's make sure that our meetings are all running on accessible hosts
-        //for (BBBMeeting meeting : meetings) {
-        //    String hostUrl = meeting.getHostUrl();
-        //    if (!bbbProxyMap.containsKey(hostUrl)) {
-        //        // The host for this meeting is not alive. Try and move the meeting.
-        //        logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
-        //                    + "', was not available. The meeting will be moved to the first available host '" + api.getUrl() + "' ...");
-        //        try {
-        //            api.createMeeting(meeting);
-        //            if (!storageManager.setMeetingHost(meeting.getId(), api.getUrl())) {
-        //                logger.error("Failed to set the host to '" + api.getUrl() + "' for meeting '" + meeting.getId() + "'");
-        //            }
-        //        } catch (BBBException e) {
-        //            logger.error("Failed to move meeting '" + meeting.getId() + "' from '" + meeting.getHostUrl() + "' to '" + api.getUrl() + "'", e);
-        //        }
-        //    }
-        //}
-
-
-        // Since the former validation was removed, 
         // let's make sure that our meetings are all set up at least with a configured hosts
         List<BBBMeeting> meetings = storageManager.getAllMeetings();
         for (BBBMeeting meeting : meetings) {
@@ -160,27 +145,11 @@ public class BBBAPIWrapper/* implements Runnable */{
                 logger.warn("'" + hostUrl + "', the host of meeting '" + meeting.getId()
                           + "', was not available. The meeting will be moved to the first available host ...");
             	
-                //Assign the first server available in the map if there is some, or the first configured URL
-            	if( api != null )
-            		storageManager.setMeetingHost(meeting.getId(), api.getUrl());
-            	else
-            		storageManager.setMeetingHost(meeting.getId(), bbbUrls[0]);
+                //Assign the first configured URL
+            	storageManager.setMeetingHost(meeting.getId(), bbbUrls[0]);
             		
             }
         }
-
-        
-        //if (bbbUrls.length > 1) {
-        //    allocatorTimer = new Timer("BigBlueButton Allocator Timer");
-        //    allocatorTimer.schedule(new AllocatorTimerTask(), 5000L, 30000L);
-        //}
-        /*
-         * bbbVersionCheckInterval = (long)
-         * config.getInt(BBBMeetingManager.CFG_VERSIONCHECKINTERVAL, (int)
-         * bbbVersionCheckInterval); bbbVersionCheckThreadEnabled =
-         * bbbVersionCheckInterval > 0; if(bbbVersionCheckThreadEnabled) {
-         * startBBBVersionCheckThread(); }
-         */
 
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
@@ -218,11 +187,16 @@ public class BBBAPIWrapper/* implements Runnable */{
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("isMeetingRunning()");
 
+        
+        if( bbbProxyMap.size() == 0 && !doLoadBBBProxyMap() ) 
+            throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
         String hostUrl = storageManager.getMeetingHost(meetingID);
         BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
-        if (hostProxy == null && !doLoadBBBProxyMap() )	return false;
 
-        return hostProxy.isMeetingRunning(meetingID);
+        if (hostProxy == null)	
+            return false;
+        else
+            return hostProxy.isMeetingRunning(meetingID);
     }
 
     public Map<String, Object> getMeetingInfo(String meetingID, String password)
@@ -313,6 +287,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         if (logger.isDebugEnabled()) logger.debug("getSiteRecordings(): for meetingIDs=" + meetingIDs);
 
         String hostUrl = this.bbbUrls[0];
+        logger.debug("getSiteRecordings(): hostUrl=[" + hostUrl + "]");
     	Map<String, Object> siteRecordingsResponse = new HashMap<String, Object>();
 
         try{
@@ -320,8 +295,8 @@ public class BBBAPIWrapper/* implements Runnable */{
                 throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );
             BBBAPI hostProxy = bbbProxyMap.get(hostUrl);
 
-            if (hostProxy == null || !doLoadBBBProxyMap() ) {
-            	siteRecordingsResponse = responseError("noProxyFound", "No proxy found for host '" + hostUrl + ". Returning [FAILED] for the getSiteRecordings.");
+            if (hostProxy == null) {
+            	siteRecordingsResponse = responseError("noProxyFound", "No proxy found for host '" + hostUrl + "'. Returning [FAILED] for the getSiteRecordings.");
             } else {
                 if( meetingIDs != null && !meetingIDs.trim().equals("") ) {
                 	if( bbbGetSiteRecordings ){
@@ -511,8 +486,8 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         try {
             // get BBB API version
-            String returnedVersion = proxy.getAPIVersion();
             String defaultVersion = BaseBBBAPI.APIVERSION_LATEST;
+            String returnedVersion = proxy.getAPIVersion();
 
             // We have a live one, add it to the live list
             if (returnedVersion != null) {
