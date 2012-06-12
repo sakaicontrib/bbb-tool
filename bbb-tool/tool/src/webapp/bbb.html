@@ -185,7 +185,7 @@ $(document).ready(function(){
                     {/if}
                     {if r.canDelete}
                         &nbsp;|&nbsp;
-                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${r.meetingID}','${r.recordID}','${stateFunction}','${escape(r.name)} [${new Date(r.startTime).toISO8601String()}]');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
+                        <a href="javascript:;" onclick="return BBBUtils.deleteRecordings('${r.meetingID}','${r.recordID}','${stateFunction}','${escape(r.name)} [${new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${bbb_action_delete_recording_tooltip}">${bbb_action_delete_recording}</a>
                     {/if}
                     </small>
                 </div> 
