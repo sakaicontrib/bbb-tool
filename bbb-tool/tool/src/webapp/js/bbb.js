@@ -300,10 +300,9 @@ function switchState(state,arg) {
         if(bbbUserPerms.bbbViewMeetingList) {
             // Get recording list
         	refreshRecordingList();
-
+        	
         	// watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
-            	bbbCurrentRecordings[i].ownerId = "";
                 BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
             }
             

@@ -328,9 +328,26 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
+
+        List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
+        for (Map<String,Object> recordingItem : recordingList) {
+        	recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
+        }
+        
         return recordingsResponse;
     }
         
+    private String locateOwnerIdOnMeetingList(String meetingId, List<BBBMeeting> meetings){
+
+        for (BBBMeeting meeting : meetings) {
+            if( meetingId.equals(meeting.getId()) ){
+            	return meeting.getOwnerId();
+            }
+        }
+        return "";
+
+    }
+
     public Map<String, Object> getAllRecordings() 
     		throws BBBException {
     	return bbbAPI.getAllRecordings();

@@ -408,7 +408,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		try
 		{
-		    return new ActionReturn( meetingManager.getRecordings(ref.getId()) );
+            Map<String, Object> recordingsResponse = meetingManager.getRecordings(ref.getId());
+
+            return new ActionReturn( recordingsResponse );
+
 		}
 		catch(BBBException e)
 		{
@@ -426,6 +429,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 
         try {
             Map<String, Object> recordingsResponse = meetingManager.getSiteRecordings(siteId);
+            
             return new ActionReturn( recordingsResponse );
 
         } catch(Exception e) {
@@ -433,7 +437,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
         } 
 
     }
-	
 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
 	public String publishRecordings(Map<String,Object> params)
