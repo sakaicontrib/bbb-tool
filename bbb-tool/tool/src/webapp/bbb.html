@@ -433,17 +433,6 @@ $(document).ready(function(){
             </span>
         </td>
       </tr>
-      <tr>
-        <td><h5>${bbb_info_recordings}</h5></td>
-        <td id="recording_link_${meeting.id}">
-        </td>
-      </tr>
-      {if bbbUserPerms.bbbEditAny}
-      <tr>
-        <td><h5>${bbb_meetinginfo_host}</h5></td>
-        <td>${meeting.hostUrl}</td>
-      </tr>
-      {/if}
       <tr id="bbb_meeting_info_participants_count_tr" style="display:none">
         <td><h5>${bbb_meetinginfo_participants_count}</h5></td>
         <td>
@@ -451,6 +440,11 @@ $(document).ready(function(){
             <a id="updateMeetingInfo" href="javascript:;" onclick="BBBUtils.checkOneMeetingAvailability('${meeting.id}'); return false;" title="${bbb_meetinginfo_updateinfo_tooltip}">
                 <img src="/library/image/silk/arrow_refresh_small.png" alt="(refresh)" style="vertical-align:middle"/>
             </a>
+        </td>
+      </tr>
+      <tr>
+        <td><h5>${bbb_info_recordings}</h5></td>
+        <td id="recording_link_${meeting.id}">
         </td>
       </tr>
     </table>
