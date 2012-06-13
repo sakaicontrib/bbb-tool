@@ -97,7 +97,7 @@ function switchState(state,arg) {
         $('#bbb_recordings_link').parent().parent().show();
 
         // show permissions links only if site maintainer
-        if(bbbUserPerms.siteUpdate) {
+        if(bbbUserPerms.bbbAdmin) {
             $('#bbb_permissions_link').parent().parent().show();
         }else{
             $('#bbb_permissions_link').parent().parent().hide();
