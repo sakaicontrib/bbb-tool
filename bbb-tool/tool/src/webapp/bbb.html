@@ -112,7 +112,7 @@ $(document).ready(function(){
     <tbody>
 {for m in meetings}
     {if !m.deleted}
-    <tr class="meetingRow">
+      <tr class="meetingRow">
         <td>
           {if m.joinUrl}
               <a href="javascript:;" onclick="return switchState('meetingInfo',{'meetingId':'${m.id}'})" title="${bbb_meeting_details_tooltip}">${m.name}</a>
@@ -146,19 +146,25 @@ $(document).ready(function(){
         {var statusClass = m.joinable ? 'status_joinable_' : (m.notStarted ? 'status_notstarted' : 'status_finished')}
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: m.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: bbb_status_joinable_unreachable ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
         <td id="meeting_status_${m.id}" class="${statusClass}${m.joinableMode}">${statusText}</td>
-        <td class="startDate">${m.startDate ? (new Date(m.startDate).toISO8601String()) + ' ' + m.timezoneOffset: ''}</td>
-        <td class="endDate">${m.endDate ? new Date(m.endDate).toISO8601String() + ' ' + m.timezoneOffset: ''}</td>
+        <td>${m.startDate ? (new Date(m.startDate).toISO8601String()) + ' ' + m.timezoneOffset: ''}</td>
+        <td>${m.endDate ? new Date(m.endDate).toISO8601String() + ' ' + m.timezoneOffset: ''}</td>
         <td>${m.ownerDisplayName}</td>
-    </tr>
+      </tr>
     {/if}  
 {/for}
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
     </tbody>
 </table>
 -->
 </div>
 
 <div id="bbb_recordings_template" style="display:none"><!--
-<table id="bbb_meeting_table" class="listHier">
+<table id="bbb_recording_table" class="listHier">
     <thead>
         <tr>
             <th class="recName">${bbb_th_recordingname}</th>
@@ -171,7 +177,7 @@ $(document).ready(function(){
     <tbody>
     {for r in recordings}
    	  {if r.canEdit || r.published == 'true'}
-        <tr class="meetingRow">
+        <tr class="recordingRow">
             <td>
                 <span>${r.name}</span>
                 <div class="itemAction" style="display: none; margin:0; padding:0;">

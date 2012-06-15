@@ -148,12 +148,24 @@ function switchState(state,arg) {
                     }
                 );
                 
+                // Add parser for customized date format
+            	$.tablesorter.addParser({
+            	    id: "bbbDateTimeFormat",
+            	    is: function(s) {
+            	        return false; 
+            	    },
+            	    format: function(s,table) {
+            	        return $.tablesorter.formatFloat(new Date(s).getTime());
+            	    },
+            	    type: "numeric"
+            	});
+                
                 // add sorting capabilities
                 $("#bbb_meeting_table").tablesorter({
                     cssHeader:'bbb_sortable_table_header',
                     cssAsc:'bbb_sortable_table_header_sortup',
                     cssDesc:'bbb_sortable_table_header_sortdown',
-                    headers: { /*3: {sorter: false}*/ },
+                    headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: 'bbbDateTimeFormat'} },
                     // Sort DESC status:
                     sortList: (bbbCurrentMeetings.length > 0) ? [[0,0]] : []
                 });
@@ -310,7 +322,7 @@ function switchState(state,arg) {
 
             $(document).ready(function() {
                 // auto hide actions
-                jQuery('.meetingRow')
+                jQuery('.recordingRow')
                     .bind('mouseenter', function() {
                         jQuery(this).find('div.itemAction').show();
                         jQuery(this).addClass('bbb_even_row');
@@ -321,14 +333,26 @@ function switchState(state,arg) {
                     }
                 );
                 
+                // Add parser for customized date format
+                $.tablesorter.addParser({
+                    id: "bbbDateTimeFormat",
+                    is: function(s) {
+                        return false; 
+                    },
+                    format: function(s,table) {
+                        return $.tablesorter.formatFloat(new Date(s).getTime());
+                    },
+                    type: "numeric"
+                });
+
                 // add sorting capabilities
-                $("#bbb_meeting_table").tablesorter({
+                $("#bbb_recording_table").tablesorter({
                     cssHeader:'bbb_sortable_table_header',
                     cssAsc:'bbb_sortable_table_header_sortup',
                     cssDesc:'bbb_sortable_table_header_sortdown',
-                    headers: { /*3: {sorter: false}*/ },
+                    headers: { 2: { sorter: 'bbbDateTimeFormat'} },
                     // Sort DESC status:
-                    sortList: (bbbCurrentRecordings.length > 0) ? [[0,0],[2,0]] : []
+                    sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
                 });
                 
                 BBBUtils.adjustFrameHeight();
@@ -364,7 +388,7 @@ function switchState(state,arg) {
 
     	        $(document).ready(function() {
     	            // auto hide actions
-    	            jQuery('.meetingRow')
+    	            jQuery('.recordingRow')
     	                .bind('mouseenter', function() {
     	                    jQuery(this).find('div.itemAction').show();
     	                    jQuery(this).addClass('bbb_even_row');
@@ -376,13 +400,13 @@ function switchState(state,arg) {
     	            );
     	            
     	            // add sorting capabilities
-    	            $("#bbb_meeting_table").tablesorter({
+    	            $("#bbb_recording_table").tablesorter({
     	                cssHeader:'bbb_sortable_table_header',
     	                cssAsc:'bbb_sortable_table_header_sortup',
     	                cssDesc:'bbb_sortable_table_header_sortdown',
-    	                headers: { /*3: {sorter: false}*/ },
-    	                // Sort DESC status:
-    	                sortList: (bbbCurrentRecordings.length > 0) ? [[2,0]] : []
+                        headers: { 2: { sorter: 'bbbDateTimeFormat'} },
+                        // Sort DESC status:
+                        sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
     	            });
 
     	            BBBUtils.adjustFrameHeight();
