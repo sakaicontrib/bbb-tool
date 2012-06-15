@@ -237,14 +237,14 @@ var BBBUtils;
 	}
 
 	BBBUtils.setRecordingPermissionParams = function(recording) {
-        // specific meeting permissions
+        // specific recording permissions
         var offset = bbbServerTimeStamp.timezoneOffset;
         recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
-
+        
         if(bbbCurrentUser.id === recording.ownerId) {
-            recording.canEdit = bbbUserPerms.bbbEditOwn | bbbUserPerms.bbbEditAny;
-            recording.canEnd = bbbUserPerms.bbbEditOwn | bbbUserPerms.bbbEditAny;
-            recording.canDelete = bbbUserPerms.bbbDeleteOwn | bbbUserPerms.bbbDeleteAny;
+            recording.canEdit = bbbUserPerms.bbbEditOwn || bbbUserPerms.bbbEditAny;
+            recording.canEnd = bbbUserPerms.bbbEditOwn || bbbUserPerms.bbbEditAny;
+            recording.canDelete = bbbUserPerms.bbbDeleteOwn || bbbUserPerms.bbbDeleteAny;
         }else{
         	recording.canEdit = bbbUserPerms.bbbEditAny;
         	recording.canEnd = bbbUserPerms.bbbEditAny;
