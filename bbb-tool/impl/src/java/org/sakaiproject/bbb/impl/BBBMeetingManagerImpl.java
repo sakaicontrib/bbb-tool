@@ -318,23 +318,32 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public Map<String, Object> getSiteRecordings(String siteId) 
             throws SecurityException, Exception {
         
+        Map<String, Object> response = new HashMap<String, Object>();
         String meetingIDs = "";
 
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
-        for (BBBMeeting meeting : meetings) {
-            if( !meetingIDs.equals("") )
-                meetingIDs += ",";
-            meetingIDs += meeting.getId();
-        }
+        if( meetings.size() > 0 ) {
+            for (BBBMeeting meeting : meetings) {
+                if( !meetingIDs.equals("") )
+                    meetingIDs += ",";
+                meetingIDs += meeting.getId();
+            }
 
-        Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
+            Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
 
-        List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
-        for (Map<String,Object> recordingItem : recordingList) {
-        	recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
+            List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
+            for (Map<String,Object> recordingItem : recordingList) {
+                recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
+            }
+            response = recordingsResponse;
+            
+        } else {
+            response.put("recordings", new ArrayList<Object>() );
+            response.put("returncode", "SUCCESS");
+            
         }
         
-        return recordingsResponse;
+        return response;
     }
         
     private String locateOwnerIdOnMeetingList(String meetingId, List<BBBMeeting> meetings){
