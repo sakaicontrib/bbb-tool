@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,7 +89,6 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
@@ -421,6 +421,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throws BBBException {
         // check if meeting is within dates
 
+        Site meetingSite = null;
+        try{
+            meetingSite = siteService.getSite(meeting.getSiteId() );
+            
+        } catch( Exception e) {
+            logger.warn("There is an error with the site in this meeting " + meeting.getSiteId() + ": " + e.getMessage(), e);
+        }
+
         Map<String, Object> serverTimeInUserTimezone = getServerTimeInUserTimezone();
         Date now = new Date(Long.parseLong((String) serverTimeInUserTimezone.get("timestamp")));
         
@@ -434,9 +442,60 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (!endOk)
             throw new BBBException(BBBException.MESSAGEKEY_ALREADYENDED, "Meeting has already ended.");
 
+        // Add the metadata to be used in case of create
+        Map<String, String> tmpMeta = meeting.getMeta();
+        if( !tmpMeta.containsKey("originApp")) tmpMeta.put("originApp", serverConfigurationService.getString("version.sakai", ""));
+        ResourceLoader toolParameters = new ResourceLoader("Tool");
+        if( !tmpMeta.containsKey("originServerId")) tmpMeta.put("originServerId", "Sakai[" + serverConfigurationService.getString("version.sakai", "") + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb_version") + '_' + toolParameters.getString("bbb_buildSerial") + "]" );
+        if( !tmpMeta.containsKey("originServerUrl")) tmpMeta.put("originServerUrl", serverConfigurationService.getServerUrl().toString() );
+        if( !tmpMeta.containsKey("originServerName")) tmpMeta.put("originServerName", serverConfigurationService.getServerName() );
+        if( !tmpMeta.containsKey("siteId")) tmpMeta.put("siteId", meeting.getSiteId() );
+        if( !tmpMeta.containsKey("siteName")) tmpMeta.put("siteName", siteService.getSiteDisplay(meeting.getSiteId()) );
+
+        Map<String, User> attendees = new HashMap<String, User>();
+        Map<String, User> moderators = new HashMap<String, User>();
+        List<Participant> participants = meeting.getParticipants();
+        if( participants != null ){
+            for( int i=0; i < participants.size(); i++){
+                Participant participant = participants.get(i);
+                if( (Participant.MODERATOR).equals(participant.getRole()) ){
+                    moderators.putAll(getUsersParticipating(participant.getSelectionType(), participant.getSelectionId(), meetingSite));
+                } else {
+                    attendees.putAll(getUsersParticipating(participant.getSelectionType(), participant.getSelectionId(), meetingSite));
+                }
+            }
+        }
+
+        if( !tmpMeta.containsKey("meetingModerator")){
+            String meetingModerator = "";
+            for( Map.Entry<String, User> e: moderators.entrySet()){
+                if( meetingModerator.length() > 0 ) meetingModerator += ", ";
+                meetingModerator += e.getValue().getFirstName() + " " + e.getValue().getLastName() + " <" + e.getValue().getEmail() + ">";
+
+            }
+            logger.error("JF: meetingModerator=" + meetingModerator);
+            tmpMeta.put("meetingModerator", meetingModerator);
+
+        }
+        if( !tmpMeta.containsKey("meetingAttendee")){
+            String meetingAttendee = "";
+            for( Map.Entry<String, User> e: attendees.entrySet()){
+                if( meetingAttendee.length() > 0 ) meetingAttendee += ", ";
+                meetingAttendee += e.getValue().getFirstName() + " " + e.getValue().getLastName() + " <" + e.getValue().getEmail() + ">";
+
+            }
+            logger.error("JF: meetingAttendee=" + meetingAttendee);
+            tmpMeta.put("meetingAttendee", meetingAttendee);
+
+        }
+        // Metadata ends
+        
+
         // check if is running, (re)create it if not
         bbbAPI.makeSureMeetingExists(meeting);
     }
+    
+    
 
     // -----------------------------------------------------------------------
     // --- BBB Security related methods --------------------------------------
@@ -514,8 +573,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             if (noPermsDefined) {
                 for (Role r : roles) {
                     String roleId = r.getId();
-                    String fns_ = serverConfigurationService.getString(
-                            CFG_DEFAULT_PERMS_PRFX + roleId, null);
+                    String fns_ = serverConfigurationService.getString(CFG_DEFAULT_PERMS_PRFX + roleId, null);
                     if (fns_ != null) {
                         String[] fns = fns_.split(",");
                         for (int i = 0; i < fns.length; i++) {
@@ -1228,6 +1286,60 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         return filename;
     }
+    
+    //Get participant permissions converted to a User Map
+    private Map<String, User> getUsersParticipating(String selectionType, String selectionId, Site site) {
+        Map<String, User> response = new HashMap<String, User>();
+        
+        if( selectionType.equals(Participant.SELECTION_USER)){
+            try{
+                User user = userDirectoryService.getUser(selectionId);
+                
+                response.put(selectionId, user);
+                
+            } catch (Exception e) {
+                logger.error("Failed on getUser() for " + selectionId, e);
+            }
+
+        } else if( selectionType.equals(Participant.SELECTION_ROLE)){
+            
+            Set users = getSiteUsersInRole(site, selectionId);
+            Iterator<String> usersIter = users.iterator();
+            
+            while ( usersIter.hasNext() ){
+                String userId = usersIter.next();
+                try{
+                    User user = userDirectoryService.getUser(userId);
+                    response.put(userId, user);
+                    
+                } catch (Exception e) {
+                    logger.error("Failed on getUser() for " + selectionId, e);
+                }
+            }
+            
+        }
+
+        return response;
+        
+    }
+    
+    //Get users in a role for an specific site
+    private Set getSiteUsersInRole(Site site, String role) {
+        Set users = null;
+
+        try{
+            String siteReference = site.getReference();
+            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(siteReference);
+            users = site.getUsersHasRole(role);
+            
+        } catch (Exception e) {
+            logger.error("Failed on getAuthzGroup() for " + role, e);
+            
+        }
+        
+        return users;
+    }
+    
 
     /** Inner class to execute code as Sakai Administrator */
     abstract class AdminExecution {

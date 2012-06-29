@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Random;
@@ -189,32 +190,23 @@ public class BaseBBBAPI implements BBBAPI {
             query.append("&meta_description=");
             String description = meeting.getRecordingDescription();
             query.append(URLEncoder.encode(description == null? "": description.trim(), getParametersEncoding()));
-            // BSN: Parameters required for notification when recordings are done
-
-            // BSN: Parameters required for monitoring
-            ResourceLoader toolParameters = new ResourceLoader("Tool");
-            query.append("&meta_originApp=");
-            String originAppSakaiVersion = config.getString("version.sakai", "");
-            query.append(URLEncoder.encode("Sakai[" + originAppSakaiVersion + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb_version") + '_' + toolParameters.getString("bbb_buildSerial") + "]", getParametersEncoding()));
-
-            query.append("&meta_originServerId=");
-            String originServerId = config.getString("serverId", "");
-            query.append(originServerId);
             
-            query.append("&meta_originServerUrl=");
-            StringBuilder serverUrl = new StringBuilder(config.getServerUrl());
-            query.append(URLEncoder.encode(serverUrl.toString(), getParametersEncoding()));
+            // BSN: Parameters added for monitoring and recording search
+            for(Entry<String, String> entry : meeting.getMeta().entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
 
-            query.append("&meta_originServerName=");
-            String originServerName = config.getServerName();
-            query.append(URLEncoder.encode(originServerName, getParametersEncoding()));
+                query.append("&meta_" + key + "=");
+                query.append(URLEncoder.encode(value, getParametersEncoding()));
+
+            }
             // BSN: Ends
 
             // Composed Welcome message
             String welcomeMessage = meeting.getProps().getWelcomeMessage();
             if (recording == "true")
                 welcomeMessage = welcomeMessage + "<br><br><b>This session is being recorded.</b>";
-            if (duration.compareTo("0") != 0)
+            if (duration.compareTo("0") > 0)
                 welcomeMessage = welcomeMessage.concat("<br><br><b>The maximum duration for this session is " + duration + " minutes.");
 
             query.append("&welcome=");
@@ -500,7 +492,7 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            if( apiCall.equals(APICALL_CREATE) ) logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
+            //if( apiCall.equals(APICALL_CREATE) ) logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);

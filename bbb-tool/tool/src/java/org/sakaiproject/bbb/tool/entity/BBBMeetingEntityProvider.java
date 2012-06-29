@@ -594,7 +594,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			// defaults
 			Map<String,String> dlfts = new HashMap<String,String>();
 			dlfts.put(BBBMeetingManager.CFG_DEFAULT_ALLUSERS,
-					serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_ALLUSERS, "none").toLowerCase()
+					serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_ALLUSERS, "true").toLowerCase()
 			);
 			dlfts.put(BBBMeetingManager.CFG_DEFAULT_OWNER,
 					serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_OWNER, "moderator").toLowerCase()

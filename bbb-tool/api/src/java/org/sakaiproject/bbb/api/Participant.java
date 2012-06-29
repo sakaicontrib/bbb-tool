@@ -48,4 +48,8 @@ public class Participant {
 	public boolean isModerator() {
 		return MODERATOR.equals(role);
 	}
+	
+	public String toString(){
+	    return "[" + selectionType + ", " + selectionId + ", " + role + "]"; 
+	}
 }

@@ -177,15 +177,13 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
 
-        PreparedStatement participantsST = connection
-                .prepareStatement("DELETE FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
+        PreparedStatement participantsST = connection.prepareStatement("DELETE FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
         participantsST.setString(1, meeting.getId());
         statements.add(participantsST);
 
         List<Participant> participants = meeting.getParticipants();
         for (Participant participant : participants) {
-            PreparedStatement pST = connection
-                    .prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT " +
+            PreparedStatement pST = connection.prepareStatement("INSERT INTO BBB_MEETING_PARTICIPANT " +
                     		"(MEETING_ID, SELECTION_TYPE, SELECTION_ID, ROLE)" +
                     		" VALUES(?,?,?,?)");
             pST.setString(1, meeting.getId());

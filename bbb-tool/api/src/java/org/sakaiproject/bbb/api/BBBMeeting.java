@@ -18,6 +18,8 @@ package org.sakaiproject.bbb.api;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Stack;
 
 import lombok.AccessLevel;
@@ -50,6 +52,8 @@ public class BBBMeeting implements Entity {
 	private Boolean recording = null; 
 	private Long recordingDuration = null;
 	private String recordingEmail = null;
+	
+	private Map<String, String> meta = new HashMap<String, String>();
 	
 	@Getter (AccessLevel.NONE)
 	private Props props = null;
