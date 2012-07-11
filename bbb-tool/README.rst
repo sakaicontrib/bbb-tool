@@ -62,18 +62,21 @@ These instructions assume your Sakai server is installed at /opt/tomcat.
   2.1. Download the tool source code
 
          cd ~/
+         
          git clone git://github.com/blindsidenetworks/bigbluebutton-sakai.git
 
 
   2.2. Compile & deploy to Tomcat
  
          cd bigbluebutton-sakai/bbb-tool
+         
          mvn -Dmaven.tomcat.home={tomcat_folder} clean install sakai:deploy
     
 
   2.3. Add/review the following entries to the end of your sakai.properties file placed in the /opt/tomcat/sakai/ directory
 
          bbb.url=http://<server>/bigbluebutton
+         
          bbb.salt=<salt>
        
        To determine these values for your BigBlueButton, enter the command
@@ -83,6 +86,7 @@ These instructions assume your Sakai server is installed at /opt/tomcat.
        If you want to use the public test server for BigBlueButton, use the following settings 
 
          bbb.url=http://test-install.blindsidenetworks.com/bigbluebutton
+         
          bbb.salt=8cd8ef52e8e101574e400365b55e11a6 
 
   2.4. Create the database schema
