@@ -319,6 +319,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throws SecurityException, Exception {
         
         Map<String, Object> response = new HashMap<String, Object>();
+        //Set an empty List of recordings and a SUCCESS key as default response values
+        response.put("recordings", new ArrayList<Object>() );
+        response.put("returncode", "SUCCESS");
+
         String meetingIDs = "";
 
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
@@ -331,15 +335,17 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
             Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
 
-            List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
-            for (Map<String,Object> recordingItem : recordingList) {
-                recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
-            }
-            response = recordingsResponse;
+            String returncode = (String)recordingsResponse.get("returncode");
+            Object recordings = recordingsResponse.get("recordings");
             
-        } else {
-            response.put("recordings", new ArrayList<Object>() );
-            response.put("returncode", "SUCCESS");
+            if ( "SUCCESS".equals(returncode) && recordings!= null && recordings.getClass().equals(java.util.ArrayList.class) ){
+                List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
+                for (Map<String,Object> recordingItem : recordingList) {
+                    recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
+                }
+                response = recordingsResponse;
+                
+            }
             
         }
         

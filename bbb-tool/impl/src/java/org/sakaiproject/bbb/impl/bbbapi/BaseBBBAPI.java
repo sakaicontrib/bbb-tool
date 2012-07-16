@@ -492,7 +492,9 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            //if( apiCall.equals(APICALL_CREATE) ) logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
+            //if( apiCall.equals(APICALL_CREATE) ) 
+            logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
+            
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -524,7 +526,7 @@ public class BaseBBBAPI implements BBBAPI {
                 httpConnection.disconnect();
 
                 // parse response
-                //logger.debug("doAPICall.response: " + xml);
+                logger.debug("doAPICall.response: " + xml);
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");

@@ -631,7 +631,7 @@ function refreshRecordingList(meetingId) {
 		if ( getRecordingResponse.messageKey != null ){
 	    	BBBUtils.showMessage(getRecordingResponse.messageKey + ":" + getRecordingResponse.message, 'warning');
 		} else {
-	    	BBBUtils.showMessage("An unidentified error has just happened", 'warning');
+	    	BBBUtils.showMessage("Unable to get response from the BigBlueButton server", 'warning');
 		}
 	}
 

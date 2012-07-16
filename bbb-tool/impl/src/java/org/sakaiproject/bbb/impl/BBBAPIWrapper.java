@@ -300,7 +300,7 @@ public class BBBAPIWrapper/* implements Runnable */{
             } else {
                 if( meetingIDs != null && !meetingIDs.trim().equals("") ) {
                 	if( bbbGetSiteRecordings ){
-                		logger.debug("getting site recordings all in one call");
+                		logger.debug("getting site recordings all in one call for [" + meetingIDs + "]");
                 		siteRecordingsResponse = hostProxy.getRecordings(meetingIDs);
                 	} else {
                 		logger.debug("getting site recordings one by one");
