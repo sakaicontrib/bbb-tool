@@ -264,6 +264,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			String notifyParticipantsStr = (String) params.get("notifyParticipants");
 			boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 			boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+
+			logger.debug("JF: " + meeting);
 			try {
 				if(!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
 					throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
