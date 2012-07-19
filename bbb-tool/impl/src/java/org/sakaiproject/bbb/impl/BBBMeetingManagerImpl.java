@@ -478,7 +478,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 meetingModerator += e.getValue().getFirstName() + " " + e.getValue().getLastName() + " <" + e.getValue().getEmail() + ">";
 
             }
-            logger.error("JF: meetingModerator=" + meetingModerator);
             tmpMeta.put("meetingModerator", meetingModerator);
 
         }
@@ -489,7 +488,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 meetingAttendee += e.getValue().getFirstName() + " " + e.getValue().getLastName() + " <" + e.getValue().getEmail() + ">";
 
             }
-            logger.error("JF: meetingAttendee=" + meetingAttendee);
             tmpMeta.put("meetingAttendee", meetingAttendee);
 
         }
@@ -634,14 +632,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 + timeZone.getOffset(timeMs)               // user timezone offset
                 - TimeZone.getDefault().getOffset(timeMs); // server timezone offset
         
-        
-        //Date now = new Date();
-        //logger.debug(now);
-        //Date nowConverted = convertDateToUserTimezone(now);
-        //logger.debug(nowConverted);
-        //responseMap.put("othertimestamp", "" + now.getTime());
-        //responseMap.put("othertimestampconverted", "" + nowConverted.getTime());
-
         responseMap.put("timestamp", "" + timeMs);
         responseMap.put("timezone", "" + timeZone.getDisplayName() );
         responseMap.put("timezoneID", "" + timeZone.getID() );
@@ -965,15 +955,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
             // build time range (with dates on user timezone - calendar does conversion)
             
-            //Time startTime = timeService.newTime(meeting.getStartDate().getTime());
-            //Time startTime = timeService.newTime(convertDateToUserTimezone(meeting.getStartDate()).getTime());
-            //Time startTime = timeService.newTime(convertDateFromUserTimezone(meeting.getStartDate()).getTime());
             Time startTime = timeService.newTime(convertDateToServerTimezone(meeting.getStartDate()).getTime());
             TimeRange range = null;
             if (meeting.getEndDate() != null) {
-                //Time endTime = timeService.newTime(meeting.getEndDate().getTime());
-                //Time endTime = timeService.newTime(convertDateToUserTimezone(meeting.getEndDate()).getTime());
-                //Time endTime = timeService.newTime(convertDateFromUserTimezone(meeting.getEndDate()).getTime());
                 Time endTime = timeService.newTime(convertDateToServerTimezone(meeting.getEndDate()).getTime());
                 range = timeService.newTimeRange(startTime, endTime);
             } else {
@@ -1145,9 +1129,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         long timeMs = date.getTime();
         Date tzDate = new Date(timeMs + timeZone.getOffset(timeMs));
 
-        logger.debug("JF: timeMs=" + timeMs + ", timeZoneOffset=" + timeZone.getOffset(timeMs));
-        logger.debug("JF: tzDate=" + tzDate + ", tzDate.millisecs=" + tzDate.getTime());
-
         return tzDate;
     }
 
@@ -1160,9 +1141,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         long timeMs = date.getTime();
         Date tzDate = new Date(timeMs + timeZone.getOffset(timeMs));
-
-        logger.debug("JF: timeMs=" + timeMs + ", timeZoneOffset=" + timeZone.getOffset(timeMs));
-        logger.debug("JF: tzDate=" + tzDate + ", tzDate.millisecs=" + tzDate.getTime());
 
         return tzDate;
     }

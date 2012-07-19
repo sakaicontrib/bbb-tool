@@ -256,43 +256,13 @@ var BBBUtils;
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
 
-    	//if(bbbCurrentMeetings[i].startDate)	bbbCurrentMeetings[i].startDate += parseInt(bbbUserTimeZoneOffset);
-    	//if(bbbCurrentMeetings[i].endDate) bbbCurrentMeetings[i].endDate += parseInt(bbbUserTimeZoneOffset);
-
 		// joinable only if on specified date interval (if any)
-		console.log(bbbUserTimeZoneOffset);
-		console.log(bbbServerTimeZoneOffset);
-		//console.log(bbbServerTimeStamp);
 		
-		console.log("Server timestamp as it comes = " + new Date(parseInt(bbbServerTimeStamp.timestamp)) + "["+ (bbbServerTimeStamp.timestamp - bbbServerTimeStamp.timestamp % 1000) + "]");
-		//console.log("Server othertimestamp as it comes = " + new Date(parseInt(bbbServerTimeStamp.othertimestamp)) + "["+ bbbServerTimeStamp.othertimestamp + "]");
-		//console.log("Server othertimestamp converted as it comes = " + new Date(parseInt(bbbServerTimeStamp.othertimestampconverted)) + "["+ bbbServerTimeStamp.othertimestampconverted + "]");
-		//console.log("Server timestamp with its offset = " + new Date(parseInt(bbbServerTimeStamp.timestamp) + parseInt(bbbServerTimeStamp.timezoneOffset)) + "["+ (parseInt(bbbServerTimeStamp.timestamp) + parseInt(bbbServerTimeStamp.timezoneOffset)) + "]");
-		//var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp) + (parseInt(bbbUserTimeZoneOffset) * -1);
 		var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp) + (parseInt(bbbServerTimeZoneOffset)*-1);
 		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000)
-		//var serverTimeStamp2 = parseInt(bbbServerTimeStamp.othertimestamp) + (parseInt(bbbUserTimeZoneOffset)*-1);
-		//var serverTimeStamp3 = parseInt(bbbServerTimeStamp.othertimestampconverted) + (parseInt(bbbUserTimeZoneOffset)*-1);
-
-		console.log("*Meeting start date in GMT = " + new Date( parseInt(meeting.startDate) ) + "[" + meeting.startDate + "]");
-		console.log("*Meeting end date in GMT = " + new Date( parseInt(meeting.endDate) ) + "["+ meeting.endDate + "]");
-		console.log("*Server timestamp without the serverOffeset = " + new Date(parseInt(serverTimeStamp))  + "["+ serverTimeStamp + "]");
-		//console.log("Server othertimestamp without the userOffeset = " + new Date(parseInt(serverTimeStamp2))  + "["+ serverTimeStamp2 + "]");
-		//console.log("Server othertimestamp converted without the userOffeset = " + new Date(parseInt(serverTimeStamp3))  + "["+ serverTimeStamp3 + "]");
 
 		var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
         var endOk = !meeting.endDate || meeting.endDate == 0 || serverTimeStamp < meeting.endDate;
-        //var startOk = !meeting.startDate || meeting.startDate == 0 || (serverTimeStamp - serverTimeStamp % 1000) >= meeting.startDate;
-        //var endOk = !meeting.endDate || meeting.endDate == 0 || (serverTimeStamp - serverTimeStamp % 1000) < meeting.endDate;
-
-		console.log(startOk);
-		console.log(endOk);
-        
-		//var startOk = true;
-		//var endOk = true;
-		
-        //var offset = bbbServerTimeStamp.timezoneOffset;
-        //meeting.timezoneOffset = "GMT" + (offset > 0? "+": "") + (offset/3600000);
 
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;

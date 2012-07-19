@@ -44,7 +44,6 @@ var bbbErrorLog = new Object();
     bbbCurrentUser = BBBUtils.getCurrentUser();
     bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
     bbbUserTimeZoneOffset = arg.timezoneoffset;
-    //console.log(arg);
     
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
@@ -95,7 +94,6 @@ function switchState(state,arg) {
     // Make sure we have the correct server time (needed if user duplicated tab/window)
 	bbbServerTimeStamp = BBBUtils.updateServerTime();
 	bbbServerTimeZoneOffset = bbbServerTimeStamp.timezoneOffset;
-	//console.log(bbbServerTimeStamp);
 	
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
@@ -127,9 +125,6 @@ function switchState(state,arg) {
             
             // watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-            	//if(bbbCurrentMeetings[i].startDate)	bbbCurrentMeetings[i].startDate += parseInt(bbbUserTimeZoneOffset);
-            	//if(bbbCurrentMeetings[i].endDate) bbbCurrentMeetings[i].endDate += parseInt(bbbUserTimeZoneOffset);
-
             	BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);

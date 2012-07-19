@@ -211,8 +211,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 		boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
 
-		logger.debug("JF: " + meeting);
-        logger.debug("JF: " + meeting.getStartDate().getTime() );
 		try {
 			if(!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
 				throw new EntityException("Unable to store meeting in DB", meeting.getReference(), 400);
@@ -268,8 +266,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 			boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
 
-			logger.debug("JF: " + meeting);
-            logger.debug("JF: " + meeting.getStartDate().getTime() );
 			try {
 				if(!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
 					throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
