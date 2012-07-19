@@ -858,9 +858,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                             meeting.getName(),
                             meeting.getProps().getWelcomeMessage(),
                             meeting.getStartDate() == null ? "-"
-                                    : convertDateToUserTimezone(meeting.getStartDate()),
+                                    : convertDateToServerTimezone(meeting.getStartDate()),
                             meeting.getEndDate() == null ? "-"
-                                    : convertDateToUserTimezone(meeting.getEndDate()),
+                                    : convertDateToServerTimezone(meeting.getEndDate()),
                             meeting.getOwnerDisplayName() + " ("
                                     + meetingOwnerEid + ")" }));
             msg.append(msgs.getFormattedMessage("email.footer", new Object[] {

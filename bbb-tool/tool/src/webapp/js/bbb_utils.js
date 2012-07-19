@@ -109,27 +109,45 @@ var BBBUtils;
         // Consolidate date + time fields
         var startDate = null, endDate = null;
         var startMillis = 0, endMillis = 0;
+        console.debug("StartDate");
         if(jQuery('#startDate1').attr('checked')) {
             var date = jQuery('#startDate2').datepick('getDate');
             var time = jQuery('#startTime').val().split(':');
             startMillis = date.getTime();
             startMillis += time[0] * 60 * 60 * 1000;
             startMillis += time[1] * 60 * 1000;
-            startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
             date.setTime(startMillis);
+            console.debug(date);
+            //date = new Date( parseInt( date.toUTCString() ) );
+            //console.debug(date);
+            //startMillis = date.getTime();
+
+            startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            //startMillis += (parseInt(bbbServerTimeZoneOffset) * -1);
+            date.setTime(startMillis);
+            console.debug(date);
             jQuery('#startDate').val(startMillis);
         }else{
             jQuery('#startDate').removeAttr('name');
             jQuery('#addToCalendar').removeAttr('checked');
         }
+        console.debug("EndDate");
         if(jQuery('#endDate1').attr('checked')) {
             var date = jQuery('#endDate2').datepick('getDate');
             var time = jQuery('#endTime').val().split(':');
             endMillis = date.getTime();
             endMillis += time[0] * 60 * 60 * 1000;
             endMillis += time[1] * 60 * 1000;
-            endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
             date.setTime(endMillis);
+            console.debug(date);
+            //date = new Date( parseInt( date.toUTCString() ) );
+            //console.debug(date);
+            //endMillis = date.getTime();
+
+            endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            //endMillis += (parseInt(bbbServerTimeZoneOffset) * -1);
+            date.setTime(endMillis);
+            console.debug(date);
             jQuery('#endDate').val(endMillis);
         }else{
             jQuery('#endDate').removeAttr('name');
@@ -1149,6 +1167,13 @@ Array.prototype.addUpdateMeeting=function(meeting){
     }else if(meeting) {
         this.push(meeting);
     }
+}
+
+Date.prototype.toUTCString = function (){
+    var date = this;
+    var date_utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+    return date_utc.getTime();
+    
 }
 
 Date.prototype.toISO8601String = function (format, offset) {

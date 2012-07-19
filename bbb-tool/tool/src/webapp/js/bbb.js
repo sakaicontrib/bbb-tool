@@ -93,7 +93,7 @@ function switchState(state,arg) {
 	
     // Make sure we have the correct server time (needed if user duplicated tab/window)
 	bbbServerTimeStamp = BBBUtils.updateServerTime();
-	bbbServerTimeZoneOffset = bbbServerTimeStamp.timezoneOffset;
+	bbbServerTimeZoneOffset = bbbServerTimeStamp.defaultOffset;
 	
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
