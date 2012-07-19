@@ -188,6 +188,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		BBBMeeting meeting = (BBBMeeting) entity;
 		
+		logger.info("JF: startDate=" + meeting.getStartDate().getTime() );
+        logger.info("JF: endDate=" + meeting.getEndDate().getTime() );
+		
 		// generate uuid
 		meeting.setId(idManager.createUuid());
 		

@@ -109,7 +109,7 @@ var BBBUtils;
         // Consolidate date + time fields
         var startDate = null, endDate = null;
         var startMillis = 0, endMillis = 0;
-        console.debug("StartDate");
+        console.debug("StartDate:");
         if(jQuery('#startDate1').attr('checked')) {
             var date = jQuery('#startDate2').datepick('getDate');
             var time = jQuery('#startTime').val().split(':');
@@ -117,21 +117,18 @@ var BBBUtils;
             startMillis += time[0] * 60 * 60 * 1000;
             startMillis += time[1] * 60 * 1000;
             date.setTime(startMillis);
-            console.debug(date);
-            //date = new Date( parseInt( date.toUTCString() ) );
-            //console.debug(date);
-            //startMillis = date.getTime();
+            startMillis -= date.getTimezoneOffset() * 60 * 1000;
 
+            console.debug(startMillis);
+            
             startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
-            //startMillis += (parseInt(bbbServerTimeZoneOffset) * -1);
-            date.setTime(startMillis);
-            console.debug(date);
+            console.debug(startMillis);
             jQuery('#startDate').val(startMillis);
         }else{
             jQuery('#startDate').removeAttr('name');
             jQuery('#addToCalendar').removeAttr('checked');
         }
-        console.debug("EndDate");
+        console.debug("EndDate:");
         if(jQuery('#endDate1').attr('checked')) {
             var date = jQuery('#endDate2').datepick('getDate');
             var time = jQuery('#endTime').val().split(':');
@@ -139,15 +136,12 @@ var BBBUtils;
             endMillis += time[0] * 60 * 60 * 1000;
             endMillis += time[1] * 60 * 1000;
             date.setTime(endMillis);
-            console.debug(date);
-            //date = new Date( parseInt( date.toUTCString() ) );
-            //console.debug(date);
-            //endMillis = date.getTime();
+            endMillis -= date.getTimezoneOffset() * 60 * 1000;
+            
+            console.debug(endMillis);
 
             endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
-            //endMillis += (parseInt(bbbServerTimeZoneOffset) * -1);
-            date.setTime(endMillis);
-            console.debug(date);
+            console.debug(endMillis);
             jQuery('#endDate').val(endMillis);
         }else{
             jQuery('#endDate').removeAttr('name');
