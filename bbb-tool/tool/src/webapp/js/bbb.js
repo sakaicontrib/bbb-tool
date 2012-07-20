@@ -17,7 +17,9 @@
 /* Stuff that we always expect to be setup */
 var bbbSiteId = null;
 var bbbCurrentUser = null;
-var bbbServerTimeDiff = 0;
+var bbbUserTimeZoneOffset = 0;
+var bbbBrowserTimeZoneOffset = 0;
+var bbbServerTimeZoneOffset = 0;
 var bbbServerTimeStamp = Object();
 var bbbUserPerms = null;
 var bbbCurrentMeetings = [];
@@ -42,6 +44,9 @@ var bbbErrorLog = new Object();
     bbbSiteId = arg.siteId;
     bbbCurrentUser = BBBUtils.getCurrentUser();
     bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
+    bbbUserTimeZoneOffset = arg.timezoneoffset;
+    var d = new Date();
+    bbbBrowserTimeZoneOffset = d.getTimezoneOffset() * 60 * 1000 * -1;
     
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
@@ -91,6 +96,7 @@ function switchState(state,arg) {
 	
     // Make sure we have the correct server time (needed if user duplicated tab/window)
 	bbbServerTimeStamp = BBBUtils.updateServerTime();
+	bbbServerTimeZoneOffset = bbbServerTimeStamp.defaultOffset;
 	
     BBBUtils.hideMessage();
     if('currentMeetings' === state) {
@@ -122,10 +128,11 @@ function switchState(state,arg) {
             
             // watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-                BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
+            	BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             }
+            
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
 
             // show tool footer message only if site maintainer
@@ -200,7 +207,8 @@ function switchState(state,arg) {
                 'selOptions':   BBBUtils.getUserSelectionOptions(),
                 'siteId':       bbbSiteId,
                 'isRecording': 	bbbAddUpdateFormConfigParameters.recording,
-                'actionUrl':    isNew ? "/direct/bbb-meeting/new" : "/direct/bbb-meeting/"+meeting.id+"/edit"
+                'actionUrl':    isNew ? "/direct/bbb-meeting/new" : "/direct/bbb-meeting/"+meeting.id+"/edit",
+                'timeZoneOffset': bbbUserTimeZoneOffset
         };
         
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
@@ -213,8 +221,13 @@ function switchState(state,arg) {
             BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
             
             // Setup dates
-            var startDate = (!isNew && meeting.startDate) ? new Date(meeting.startDate) : new Date();
-            var endDate = (!isNew && meeting.endDate) ? new Date(meeting.endDate) : new Date();
+            var now = new Date(); 
+            var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+            var now_local = new Date(parseInt(now_utc.getTime()) + parseInt(bbbUserTimeZoneOffset));
+            var now_local_plus_1 = new Date(parseInt(now_utc.getTime()) + parseInt(bbbUserTimeZoneOffset) + 3600000);
+
+            var startDate = (!isNew && meeting.startDate) ? new Date(parseInt(meeting.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset)) : now_local;
+            var endDate = (!isNew && meeting.endDate) ? new Date(parseInt(meeting.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset)) : now_local_plus_1;
             
             // Setup time picker
             var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
@@ -285,7 +298,7 @@ function switchState(state,arg) {
         if(arg && arg.meetingId) {
         	var meeting = BBBUtils.getMeeting(arg.meetingId); 
         	if(meeting) {
-        	   BBBUtils.render('bbb_meeting-info_template', {'meeting': meeting}, 'bbb_content');
+        	   BBBUtils.render('bbb_meeting-info_template', {'meeting': meeting, 'timeZoneOffset':bbbUserTimeZoneOffset}, 'bbb_content');
         	   $(document).ready(function() {
         		   BBBUtils.checkOneMeetingAvailability(arg.meetingId);
         		   BBBUtils.checkRecordingAvailability(arg.meetingId);
