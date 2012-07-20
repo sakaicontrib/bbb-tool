@@ -27,8 +27,7 @@ import org.sakaiproject.bbb.api.BBBMeeting;
  * Database interface class for Sakai BigBlueButton persistence.
  * @author Adrian Fish, Nuno Fernandes
  */
-public interface SqlGenerator
-{
+public interface SqlGenerator {
 	
 	/** Map of TABLE_NAME -> SQL CREATE STATEMENT */ 
 	Map<String, String> getSetupStatements();

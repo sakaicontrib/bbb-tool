@@ -20,10 +20,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+
+import org.apache.log4j.Logger;
 
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.Participant;
@@ -35,6 +40,9 @@ import org.sakaiproject.bbb.impl.util.XmlUtil;
  * @author Adrian Fish, Nuno Fernandes
  */
 public class DefaultSqlGenerator implements SqlGenerator {
+	
+    protected final Logger logger = Logger.getLogger(getClass());
+
     // DB Data Types
     protected String CHAR = "CHAR";
     protected String VARCHAR = "VARCHAR";
@@ -123,8 +131,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(5, meeting.getAttendeePassword());
         meetingST.setString(6, meeting.getModeratorPassword());
         meetingST.setString(7, meeting.getOwnerId());
-        meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()));
-        meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()));
+        meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()) );
+        meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
         meetingST.setBoolean(10, meeting.getRecording());
         meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
@@ -160,8 +168,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(4, meeting.getAttendeePassword());
         meetingST.setString(5, meeting.getModeratorPassword());
         meetingST.setString(6, meeting.getOwnerId());
-        meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()));
-        meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()));
+        meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()) );
+        meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
         meetingST.setBoolean(9, meeting.getRecording());
         meetingST.setLong(10, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(11, XmlUtil.convertPropsToXml(meeting.getProps()));

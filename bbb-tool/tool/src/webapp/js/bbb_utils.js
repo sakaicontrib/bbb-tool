@@ -93,9 +93,9 @@ var BBBUtils;
     
                 // Work out whether the current user is a moderator of any of the
                 // meetings. If so, mark the meeting with a moderator flag.
-                for(var i=0,j=list.length;i<j;i++) {
-                    BBBUtils.setMeetingPermissionParams(list[i]);
-                }
+                //for(var i=0,j=list.length;i<j;i++) {
+                //    BBBUtils.setMeetingPermissionParams(list[i]);
+                //}
             },
             error : function(xmlHttpRequest,status,error) {
                 BBBUtils.handleError(bbb_err_meeting_list, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -116,6 +116,9 @@ var BBBUtils;
             startMillis += time[0] * 60 * 60 * 1000;
             startMillis += time[1] * 60 * 1000;
             date.setTime(startMillis);
+            startMillis -= date.getTimezoneOffset() * 60 * 1000;
+            startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            date.setTime(startMillis);
             jQuery('#startDate').val(startMillis);
         }else{
             jQuery('#startDate').removeAttr('name');
@@ -127,6 +130,9 @@ var BBBUtils;
             endMillis = date.getTime();
             endMillis += time[0] * 60 * 60 * 1000;
             endMillis += time[1] * 60 * 1000;
+            date.setTime(endMillis);
+            endMillis -= date.getTimezoneOffset() * 60 * 1000;
+            endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
             date.setTime(endMillis);
             jQuery('#endDate').val(endMillis);
         }else{
@@ -253,12 +259,14 @@ var BBBUtils;
 	}
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
-        // joinable only if on specified date interval (if any)
-        var startOk = !meeting.startDate || meeting.startDate == 0 || (bbbServerTimeStamp.timestamp - bbbServerTimeStamp.timestamp % 1000) >= meeting.startDate;
-        var endOk = !meeting.endDate || meeting.endDate == 0 || (bbbServerTimeStamp.timestamp - bbbServerTimeStamp.timestamp % 1000) < meeting.endDate;
 
-        var offset = bbbServerTimeStamp.timezoneOffset;
-        meeting.timezoneOffset = "GMT" + (offset > 0? "+": "") + (offset/3600000);
+		// joinable only if on specified date interval (if any)
+		
+		var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp);
+		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000)
+
+		var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
+        var endOk = !meeting.endDate || meeting.endDate == 0 || serverTimeStamp < meeting.endDate;
 
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;
@@ -1145,6 +1153,13 @@ Array.prototype.addUpdateMeeting=function(meeting){
     }else if(meeting) {
         this.push(meeting);
     }
+}
+
+Date.prototype.toUTCString = function (){
+    var date = this;
+    var date_utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+    return date_utc.getTime();
+    
 }
 
 Date.prototype.toISO8601String = function (format, offset) {

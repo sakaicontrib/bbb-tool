@@ -17,6 +17,7 @@
 package org.sakaiproject.bbb.tool.entity;
 
 import java.io.OutputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -210,6 +211,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		String notifyParticipantsStr = (String) params.get("notifyParticipants");
 		boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 		boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+
 		try {
 			if(!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
 				throw new EntityException("Unable to store meeting in DB", meeting.getReference(), 400);
@@ -225,6 +227,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		if(logger.isDebugEnabled()) logger.debug("updateMeeting");
 		
 		BBBMeeting newMeeting = (BBBMeeting) entity;
+
 		try {
 			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
 			if(meeting == null){
@@ -264,6 +267,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			String notifyParticipantsStr = (String) params.get("notifyParticipants");
 			boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 			boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+
 			try {
 				if(!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
 					throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
@@ -339,6 +343,35 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	
 	
 	// --- ActionsExecutable (Custom actions) ----------------------------------------
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public String testMeeting(Map<String, Object> params) {
+		
+		if(logger.isDebugEnabled()) logger.debug("testMeeting");
+		String meetingID = (String) params.get("meetingID");
+		if(meetingID == null)
+		{
+			throw new IllegalArgumentException("Missing required parameters meetingId");
+		}
+		
+		try {
+			BBBMeeting meeting = meetingManager.getMeeting(meetingID);
+			
+			return "startDate=" + (new java.sql.Date(meeting.getStartDate().getTime())).toString() 
+					+ " " + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
+					+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime())
+					+ " startDateUTC=" + meeting.getStartDate().getTime()
+					);
+			
+			//return meeting.toString();
+			
+		} catch(Exception e) {
+			throw new EntityException(e.getMessage(), e.getMessage());
+		}
+
+
+	}
+
+	
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
 	public String isMeetingRunning(Map<String,Object> params)
 	{

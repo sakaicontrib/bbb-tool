@@ -280,8 +280,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 addEditCalendarEvent(meeting);
             }
             // or remove it, if 'add to calendar' was unselected
-            else if (meeting.getProps().getCalendarEventId() != null
-                    && !addToCalendar) {
+            else if (meeting.getProps().getCalendarEventId() != null && !addToCalendar) {
                 removeCalendarEvent(meeting);
                 storageManager.updateMeeting(meeting, false);
             }
@@ -479,7 +478,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 meetingModerator += e.getValue().getFirstName() + " " + e.getValue().getLastName() + " <" + e.getValue().getEmail() + ">";
 
             }
-            logger.error("JF: meetingModerator=" + meetingModerator);
             tmpMeta.put("meetingModerator", meetingModerator);
 
         }
@@ -490,7 +488,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 meetingAttendee += e.getValue().getFirstName() + " " + e.getValue().getLastName() + " <" + e.getValue().getEmail() + ">";
 
             }
-            logger.error("JF: meetingAttendee=" + meetingAttendee);
             tmpMeta.put("meetingAttendee", meetingAttendee);
 
         }
@@ -617,7 +614,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // --- Public utility methods --------------------------------------------
     // -----------------------------------------------------------------------
     public Map<String, Object> getServerTimeInUserTimezone() {
-        
+
         Map<String, Object> responseMap = new HashMap<String,Object>();
         
         Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
@@ -861,9 +858,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                             meeting.getName(),
                             meeting.getProps().getWelcomeMessage(),
                             meeting.getStartDate() == null ? "-"
-                                    : convertDateToUserTimezone(meeting.getStartDate()),
+                                    : meeting.getStartDate(),
+                                    //: convertDateToServerTimezone(meeting.getStartDate()),
+                                    //: convertDateFromServerTimezone(meeting.getStartDate()),
                             meeting.getEndDate() == null ? "-"
-                                    : convertDateToUserTimezone(meeting.getEndDate()),
+                                    : meeting.getEndDate(),
+                                    //: convertDateToServerTimezone(meeting.getEndDate()),
+                                    //: convertDateFromServerTimezone(meeting.getEndDate()),
                             meeting.getOwnerDisplayName() + " ("
                                     + meetingOwnerEid + ")" }));
             msg.append(msgs.getFormattedMessage("email.footer", new Object[] {
@@ -956,12 +957,16 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     "getCalendar", new Class[] { String.class }).invoke(
                     calendarService, new Object[] { calendarRef });
 
-            // build time range (with dates on user timezone - calendar does
-            // conversion)
-            Time startTime = timeService.newTime(convertDateToUserTimezone(meeting.getStartDate()).getTime());
+            // build time range (with dates on user timezone - calendar does conversion)
+            
+            Time startTime = timeService.newTime(meeting.getStartDate().getTime());
+            //Time startTime = timeService.newTime(convertDateToServerTimezone(meeting.getStartDate()).getTime());
+            //Time startTime = timeService.newTime(convertDateFromServerTimezone(meeting.getStartDate()).getTime());
             TimeRange range = null;
             if (meeting.getEndDate() != null) {
-                Time endTime = timeService.newTime(convertDateToUserTimezone(meeting.getEndDate()).getTime());
+                Time endTime = timeService.newTime(meeting.getEndDate().getTime());
+                //Time endTime = timeService.newTime(convertDateToServerTimezone(meeting.getEndDate()).getTime());
+                //Time endTime = timeService.newTime(convertDateFromServerTimezone(meeting.getEndDate()).getTime());
                 range = timeService.newTimeRange(startTime, endTime);
             } else {
                 range = timeService.newTimeRange(startTime);
@@ -970,43 +975,23 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             // add or edit event
             Object event = null;
             if (newEvent) {
-                event = calendar.getClass().getMethod("addEvent",
-                        new Class[] {}).invoke(calendar, new Object[] {});
-                event.getClass().getMethod("setCreator", new Class[] {})
-                        .invoke(event, new Object[] {});
-                eventId = (String) event.getClass().getMethod("getId",
-                        new Class[] {}).invoke(event, new Object[] {});
+                event = calendar.getClass().getMethod("addEvent", new Class[] {}).invoke(calendar, new Object[] {});
+                event.getClass().getMethod("setCreator", new Class[] {}).invoke(event, new Object[] {});
+                eventId = (String) event.getClass().getMethod("getId", new Class[] {}).invoke(event, new Object[] {});
             } else {
                 // EVENT_MODIFY_CALENDAR = "calendar.revise"
-                String eventModify = (String) calendarService.getClass()
-                        .getField("EVENT_MODIFY_CALENDAR").get(null);
-                event = calendar.getClass().getMethod("getEditEvent",
-                        new Class[] { String.class, String.class }).invoke(
-                        calendar, new Object[] { eventId, eventModify });
+                String eventModify = (String) calendarService.getClass().getField("EVENT_MODIFY_CALENDAR").get(null);
+                event = calendar.getClass().getMethod("getEditEvent", new Class[] { String.class, String.class }).invoke( calendar, new Object[] { eventId, eventModify });
             }
 
             // set event fields
-            event.getClass().getMethod("setDisplayName",
-                    new Class[] { String.class }).invoke(event,
-                    new Object[] { meeting.getName() });
-            event.getClass().getMethod("setDescription",
-                    new Class[] { String.class }).invoke(event,
-                    new Object[] { "Meeting '" + meeting.getName() + "' scheduled."/* meeting.getWelcome() */});
-            event.getClass().getMethod("setType", 
-            		new Class[] { String.class }).invoke(event, 
-            		new Object[] { "Meeting" });
-            event.getClass().getMethod("setRange",
-                    new Class[] { TimeRange.class }).invoke(event,
-                    new Object[] { range });
-            event.getClass().getMethod("setModifiedBy", 
-            		new Class[] {}).invoke(event, 
-            		new Object[] {});
-            event.getClass().getMethod("clearGroupAccess", 
-            		new Class[] {}).invoke(event, 
-            		new Object[] {});
-            event.getClass().getMethod("setField",
-                    new Class[] { String.class, String.class }).invoke(event,
-                    new Object[] { "meetingId", meeting.getId() });
+            event.getClass().getMethod("setDisplayName", new Class[] { String.class }).invoke(event, new Object[] { meeting.getName() });
+            event.getClass().getMethod("setDescription", new Class[] { String.class }).invoke(event, new Object[] { "Meeting '" + meeting.getName() + "' scheduled."/* meeting.getWelcome() */});
+            event.getClass().getMethod("setType", new Class[] { String.class }).invoke(event, new Object[] { "Meeting" });
+            event.getClass().getMethod("setRange", new Class[] { TimeRange.class }).invoke(event, new Object[] { range });
+            event.getClass().getMethod("setModifiedBy", new Class[] {}).invoke(event, new Object[] {});
+            event.getClass().getMethod("clearGroupAccess", new Class[] {}).invoke(event, new Object[] {});
+            event.getClass().getMethod("setField", new Class[] { String.class, String.class }).invoke(event, new Object[] { "meetingId", meeting.getId() });
 
             // commit event
             calendar.getClass().getMethod( "commitEvent",
@@ -1136,6 +1121,18 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return tzDate;
     }
 
+    private Date convertDateFromServerTimezone(Date date) {
+        if (date == null)
+            return null;
+
+        TimeZone timeZone = TimeZone.getDefault();
+
+        long timeMs = date.getTime();
+        Date tzDate = new Date(timeMs - timeZone.getOffset(timeMs));
+
+        return tzDate;
+    }
+
     private Date convertDateToUserTimezone(Date date) {
         if (date == null)
             return null;
@@ -1155,9 +1152,20 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return tzDate;
     }
 
-    private Date convertDateToTimezone(Date date, TimeZone timeZone) {
+    private Date convertDateToServerTimezone(Date date) {
         if (date == null)
             return null;
+
+        TimeZone timeZone = TimeZone.getDefault();
+
+        long timeMs = date.getTime();
+        Date tzDate = new Date(timeMs + timeZone.getOffset(timeMs));
+
+        return tzDate;
+    }
+
+    private Date convertDateToTimezone(Date date, TimeZone timeZone) {
+        if (date == null) return null;
         if (timeZone == null)
             timeZone = TimeZone.getDefault();
         long timeMs = date.getTime();
