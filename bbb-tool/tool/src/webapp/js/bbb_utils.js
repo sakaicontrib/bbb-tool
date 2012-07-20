@@ -123,6 +123,7 @@ var BBBUtils;
             
             startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
             console.debug(startMillis);
+            date.setTime(startMillis);
             jQuery('#startDate').val(startMillis);
         }else{
             jQuery('#startDate').removeAttr('name');
@@ -142,6 +143,7 @@ var BBBUtils;
 
             endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
             console.debug(endMillis);
+            date.setTime(endMillis);
             jQuery('#endDate').val(endMillis);
         }else{
             jQuery('#endDate').removeAttr('name');

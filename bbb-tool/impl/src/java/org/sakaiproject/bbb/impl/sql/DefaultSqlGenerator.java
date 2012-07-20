@@ -20,10 +20,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+
+import org.apache.log4j.Logger;
 
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.Participant;
@@ -35,6 +40,9 @@ import org.sakaiproject.bbb.impl.util.XmlUtil;
  * @author Adrian Fish, Nuno Fernandes
  */
 public class DefaultSqlGenerator implements SqlGenerator {
+	
+    protected final Logger logger = Logger.getLogger(getClass());
+
     // DB Data Types
     protected String CHAR = "CHAR";
     protected String VARCHAR = "VARCHAR";
@@ -123,8 +131,31 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(5, meeting.getAttendeePassword());
         meetingST.setString(6, meeting.getModeratorPassword());
         meetingST.setString(7, meeting.getOwnerId());
-        meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()));
-        meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()));
+
+        logger.info("JF: startDate=" + meeting.getStartDate().getTime() );
+        logger.info("JF: endDate=" + meeting.getEndDate().getTime() );
+
+        logger.info("JF: another startDate=" + (new java.sql.Date(meeting.getStartDate().getTime())).toString() 
+        		+ " " + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
+        		+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime()))
+        		);
+        
+        //Take off the default server time zone. This is to set the time like a UTC in the database
+        TimeZone timeZone = TimeZone.getDefault();
+        long startTimeMs = meeting.getStartDate().getTime();
+        Date tzStartDate = new Date(startTimeMs - timeZone.getOffset(startTimeMs));
+        logger.info("JF: tzStartDate=" + tzStartDate.toString() );
+        
+        long endTimeMs = meeting.getEndDate().getTime();
+        Date tzEndDate = new Date(endTimeMs - timeZone.getOffset(endTimeMs));
+        logger.info("JF: tzEndDate=" + tzEndDate.toString() );
+        
+        meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime()) );
+        meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime()) );
+
+        logger.info("JF: startDate.Timestamp=" + (meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime())) );
+        logger.info("JF: endDate.Timestamp=" + (meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime())) );
+
         meetingST.setBoolean(10, meeting.getRecording());
         meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
@@ -160,8 +191,31 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(4, meeting.getAttendeePassword());
         meetingST.setString(5, meeting.getModeratorPassword());
         meetingST.setString(6, meeting.getOwnerId());
-        meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()));
-        meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()));
+        
+        logger.info("JF: startDate=" + meeting.getStartDate().getTime() );
+        logger.info("JF: endDate=" + meeting.getEndDate().getTime() );
+
+        logger.info("JF: another startDate=" + (new java.sql.Date(meeting.getStartDate().getTime())).toString() 
+        		+ " " + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
+        		+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime()))
+        		);
+        
+        //Take off the default server time zone. This is to set the time like a UTC in the database
+        TimeZone timeZone = TimeZone.getDefault();
+        long startTimeMs = meeting.getStartDate().getTime();
+        Date tzStartDate = new Date(startTimeMs - timeZone.getOffset(startTimeMs));
+        logger.info("JF: tzStartDate=" + tzStartDate.toString() );
+        
+        long endTimeMs = meeting.getEndDate().getTime();
+        Date tzEndDate = new Date(endTimeMs - timeZone.getOffset(endTimeMs));
+        logger.info("JF: tzEndDate=" + tzEndDate.toString() );
+        
+        meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime()) );
+        meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime()) );
+
+        logger.info("JF: startDate.Timestamp=" + (meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime())) );
+        logger.info("JF: endDate.Timestamp=" + (meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime())) );
+
         meetingST.setBoolean(9, meeting.getRecording());
         meetingST.setLong(10, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(11, XmlUtil.convertPropsToXml(meeting.getProps()));

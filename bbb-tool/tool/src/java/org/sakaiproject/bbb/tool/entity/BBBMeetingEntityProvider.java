@@ -17,6 +17,7 @@
 package org.sakaiproject.bbb.tool.entity;
 
 import java.io.OutputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -188,9 +189,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		BBBMeeting meeting = (BBBMeeting) entity;
 		
-		logger.info("JF: startDate=" + meeting.getStartDate().getTime() );
-        logger.info("JF: endDate=" + meeting.getEndDate().getTime() );
-		
+		//logger.info("JF: startDate=" + meeting.getStartDate().getTime() );
+        //logger.info("JF: endDate=" + meeting.getEndDate().getTime() );
+        
 		// generate uuid
 		meeting.setId(idManager.createUuid());
 		
@@ -229,6 +230,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		if(logger.isDebugEnabled()) logger.debug("updateMeeting");
 		
 		BBBMeeting newMeeting = (BBBMeeting) entity;
+		logger.info("JF: startDate=" + newMeeting.getStartDate().getTime() );
+        logger.info("JF: endDate=" + newMeeting.getEndDate().getTime() );
+
 		try {
 			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
 			if(meeting == null){
@@ -344,6 +348,33 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	
 	
 	// --- ActionsExecutable (Custom actions) ----------------------------------------
+	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+	public String testMeeting(Map<String, Object> params) {
+		
+		if(logger.isDebugEnabled()) logger.debug("isMeetingRunning");
+		String meetingID = (String) params.get("meetingID");
+		if(meetingID == null)
+		{
+			throw new IllegalArgumentException("Missing required parameters meetingId");
+		}
+		
+		try {
+			BBBMeeting meeting = meetingManager.getMeeting(meetingID);
+			
+			return "startDate=" + (new java.sql.Date(meeting.getStartDate().getTime())).toString() 
+					+ " " + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
+					+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime()));
+			
+			//return meeting.toString();
+			
+		} catch(Exception e) {
+			throw new EntityException(e.getMessage(), e.getMessage());
+		}
+
+
+	}
+
+	
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
 	public String isMeetingRunning(Map<String,Object> params)
 	{
