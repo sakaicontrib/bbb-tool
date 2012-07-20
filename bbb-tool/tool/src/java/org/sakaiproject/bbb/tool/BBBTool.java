@@ -75,12 +75,12 @@ public class BBBTool extends HttpServlet {
 
         // build url
         StringBuilder url = new StringBuilder("/bbb-tool/bbb.html?");
-        url.append("&state=").append(state);
+        url.append("&language=").append(sakaiProxy.getUserLanguageCode());
         url.append("&siteId=").append(sakaiProxy.getCurrentSiteId());
+        url.append("&skin=").append(sakaiProxy.getSakaiSkin());
+        url.append("&state=").append(state);
         url.append("&timestamp=").append(sakaiProxy.getServerTimeInUserTimezone());
         url.append("&timezoneoffset=").append(sakaiProxy.getUserTimezone());
-        url.append("&language=").append(sakaiProxy.getUserLanguageCode());
-        url.append("&skin=").append(sakaiProxy.getSakaiSkin());
         if (meetingId != null)
             url.append("&meetingId=").append(meetingId);
 
