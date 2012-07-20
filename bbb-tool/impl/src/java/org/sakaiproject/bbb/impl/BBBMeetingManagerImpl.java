@@ -234,7 +234,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // create meeting in BBB
-        meeting = bbbAPI.createMeeting(meeting);
+        try{
+            meeting = bbbAPI.createMeeting(meeting);
+        } catch( Exception e) {
+            
+        }
+
 
         // store locally, in DB
         if (storageManager.storeMeeting(meeting)) {
