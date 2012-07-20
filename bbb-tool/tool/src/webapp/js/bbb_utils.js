@@ -272,7 +272,7 @@ var BBBUtils;
 
 		// joinable only if on specified date interval (if any)
 		
-		var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp) + (parseInt(bbbServerTimeZoneOffset)*-1);
+		var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp);
 		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000)
 
 		var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
@@ -509,7 +509,7 @@ var BBBUtils;
     BBBUtils.updateServerTime = function() {
     	var response = Object();
     	jQuery.ajax( {
-            url: "/direct/bbb-meeting/getServerTimeInUserTimezone.json",
+            url: "/direct/bbb-meeting/getServerTimeInDefaultTimezone.json",
             dataType : "json",
             async : false,
             success : function(timestamp) {

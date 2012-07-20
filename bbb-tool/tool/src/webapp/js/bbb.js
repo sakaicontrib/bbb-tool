@@ -18,6 +18,7 @@
 var bbbSiteId = null;
 var bbbCurrentUser = null;
 var bbbUserTimeZoneOffset = 0;
+var bbbBrowserTimeZoneOffset = 0;
 var bbbServerTimeZoneOffset = 0;
 var bbbServerTimeStamp = Object();
 var bbbUserPerms = null;
@@ -44,6 +45,8 @@ var bbbErrorLog = new Object();
     bbbCurrentUser = BBBUtils.getCurrentUser();
     bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
     bbbUserTimeZoneOffset = arg.timezoneoffset;
+    var d = new Date();
+    bbbBrowserTimeZoneOffset = d.getTimezoneOffset() * 60 * 1000 * -1;
     
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
@@ -129,7 +132,8 @@ function switchState(state,arg) {
                 BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             }
-            BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings, 'timeZoneOffset':bbbUserTimeZoneOffset},'bbb_content');
+            
+            BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
 
             // show tool footer message only if site maintainer
             //if(bbbUserPerms.bbbAdmin) {
@@ -222,8 +226,8 @@ function switchState(state,arg) {
             var now_local = new Date(parseInt(now_utc.getTime()) + parseInt(bbbUserTimeZoneOffset));
             var now_local_plus_1 = new Date(parseInt(now_utc.getTime()) + parseInt(bbbUserTimeZoneOffset) + 3600000);
 
-            var startDate = (!isNew && meeting.startDate) ? new Date(parseInt(meeting.startDate) + parseInt(bbbServerTimeZoneOffset)) : now_local;
-            var endDate = (!isNew && meeting.endDate) ? new Date(parseInt(meeting.endDate) + parseInt(bbbServerTimeZoneOffset)) : now_local_plus_1;
+            var startDate = (!isNew && meeting.startDate) ? new Date(parseInt(meeting.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset)) : now_local;
+            var endDate = (!isNew && meeting.endDate) ? new Date(parseInt(meeting.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset)) : now_local_plus_1;
             
             // Setup time picker
             var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }

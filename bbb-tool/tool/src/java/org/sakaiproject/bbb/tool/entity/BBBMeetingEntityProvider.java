@@ -351,7 +351,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
 	public String testMeeting(Map<String, Object> params) {
 		
-		if(logger.isDebugEnabled()) logger.debug("isMeetingRunning");
+		if(logger.isDebugEnabled()) logger.debug("testMeeting");
 		String meetingID = (String) params.get("meetingID");
 		if(meetingID == null)
 		{
@@ -363,7 +363,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			
 			return "startDate=" + (new java.sql.Date(meeting.getStartDate().getTime())).toString() 
 					+ " " + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
-					+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime()));
+					+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime())
+					+ " startDateUTC=" + meeting.getStartDate().getTime()
+					);
 			
 			//return meeting.toString();
 			
