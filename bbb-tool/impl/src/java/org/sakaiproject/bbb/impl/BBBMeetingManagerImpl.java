@@ -298,7 +298,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
     }
 
-    public boolean isMeetingRunning(String meetingID) throws BBBException {
+    public boolean isMeetingRunning(String meetingID) 
+            throws BBBException {
         return bbbAPI.isMeetingRunning(meetingID);
     }
 
@@ -398,7 +399,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // end meeting on server, if running
-        bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
+        try{
+            if(bbbAPI.isMeetingRunning(meetingId))
+                bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
+        } catch( Exception e) {
+            
+        }
 
         // log event
         logEvent(EVENT_MEETING_END, meeting);
