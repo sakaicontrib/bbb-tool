@@ -296,23 +296,30 @@ function switchState(state,arg) {
         $('#bbb_permissions_link').parent().parent().hide();
 
         if(arg && arg.meetingId) {
-        	var meeting = BBBUtils.getMeeting(arg.meetingId); 
-        	if(meeting) {
-        	   BBBUtils.render('bbb_meeting-info_template', {'meeting': meeting, 'timeZoneOffset':bbbUserTimeZoneOffset}, 'bbb_content');
-        	   $(document).ready(function() {
-        		   BBBUtils.checkOneMeetingAvailability(arg.meetingId);
-        		   BBBUtils.checkRecordingAvailability(arg.meetingId);
-                   BBBUtils.adjustFrameHeight();
-        	   });
-            
-               if(bbbInterval.meetings > 0) bbbCheckOneMeetingAvailabilityId = setInterval("BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbInterval.meetings);
-        	   //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbInterval.recordings);
-        	
-        	}else{
-        	   BBBUtils.hideMessage();
-        	   BBBUtils.showMessage(bbb_err_meeting_unavailable_instr, 'warning', bbb_err_meeting_unavailable, false);
-        	   BBBUtils.adjustFrameHeight();
-        	}
+			var meeting = BBBUtils.getMeeting(arg.meetingId);
+			BBBUtils.setMeetingPermissionParams(meeting);
+			BBBUtils.setMeetingInfoParams(meeting);
+			BBBUtils.setMeetingJoinableModeParams(meeting);
+
+			if (meeting) {
+				BBBUtils.render('bbb_meeting-info_template', {
+					'meeting' : meeting
+				}, 'bbb_content');
+				$(document).ready(function() {
+					BBBUtils.checkOneMeetingAvailability(arg.meetingId);
+					BBBUtils.checkRecordingAvailability(arg.meetingId);
+					BBBUtils.adjustFrameHeight();
+				});
+
+				if (bbbInterval.meetings > 0)
+					bbbCheckOneMeetingAvailabilityId = setInterval(	"BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbInterval.meetings);
+				    //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbInterval.recordings);
+
+			} else {
+				BBBUtils.hideMessage();
+				BBBUtils.showMessage(bbb_err_meeting_unavailable_instr,	'warning', bbb_err_meeting_unavailable, false);
+				BBBUtils.adjustFrameHeight();
+			}
         }else{
         	switchState('currentMeetings');
         }
