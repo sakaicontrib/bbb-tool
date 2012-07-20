@@ -109,7 +109,6 @@ var BBBUtils;
         // Consolidate date + time fields
         var startDate = null, endDate = null;
         var startMillis = 0, endMillis = 0;
-        console.debug("StartDate:");
         if(jQuery('#startDate1').attr('checked')) {
             var date = jQuery('#startDate2').datepick('getDate');
             var time = jQuery('#startTime').val().split(':');
@@ -118,18 +117,13 @@ var BBBUtils;
             startMillis += time[1] * 60 * 1000;
             date.setTime(startMillis);
             startMillis -= date.getTimezoneOffset() * 60 * 1000;
-
-            console.debug(startMillis);
-            
             startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
-            console.debug(startMillis);
             date.setTime(startMillis);
             jQuery('#startDate').val(startMillis);
         }else{
             jQuery('#startDate').removeAttr('name');
             jQuery('#addToCalendar').removeAttr('checked');
         }
-        console.debug("EndDate:");
         if(jQuery('#endDate1').attr('checked')) {
             var date = jQuery('#endDate2').datepick('getDate');
             var time = jQuery('#endTime').val().split(':');
@@ -138,11 +132,7 @@ var BBBUtils;
             endMillis += time[1] * 60 * 1000;
             date.setTime(endMillis);
             endMillis -= date.getTimezoneOffset() * 60 * 1000;
-            
-            console.debug(endMillis);
-
             endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
-            console.debug(endMillis);
             date.setTime(endMillis);
             jQuery('#endDate').val(endMillis);
         }else{

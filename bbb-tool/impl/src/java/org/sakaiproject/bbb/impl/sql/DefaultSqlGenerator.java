@@ -131,29 +131,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(5, meeting.getAttendeePassword());
         meetingST.setString(6, meeting.getModeratorPassword());
         meetingST.setString(7, meeting.getOwnerId());
-
-        logger.debug("JF: sourceStartDate=" + meeting.getStartDate().getTime() );
-        logger.debug("JF: sourceEndDate=" + meeting.getEndDate().getTime() );
-
-        //Take off the default server time zone. This is to set the time like a UTC in the database
-        TimeZone timeZone = TimeZone.getDefault();
-        long startTimeMs = meeting.getStartDate().getTime();
-        Date tzStartDate = new Date(startTimeMs - timeZone.getOffset(startTimeMs));
-        logger.debug("JF: tzStartDate=" + tzStartDate.toString() );
-        long endTimeMs = meeting.getEndDate().getTime();
-        Date tzEndDate = new Date(endTimeMs - timeZone.getOffset(endTimeMs));
-        logger.debug("JF: tzEndDate=" + tzEndDate.toString() );
-        //meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime()) );
-        //meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime()) );
-        //logger.info("JF: startDate.Timestamp=" + (meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime())) );
-        //logger.info("JF: endDate.Timestamp=" + (meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime())) );
-        //End the take off
-
         meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()) );
         meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
-        logger.debug("JF: startDate.Timestamp=" + (meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime())) );
-        logger.debug("JF: endDate.Timestamp=" + (meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime())) );
-
         meetingST.setBoolean(10, meeting.getRecording());
         meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
@@ -189,29 +168,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setString(4, meeting.getAttendeePassword());
         meetingST.setString(5, meeting.getModeratorPassword());
         meetingST.setString(6, meeting.getOwnerId());
-        
-        logger.debug("JF: sourceStartDate=" + meeting.getStartDate().getTime() );
-        logger.debug("JF: sourceEndDate=" + meeting.getEndDate().getTime() );
-
-        //Take off the default server time zone. This is to set the time like a UTC in the database
-        TimeZone timeZone = TimeZone.getDefault();
-        long startTimeMs = meeting.getStartDate().getTime();
-        Date tzStartDate = new Date(startTimeMs - timeZone.getOffset(startTimeMs));
-        logger.debug("JF: tzStartDate=" + tzStartDate.toString() );
-        long endTimeMs = meeting.getEndDate().getTime();
-        Date tzEndDate = new Date(endTimeMs - timeZone.getOffset(endTimeMs));
-        logger.debug("JF: tzEndDate=" + tzEndDate.toString() );
-        //meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime()) );
-        //meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime()) );
-        //logger.info("JF: startDate.Timestamp=" + (meeting.getStartDate() == null ? null: new Timestamp(tzStartDate.getTime())) );
-        //logger.info("JF: endDate.Timestamp=" + (meeting.getEndDate() == null ? null: new Timestamp(tzEndDate.getTime())) );
-        //End the take off
-
         meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()) );
         meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
-        logger.debug("JF: startDate.Timestamp=" + (meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime())) );
-        logger.debug("JF: endDate.Timestamp=" + (meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime())) );
-
         meetingST.setBoolean(9, meeting.getRecording());
         meetingST.setLong(10, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setString(11, XmlUtil.convertPropsToXml(meeting.getProps()));

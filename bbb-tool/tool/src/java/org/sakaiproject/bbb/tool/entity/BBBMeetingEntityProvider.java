@@ -189,9 +189,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		
 		BBBMeeting meeting = (BBBMeeting) entity;
 		
-		//logger.info("JF: startDate=" + meeting.getStartDate().getTime() );
-        //logger.info("JF: endDate=" + meeting.getEndDate().getTime() );
-        
 		// generate uuid
 		meeting.setId(idManager.createUuid());
 		
@@ -230,8 +227,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		if(logger.isDebugEnabled()) logger.debug("updateMeeting");
 		
 		BBBMeeting newMeeting = (BBBMeeting) entity;
-		logger.info("JF: startDate=" + newMeeting.getStartDate().getTime() );
-        logger.info("JF: endDate=" + newMeeting.getEndDate().getTime() );
 
 		try {
 			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
