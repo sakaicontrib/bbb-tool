@@ -156,19 +156,14 @@ public class BaseBBBAPI implements BBBAPI {
             query.append("&name=");
             query.append(URLEncoder.encode(meeting.getName(), getParametersEncoding()));
             query.append("&voiceBridge=");
-            Integer voiceBridge = 70000 + new Random().nextInt(10000);
-            query.append(voiceBridge);
+            query.append(meeting.getVoiceBridge());
             query.append("&dialNumber=");
-            query.append(voiceBridge);
+            query.append(meeting.getVoiceBridge());
             query.append("&attendeePW=");
-            String attendeePW = meeting.getAttendeePassword() != null && !"".equals(meeting.getAttendeePassword().trim()) 
-                    ? meeting.getAttendeePassword()
-                    : generatePassword();
+            String attendeePW = meeting.getAttendeePassword();
             query.append(attendeePW);
             query.append("&moderatorPW=");
-            String moderatorPW = meeting.getModeratorPassword() != null && !"".equals(meeting.getModeratorPassword().trim()) 
-                    ? meeting.getModeratorPassword()
-                    : generatePassword();
+            String moderatorPW = meeting.getModeratorPassword();
             query.append(moderatorPW);
             if (bbbAutocloseMeetingWindow) {
                 query.append("&logoutURL=");
@@ -216,9 +211,6 @@ public class BaseBBBAPI implements BBBAPI {
 
             // do API call
             Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString());
-            meeting.setAttendeePassword((String) response.get("attendeePW"));
-            meeting.setModeratorPassword((String) response.get("moderatorPW"));
-            meeting.setVoiceBridge(voiceBridge);
         } catch (BBBException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
