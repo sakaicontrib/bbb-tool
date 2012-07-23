@@ -794,6 +794,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 
     /** Generate a random password */
 	private String generatePassword() {
+	    Random randomGenerator = new Random(System.currentTimeMillis());
         return Long.toHexString(randomGenerator.nextLong());
     }
 	
