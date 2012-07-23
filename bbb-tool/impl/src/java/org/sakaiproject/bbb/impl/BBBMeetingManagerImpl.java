@@ -206,7 +206,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public BBBMeeting getMeeting(String meetingId) 
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
-        
+
         return processMeeting(meeting);
     }
 
@@ -445,13 +445,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             logger.warn("There is an error with the site in this meeting " + meeting.getSiteId() + ": " + e.getMessage(), e);
         }
 
-        Map<String, Object> serverTimeInUserTimezone = getServerTimeInUserTimezone();
-        Date now = new Date(Long.parseLong((String) serverTimeInUserTimezone.get("timestamp")));
+        Map<String, Object> serverTimeInDefaultTimezone = getServerTimeInDefaultTimezone();
+        Date now = new Date(Long.parseLong((String) serverTimeInDefaultTimezone.get("timestamp")));
         
-        boolean startOk = meeting.getStartDate() == null
-                || meeting.getStartDate().before(now);
-        boolean endOk = meeting.getEndDate() == null 
-                || meeting.getEndDate().after(now);
+        boolean startOk = meeting.getStartDate() == null || meeting.getStartDate().before(now);
+        boolean endOk = meeting.getEndDate() == null || meeting.getEndDate().after(now);
 
         if (!startOk)
             throw new BBBException(BBBException.MESSAGEKEY_NOTSTARTED, "Meeting has not started yet.");
