@@ -186,7 +186,6 @@ public class BBBAPIWrapper/* implements Runnable */{
     public boolean isMeetingRunning(String meetingID) 
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("isMeetingRunning()");
-
         
         if( bbbProxyMap.size() == 0 && !doLoadBBBProxyMap() ) 
             throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "No BigBlueButton server has been properly initialized" );

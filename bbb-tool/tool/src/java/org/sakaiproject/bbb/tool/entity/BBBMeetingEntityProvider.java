@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.Member;
@@ -211,6 +212,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		String notifyParticipantsStr = (String) params.get("notifyParticipants");
 		boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 		boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+
+		// generate passwords
+        meeting.setAttendeePassword(generatePassword());
+        meeting.setModeratorPassword(generatePassword());
+
+        // generate voiceBidge
+        Integer voiceBridge = 70000 + new Random().nextInt(10000);
+        meeting.setVoiceBridge(voiceBridge);
 
 		try {
 			if(!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
@@ -782,5 +791,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		}
 		return participants;
 	}
+
+    /** Generate a random password */
+	private String generatePassword() {
+	    Random randomGenerator = new Random(System.currentTimeMillis());
+        return Long.toHexString(randomGenerator.nextLong());
+    }
 	
 }
