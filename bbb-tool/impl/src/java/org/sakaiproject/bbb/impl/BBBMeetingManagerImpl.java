@@ -862,18 +862,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             } catch (UserNotDefinedException e1) {
                 meetingOwnerEid = meeting.getOwnerId();
             }
+            
             msg.append(msgs.getFormattedMessage("email.body.meeting_details",
                     new Object[] {
                             meeting.getName(),
                             meeting.getProps().getWelcomeMessage(),
                             meeting.getStartDate() == null ? "-"
                                     : meeting.getStartDate(),
-                                    //: convertDateToServerTimezone(meeting.getStartDate()),
-                                    //: convertDateFromServerTimezone(meeting.getStartDate()),
                             meeting.getEndDate() == null ? "-"
                                     : meeting.getEndDate(),
-                                    //: convertDateToServerTimezone(meeting.getEndDate()),
-                                    //: convertDateFromServerTimezone(meeting.getEndDate()),
                             meeting.getOwnerDisplayName() + " ("
                                     + meetingOwnerEid + ")" }));
             msg.append(msgs.getFormattedMessage("email.footer", new Object[] {
@@ -969,13 +966,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             // build time range (with dates on user timezone - calendar does conversion)
             
             Time startTime = timeService.newTime(meeting.getStartDate().getTime());
-            //Time startTime = timeService.newTime(convertDateToServerTimezone(meeting.getStartDate()).getTime());
-            //Time startTime = timeService.newTime(convertDateFromServerTimezone(meeting.getStartDate()).getTime());
             TimeRange range = null;
             if (meeting.getEndDate() != null) {
                 Time endTime = timeService.newTime(meeting.getEndDate().getTime());
-                //Time endTime = timeService.newTime(convertDateToServerTimezone(meeting.getEndDate()).getTime());
-                //Time endTime = timeService.newTime(convertDateFromServerTimezone(meeting.getEndDate()).getTime());
                 range = timeService.newTimeRange(startTime, endTime);
             } else {
                 range = timeService.newTimeRange(startTime);
@@ -1111,7 +1104,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return null;
     }
 
-    private Date convertDateFromUserTimezone(Date date) {
+    private Date convertDateFromCurrentUserTimezone(Date date) {
         if (date == null)
             return null;
 
@@ -1142,7 +1135,26 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return tzDate;
     }
 
-    private Date convertDateToUserTimezone(Date date) {
+    private Date convertDateToUserTimezone(Date date, String userid) {
+        if (date == null)
+            return null;
+
+        Preferences prefs = preferencesService.getPreferences(userid);
+        TimeZone timeZone = null;
+        if (prefs != null) {
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
+            String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
+            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr): TimeZone.getDefault();
+        } else {
+            timeZone = TimeZone.getDefault();
+        }
+        long timeMs = date.getTime();
+        Date tzDate = new Date(timeMs + timeZone.getOffset(timeMs));
+
+        return tzDate;
+    }
+
+    private Date convertDateToCurrentUserTimezone(Date date) {
         if (date == null)
             return null;
 
