@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -206,6 +207,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public BBBMeeting getMeeting(String meetingId) 
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
+
+        //Temporary patch for issue BBB-91
+        //Assigns a variable voiceBridge due the random one originaly generated is not stored
+        if(meeting.getVoiceBridge() == null ) {
+            Integer voiceBridge = 70000 + new Random().nextInt(10000);
+            meeting.setVoiceBridge(voiceBridge);
+        }
 
         return processMeeting(meeting);
     }
@@ -888,8 +896,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                         for (User emailRecipient : emailRecipients) {
                             if (emailRecipient.getEmail() != null && !emailRecipient.getEmail().trim().equals("")) {
                                 EmailMessage email = new EmailMessage();
-                                email.setFrom(new EmailAddress("no-reply@" + serverConfigurationService.getServerName(),
-                                        serverConfigurationService.getString("ui.institution")));
+                                email.setFrom(new EmailAddress("no-reply@" + serverConfigurationService.getServerName(), serverConfigurationService.getString("ui.institution")));
                                 email.setRecipients(RecipientType.TO, Arrays.asList(new EmailAddress(emailRecipient.getEmail(), emailRecipient.getDisplayName())));
                                 email.addHeader("Content-Type", "text/html; charset=ISO-8859-1");
                                 email.setContentType(ContentType.TEXT_HTML);
