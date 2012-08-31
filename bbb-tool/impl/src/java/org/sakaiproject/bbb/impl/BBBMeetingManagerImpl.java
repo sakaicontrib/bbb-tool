@@ -208,8 +208,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
-        //Temporary patch for issue BBB-91
-        //Assigns a variable voiceBridge due the random one originaly generated is not stored
+        //Assigns a voicebridge number in case the random one originaly generated is not stored 
         if(meeting.getVoiceBridge() == null ) {
             Integer voiceBridge = 70000 + new Random().nextInt(10000);
             meeting.setVoiceBridge(voiceBridge);
@@ -466,13 +465,16 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // Add the metadata to be used in case of create
         Map<String, String> tmpMeta = meeting.getMeta();
-        if( !tmpMeta.containsKey("originApp")) tmpMeta.put("originApp", serverConfigurationService.getString("version.sakai", ""));
+        if( !tmpMeta.containsKey("origin")) tmpMeta.put("origin", "Sakai");
+        if( !tmpMeta.containsKey("originVersion")) tmpMeta.put("originVersion", serverConfigurationService.getString("version.sakai", ""));
         ResourceLoader toolParameters = new ResourceLoader("Tool");
-        if( !tmpMeta.containsKey("originServerId")) tmpMeta.put("originServerId", "Sakai[" + serverConfigurationService.getString("version.sakai", "") + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb_version") + '_' + toolParameters.getString("bbb_buildSerial") + "]" );
+        if( !tmpMeta.containsKey("originServerCommonName")) tmpMeta.put("originServerCommonName", serverConfigurationService.getServerName() );
         if( !tmpMeta.containsKey("originServerUrl")) tmpMeta.put("originServerUrl", serverConfigurationService.getServerUrl().toString() );
-        if( !tmpMeta.containsKey("originServerName")) tmpMeta.put("originServerName", serverConfigurationService.getServerName() );
-        if( !tmpMeta.containsKey("siteId")) tmpMeta.put("siteId", meeting.getSiteId() );
-        if( !tmpMeta.containsKey("siteName")) tmpMeta.put("siteName", siteService.getSiteDisplay(meeting.getSiteId()) );
+        if( !tmpMeta.containsKey("originTag")) tmpMeta.put("originTag", "Sakai[" + serverConfigurationService.getString("version.sakai", "") + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb_version") + '_' + toolParameters.getString("bbb_buildSerial") + "]" );
+        if( !tmpMeta.containsKey("context")) tmpMeta.put("context", siteService.getSiteDisplay(meeting.getSiteId()) );
+        if( !tmpMeta.containsKey("contextId")) tmpMeta.put("contextId", meeting.getSiteId() );
+        if( !tmpMeta.containsKey("contextActivity")) tmpMeta.put("contextActivity", meeting.getName() );
+        if( !tmpMeta.containsKey("contextActivityDescription")) tmpMeta.put("contextActivityDescription", meeting.getRecordingDescription() );
 
         Map<String, User> attendees = new HashMap<String, User>();
         Map<String, User> moderators = new HashMap<String, User>();
@@ -488,7 +490,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
 
-        if( !tmpMeta.containsKey("meetingModerator")){
+        if( !tmpMeta.containsKey("meetingModerators")){
             String meetingModerator = "";
             for( Map.Entry<String, User> e: moderators.entrySet()){
                 if( meetingModerator.length() > 0 ) meetingModerator += ", ";
@@ -498,7 +500,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             tmpMeta.put("meetingModerator", meetingModerator);
 
         }
-        if( !tmpMeta.containsKey("meetingAttendee")){
+        if( !tmpMeta.containsKey("meetingAttendees")){
             String meetingAttendee = "";
             for( Map.Entry<String, User> e: attendees.entrySet()){
                 if( meetingAttendee.length() > 0 ) meetingAttendee += ", ";
