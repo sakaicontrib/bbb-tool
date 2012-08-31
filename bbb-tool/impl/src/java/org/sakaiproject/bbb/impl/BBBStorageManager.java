@@ -354,6 +354,8 @@ public class BBBStorageManager {
             meeting.setEndDate(meetingRS.getTimestamp("END_DATE"));
             meeting.setRecording(meetingRS.getBoolean("RECORDING"));
             meeting.setRecordingDuration(meetingRS.getLong("RECORDING_DURATION"));
+            meeting.setRecordingDuration(meetingRS.getLong("RECORDING_DURATION"));
+            meeting.setVoiceBridge(meetingRS.getInt("VOICE_BRIDGE"));
             meeting.setProps(XmlUtil.convertXmlToProps(meetingRS.getString("PROPERTIES")));
             meeting.setDeleted(meetingRS.getBoolean("DELETED"));
             String particpantSql = sqlGenerator.getSelectMeetingParticipantsStatement(meeting.getId());
