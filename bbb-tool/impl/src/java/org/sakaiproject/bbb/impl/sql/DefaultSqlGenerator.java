@@ -68,6 +68,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
                 "END_DATE " + TIMESTAMP + ", " +
                 "RECORDING " + BOOL + ", " +
                 "RECORDING_DURATION " + INT + ", " +
+                "VOICE_BRIDGE " + INT + ", " +
                 "PROPERTIES " + TEXT + ", " +
                 "DELETED " + INT + " DEFAULT 0 NOT NULL," +
                 "CONSTRAINT bbb_meeting_pk PRIMARY KEY (MEETING_ID))");
@@ -105,6 +106,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL AFTER PROPERTIES;");
         statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
         		"ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
+        statements.put("BBB_MEETING:VOICE_BRIDGE:ADD", 
+                "ALTER TABLE BBB_MEETING ADD COLUMN VOICE_BRIDGE " + INT + " AFTER RECORDING_DURATION;"); 
         
         return statements;
     }
@@ -122,8 +125,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING " +
-        		"(MEETING_ID, NAME, HOST_URL, SITE_ID, ATTENDEE_PW, MODERATOR_PW, OWNER_ID, START_DATE, END_DATE, RECORDING, RECORDING_DURATION, PROPERTIES, DELETED)" +
-        		" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        		"(MEETING_ID, NAME, HOST_URL, SITE_ID, ATTENDEE_PW, MODERATOR_PW, OWNER_ID, START_DATE, END_DATE, RECORDING, RECORDING_DURATION, VOICE_BRIDGE, PROPERTIES, DELETED)" +
+        		" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         meetingST.setString(1, meeting.getId());
         meetingST.setString(2, meeting.getName());
         meetingST.setString(3, meeting.getHostUrl());
@@ -135,8 +138,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
         meetingST.setBoolean(10, meeting.getRecording());
         meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
-        meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
-        meetingST.setString(13, NODELETED);
+        meetingST.setLong(12, meeting.getVoiceBridge() );
+        meetingST.setString(13, XmlUtil.convertPropsToXml(meeting.getProps()));
+        meetingST.setString(14, NODELETED);
 
         statements.add(meetingST);
 

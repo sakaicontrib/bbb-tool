@@ -767,7 +767,7 @@ var BBBUtils;
             async : false,
             success : function(userPermissions) {
             	if(userPermissions != null) perms = userPermissions.data;
-            	if(bbbCurrentUser.id == 'admin') perms.push("bbb.admin");
+            	if(bbbCurrentUser.id == 'admin' || perms.indexOf('site.upd') >= 0 ) perms.push("bbb.admin");
             },
             error : function(xmlHttpRequest,status,error) {
             	if(bbbCurrentUser.id == 'admin') {
@@ -1005,17 +1005,6 @@ var BBBUtils;
 	        jQuery('html, body').animate({scrollTop:0}, 'slow');
 			
     	}
-
-/*		
-    	if( !bbbErrorLog[getRecordingResponse.messageKey] ){
-			bbbErrorLog[getRecordingResponse.messageKey] = true;
-			bbbErrorLog.keys[bbbErrorLog.keys.length] = getRecordingResponse.messageKey + ":" + getRecordingResponse.message;
-		}
-        for(var i=0;i<bbbErrorLog.keys.length;i++) {
-        	BBBUtils.showMessage(bbbErrorLog.keys[i], 'warning');
-        }
-*/
-        
     }
         
     /** Hide message box */
@@ -1134,6 +1123,17 @@ var BBBUtils;
 
 
 /** Protoypes */
+if(!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function(needle) {
+        for(var i = 0; i < this.length; i++) {
+            if(this[i] === needle) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+
 Array.prototype.indexOfMeeting=function(meeting){
     if(meeting && meeting.id) {
         for (var i=0; i<this.length; i++){

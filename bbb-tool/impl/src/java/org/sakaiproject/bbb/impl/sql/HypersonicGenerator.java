@@ -58,6 +58,8 @@ public class HypersonicGenerator extends DefaultSqlGenerator
         		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL;");
         statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
         		"ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
+        statements.put("BBB_MEETING:VOICE_BRIDGE:ADD", 
+                "ALTER TABLE BBB_MEETING ADD COLUMN VOICE_BRIDGE " + INT + " BEFORE PROPERTIES;"); 
         
         return statements;
     }
