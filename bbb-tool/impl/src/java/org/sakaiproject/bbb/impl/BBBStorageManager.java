@@ -24,6 +24,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.bbb.api.BBBMeeting;
@@ -328,6 +329,12 @@ public class BBBStorageManager {
             }
 
             sqlService.returnConnection(connection);
+        }
+
+        //Assigns a voicebridge number in case the random one originaly generated is not stored
+        if(meeting.getVoiceBridge() == null || meeting.getVoiceBridge() == 0) {
+            Integer voiceBridge = 70000 + new Random().nextInt(10000);
+            meeting.setVoiceBridge(voiceBridge);
         }
 
         return meeting;
