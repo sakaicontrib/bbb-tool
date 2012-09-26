@@ -213,9 +213,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 		boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
 		boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
 
-		// generate passwords
+		// generate differentiated passwords
         meeting.setAttendeePassword(generatePassword());
-        meeting.setModeratorPassword(generatePassword());
+        do{
+            meeting.setModeratorPassword(generatePassword());
+        } while(meeting.getAttendeePassword().equals(meeting.getModeratorPassword()) );
 
         // generate voiceBidge
         Integer voiceBridge = 70000 + new Random().nextInt(10000);
