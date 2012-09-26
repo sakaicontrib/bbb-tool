@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -208,12 +207,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
-        //Assigns a voicebridge number in case the random one originaly generated is not stored 
-        if(meeting.getVoiceBridge() == null ) {
-            Integer voiceBridge = 70000 + new Random().nextInt(10000);
-            meeting.setVoiceBridge(voiceBridge);
-        }
-
         return processMeeting(meeting);
     }
 
@@ -237,7 +230,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
             throws SecurityException, BBBException {
         if (!getCanCreate(meeting.getSiteId())) {
-            throw new SecurityException("You are not allow to create meetings in this site");
+            throw new SecurityException("You are not allowed to create meetings in this site");
         }
 
         // create meeting in BBB
@@ -246,7 +239,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         } catch( Exception e) {
             
         }
-
 
         // store locally, in DB
         if (storageManager.storeMeeting(meeting)) {
