@@ -629,19 +629,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         Map<String, Object> responseMap = new HashMap<String,Object>();
         
         Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
-        TimeZone timeZone = null;
+        TimeZone timeZone = TimeZone.getDefault();
         if (prefs != null) {
             ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
             String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
-            timeZone = timeZoneStr != null ? TimeZone.getTimeZone(timeZoneStr): TimeZone.getDefault();
-        } else {
-            timeZone = TimeZone.getDefault();
+            if( timeZoneStr != null ) 
+                timeZone = TimeZone.getTimeZone(timeZoneStr);
         }
 
-        long timeMs = System.currentTimeMillis();
-        timeMs =  timeMs                                   // server time in millis
-                + timeZone.getOffset(timeMs)               // user timezone offset
-                - TimeZone.getDefault().getOffset(timeMs); // server timezone offset
+        long timeMs = getTimeInTimezone(new Date(System.currentTimeMillis()), timeZone).getTime();
         
         responseMap.put("timestamp", "" + timeMs);
         responseMap.put("timezone", "" + timeZone.getDisplayName() );
@@ -658,10 +654,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         
         TimeZone timeZone = TimeZone.getDefault();
 
-        long timeMs = System.currentTimeMillis();
-        timeMs =  timeMs                                   // server time in millis
-                + timeZone.getOffset(timeMs)               // user timezone offset
-                - TimeZone.getDefault().getOffset(timeMs); // server timezone offset
+        long timeMs = getTimeInTimezone(new Date(System.currentTimeMillis()), timeZone).getTime();
         
         responseMap.put("timestamp", "" + timeMs);
         responseMap.put("timezone", "" + timeZone.getDisplayName() );
@@ -672,6 +665,38 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return responseMap;
     }
 
+    private Date getTimeInUserTimezone(Date time, String userId) {
+
+        Preferences prefs = preferencesService.getPreferences(userId);
+        TimeZone timeZone = TimeZone.getDefault();
+        if (prefs != null) {
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
+            String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
+            if( timeZoneStr != null ) 
+                timeZone = TimeZone.getTimeZone(timeZoneStr);
+        }
+
+        return getTimeInTimezone(time, timeZone);
+    }
+
+    private Date getTimeInDefaultTimezone(Date time) {
+
+        TimeZone timeZone = TimeZone.getDefault();
+
+        return getTimeInTimezone(time, timeZone);
+    }
+
+    private Date getTimeInTimezone(Date time, TimeZone timeZone) {
+
+        long timeMs = time.getTime();
+        timeMs =  timeMs                                   // server time in millis
+                + timeZone.getOffset(timeMs)               // user timezone offset
+                - TimeZone.getDefault().getOffset(timeMs); // server timezone offset
+        
+        return new Date(timeMs);
+    }
+
+    
     public Map<String, Object> getToolVersion() {
         
         Map<String, Object> responseMap = new HashMap<String,Object>();
@@ -767,18 +792,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         String directToolJoinUrl = getDirectToolJoinUrl(meeting);
 
         // Meeting participants
-        Map<String, Set<User>> meetingUsers = new HashMap<String, Set<User>>();
+        Set<User> meetingUsers = new HashSet<User>();
         for (Participant p : meeting.getParticipants()) {
             if (Participant.SELECTION_ALL.equals(p.getSelectionType())) {
                 Set<String> siteUserIds = site.getUsers();
                 for (String userId : siteUserIds) {
                     try {
-                        String userLocale = getUserLocale(userId);
-                        Set<User> localeUsers = meetingUsers.get(userLocale);
-                        if (localeUsers == null)
-                            localeUsers = new HashSet<User>();
-                        localeUsers.add(userDirectoryService.getUser(userId));
-                        meetingUsers.put(userLocale, localeUsers);
+                        meetingUsers.add(userDirectoryService.getUser(userId));
                     } catch (UserNotDefinedException e) {
                         logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                     }
@@ -790,12 +810,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 Set<String> groupUserIds = group.getUsers();
                 for (String userId : groupUserIds) {
                     try {
-                        String userLocale = getUserLocale(userId);
-                        Set<User> localeUsers = meetingUsers.get(userLocale);
-                        if (localeUsers == null)
-                            localeUsers = new HashSet<User>();
-                        localeUsers.add(userDirectoryService.getUser(userId));
-                        meetingUsers.put(userLocale, localeUsers);
+                        meetingUsers.add(userDirectoryService.getUser(userId));
                     } catch (UserNotDefinedException e) {
                         logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                     }
@@ -805,51 +820,42 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 Set<String> roleUserIds = site.getUsersHasRole(p.getSelectionId());
                 for (String userId : roleUserIds) {
                     try {
-                        String userLocale = getUserLocale(userId);
-                        Set<User> localeUsers = meetingUsers.get(userLocale);
-                        if (localeUsers == null)
-                            localeUsers = new HashSet<User>();
-                        localeUsers.add(userDirectoryService.getUser(userId));
-                        meetingUsers.put(userLocale, localeUsers);
+                        meetingUsers.add(userDirectoryService.getUser(userId));
                     } catch (UserNotDefinedException e) {
                         logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                     }
                 }
             }
             if (Participant.SELECTION_USER.equals(p.getSelectionType())) {
+                String userId = p.getSelectionId();
                 try {
-                    String userId = p.getSelectionId();
-                    String userLocale = getUserLocale(userId);
-                    Set<User> localeUsers = meetingUsers.get(userLocale);
-                    if (localeUsers == null)
-                        localeUsers = new HashSet<User>();
-                    localeUsers.add(userDirectoryService.getUser(userId));
-                    meetingUsers.put(userLocale, localeUsers);
+                    meetingUsers.add(userDirectoryService.getUser(userId));
                 } catch (UserNotDefinedException e) {
-                    logger.warn("Unable to notify user '" + p.getSelectionId() + "' about '" + meeting.getName() + "' meeting.", e);
+                    logger.warn("Unable to notify user '" + userId + "' about '" + meeting.getName() + "' meeting.", e);
                 }
             }
         }
 
-        // generate an ical to attach to email (if, at least, start date is
-        // defined)
+        // generate an ical to attach to email (if, at least, start date is defined)
         String icalFilename = generateIcalFromMeeting(meeting);
         final File icalFile = icalFilename != null ? new File(icalFilename): null;
         if (icalFile != null)
             icalFile.deleteOnExit();
 
+        ResourceLoader msgs = null;
         // iterate over all user locales found
-        for (String locale : meetingUsers.keySet()) {
-            logger.debug("Sending " + locale + " notifications to " + meetingUsers.get(locale).size() + " users.");
-            String sampleUserId = meetingUsers.get(locale).iterator().next().getId();
-            //ResourceLoader msgs = new ResourceLoader(sampleUserId, "EmailNotification");
-            ResourceLoader msgs = null;
-            if (true == isNewMeeting) {
-            	msgs = new ResourceLoader(sampleUserId, "EmailNotification");
-            } else {
-            	msgs = new ResourceLoader(sampleUserId, "EmailNotificationUpdate");
-            }
+        logger.debug("Sending notifications to " + meetingUsers.size() + " users.");
+        for( User user : meetingUsers){
+            String userId = user.getId();
+            logger.debug("User: " + userId);
+            String userLocale = getUserLocale(userId);
 
+            if (true == isNewMeeting) {
+                msgs = new ResourceLoader(userId, "EmailNotification");
+            } else {
+                msgs = new ResourceLoader(userId, "EmailNotificationUpdate");
+            }
+            
             // Email message
             final String emailTitle = msgs.getFormattedMessage("email.title", new Object[] { siteTitle, meeting.getName() });
             StringBuilder msg = new StringBuilder();
@@ -864,54 +870,50 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             } catch (UserNotDefinedException e1) {
                 meetingOwnerEid = meeting.getOwnerId();
             }
-            
+
             msg.append(msgs.getFormattedMessage("email.body.meeting_details",
                     new Object[] {
                             meeting.getName(),
                             meeting.getProps().getWelcomeMessage(),
-                            meeting.getStartDate() == null ? "-"
-                                    : meeting.getStartDate(),
-                            meeting.getEndDate() == null ? "-"
-                                    : meeting.getEndDate(),
-                            meeting.getOwnerDisplayName() + " ("
-                                    + meetingOwnerEid + ")" }));
+                            meeting.getStartDate() == null ? "-" : getTimeInUserTimezone(meeting.getStartDate(), userId),
+                            meeting.getEndDate() == null ? "-" : getTimeInUserTimezone(meeting.getEndDate(), userId),
+                            meeting.getOwnerDisplayName() + " (" + meetingOwnerEid + ")" }));
             msg.append(msgs.getFormattedMessage("email.footer", new Object[] {
                     serverConfigurationService.getString("ui.institution"),
                     serverConfigurationService.getServerUrl() + "/portal",
                     siteTitle }));
 
-            // Send (a single) email (per locale)!
+            // Send (a single) email (per userId)!
             final String emailMessage = msg.toString();
-            final Set<User> emailRecipients = meetingUsers.get(locale);
-
+            final User emailRecipients = user;
             try {
                 new Thread(new Runnable() {
                     public void run() {
-                        for (User emailRecipient : emailRecipients) {
-                            if (emailRecipient.getEmail() != null && !emailRecipient.getEmail().trim().equals("")) {
-                                EmailMessage email = new EmailMessage();
-                                email.setFrom(new EmailAddress("no-reply@" + serverConfigurationService.getServerName(), serverConfigurationService.getString("ui.institution")));
-                                email.setRecipients(RecipientType.TO, Arrays.asList(new EmailAddress(emailRecipient.getEmail(), emailRecipient.getDisplayName())));
-                                email.addHeader("Content-Type", "text/html; charset=ISO-8859-1");
-                                email.setContentType(ContentType.TEXT_HTML);
-                                email.setSubject(emailTitle);
-                                email.setBody(emailMessage);
-                                if (icalFile != null && icalFile.canRead()) {
-                                    email.addAttachment(new Attachment( icalFile, "Calendar_Event.ics"));
-                                }
-                                try {
-                                    emailService.send(email);
-                                } catch (Exception e) {
-                                    logger.warn("Unable to send email notification to " + emailRecipient.getEmail() + " about new BBB meeting", e);
-                                }
+                        if (emailRecipients.getEmail() != null && !emailRecipients.getEmail().trim().equals("")) {
+                            EmailMessage email = new EmailMessage();
+                            email.setFrom(new EmailAddress("no-reply@"+ serverConfigurationService.getServerName(), serverConfigurationService.getString("ui.institution")));
+                            email.setRecipients(RecipientType.TO, Arrays.asList(new EmailAddress(emailRecipients.getEmail(), emailRecipients.getDisplayName())));
+                            email.addHeader("Content-Type", "text/html; charset=ISO-8859-1");
+                            email.setContentType(ContentType.TEXT_HTML);
+                            email.setSubject(emailTitle);
+                            email.setBody(emailMessage);
+                            if (icalFile != null && icalFile.canRead()) {
+                                email.addAttachment(new Attachment(icalFile, "Calendar_Event.ics"));
+                            }
+                            try {
+                                emailService.send(email);
+                            } catch (Exception e) {
+                                logger.warn("Unable to send email notification to " + emailRecipients.getEmail() + " about new BBB meeting", e);
                             }
                         }
                     }
                 }).start();
             } catch (Exception e) {
-                logger.error("Unable to send " + locale + " notifications for '" + meeting.getName() + "' meeting participants.", e);
+                logger.error("Unable to send " + userLocale + " notifications for '" + meeting.getName() + "' meeting participants.", e);
             }
+            
         }
+        
     }
 
     private String getUserLocale(String userId) {
