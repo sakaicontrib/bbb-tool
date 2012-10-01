@@ -53,9 +53,6 @@ public class BBBMeeting implements Entity {
 	private Long recordingDuration = null;
 	private String recordingEmail = null;
 	
-    private Long openDate = null;
-    private Long closeDate = null;
-
 	private Map<String, String> meta = new HashMap<String, String>();
 	
 	@Getter (AccessLevel.NONE)
