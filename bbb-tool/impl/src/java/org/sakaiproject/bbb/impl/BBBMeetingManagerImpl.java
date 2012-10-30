@@ -468,6 +468,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if( !tmpMeta.containsKey("contextActivity")) tmpMeta.put("contextActivity", meeting.getName() );
         if( !tmpMeta.containsKey("contextActivityDescription")) tmpMeta.put("contextActivityDescription", meeting.getRecordingDescription() );
 
+        /*
+         * //////////////////////////////////////////////////////////////////////////////////////////////////
+         * //This implementation will work only for a small number of users enrolled (teachers or students)
+         * //this is beacuse the long a GET call can be is limited by the configuration of the Webserver 
+         * //////////////////////////////////////////////////////////////////////////////////////////////////
+         * 
+
         Map<String, User> attendees = new HashMap<String, User>();
         Map<String, User> moderators = new HashMap<String, User>();
         List<Participant> participants = meeting.getParticipants();
@@ -502,6 +509,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             tmpMeta.put("meetingAttendee", meetingAttendee);
 
         }
+        */
         // Metadata ends
         
 

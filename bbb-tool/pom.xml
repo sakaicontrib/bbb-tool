@@ -14,7 +14,7 @@
 	<name>BigBlueButton</name>
 	<groupId>org.sakaiproject.bbb</groupId>
 	<artifactId>bbb</artifactId>
-    <version>1.0.7-rc3</version>
+    <version>1.0.7-rc4</version>
     <description>Sakai BigBlueButton integrates a Sakai instance with a BigBlueButton server, allowing Sakai users to easily create and join BigBlueButton meetings from a Sakai worksite and access playback recording.</description>
     
     <url>http://confluence.sakaiproject.org/confluence/display/BBB</url>
