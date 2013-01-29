@@ -220,8 +220,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
         } while(meeting.getAttendeePassword().equals(meeting.getModeratorPassword()) );
 
         // generate voiceBidge
-        Integer voiceBridge = 70000 + new Random().nextInt(10000);
-        meeting.setVoiceBridge(voiceBridge);
+        String voiceBridgeStr = (String) params.get("voiceBridge");
+        logger.debug("voiceBridgeStr:" + voiceBridgeStr);
+        if( voiceBridgeStr == null || voiceBridgeStr.equals("") || Integer.parseInt(voiceBridgeStr) == 0 ) {
+            Integer voiceBridge = 70000 + new Random().nextInt(10000);
+            meeting.setVoiceBridge(voiceBridge);
+        } else {
+            meeting.setVoiceBridge(Integer.valueOf(voiceBridgeStr));
+        }
 
 		try {
 			if(!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
@@ -262,7 +268,16 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			if(recordingDurationStr != null) meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
 			else meeting.setRecordingDuration(0L);
 
-			// update dates
+            // update voiceBridge
+            String voiceBridgeStr = (String) params.get("voiceBridge");
+            if( voiceBridgeStr == null || voiceBridgeStr.equals("") || Integer.parseInt(voiceBridgeStr) == 0 ) {
+                Integer voiceBridge = 70000 + new Random().nextInt(10000);
+                meeting.setVoiceBridge(voiceBridge);
+            } else {
+                meeting.setVoiceBridge(Integer.valueOf(voiceBridgeStr));
+            }
+
+            // update dates
 			if(params.get("startDate") != null) meeting.setStartDate(newMeeting.getStartDate());
 			else meeting.setStartDate(null);
 			if(params.get("endDate") != null) meeting.setEndDate(newMeeting.getEndDate());

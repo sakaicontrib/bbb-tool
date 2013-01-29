@@ -240,7 +240,7 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">${bbb_info_title}</td>
         <td>
-            <input id="bbb_meeting_name_field" name="name" type="text" {if !isNew}value="${meeting.name}"{/if}/>
+            <input id="bbb_meeting_name_field" name="name" type="text" {if !isNew}value="${meeting.name}"{/if} style="width: 400px;" />
         </td>
       </tr>
       <tr>
@@ -261,7 +261,13 @@ $(document).ready(function(){
       <tr>
         <td class="lbl">${bbb_info_duration}</td>
         <td>
-            <input id="recordingDuration" name="recordingDuration" type="text" value="${meeting.recordingDuration}" class="time-picker-field"/>&nbsp;${bbb_info_recording_duration_units}
+            <input id="recordingDuration" name="recordingDuration" type="text" value="${meeting.recordingDuration}" style="width: 35px;" />&nbsp;${bbb_info_recording_duration_units}
+        </td>
+      </tr>
+      <tr>
+        <td class="lbl">${bbb_info_voicebridge}</td>
+        <td>
+            <input id="voiceBridge" name="voiceBridge" type="text" value="${meeting.voiceBridge}" style="width: 45px;" />
         </td>
       </tr>
     </table>

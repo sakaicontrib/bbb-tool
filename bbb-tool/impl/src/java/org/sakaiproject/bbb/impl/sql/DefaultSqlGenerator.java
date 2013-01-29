@@ -165,7 +165,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection
-                .prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, RECORDING=?, RECORDING_DURATION=?, PROPERTIES=? WHERE MEETING_ID=?");
+                .prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, RECORDING=?, RECORDING_DURATION=?, VOICE_BRIDGE=?, PROPERTIES=? WHERE MEETING_ID=?");
         meetingST.setString(1, meeting.getName());
         meetingST.setString(2, meeting.getSiteId());
         meetingST.setString(3, meeting.getHostUrl());
@@ -176,8 +176,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
         meetingST.setBoolean(9, meeting.getRecording());
         meetingST.setLong(10, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
-        meetingST.setString(11, XmlUtil.convertPropsToXml(meeting.getProps()));
-        meetingST.setString(12, meeting.getId());
+        meetingST.setLong(11, meeting.getVoiceBridge() );
+        meetingST.setString(12, XmlUtil.convertPropsToXml(meeting.getProps()));
+        meetingST.setString(13, meeting.getId());
 
         statements.add(meetingST);
 
