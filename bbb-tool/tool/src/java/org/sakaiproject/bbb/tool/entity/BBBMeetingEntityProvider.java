@@ -268,13 +268,15 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
 			if(recordingDurationStr != null) meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
 			else meeting.setRecordingDuration(0L);
 
-            // update voiceBridge
+            // update voiceBridge only if the voiceBridge parameter is sent from the view to the controller
             String voiceBridgeStr = (String) params.get("voiceBridge");
-            if( voiceBridgeStr == null || voiceBridgeStr.equals("") || Integer.parseInt(voiceBridgeStr) == 0 ) {
-                Integer voiceBridge = 70000 + new Random().nextInt(10000);
-                meeting.setVoiceBridge(voiceBridge);
-            } else {
-                meeting.setVoiceBridge(Integer.valueOf(voiceBridgeStr));
+            if( voiceBridgeStr != null ) {
+                if( voiceBridgeStr.equals("") || Integer.parseInt(voiceBridgeStr) == 0 ) {
+                    Integer voiceBridge = 70000 + new Random().nextInt(10000);
+                    meeting.setVoiceBridge(voiceBridge);
+                } else {
+                    meeting.setVoiceBridge(Integer.valueOf(voiceBridgeStr));
+                }
             }
 
             // update dates

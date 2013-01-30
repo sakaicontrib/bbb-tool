@@ -157,8 +157,6 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(URLEncoder.encode(meeting.getName(), getParametersEncoding()));
             query.append("&voiceBridge=");
             query.append(meeting.getVoiceBridge());
-            query.append("&dialNumber=");
-            query.append(meeting.getVoiceBridge());
             query.append("&attendeePW=");
             String attendeePW = meeting.getAttendeePassword();
             query.append(attendeePW);
@@ -199,10 +197,13 @@ public class BaseBBBAPI implements BBBAPI {
 
             // Composed Welcome message
             String welcomeMessage = meeting.getProps().getWelcomeMessage();
+            if ( "<br />".equals(welcomeMessage) )
+                welcomeMessage = "Welcome to <b>%%CONFNAME%%</b>!";
+            welcomeMessage += "<br><br>For help on using BigBlueButton see these (short) <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting:<br>&nbsp;&nbsp;(1) click the headset icon in the upper-left <b>(please use a headset to avoid causing noise for others)</b>, or<br>&nbsp;&nbsp;(2) dial %%DIALNUM%% and enter conference ID: %%CONFNUM%%";
             if (recording == "true")
-                welcomeMessage = welcomeMessage + "<br><br><b>This session is being recorded.</b>";
+                welcomeMessage += "<br><br><b>This session is being recorded.</b>";
             if (duration.compareTo("0") > 0)
-                welcomeMessage = welcomeMessage.concat("<br><br><b>The maximum duration for this session is " + duration + " minutes.");
+                welcomeMessage += "<br><br><b>The maximum duration for this session is " + duration + " minutes.";
 
             query.append("&welcome=");
             query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
