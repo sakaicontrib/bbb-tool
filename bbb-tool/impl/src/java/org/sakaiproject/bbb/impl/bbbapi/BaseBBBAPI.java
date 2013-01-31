@@ -196,15 +196,20 @@ public class BaseBBBAPI implements BBBAPI {
             // BSN: Ends
 
             // Composed Welcome message
-            String welcomeMessage = meeting.getProps().getWelcomeMessage();
-            if ( "<br />".equals(welcomeMessage) )
-                welcomeMessage = "Welcome to <b>%%CONFNAME%%</b>!";
-            welcomeMessage += "<br><br>For help on using BigBlueButton see these (short) <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting:<br>&nbsp;&nbsp;(1) click the headset icon in the upper-left <b>(please use a headset to avoid causing noise for others)</b>, or<br>&nbsp;&nbsp;(2) dial %%DIALNUM%% and enter conference ID: %%CONFNUM%%";
-            if (recording == "true")
-                welcomeMessage += "<br><br><b>This session is being recorded.</b>";
-            if (duration.compareTo("0") > 0)
-                welcomeMessage += "<br><br><b>The maximum duration for this session is " + duration + " minutes.";
+            ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
+            String welcomeMessage = toolMessages.getFormattedMessage("bbb_welcome_message_opening", new Object[] { "<b>%%CONFNAME%%</b>" } );
 
+            String welcomeDescription = meeting.getProps().getWelcomeMessage();
+            if ( !"<br />".equals(welcomeDescription) )
+                welcomeMessage += "<br><br>" + welcomeDescription;
+            
+            welcomeMessage += "<br><br>" + toolMessages.getFormattedMessage("bbb_welcome_message_general_info", new Object[] {toolMessages.getString("bbb_welcome_message_external_link"), "%%DIALNUM%%", "%%CONFNUM%%"} );
+            
+            if (recording == "true")
+                welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_recording_warning", new Object[] {} ) + "</b>";
+            if (duration.compareTo("0") > 0)
+                welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_duration_warning", new Object[] { duration });
+            
             query.append("&welcome=");
             query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
 
