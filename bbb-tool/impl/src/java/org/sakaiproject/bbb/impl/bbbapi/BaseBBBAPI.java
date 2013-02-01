@@ -148,6 +148,7 @@ public class BaseBBBAPI implements BBBAPI {
     /** Create a meeting on BBB server */
     public BBBMeeting createMeeting(final BBBMeeting meeting)
             throws BBBException {
+
         try {
             // build query
             StringBuilder query = new StringBuilder();
@@ -209,7 +210,7 @@ public class BaseBBBAPI implements BBBAPI {
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_recording_warning", new Object[] {} ) + "</b>";
             if (duration.compareTo("0") > 0)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_duration_warning", new Object[] { duration });
-            
+
             query.append("&welcome=");
             query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
 
