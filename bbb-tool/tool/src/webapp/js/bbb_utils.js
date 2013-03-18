@@ -1195,8 +1195,8 @@ Date.prototype.toISO8601String = function (format, offset) {
     var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
 
     var str = "";
-    str += date.getUTCFullYear();
-    if (format > 1) { str += "-" + zeropad(date.getUTCMonth() + 1); }
+    str += date.getFullYear();
+    if (format > 1) { str += "-" + zeropad(date.getMonth() + 1); }
     if (format > 2) {
         if(format == 6) {
             str += "-" + zeropad(date.getDate());
