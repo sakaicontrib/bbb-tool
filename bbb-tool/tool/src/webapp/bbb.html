@@ -66,6 +66,18 @@ $(document).ready(function(){
             });
         }
     });
+    // Load language for datapick
+    lang = arg['language'].split("_");
+    if( lang[0] != "en") {
+        if( lang.length == 2) {
+            getScriptResponse = jQuery.getScript("lib/jquery.datepick.package-3.7.5/jquery.datepick-" + lang[0] + "-" + lang[1] + ".js", function(){});
+            if( getScriptResponse.status = 404 ){
+                jQuery.getScript("lib/jquery.datepick.package-3.7.5/jquery.datepick-" + lang[0] + ".js");
+            }
+        } else {
+            jQuery.getScript("lib/jquery.datepick.package-3.7.5/jquery.datepick-" + lang[0] + ".js");
+        }
+    }
 });
 </script>
 </head>
