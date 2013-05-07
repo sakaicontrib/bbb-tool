@@ -234,12 +234,10 @@ function switchState(state,arg) {
                 showDefault:        true,
                 showOn:             'both', 
                 buttonImageOnly:    true,
-                buttonImage:        '/library/calendar/images/calendar/cal.gif',
-                
+                buttonImage:        '/library/calendar/images/calendar/cal.gif'
             });
             jQuery('#startDate2, #endDate2').datepick();
             jQuery('#startDate2').datepick('setDate', startDate);
-            //jQuery('#startDate2').datepick( jQuery.datepick.regional[ "es" ] );
             jQuery('#endDate2').datepick('setDate', endDate);
             
             // Add meeting participants
