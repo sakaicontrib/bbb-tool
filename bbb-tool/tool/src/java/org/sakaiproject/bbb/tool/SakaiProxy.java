@@ -145,12 +145,18 @@ class SakaiProxy
 		return Long.parseLong( (String) serverTimeInUserTimezone.get("timestamp"));
 	}
 	
-    public long getUserTimezone()
+    public long getUserTimezoneOffset()
     {
         Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
         return Long.parseLong( (String) serverTimeInUserTimezone.get("timezoneOffset"));
     }
 
+    public String getUserTimezone()
+    {
+        Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
+        return (String) serverTimeInUserTimezone.get("timezone");
+    }
+    
     public void checkPermissions()
 	{
 		bbbMeetingManager.checkPermissions(getCurrentSiteId());
