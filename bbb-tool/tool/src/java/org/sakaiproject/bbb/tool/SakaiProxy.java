@@ -128,8 +128,14 @@ class SakaiProxy
 	
 	public String getUserLanguageCode()
 	{
-		Locale locale = (new ResourceLoader()).getLocale();
-		return locale.toString();
+        Locale locale = (new ResourceLoader()).getLocale();
+        String languageCode = locale.getLanguage();
+        if (!"".equals(locale.getCountry())) {
+            languageCode += "_" + locale.getCountry();
+        }
+        if ("".equals(languageCode))
+            languageCode = "en";
+        return languageCode;
 	}
 	
 	public String getSakaiSkin()
