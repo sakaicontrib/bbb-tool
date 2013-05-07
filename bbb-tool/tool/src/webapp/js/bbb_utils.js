@@ -105,9 +105,9 @@ var BBBUtils;
     }
 
 	// Create a json representation of the meeting and post it to new on the bbb-meeting provider
-	BBBUtils.addUpdateMeeting = function() {		
+	BBBUtils.addUpdateMeeting = function() {
         // Consolidate date + time fields
-        var startDate = null, endDate = null;
+        var today = new Date();
         var startMillis = 0, endMillis = 0;
         if(jQuery('#startDate1').attr('checked')) {
             var date = jQuery('#startDate2').datepick('getDate');
@@ -115,10 +115,16 @@ var BBBUtils;
             startMillis = date.getTime();
             startMillis += time[0] * 60 * 60 * 1000;
             startMillis += time[1] * 60 * 1000;
+            
             date.setTime(startMillis);
             startMillis -= date.getTimezoneOffset() * 60 * 1000;
             startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            
             date.setTime(startMillis);
+            if( today.dst() != date.dst() ){
+                startMillis = startMillis + 3600000;
+            }
+            
             jQuery('#startDate').val(startMillis);
         }else{
             jQuery('#startDate').removeAttr('name');
@@ -130,16 +136,22 @@ var BBBUtils;
             endMillis = date.getTime();
             endMillis += time[0] * 60 * 60 * 1000;
             endMillis += time[1] * 60 * 1000;
+            
             date.setTime(endMillis);
             endMillis -= date.getTimezoneOffset() * 60 * 1000;
             endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            
             date.setTime(endMillis);
+            if( today.dst() != date.dst() ){
+                endMillis = endMillis + 3600000;
+            }
+            
             jQuery('#endDate').val(endMillis);
         }else{
             jQuery('#endDate').removeAttr('name');
             jQuery('#endDate').val(null);
         }
-        
+
         // Validation
         BBBUtils.hideMessage();
         var errors = false;
@@ -1160,6 +1172,16 @@ Date.prototype.toUTCString = function (){
     var date_utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
     return date_utc.getTime();
     
+}
+
+Date.prototype.stdTimezoneOffset = function() {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+}
+
+Date.prototype.dst = function() {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
 }
 
 Date.prototype.toISO8601String = function (format, offset) {
