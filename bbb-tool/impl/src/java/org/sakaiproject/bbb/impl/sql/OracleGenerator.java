@@ -38,4 +38,8 @@ public class OracleGenerator extends DefaultSqlGenerator
 		//return "select TNAME from tab where TABTYPE='TABLE' and TNAME='" + table + "'";
 		return "select * from user_objects where OBJECT_TYPE='TABLE' and OBJECT_NAME='" + table + "'";
 	}
+
+    public String getShowColumnStatement(String tableName, String columnName) {
+        return "SELECT column_name FROM user_tab_cols WHERE table_name = '" + tableName + "' and column_name like '"+columnName+"'";
+    }
 }
