@@ -99,8 +99,9 @@ public class BaseBBBAPI implements BBBAPI {
     public final static String APIVERSION_064 = "0.64";
     public final static String APIVERSION_070 = "0.70";
     public final static String APIVERSION_080 = "0.80";
+    public final static String APIVERSION_081 = "0.81";
     public final static String APIVERSION_MINIMUM = APIVERSION_063;
-    public final static String APIVERSION_LATEST = APIVERSION_080;
+    public final static String APIVERSION_LATEST = APIVERSION_081;
 
     protected ServerConfigurationService config;
 
