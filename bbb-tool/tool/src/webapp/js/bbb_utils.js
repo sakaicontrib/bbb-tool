@@ -65,7 +65,7 @@ var BBBUtils;
 	BBBUtils.getMeeting = function(meetingId) {                
 		var meeting = null;
 		jQuery.ajax( {
-            url: "/direct/bbb-meeting/" + meetingId + ".json",
+            url: "/direct/bbb-tool/" + meetingId + ".json",
             dataType : "json",
             async : false,
             success : function(data) {
@@ -84,11 +84,11 @@ var BBBUtils;
 	BBBUtils.getMeetingList = function(siteId) {
 		var list = null;
         jQuery.ajax( {
-            url : "/direct/bbb-meeting.json?siteId=" + siteId,
+            url : "/direct/bbb-tool.json?siteId=" + siteId,
             dataType : "json",
             async : false,
             success : function(m,status) {
-            	list = m['bbb-meeting_collection'];
+            	list = m['bbb-tool_collection'];
                 if(!list) list = [];
     
                 // Work out whether the current user is a moderator of any of the
@@ -104,7 +104,7 @@ var BBBUtils;
         return list;
     }
 
-	// Create a json representation of the meeting and post it to new on the bbb-meeting provider
+	// Create a json representation of the meeting and post it to new on the bbb-tool provider
 	BBBUtils.addUpdateMeeting = function() {
         // Consolidate date + time fields
         var today = new Date();
@@ -321,7 +321,7 @@ var BBBUtils;
 		if(!confirm(question)) return;
 		
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/endMeeting?meetingID=" + meetingID,
+	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID,
 			dataType:'text',
 			type:"GET",
 		   	success : function(result) {
@@ -342,7 +342,7 @@ var BBBUtils;
 		if(!confirm(question)) return;
 		
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/" + meetingId,
+	 		url : "/direct/bbb-tool/" + meetingId,
 			dataType:'text',
 			type:"DELETE",
 		   	success : function(result) {
@@ -372,7 +372,7 @@ var BBBUtils;
 		if(!confirm(question)) return;
 		
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/deleteRecordings?meetingID=" + meetingID + "&recordID=" + recordID,
+	 		url : "/direct/bbb-tool/deleteRecordings?meetingID=" + meetingID + "&recordID=" + recordID,
 			dataType:'text',
 			type:"GET",
 		   	success : function(result) {
@@ -404,7 +404,7 @@ var BBBUtils;
 	BBBUtils.setRecordings = function(meetingID, recordID, action, stateFunction) {
 
 		jQuery.ajax( {
-	 		url : "/direct/bbb-meeting/publishRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&publish=" + action,
+	 		url : "/direct/bbb-tool/publishRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&publish=" + action,
 			dataType:'text',
 			type: "GET",
 		   	success : function(result) {
@@ -428,7 +428,7 @@ var BBBUtils;
     	var meetingInfo = null;
 
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/" + meetingId + "/getMeetingInfo.json",
+            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json",
             dataType : "json",
             async : false,
             success : function(data) {
@@ -448,7 +448,7 @@ var BBBUtils;
     		
     	var response = Object();
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/getSiteRecordings.json?siteId=" + siteId,
+            url: "/direct/bbb-tool/getSiteRecordings.json?siteId=" + siteId,
             dataType : "json",
             async : false,
             success : function(data) {
@@ -467,7 +467,7 @@ var BBBUtils;
 
     	var response = Object();
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/" + meetingId + "/getRecordings.json",
+            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json",
             dataType : "json",
             async : false,
             success : function(data) {
@@ -483,7 +483,7 @@ var BBBUtils;
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/"+meetingId+"/joinMeeting",
+            url: "/direct/bbb-tool/"+meetingId+"/joinMeeting",
             async : false,
             success : function(url) {
             	BBBUtils.hideMessage();
@@ -511,7 +511,7 @@ var BBBUtils;
     BBBUtils.updateServerTime = function() {
     	var response = Object();
     	jQuery.ajax( {
-            url: "/direct/bbb-meeting/getServerTimeInDefaultTimezone.json",
+            url: "/direct/bbb-tool/getServerTimeInDefaultTimezone.json",
             dataType : "json",
             async : false,
             success : function(timestamp) {
@@ -527,7 +527,7 @@ var BBBUtils;
     	var response = Object();
 
     	jQuery.ajax( {
-            url: "/direct/bbb-meeting/getToolVersion.json",
+            url: "/direct/bbb-tool/getToolVersion.json",
             dataType : "json",
             async : false,
             success : function(version) {
@@ -714,7 +714,7 @@ var BBBUtils;
     // Get notice message to be displayed on the UI (first time access)
     BBBUtils.addNotice = function() {
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/getNoticeText.json",
+            url: "/direct/bbb-tool/getNoticeText.json",
             dataType : "json",
             async : true,
             success : function(notice) {
@@ -755,7 +755,7 @@ var BBBUtils;
     BBBUtils.getUserSelectionOptions = function() {
         if(bbbUserSelectionOptions == null) {
             jQuery.ajax( {
-                url : "/direct/bbb-meeting/getUserSelectionOptions.json?siteId=" + bbbSiteId,
+                url : "/direct/bbb-tool/getUserSelectionOptions.json?siteId=" + bbbSiteId,
                 dataType : "json",
                 async : false,
                 success : function(data) {
@@ -800,7 +800,7 @@ var BBBUtils;
 		interval.meetings = 30000;
 		interval.recordings = 60000;
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/getAutorefreshInterval.json",
+            url: "/direct/bbb-tool/getAutorefreshInterval.json",
             dataType : "json",
             async : false,
             success : function(autorefresh) {
@@ -818,7 +818,7 @@ var BBBUtils;
 		addUpdateFormConfigParams.recording = true;
 		addUpdateFormConfigParams.descriptionMaxLength = 60000;
         jQuery.ajax( {
-            url: "/direct/bbb-meeting/getAddUpdateFormConfigParameters.json",
+            url: "/direct/bbb-tool/getAddUpdateFormConfigParameters.json",
             dataType : "json",
             async : false,
             success : function(formConfigParams) {

@@ -28,7 +28,7 @@ import org.sakaiproject.bbb.api.BBBException;
  */
 public interface BBBMeetingManager {
     /** Entity prefix */
-    public static final String ENTITY_PREFIX = "bbb-meeting";
+    public static final String ENTITY_PREFIX = "bbb-tool";
 
     /** Meetings tool ID */
     public final static String TOOL_ID = "sakai.bbb";

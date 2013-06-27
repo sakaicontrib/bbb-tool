@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
 
 public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferrer, EntityTransferrerRefMigrator {
 
-    private static final String BBBMEETING = "bbb-meeting";
+    private static final String BBBMEETING = "bbb-tool";
     
     private Logger logger = Logger.getLogger(BBBMeetingServiceImpl.class);
 

@@ -199,7 +199,7 @@ function switchState(state,arg) {
                 'selOptions':   BBBUtils.getUserSelectionOptions(),
                 'siteId':       bbbSiteId,
                 'isRecording': 	bbbAddUpdateFormConfigParameters.recording,
-                'actionUrl':    isNew ? "/direct/bbb-meeting/new" : "/direct/bbb-meeting/"+meeting.id+"/edit"
+                'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-meeting/"+meeting.id+"/edit"
         };
         
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
