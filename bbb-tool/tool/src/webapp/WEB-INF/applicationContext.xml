@@ -14,7 +14,6 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
     
-    
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProvider">
         <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
@@ -23,23 +22,27 @@
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
-    
-    <bean id="org.sakaiproject.bbb.api.BBBMeetingService"
-        class="org.sakaiproject.bbb.api.BBBMeetingServiceImpl"
-        singleton="true" init-method="init" destroy-method="destroy">
-<!--        <property name="logger">
-            <ref bean="org.sakaiproject.service.framework.log.Logger" />
-        </property>-->
-        <property name="BBBMeetingManager">
-            <ref bean="org.sakaiproject.bbb.api.BBBMeetingManager" />
-        </property>
-        <property name="notificationService">
-<!--            <ref bean="org.sakaiproject.service.legacy.notification.NotificationService" />-->
-            <ref bean="org.sakaiproject.event.api.NotificationService" />
-        </property>
-        <property name="contentHostingService">
-            <ref bean="org.sakaiproject.content.api.ContentHostingService" />
-        </property>
+
+<!--      
+    <bean parent="org.sakaiproject.entity.api.EntityProducer" 
+    <bean id="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer" 
+-->
+    <bean id="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer" 
+        class="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer"
+        init-method="init">
+        <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
     </bean>
+<!--      
+-->
+
+
+    <bean id="org.sakaiproject.bbb.api.BBBMeetingService"
+        class="org.sakaiproject.bbb.impl.BBBMeetingServiceImpl"
+        singleton="true" init-method="init" destroy-method="destroy"
+        >
+        <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
+    </bean>
+<!--      
+-->
     
 </beans>

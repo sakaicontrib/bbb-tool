@@ -25,6 +25,12 @@
         </dependency>
         
         <dependency>
+            <groupId>org.sakaiproject.bbb</groupId>
+            <artifactId>bbb-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
