@@ -250,7 +250,7 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
      */
     public String[] myToolIds()
     {
-        String[] toolIds = { "sakai.bbb" };
+        String[] toolIds = { "sakai.bbb-tool" };
         return toolIds;
     }
     
@@ -258,7 +258,7 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
      * {@inheritDoc}
      */
     public void transferCopyEntities(String fromContext, String toContext, List ids){
-        logger.debug("DEBUGTAG: " + "transferCopyEntities");
+        logger.debug("bbb-tool transferCopyEntities");
         logger.debug("transferCopyEntities(String fromContext, String toContext, List ids)");
 
 
@@ -276,7 +276,7 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
      * {@inheritDoc}
      */
     public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup){
-        logger.debug("DEBUGTAG: " + "transferCopyEntities");
+        logger.debug("bbb-tool transferCopyEntities");
         logger.debug("transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)");
         
         //transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
