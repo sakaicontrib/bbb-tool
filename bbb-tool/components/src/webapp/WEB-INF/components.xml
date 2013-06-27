@@ -36,5 +36,14 @@
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
+    
+<!--      
+-->
+    <bean id="org.sakaiproject.bbb.api.BBBMeetingService"
+        class="org.sakaiproject.bbb.impl.BBBMeetingServiceImpl"
+        singleton="true" init-method="init" destroy-method="destroy">
+        <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
+    </bean>
+    
 
 </beans>
