@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
 
 public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferrer, EntityTransferrerRefMigrator {
 
-    private static final String BBBMEETING = "syllabus";
+    private static final String BBBMEETING = "bbb-meeting";
     
     private Logger logger = Logger.getLogger(BBBMeetingServiceImpl.class);
 
@@ -40,7 +40,7 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
     
     public void init()
     {
-        logger.debug("init");
+        logger.debug("DEBUGTAG: " + "init.1");
         
         EntityManager.registerEntityProducer(this, REFERENCE_ROOT);   
 
@@ -48,7 +48,7 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
 
     public void destroy()
     {
-        logger.debug("destroy");
+        logger.debug("DEBUGTAG: " + "destroy");
 
     }
     
@@ -258,9 +258,11 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
      * {@inheritDoc}
      */
     public void transferCopyEntities(String fromContext, String toContext, List ids){
+        logger.debug("DEBUGTAG: " + "transferCopyEntities");
         logger.debug("transferCopyEntities(String fromContext, String toContext, List ids)");
 
-        transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
+
+        //transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
     }
     
     public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) 
@@ -274,9 +276,10 @@ public class BBBMeetingServiceImpl implements BBBMeetingService, EntityTransferr
      * {@inheritDoc}
      */
     public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup){
+        logger.debug("DEBUGTAG: " + "transferCopyEntities");
         logger.debug("transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)");
         
-        transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+        //transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
     }
 
     public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup)

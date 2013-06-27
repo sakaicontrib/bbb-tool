@@ -27,22 +27,21 @@
     <bean parent="org.sakaiproject.entity.api.EntityProducer" 
     <bean id="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer" 
 -->
+<!--      
     <bean id="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer" 
         class="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer"
         init-method="init">
         <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
     </bean>
-<!--      
 -->
 
 
-<!--      
     <bean id="org.sakaiproject.bbb.api.BBBMeetingService"
         class="org.sakaiproject.bbb.impl.BBBMeetingServiceImpl"
-        singleton="true" init-method="init" destroy-method="destroy"
-        >
+        singleton="true" init-method="init" destroy-method="destroy" >
         <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
     </bean>
+<!--      
 -->
     
 </beans>
