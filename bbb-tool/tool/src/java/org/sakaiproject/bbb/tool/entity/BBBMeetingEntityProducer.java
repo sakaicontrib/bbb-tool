@@ -3,6 +3,7 @@ package org.sakaiproject.bbb.tool.entity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -304,16 +305,15 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
     /**
      * {@inheritDoc}
      */
-    public void transferCopyEntities(String fromContext, String toContext, List ids){
-        logger.debug("bbb-tool transferCopyEntities");
-        logger.debug("transferCopyEntities(" + fromContext + ", " + toContext + ", " + ids + ")");
-        
+    public void transferCopyEntities(String fromContext, String toContext, List ids)
+    {
+        logger.debug("transferCopyEntities");
         try{
             List<BBBMeeting> meetings = meetingManager.getSiteMeetings(fromContext);
             for (BBBMeeting meeting : meetings) {
                 meeting.setId(null);
                 meeting.setSiteId(toContext);
-                meetingManager.storeMeeting(meeting);
+                meetingManager.databaseStoreMeeting(meeting);
             }
         } catch( Exception e) {
             logger.debug("Exception occurred " + e);
@@ -325,11 +325,22 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
     /**
      * {@inheritDoc}
      */
-    public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup){
-        logger.debug("bbb-tool transferCopyEntities");
-        logger.debug("transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)");
+    public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+    {
+        try {
+            if(cleanup == true) {
+                List<BBBMeeting> meetings = meetingManager.getSiteMeetings(toContext);
+                for (BBBMeeting meeting : meetings) {
+                    meetingManager.databaseDeleteMeeting(meeting);
+                }
+                 
+            } 
+            
+            transferCopyEntities(fromContext, toContext, ids);
         
-        //transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+        } catch (Exception e) {
+            logger.info("WebContent transferCopyEntities Error" + e);
+        }
     }
 
 }

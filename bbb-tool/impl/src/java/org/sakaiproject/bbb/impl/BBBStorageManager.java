@@ -387,8 +387,12 @@ public class BBBStorageManager {
 
         return meeting;
     }
-
+    
     public boolean deleteMeeting(String meetingId) {
+        return deleteMeeting(meetingId, false);
+    }
+    
+    public boolean deleteMeeting(String meetingId, boolean fullDelete) {
         Connection connection = null;
         List<PreparedStatement> statements = null;
 
@@ -398,8 +402,10 @@ public class BBBStorageManager {
             connection.setAutoCommit(false);
 
             try {
-                //statements = sqlGenerator.getDeleteMeetingStatements(meetingId, connection);
-                statements = sqlGenerator.getMarkMeetingAsDeletedStatements(meetingId, connection);
+                if( fullDelete )
+                    statements = sqlGenerator.getDeleteMeetingStatements(meetingId, connection);
+                else
+                    statements = sqlGenerator.getMarkMeetingAsDeletedStatements(meetingId, connection);
 
                 for (PreparedStatement statement : statements)
                     statement.execute();

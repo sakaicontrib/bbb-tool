@@ -740,14 +740,19 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.getMaxLengthForDescription();
     }
     
-    public boolean storeMeeting(BBBMeeting meeting) {
+    public boolean databaseStoreMeeting(BBBMeeting meeting) {
         if( meeting.getId() == null ){
             // generate uuid
             meeting.setId(idManager.createUuid());
         }
-        return this.storageManager.storeMeeting(meeting);
+        return storageManager.storeMeeting(meeting);
     }
 
+    public boolean databaseDeleteMeeting(BBBMeeting meeting) {
+        storageManager.deleteMeeting(meeting.getId(), true);
+        return false;
+    }
+    
     public String getNoticeText() {
         String bbbNoticeText = serverConfigurationService.getString(CFG_NOTICE_TEXT, null);
         if (bbbNoticeText != null && "".equals(bbbNoticeText.trim()))

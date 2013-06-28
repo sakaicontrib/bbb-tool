@@ -280,6 +280,8 @@ public interface BBBMeetingManager {
     
     public String getMaxLengthForDescription();
     
-    public boolean storeMeeting(BBBMeeting meeting); 
+    public boolean databaseStoreMeeting(BBBMeeting meeting); 
+
+    public boolean databaseDeleteMeeting(BBBMeeting meeting);
 
 }
