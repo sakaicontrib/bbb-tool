@@ -83,8 +83,6 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
              logger.warn("Error registering " + APPLICATION + " Entity Producer with Spring. " + APPLICATION + " will work, but " + APPLICATION + " tools won't be imported from site archives. This normally happens only if you redeploy " + APPLICATION + ". Suggest restarting Sakai", e);
          }
         
-        //BBBMeetingEntityProducer.entityProducer = this;
-
     }
 
     public void destroy()
