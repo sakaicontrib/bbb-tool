@@ -81,6 +81,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -119,6 +120,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     private ServerConfigurationService serverConfigurationService = null;
     private PreferencesService preferencesService = null;
     private TimeService timeService = null;
+    private IdManager idManager;
+
 
     // -----------------------------------------------------------------------
     // --- Initialization/Spring related methods -----------------------------
@@ -198,6 +201,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
+    }
+
+    public void setIdManager(IdManager idManager)
+    {
+        this.idManager = idManager;
     }
 
     // -----------------------------------------------------------------------
@@ -732,7 +740,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.getMaxLengthForDescription();
     }
     
-    
+    public boolean storeMeeting(BBBMeeting meeting) {
+        if( meeting.getId() == null ){
+            // generate uuid
+            meeting.setId(idManager.createUuid());
+        }
+        return this.storageManager.storeMeeting(meeting);
+    }
+
     public String getNoticeText() {
         String bbbNoticeText = serverConfigurationService.getString(CFG_NOTICE_TEXT, null);
         if (bbbNoticeText != null && "".equals(bbbNoticeText.trim()))

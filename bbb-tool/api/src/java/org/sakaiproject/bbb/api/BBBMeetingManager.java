@@ -279,5 +279,7 @@ public interface BBBMeetingManager {
     public String isRecordingEnabled();
     
     public String getMaxLengthForDescription();
+    
+    public boolean storeMeeting(BBBMeeting meeting); 
 
 }

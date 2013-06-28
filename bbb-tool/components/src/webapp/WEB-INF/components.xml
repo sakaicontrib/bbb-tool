@@ -19,6 +19,7 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
     </bean>
 
     <!-- BBB API Wrapper -->
