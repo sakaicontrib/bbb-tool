@@ -22,6 +22,7 @@ import org.sakaiproject.bbb.api.BBBMeetingManager;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -43,7 +44,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferrer {
+public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferrer, ContextObserver {
 
     private Logger logger = Logger.getLogger(BBBMeetingEntityProducer.class);
     //private final Logger logger = Logger.getLogger(getClass());
@@ -339,6 +340,28 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
         } catch (Exception e) {
             logger.info("WebContent transferCopyEntities Error" + e);
         }
+    }
+
+    /// ContextObserver implementation
+    public void contextCreated(String context, boolean toolPlacement){
+        
+    }
+
+    public void contextUpdated(String context, boolean toolPlacement){
+        
+    }
+
+    public void contextDeleted(String context, boolean toolPlacement){
+        //Delete meetings
+        try {
+            List<BBBMeeting> meetings = meetingManager.getSiteMeetings(context);
+            for (BBBMeeting meeting : meetings) {
+                meetingManager.databaseDeleteMeeting(meeting);
+            }
+        } catch (Exception e) {
+            logger.info(APPLICATION + " contextDeleted Error: " + e);
+        }
+        
     }
 
 }
