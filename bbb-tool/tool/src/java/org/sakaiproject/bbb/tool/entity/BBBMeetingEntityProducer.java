@@ -296,7 +296,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
      */
     public String[] myToolIds()
     {
-        String[] toolIds = { "sakai.bbb" };
+        String[] toolIds = { APPLICATION_ID, "sakai.bbb" };
         return toolIds;
     }
     
