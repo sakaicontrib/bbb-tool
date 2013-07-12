@@ -129,6 +129,9 @@ public class BaseBBBAPI implements BBBAPI {
         // Initialize XML libraries
         docBuilderFactory = DocumentBuilderFactory.newInstance();
         try {
+            docBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            docBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
             docBuilder = docBuilderFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             logger.error("Failed to initialise BaseBBBAPI", e);
