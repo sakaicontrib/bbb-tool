@@ -7,7 +7,7 @@
     <description>Sakai BigBlueButton Tool</description>
 
     <servlet>
-        <servlet-name>sakai.bbb-tool</servlet-name>
+        <servlet-name>sakai.bbb</servlet-name>
         <servlet-class>org.sakaiproject.bbb.tool.BBBTool</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -26,7 +26,7 @@
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.bbb-tool</servlet-name>
+        <servlet-name>sakai.bbb</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
