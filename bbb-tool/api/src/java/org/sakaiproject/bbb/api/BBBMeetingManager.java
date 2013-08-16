@@ -31,7 +31,7 @@ public interface BBBMeetingManager {
     public static final String ENTITY_PREFIX = "bbb-tool";
 
     /** Meetings tool ID */
-    public final static String TOOL_ID = "sakai.bbb-tool";
+    public final static String TOOL_ID = "sakai.bbb";
 
     /** Meetings tool Webapp */
     public final static String TOOL_WEBAPP = "/bbb-tool";
