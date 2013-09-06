@@ -222,9 +222,11 @@ $(document).ready(function(){
               {/for}
             </td>
             <td>
-		      {for p in r.playback}
-        	    {if p.type == 'slides'}
-        		${p.length}
+              {var fLength=false}
+              {for p in r.playback}
+                {if !fLength && p.length }
+                  ${p.length}
+                  {var fLength=true}
                 {/if}
               {/for}
             </td>
