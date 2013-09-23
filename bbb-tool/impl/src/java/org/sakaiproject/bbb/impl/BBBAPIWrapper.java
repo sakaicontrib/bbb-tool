@@ -29,10 +29,6 @@ import org.sakaiproject.bbb.api.BBBException;
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.bbb.impl.bbbapi.BBBAPI;
-import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_063;
-import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_070;
-import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_080;
-import org.sakaiproject.bbb.impl.bbbapi.BBBAPI_081;
 import org.sakaiproject.bbb.impl.bbbapi.BaseBBBAPI;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.User;
@@ -114,6 +110,9 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbUrl = bbbUrlString.substring(bbbUrlString.length()-1, bbbUrlString.length()).equals("/")? bbbUrlString: bbbUrlString + "/";
         bbbSalt = bbbSaltString;
         
+        //api will always have a value, except when the url and salt were not configured
+        api = new BaseBBBAPI(bbbUrl, bbbSalt);
+
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
         bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
@@ -147,7 +146,7 @@ public class BBBAPIWrapper/* implements Runnable */{
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("isMeetingRunning()");
 
-        if ( api == null && !doLoadBBBApi() )
+        if ( api == null )
             return false;
 
         return api.isMeetingRunning(meetingID);
@@ -159,7 +158,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         Map<String, Object> meetingInfoResponse = new HashMap<String, Object>();
 
-        if ( api != null || doLoadBBBApi() ) {
+        if ( api != null  ) {
             try{
                 meetingInfoResponse = api.getMeetingInfo(meetingID, password); 
             } catch ( BBBException e){
@@ -181,11 +180,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         String joinMeetingURLResponse = "";
 
-        if ( api != null || doLoadBBBApi() ) {
-            try{
-                joinMeetingURLResponse = api.getJoinMeetingURL(meetingID, user, password); 
-            } catch ( Exception e){
-            }
+        if ( api != null ) {
+            joinMeetingURLResponse = api.getJoinMeetingURL(meetingID, user, password); 
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
 
         return joinMeetingURLResponse;
@@ -197,18 +195,18 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         Map<String, Object> recordingsResponse = new HashMap<String, Object>();
         
-        if ( api != null || doLoadBBBApi() ) {
+        if ( api != null ) {
             try{
                 recordingsResponse = api.getRecordings(meetingID);
             } catch ( BBBException e){
-                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ){
-                }
                 recordingsResponse = responseError(e.getMessageKey(), e.getMessage() );
                 logger.debug("getRecordings.BBBException: message=" + e.getMessage());
             } catch ( Exception e){
                 recordingsResponse = responseError(BBBException.MESSAGEKEY_GENERALERROR, e.getMessage() );
                 logger.debug("getRecordings.Exception: message=" + e.getMessage());
             }
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
 
         return recordingsResponse;
@@ -234,8 +232,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         boolean endMeetingResponse = false;
 
-        if ( api != null || doLoadBBBApi() ) {
+        if ( api != null ) {
             endMeetingResponse = api.endMeeting(meetingID, password);
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
         
         return endMeetingResponse;
@@ -247,8 +247,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         boolean publishRecordingsResponse = false;
 
-        if ( api != null || doLoadBBBApi() ) {
+        if ( api != null ) {
             publishRecordingsResponse = api.publishRecordings(meetingID, recordingID, publish);
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
 
         return publishRecordingsResponse;
@@ -260,8 +262,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         boolean deleteRecordingsResponse = false;
 
-        if ( api != null || doLoadBBBApi() ) {
+        if ( api != null ) {
             deleteRecordingsResponse = api.deleteRecordings(meetingID, recordingID);
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
         
         return deleteRecordingsResponse;
@@ -269,7 +273,11 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public void makeSureMeetingExists(BBBMeeting meeting) 
     		throws BBBException {
-        api.makeSureMeetingExists(meeting);
+        if ( api != null ) {
+            api.makeSureMeetingExists(meeting);
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
+        }
     }
 
 
@@ -288,85 +296,6 @@ public class BBBAPIWrapper/* implements Runnable */{
         return versionSnapshot;
     }
 
-    protected void bindAPIClassToBBBVersion(final BBBAPI proxy) 
-            throws BBBException {
-        logger.debug("Checking BBB API version...");
-
-        try {
-            // get BBB API version
-            String defaultVersion = BaseBBBAPI.APIVERSION_LATEST;
-            String returnedVersion = proxy.getAPIVersion();
-
-            // We have a live one, add it to the live list
-            if (returnedVersion != null) {
-                // convert to numeric & bind
-                try {
-                    String _version = returnedVersion;
-                    // remove -SNAPSHOT, -FINAL, ...
-                    if (_version.indexOf("-") != -1) {
-                        String stringPart = _version.substring(_version.indexOf("-") + 1);
-                        versionSnapshot = "SNAPSHOT".equalsIgnoreCase(stringPart.trim());
-                        _version = _version.substring(0, _version.indexOf("-"));
-                    }
-
-                    // version should be like x.x or x.xx
-                    float versionNumber = Float.parseFloat(_version);
-                    if (versionNumber < 0.63f) {
-                        api = getAPI(BaseBBBAPI.APIVERSION_MINIMUM, proxy.getUrl(), proxy.getSalt());
-                    } else if (versionNumber < 0.70f) {
-                        api = getAPI(BaseBBBAPI.APIVERSION_063, proxy.getUrl(), proxy.getSalt());
-                    } else if (versionNumber < 0.80f) {
-                        api = getAPI(BaseBBBAPI.APIVERSION_070, proxy.getUrl(), proxy.getSalt());
-                    } else if (versionNumber == 0.80f) {
-                        api = getAPI(BaseBBBAPI.APIVERSION_080, proxy.getUrl(), proxy.getSalt());
-                    } else if (versionNumber == 0.81f) {
-                        api = getAPI(BaseBBBAPI.APIVERSION_081, proxy.getUrl(), proxy.getSalt());
-                    } else {
-                        api = getAPI(defaultVersion, proxy.getUrl(), proxy.getSalt());
-                    }
-
-                } catch (NumberFormatException e) {
-                    // invalid version => bind to latest
-                    logger.warn("Invalid BigBlueButton version found (" + version + ") => binding to " + defaultVersion, e);
-                    api = getAPI(defaultVersion, proxy.getUrl(), proxy.getSalt());
-                }
-
-            } else {
-                logger.debug("Error checking BigBlueButton version. Striking '" + proxy.getUrl() + " from the map ...");
-                api = null;
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to check BigBlueButton version ", e);
-            api = null;
-        }
-    }
-
-    private BBBAPI getAPI(String _version, String url, String salt) {
-
-        BBBAPI newProxy = null;
-        // <= 0.64
-        if (BaseBBBAPI.APIVERSION_063.equals(_version)) {
-            newProxy = new BBBAPI_063(url, salt);
-
-            // >= 0.70
-        } else if (BaseBBBAPI.APIVERSION_070.equals(_version)) {
-            newProxy = new BBBAPI_070(url, salt);
-
-            // >= 0.80
-        } else if (BaseBBBAPI.APIVERSION_080.equals(_version)) {
-            newProxy = new BBBAPI_080(url, salt);
-            
-            // >= 0.81
-        } else if (BaseBBBAPI.APIVERSION_081.equals(_version)) {
-            newProxy = new BBBAPI_081(url, salt);
-        }
-
-        logger.debug("Sakai BigBlueButton Tool bound to API: " + newProxy.getClass().getSimpleName());
-
-        return newProxy;
-    }
-
     public long getAutorefreshForMeetings() {
         return bbbAutorefreshMeetings;
     }
@@ -381,23 +310,6 @@ public class BBBAPIWrapper/* implements Runnable */{
     
     public int getMaxLengthForDescription(){
         return bbbDescriptionMaxLength;
-    }
-
-    private boolean doLoadBBBApi() {
-        if (logger.isDebugEnabled()) logger.debug("determine API version running on BBB server...");
-        
-        try {
-            BaseBBBAPI baseBBBAPI = new BaseBBBAPI(bbbUrl, bbbSalt);
-            bindAPIClassToBBBVersion(baseBBBAPI);
-        } catch(Exception e) {
-            api = null;;
-        }
-
-        if( api == null ){
-            logger.debug("The BigBlueButton server has not been properly initialized...");
-            return false;
-        } else
-            return true;
     }
 
     private Map<String, Object> responseError(String messageKey, String message){
