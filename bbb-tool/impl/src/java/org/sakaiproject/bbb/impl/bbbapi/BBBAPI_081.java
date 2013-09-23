@@ -25,8 +25,4 @@ public class BBBAPI_081 extends BaseBBBAPI {
 	public BBBAPI_081(String url,String salt) {
 		super(url,salt);
 	}
-	
-	protected String getParametersEncoding() {
-		return "UTF-8";
-	}
 }

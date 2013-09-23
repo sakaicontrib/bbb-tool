@@ -495,7 +495,6 @@ public class BaseBBBAPI implements BBBAPI {
 
         try {
             // open connection
-            //if( apiCall.equals(APICALL_CREATE) ) 
             logger.debug("doAPICall.call: " + apiCall + "?" + (query != null ? query : ""));
             
             URL url = new URL(urlStr.toString());
@@ -556,7 +555,7 @@ public class BaseBBBAPI implements BBBAPI {
 			throw new BBBException( e.getMessageKey(), e.getMessage(), e);
         } catch(IOException e) { 
             logger.debug("doAPICall.IOException: Message=" + e.getMessage());
-        	throw new BBBException(BBBException.MESSAGEKEY_INVALIDRESPONSE, e.getMessage(), e);
+            throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage(), e);
         	
         } catch(SAXException e) {
             logger.debug("doAPICall.SAXException: Message=" + e.getMessage());

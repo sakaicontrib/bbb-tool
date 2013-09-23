@@ -67,213 +67,237 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * BBBMeetingEntityProvider is the EntityProvider class that implements several EntityBroker capabilities.
+ * BBBMeetingEntityProvider is the EntityProvider class that implements several
+ * EntityBroker capabilities.
+ * 
  * @author Adrian Fish, Nuno Fernandes
  */
-public class BBBMeetingEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, 
-	Inputable, Outputable, Createable, Updateable, Resolvable, Describeable, Deleteable, CollectionResolvable, 
-	ActionsExecutable, Statisticable
-{
-	protected final Logger logger = Logger.getLogger(getClass());
-	
-	// --- Spring ------------------------------------------------------------
-	private BBBMeetingManager meetingManager;
-	public void setMeetingManager(BBBMeetingManager meetingManager)
-	{
-		this.meetingManager = meetingManager;
-	}
-	
-	private UserDirectoryService userDirectoryService = null;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
-	{
-		this.userDirectoryService = userDirectoryService;
-	}
-	
-	private SiteService siteService = null;
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-	
-	private IdManager idManager;
-	public void setIdManager(IdManager idManager)
-	{
-		this.idManager = idManager;
-	}
-	
-	private ServerConfigurationService	serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
+public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
+        CoreEntityProvider, AutoRegisterEntityProvider, Inputable, Outputable,
+        Createable, Updateable, Resolvable, Describeable, Deleteable,
+        CollectionResolvable, ActionsExecutable, Statisticable {
+    protected final Logger logger = Logger.getLogger(getClass());
 
-	// --- Outputable, Inputable -----------------------------------------------------
-	public String[] getHandledOutputFormats() {
-	    return new String[] { Formats.JSON };
-	}
-	
-	public String[] getHandledInputFormats() {
+    // --- Spring ------------------------------------------------------------
+    private BBBMeetingManager meetingManager;
+
+    public void setMeetingManager(BBBMeetingManager meetingManager) {
+        this.meetingManager = meetingManager;
+    }
+
+    private UserDirectoryService userDirectoryService = null;
+
+    public void setUserDirectoryService(
+            UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
+
+    private SiteService siteService = null;
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    private IdManager idManager;
+
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
+    }
+
+    private ServerConfigurationService serverConfigurationService;
+
+    public void setServerConfigurationService(
+            ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
+    // --- Outputable, Inputable
+    // -----------------------------------------------------
+    public String[] getHandledOutputFormats() {
+        return new String[] { Formats.JSON };
+    }
+
+    public String[] getHandledInputFormats() {
         return new String[] { Formats.HTML, Formats.JSON, Formats.FORM };
     }
-	
-	
-	// --- EntityProvider, CoreEntityProvider, Resolvable -----------------------------
-	public String getEntityPrefix()
-	{
-		return BBBMeetingManager.ENTITY_PREFIX;
-	}
-	
-	public Object getEntity(EntityReference ref) {		
-		if(logger.isDebugEnabled()) logger.debug("getEntity(" + ref.getId() + ")");
-		
-		String id = ref.getId();
-		
-		if (id == null || "".equals(id)) {
-			return new BBBMeeting();
-		}
-		  
-		try
-		{
-			BBBMeeting meeting = meetingManager.getMeeting(id);
-			
-			if (meeting == null) {
-				throw new EntityNotFoundException("Meeting not found", ref.getReference());
-			}
 
-			// for security reasons, clear passwords and meeting token
-			meeting.setAttendeePassword(null);
-			meeting.setModeratorPassword(null);
+    // --- EntityProvider, CoreEntityProvider, Resolvable
+    // -----------------------------
+    public String getEntityPrefix() {
+        return BBBMeetingManager.ENTITY_PREFIX;
+    }
 
-			return meeting;
+    public Object getEntity(EntityReference ref) {
+        if (logger.isDebugEnabled())
+            logger.debug("getEntity(" + ref.getId() + ")");
 
-		}
-		catch(SecurityException se){
-			throw new EntityException(se.getMessage(), ref.getReference(), 400);
-		}
-		catch(Exception e)
-		{
-			throw new EntityException(e.getMessage(), ref.getReference(), 400);
-		}
+        String id = ref.getId();
 
-	}	
-	  
-	public boolean entityExists(String id)
-	{
-		if(logger.isDebugEnabled()) logger.debug("entityExists("  + id + ")");
+        if (id == null || "".equals(id)) {
+            return new BBBMeeting();
+        }
 
-		if(id == null || "".equals(id))
-			return false;
-		
-		try
-		{
-			return (meetingManager.getMeeting(id) != null);
-		}
-		catch(SecurityException se){
-			return false;
-		}
-		catch(Exception e)
-		{
-			return false;
-		}
-	}
-	
-	
-	// --- CRUDable ------------------------------------------------------------------	
-	public Object getSampleEntity()
-	{
-		return new BBBMeeting();
-	}
-	
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("createMeeting");
-		logger.debug("EntityReference:" + ref.toString() + ", Entity:" +  entity.toString() + ", params:" + params.toString());
-		
-		BBBMeeting meeting = (BBBMeeting) entity;
-		
-		// generate uuid
-		meeting.setId(idManager.createUuid());
-		
-		// owner
-		meeting.setOwnerId(userDirectoryService.getCurrentUser().getId());
-		meeting.setOwnerDisplayName(userDirectoryService.getCurrentUser().getDisplayName());
-		
-		// recording flag
-		String recordingStr = (String) params.get("recording");
-		boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
-		meeting.setRecording(recording? Boolean.TRUE: Boolean.FALSE);
-		
-		// participants
-		String meetingOwnerId = meeting.getOwnerId();
-		List<Participant> participants = extractParticipants(params, meetingOwnerId);
-		meeting.setParticipants(participants);
-		
-		// store meeting
-		String addToCalendarStr = (String) params.get("addToCalendar");
-		String notifyParticipantsStr = (String) params.get("notifyParticipants");
-		boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
-		boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+        try {
+            BBBMeeting meeting = meetingManager.getMeeting(id);
 
-		// generate differentiated passwords
+            if (meeting == null) {
+                throw new EntityNotFoundException("Meeting not found",
+                        ref.getReference());
+            }
+
+            // for security reasons, clear passwords and meeting token
+            meeting.setAttendeePassword(null);
+            meeting.setModeratorPassword(null);
+
+            return meeting;
+
+        } catch (SecurityException se) {
+            throw new EntityException(se.getMessage(), ref.getReference(), 400);
+        } catch (Exception e) {
+            throw new EntityException(e.getMessage(), ref.getReference(), 400);
+        }
+
+    }
+
+    public boolean entityExists(String id) {
+        if (logger.isDebugEnabled())
+            logger.debug("entityExists(" + id + ")");
+
+        if (id == null || "".equals(id))
+            return false;
+
+        try {
+            return (meetingManager.getMeeting(id) != null);
+        } catch (SecurityException se) {
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // --- CRUDable
+    // ------------------------------------------------------------------
+    public Object getSampleEntity() {
+        return new BBBMeeting();
+    }
+
+    public String createEntity(EntityReference ref, Object entity,
+            Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("createMeeting");
+        logger.debug("EntityReference:" + ref.toString() + ", Entity:"
+                + entity.toString() + ", params:" + params.toString());
+
+        BBBMeeting meeting = (BBBMeeting) entity;
+
+        // generate uuid
+        meeting.setId(idManager.createUuid());
+
+        // owner
+        meeting.setOwnerId(userDirectoryService.getCurrentUser().getId());
+        meeting.setOwnerDisplayName(userDirectoryService.getCurrentUser()
+                .getDisplayName());
+
+        // recording flag
+        String recordingStr = (String) params.get("recording");
+        boolean recording = (recordingStr != null && (recordingStr
+                .toLowerCase().equals("on") || recordingStr.toLowerCase()
+                .equals("true")));
+        meeting.setRecording(recording ? Boolean.TRUE : Boolean.FALSE);
+
+        // participants
+        String meetingOwnerId = meeting.getOwnerId();
+        List<Participant> participants = extractParticipants(params,
+                meetingOwnerId);
+        meeting.setParticipants(participants);
+
+        // store meeting
+        String addToCalendarStr = (String) params.get("addToCalendar");
+        String notifyParticipantsStr = (String) params
+                .get("notifyParticipants");
+        boolean addToCalendar = addToCalendarStr != null
+                && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr
+                        .toLowerCase().equals("true"));
+        boolean notifyParticipants = notifyParticipantsStr != null
+                && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr
+                        .toLowerCase().equals("true"));
+
+        // generate differentiated passwords
         meeting.setAttendeePassword(generatePassword());
-        do{
+        do {
             meeting.setModeratorPassword(generatePassword());
-        } while(meeting.getAttendeePassword().equals(meeting.getModeratorPassword()) );
+        } while (meeting.getAttendeePassword().equals(
+                meeting.getModeratorPassword()));
 
         // generate voiceBidge
         String voiceBridgeStr = (String) params.get("voiceBridge");
         logger.debug("voiceBridgeStr:" + voiceBridgeStr);
-        if( voiceBridgeStr == null || voiceBridgeStr.equals("") || Integer.parseInt(voiceBridgeStr) == 0 ) {
+        if (voiceBridgeStr == null || voiceBridgeStr.equals("")
+                || Integer.parseInt(voiceBridgeStr) == 0) {
             Integer voiceBridge = 70000 + new Random().nextInt(10000);
             meeting.setVoiceBridge(voiceBridge);
         } else {
             meeting.setVoiceBridge(Integer.valueOf(voiceBridgeStr));
         }
 
-		try {
-			if(!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
-				throw new EntityException("Unable to store meeting in DB", meeting.getReference(), 400);
-		}catch(BBBException e){
-			throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
-		}
-		
-		return meeting.getId();
-	}
-	
-	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("updateMeeting");
-		
-		BBBMeeting newMeeting = (BBBMeeting) entity;
+        try {
+            if (!meetingManager.createMeeting(meeting, notifyParticipants,
+                    addToCalendar))
+                throw new EntityException("Unable to store meeting in DB",
+                        meeting.getReference(), 400);
+        } catch (BBBException e) {
+            throw new EntityException(e.getPrettyMessage(),
+                    meeting.getReference(), 400);
+        }
 
-		try {
-			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
-			if(meeting == null){
-				throw new IllegalArgumentException("Could not locate meeting to update");
-			}
+        return meeting.getId();
+    }
+
+    public void updateEntity(EntityReference ref, Object entity,
+            Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("updateMeeting");
+
+        BBBMeeting newMeeting = (BBBMeeting) entity;
+
+        try {
+            BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
+            if (meeting == null) {
+                throw new IllegalArgumentException(
+                        "Could not locate meeting to update");
+            }
             // update name
             String nameStr = (String) params.get("name");
-            if( nameStr != null ) meeting.setName( nameStr );
+            if (nameStr != null)
+                meeting.setName(nameStr);
 
             // update description
-            String welcomeMessageStr = (String) params.get("props.welcomeMessage");
-            if( welcomeMessageStr != null )  meeting.setWelcomeMessage( welcomeMessageStr );
+            String welcomeMessageStr = (String) params
+                    .get("props.welcomeMessage");
+            if (welcomeMessageStr != null)
+                meeting.setWelcomeMessage(welcomeMessageStr);
 
-			// update recording
-			String recordingStr = (String) params.get("recording");
-			boolean recording = (recordingStr != null && (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")) );
-			meeting.setRecording(Boolean.valueOf(recording));
-			
-			// update recordingDuration
-			String recordingDurationStr = (String) params.get("recordingDuration");
-			if(recordingDurationStr != null) meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
-			else meeting.setRecordingDuration(0L);
+            // update recording
+            String recordingStr = (String) params.get("recording");
+            boolean recording = (recordingStr != null && (recordingStr
+                    .toLowerCase().equals("on") || recordingStr.toLowerCase()
+                    .equals("true")));
+            meeting.setRecording(Boolean.valueOf(recording));
 
-            // update voiceBridge only if the voiceBridge parameter is sent from the view to the controller
+            // update recordingDuration
+            String recordingDurationStr = (String) params
+                    .get("recordingDuration");
+            if (recordingDurationStr != null)
+                meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
+            else
+                meeting.setRecordingDuration(0L);
+
+            // update voiceBridge only if the voiceBridge parameter is sent from
+            // the view to the controller
             String voiceBridgeStr = (String) params.get("voiceBridge");
-            if( voiceBridgeStr != null ) {
-                if( voiceBridgeStr.equals("") || Integer.parseInt(voiceBridgeStr) == 0 ) {
+            if (voiceBridgeStr != null) {
+                if (voiceBridgeStr.equals("")
+                        || Integer.parseInt(voiceBridgeStr) == 0) {
                     Integer voiceBridge = 70000 + new Random().nextInt(10000);
                     meeting.setVoiceBridge(voiceBridge);
                 } else {
@@ -282,541 +306,553 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements 
             }
 
             // update dates
-			if(params.get("startDate") != null) meeting.setStartDate(newMeeting.getStartDate());
-			else meeting.setStartDate(null);
-			if(params.get("endDate") != null) meeting.setEndDate(newMeeting.getEndDate());
-			else meeting.setEndDate(null);
-			
-			// update participants
-			String meetingOwnerId = meeting.getOwnerId();
-			List<Participant> participants = extractParticipants(params, meetingOwnerId);
-			meeting.setParticipants(participants);
-			
-			// store meeting
-			String addToCalendarStr = (String) params.get("addToCalendar");
-			String notifyParticipantsStr = (String) params.get("notifyParticipants");
-			boolean addToCalendar = addToCalendarStr != null && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
-			boolean notifyParticipants = notifyParticipantsStr != null && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+            if (params.get("startDate") != null)
+                meeting.setStartDate(newMeeting.getStartDate());
+            else
+                meeting.setStartDate(null);
+            if (params.get("endDate") != null)
+                meeting.setEndDate(newMeeting.getEndDate());
+            else
+                meeting.setEndDate(null);
 
-			try {
-				if(!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
-					throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
-			}catch(BBBException e){
-				throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
-			}
-		}
-		catch(SecurityException se){
-			throw new EntityException(se.getMessage(), ref.getReference(), 400);
-		}
-		catch(Exception e)
-		{
-			throw new EntityException(e.getMessage(), ref.getReference(), 400);
-		}
-	}
-	
-	public List<BBBMeeting> getEntities(EntityReference ref, Search search)
-	{		
-		List<BBBMeeting> meetings = null;
-		
-		Restriction locRes = search.getRestrictionByProperty(CollectionResolvable.SEARCH_LOCATION_REFERENCE);
-		
-        if (locRes != null)
-        {
-        	String location = locRes.getStringValue();
-        	String context = null;
-        	
-        	if(location != null && location.startsWith(SiteService.REFERENCE_ROOT)) {
-        		context = location.substring(SiteService.REFERENCE_ROOT.length() + 1);
-        	}else{
-        		context = location;
-        	}
-        	
-    		try {
-    			meetings = meetingManager.getSiteMeetings(context);
-    			
+            // update participants
+            String meetingOwnerId = meeting.getOwnerId();
+            List<Participant> participants = extractParticipants(params,
+                    meetingOwnerId);
+            meeting.setParticipants(participants);
+
+            // store meeting
+            String addToCalendarStr = (String) params.get("addToCalendar");
+            String notifyParticipantsStr = (String) params
+                    .get("notifyParticipants");
+            boolean addToCalendar = addToCalendarStr != null
+                    && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr
+                            .toLowerCase().equals("true"));
+            boolean notifyParticipants = notifyParticipantsStr != null
+                    && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr
+                            .toLowerCase().equals("true"));
+
+            try {
+                if (!meetingManager.updateMeeting(meeting, notifyParticipants,
+                        addToCalendar))
+                    throw new EntityException("Unable to update meeting in DB",
+                            meeting.getReference(), 400);
+            } catch (BBBException e) {
+                throw new EntityException(e.getPrettyMessage(),
+                        meeting.getReference(), 400);
+            }
+        } catch (SecurityException se) {
+            throw new EntityException(se.getMessage(), ref.getReference(), 400);
+        } catch (Exception e) {
+            throw new EntityException(e.getMessage(), ref.getReference(), 400);
+        }
+    }
+
+    public List<BBBMeeting> getEntities(EntityReference ref, Search search) {
+        List<BBBMeeting> meetings = null;
+
+        Restriction locRes = search
+                .getRestrictionByProperty(CollectionResolvable.SEARCH_LOCATION_REFERENCE);
+
+        if (locRes != null) {
+            String location = locRes.getStringValue();
+            String context = null;
+
+            if (location != null
+                    && location.startsWith(SiteService.REFERENCE_ROOT)) {
+                context = location.substring(SiteService.REFERENCE_ROOT
+                        .length() + 1);
+            } else {
+                context = location;
+            }
+
+            try {
+                meetings = meetingManager.getSiteMeetings(context);
+
                 // for security reasons, clear passwords and meeting token
-                for( BBBMeeting meeting: meetings ){
+                for (BBBMeeting meeting : meetings) {
                     meeting.setAttendeePassword(null);
                     meeting.setModeratorPassword(null);
                 }
-    			
-    		} catch(Exception e) {
-    			throw new EntityException(e.getMessage(), ref.getReference(), 400);
-    		}
-    		
+
+            } catch (Exception e) {
+                throw new EntityException(e.getMessage(), ref.getReference(),
+                        400);
+            }
+
+        } else {
+            throw new IllegalArgumentException("Missing required parameter "
+                    + CollectionResolvable.SEARCH_LOCATION_REFERENCE);
         }
-        else
-        {
-        	throw new IllegalArgumentException("Missing required parameter " + CollectionResolvable.SEARCH_LOCATION_REFERENCE);
+
+        return meetings;
+    }
+
+    public void deleteEntity(EntityReference ref, Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("deleteEntity");
+        if (ref == null) {
+            throw new EntityNotFoundException("Meeting not found", null);
         }
-        
-		return meetings;
-	}
 
-	public void deleteEntity(EntityReference ref, Map<String, Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("deleteEntity");
-		if(ref == null)
-		{
-			throw new EntityNotFoundException("Meeting not found", null);
-		}
-		
-		try
-		{
-			meetingManager.deleteMeeting(ref.getId());
-		}
-		catch(BBBException e)
-		{
-			throw new EntityException(e.getPrettyMessage(), ref.getReference(), 400);
-		}
-	}
-	
-	
-	// --- ActionsExecutable (Custom actions) ----------------------------------------
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public String testMeeting(Map<String, Object> params) {
-		
-		if(logger.isDebugEnabled()) logger.debug("testMeeting");
-		String meetingID = (String) params.get("meetingID");
-		if(meetingID == null)
-		{
-			throw new IllegalArgumentException("Missing required parameters meetingId");
-		}
-		
-		try {
-			BBBMeeting meeting = meetingManager.getMeeting(meetingID);
-			
-			return "startDate=" + (new java.sql.Date(meeting.getStartDate().getTime())).toString() 
-					+ " " + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
-					+ " timeStamp=" + (new java.sql.Timestamp(meeting.getStartDate().getTime())
-					+ " startDateUTC=" + meeting.getStartDate().getTime()
-					);
-			
-			//return meeting.toString();
-			
-		} catch(Exception e) {
-			throw new EntityException(e.getMessage(), e.getMessage());
-		}
+        try {
+            meetingManager.deleteMeeting(ref.getId());
+        } catch (BBBException e) {
+            throw new EntityException(e.getPrettyMessage(), ref.getReference(),
+                    400);
+        }
+    }
 
+    // --- ActionsExecutable (Custom actions)
+    // ----------------------------------------
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String testMeeting(Map<String, Object> params) {
 
-	}
+        if (logger.isDebugEnabled())
+            logger.debug("testMeeting");
+        String meetingID = (String) params.get("meetingID");
+        if (meetingID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameters meetingId");
+        }
 
-	
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public String isMeetingRunning(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("isMeetingRunning");
-		String meetingID = (String) params.get("meetingID");
-		if(meetingID == null)
-		{
-			throw new IllegalArgumentException("Missing required parameters meetingId");
-		}
-		
-		try
-		{
-			return Boolean.toString( meetingManager.isMeetingRunning(meetingID) );
-		}
-		catch(BBBException e)
-		{
-			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
-			throw new EntityException(e.getPrettyMessage(), ref, 400);
-		}
-	}
+        try {
+            BBBMeeting meeting = meetingManager.getMeeting(meetingID);
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public String endMeeting(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("endMeeting");
-		String meetingID = (String) params.get("meetingID");
-		if( meetingID == null )
-		{
-			throw new IllegalArgumentException("Missing required parameter [meetingID]");
-		}
-		
-		try
-		{
-			return Boolean.toString( meetingManager.endMeeting( meetingID ) );
-		}
-		catch(BBBException e)
-		{
-			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
-			throw new EntityException(e.getPrettyMessage(), ref, 400);
-		}
-	}
+            return "startDate="
+                    + (new java.sql.Date(meeting.getStartDate().getTime()))
+                            .toString()
+                    + " "
+                    + (new java.sql.Time(meeting.getStartDate().getTime()))
+                            .toString()
+                    + " timeStamp="
+                    + (new java.sql.Timestamp(meeting.getStartDate().getTime())
+                            + " startDateUTC=" + meeting.getStartDate()
+                            .getTime());
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
-	public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref)
-	{
-		//if(logger.isDebugEnabled()) logger.debug("getMeetingInfo");
-		if(ref == null) {
-			throw new EntityNotFoundException("Meeting not found", null);
-		}
-		
-		try
-		{
-			return new ActionReturn( meetingManager.getMeetingInfo(ref.getId()) );
-		}
-		catch(BBBException e)
-		{
-			return new ActionReturn(new HashMap<String,String>());
-		}
-	}
-	
-	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
-	public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref)
-	{
-		//if(logger.isDebugEnabled()) logger.debug("getRecordings");
+            // return meeting.toString();
 
-		if(ref == null) throw new EntityNotFoundException("Meeting not found", null);
-		
-		try
-		{
-            Map<String, Object> recordingsResponse = meetingManager.getRecordings(ref.getId());
+        } catch (Exception e) {
+            throw new EntityException(e.getMessage(), e.getMessage());
+        }
 
-            return new ActionReturn( recordingsResponse );
+    }
 
-		}
-		catch(BBBException e)
-		{
-			return new ActionReturn(new HashMap<String,String>());
-		}
-	}
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String isMeetingRunning(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("isMeetingRunning");
+        String meetingID = (String) params.get("meetingID");
+        if (meetingID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameters meetingId");
+        }
 
-	
-    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-    public ActionReturn getSiteRecordings(Map<String,Object> params)
-    {
-        if(logger.isDebugEnabled()) logger.debug("getSiteRecordings");
+        try {
+            return Boolean.toString(meetingManager.isMeetingRunning(meetingID));
+        } catch (BBBException e) {
+            String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
+                    + Entity.SEPARATOR + meetingID;
+            throw new EntityException(e.getPrettyMessage(), ref, 400);
+        }
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String endMeeting(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("endMeeting");
+        String meetingID = (String) params.get("meetingID");
+        if (meetingID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter [meetingID]");
+        }
+
+        try {
+            return Boolean.toString(meetingManager.endMeeting(meetingID));
+        } catch (BBBException e) {
+            String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
+                    + Entity.SEPARATOR + meetingID;
+            throw new EntityException(e.getPrettyMessage(), ref, 400);
+        }
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
+    public ActionReturn getMeetingInfo(OutputStream out, EntityView view,
+            EntityReference ref) {
+        if (logger.isDebugEnabled()) logger.debug("getMeetingInfo");
+        if (ref == null) {
+            throw new EntityNotFoundException("Meeting not found", null);
+        }
+
+        try {
+            return new ActionReturn(meetingManager.getMeetingInfo(ref.getId()));
+        } catch (BBBException e) {
+            return new ActionReturn(new HashMap<String, String>());
+        }
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
+    public ActionReturn getRecordings(OutputStream out, EntityView view,
+            EntityReference ref) {
+        // if(logger.isDebugEnabled()) logger.debug("getRecordings");
+
+        if (ref == null)
+            throw new EntityNotFoundException("Meeting not found", null);
+
+        try {
+            Map<String, Object> recordingsResponse = meetingManager
+                    .getRecordings(ref.getId());
+
+            return new ActionReturn(recordingsResponse);
+
+        } catch (BBBException e) {
+            return new ActionReturn(new HashMap<String, String>());
+        }
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getSiteRecordings(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getSiteRecordings");
 
         String siteId = (String) params.get("siteId");
 
         try {
-            Map<String, Object> recordingsResponse = meetingManager.getSiteRecordings(siteId);
-            
-            return new ActionReturn( recordingsResponse );
+            Map<String, Object> recordingsResponse = meetingManager
+                    .getSiteRecordings(siteId);
 
-        } catch(Exception e) {
-            return new ActionReturn(new HashMap<String,String>());
-        } 
+            return new ActionReturn(recordingsResponse);
+
+        } catch (Exception e) {
+            return new ActionReturn(new HashMap<String, String>());
+        }
 
     }
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public String publishRecordings(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("publishRecordings");
-		String meetingID = (String) params.get("meetingID");
-		String recordID = (String) params.get("recordID");
-		String publish = (String) params.get("publish");
-		if( meetingID == null )
-		{
-			throw new IllegalArgumentException("Missing required parameter [meetingID]");
-		}
-		if( recordID == null )
-		{
-			throw new IllegalArgumentException("Missing required parameter [recordID]");
-		}
-		if( publish == null )
-		{
-			throw new IllegalArgumentException("Missing required parameter [publish]");
-		}
-		
-		try
-		{
-			return Boolean.toString( meetingManager.publishRecordings( meetingID, recordID, publish ) );
-		}
-		catch(BBBException e)
-		{
-			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
-			throw new EntityException(e.getPrettyMessage(), ref, 400);
-		}
-		
-	}
-	
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public String deleteRecordings(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("deleteRecordings");
-		String meetingID = (String) params.get("meetingID");
-		String recordID = (String) params.get("recordID");
-		if( meetingID == null )
-		{
-			throw new IllegalArgumentException("Missing required parameter [meetingID]");
-		}
-		if( recordID == null )
-		{
-			throw new IllegalArgumentException("Missing required parameter [recordID]");
-		}
-		
-		try
-		{
-			return Boolean.toString( meetingManager.deleteRecordings( meetingID, recordID ) );
-		}
-		catch(BBBException e)
-		{
-			String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
-			throw new EntityException(e.getPrettyMessage(), ref, 400);
-		}
-		
-	}
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String publishRecordings(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("publishRecordings");
+        String meetingID = (String) params.get("meetingID");
+        String recordID = (String) params.get("recordID");
+        String publish = (String) params.get("publish");
+        if (meetingID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter [meetingID]");
+        }
+        if (recordID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter [recordID]");
+        }
+        if (publish == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter [publish]");
+        }
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_SHOW)
-	public String joinMeeting(OutputStream out, EntityView view, EntityReference ref) {
-		if(logger.isDebugEnabled()) logger.debug("joinMeeting");
-		if(ref == null) {
-			throw new EntityNotFoundException("Meeting not found", null);
-		}		
-		
-		// get join url
-		try {
-			BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
-			
-			if(meeting == null) {
-				throw new EntityException("This meeting is no longer available.", null, 404);
-			}
-			String joinUrl = meeting.getJoinUrl();
-			
-			if(joinUrl == null) {
-				throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
-			}
+        try {
+            return Boolean.toString(meetingManager.publishRecordings(meetingID,
+                    recordID, publish));
+        } catch (BBBException e) {
+            String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
+                    + Entity.SEPARATOR + meetingID;
+            throw new EntityException(e.getPrettyMessage(), ref, 400);
+        }
 
-			try{
-				meetingManager.checkJoinMeetingPreConditions(meeting);
-			}catch(BBBException e){
-				throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
-			}
-			
-			// log meeting join event
-			meetingManager.logMeetingJoin(ref.getId());
-			return joinUrl;
-		
-		} catch(Exception e) {
-			throw new EntityException(e.getMessage(), ref.getReference(), 400);
-		}
-		// pre-join meeting
-	}
+    }
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public ActionReturn getUserSelectionOptions(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("getUserSelectionOptions");
-		String siteId = (String) params.get("siteId");
-		if(siteId == null)
-		{
-			throw new IllegalArgumentException("Missing required parameter siteId");
-		}
-		
-		try
-		{
-			Map<String, Object> map = new HashMap<String, Object>();
-			Site site = siteService.getSite(siteId);
-			
-			// groups
-			List<Map<String,String>> groups = new ArrayList<Map<String,String>>();
-			for(Group g : site.getGroups()) {
-				Map<String,String> m = new HashMap<String,String>();
-				m.put("id", g.getId());
-				m.put("title", g.getTitle());
-				groups.add(m);
-			}
-			map.put("groups", groups);
-			
-			// roles
-			List<Map<String,String>> roles = new ArrayList<Map<String,String>>();
-			for(Role r : site.getRoles()) {
-				Map<String,String> m = new HashMap<String,String>();
-				m.put("id", r.getId());
-				m.put("title", r.getId());
-				roles.add(m);
-			}
-			map.put("roles", roles);
-						
-			// users
-			List<Map<String,String>> users = new ArrayList<Map<String,String>>();
-			for(Member u : site.getMembers()) {
-				String displayName = null;
-                try
-                {
-                	displayName = userDirectoryService.getUser(u.getUserId()).getDisplayName();
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String deleteRecordings(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("deleteRecordings");
+        String meetingID = (String) params.get("meetingID");
+        String recordID = (String) params.get("recordID");
+        if (meetingID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter [meetingID]");
+        }
+        if (recordID == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter [recordID]");
+        }
+
+        try {
+            return Boolean.toString(meetingManager.deleteRecordings(meetingID,
+                    recordID));
+        } catch (BBBException e) {
+            String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
+                    + Entity.SEPARATOR + meetingID;
+            throw new EntityException(e.getPrettyMessage(), ref, 400);
+        }
+
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
+    public String joinMeeting(OutputStream out, EntityView view,
+            EntityReference ref) {
+        if (logger.isDebugEnabled())
+            logger.debug("joinMeeting");
+        if (ref == null) {
+            throw new EntityNotFoundException("Meeting not found", null);
+        }
+
+        // get join url
+        try {
+            BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
+
+            if (meeting == null) {
+                throw new EntityException(
+                        "This meeting is no longer available.", null, 404);
+            }
+            String joinUrl = meeting.getJoinUrl();
+
+            if (joinUrl == null) {
+                throw new EntityException(
+                        "You are not allowed to join this meeting.",
+                        meeting.getReference(), 403);
+            }
+
+            try {
+                meetingManager.checkJoinMeetingPreConditions(meeting);
+            } catch (BBBException e) {
+                throw new EntityException(e.getPrettyMessage(),
+                        meeting.getReference(), 400);
+            }
+
+            // log meeting join event
+            meetingManager.logMeetingJoin(ref.getId());
+            return joinUrl;
+
+        } catch (Exception e) {
+            throw new EntityException(e.getMessage(), ref.getReference(), 400);
+        }
+        // pre-join meeting
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getUserSelectionOptions(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getUserSelectionOptions");
+        String siteId = (String) params.get("siteId");
+        if (siteId == null) {
+            throw new IllegalArgumentException(
+                    "Missing required parameter siteId");
+        }
+
+        try {
+            Map<String, Object> map = new HashMap<String, Object>();
+            Site site = siteService.getSite(siteId);
+
+            // groups
+            List<Map<String, String>> groups = new ArrayList<Map<String, String>>();
+            for (Group g : site.getGroups()) {
+                Map<String, String> m = new HashMap<String, String>();
+                m.put("id", g.getId());
+                m.put("title", g.getTitle());
+                groups.add(m);
+            }
+            map.put("groups", groups);
+
+            // roles
+            List<Map<String, String>> roles = new ArrayList<Map<String, String>>();
+            for (Role r : site.getRoles()) {
+                Map<String, String> m = new HashMap<String, String>();
+                m.put("id", r.getId());
+                m.put("title", r.getId());
+                roles.add(m);
+            }
+            map.put("roles", roles);
+
+            // users
+            List<Map<String, String>> users = new ArrayList<Map<String, String>>();
+            for (Member u : site.getMembers()) {
+                String displayName = null;
+                try {
+                    displayName = userDirectoryService.getUser(u.getUserId())
+                            .getDisplayName();
+                } catch (UserNotDefinedException e1) {
+                    logger.warn("Could not retrieve displayName for userId: "
+                            + u.getUserId());
                 }
-                catch (UserNotDefinedException e1)
-                {
-                	logger.warn("Could not retrieve displayName for userId: " + u.getUserId());
-                }
-                
-                if (displayName != null)
-                {
-                	Map<String,String> m = new HashMap<String,String>();
-                	m.put("id", u.getUserId());
-                	m.put("title", displayName + " (" + u.getUserDisplayId() + ")");
-                	users.add(m);
-                }
-			}
-			map.put("users", users);
-			
-			// defaults
-			Map<String,String> dlfts = new HashMap<String,String>();
-			dlfts.put(BBBMeetingManager.CFG_DEFAULT_ALLUSERS,
-					serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_ALLUSERS, "true").toLowerCase()
-			);
-			dlfts.put(BBBMeetingManager.CFG_DEFAULT_OWNER,
-					serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_OWNER, "moderator").toLowerCase()
-			);
-			map.put("defaults", dlfts);
-			
-			return new ActionReturn(map);
-		}
-		catch(Exception e)
-		{
-			throw new IllegalStateException(e);
-		}
-	}
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public ActionReturn getServerTimeInUserTimezone(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("getServerTimeInUserTimezone");
+                if (displayName != null) {
+                    Map<String, String> m = new HashMap<String, String>();
+                    m.put("id", u.getUserId());
+                    m.put("title", displayName + " (" + u.getUserDisplayId()
+                            + ")");
+                    users.add(m);
+                }
+            }
+            map.put("users", users);
 
-		Map<String, Object> map = new HashMap<String, Object>();
+            // defaults
+            Map<String, String> dlfts = new HashMap<String, String>();
+            dlfts.put(
+                    BBBMeetingManager.CFG_DEFAULT_ALLUSERS,
+                    serverConfigurationService.getString(
+                            BBBMeetingManager.CFG_DEFAULT_ALLUSERS, "true")
+                            .toLowerCase());
+            dlfts.put(
+                    BBBMeetingManager.CFG_DEFAULT_OWNER,
+                    serverConfigurationService.getString(
+                            BBBMeetingManager.CFG_DEFAULT_OWNER, "moderator")
+                            .toLowerCase());
+            map.put("defaults", dlfts);
+
+            return new ActionReturn(map);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getServerTimeInUserTimezone(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getServerTimeInUserTimezone");
+
+        Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getServerTimeInUserTimezone();
-        
-        return new ActionReturn(map);
-		
-	}
 
-    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-    public ActionReturn getServerTimeInDefaultTimezone(Map<String,Object> params)
-    {
-        if(logger.isDebugEnabled()) logger.debug("getServerTimeInDefaultTimezone");
+        return new ActionReturn(map);
+
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getServerTimeInDefaultTimezone(
+            Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getServerTimeInDefaultTimezone");
 
         Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getServerTimeInDefaultTimezone();
-        
+
         return new ActionReturn(map);
-        
+
     }
 
-    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public ActionReturn getToolVersion(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("getToolVersion");
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getToolVersion(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getToolVersion");
 
-		Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map = meetingManager.getToolVersion();
-        
-        return new ActionReturn(map);
-		
-	}
 
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public ActionReturn getNoticeText(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("getNoticeText");
-		Map<String,String> map = new HashMap<String, String>();
-		String noticeText = meetingManager.getNoticeText(); 
-		if(noticeText != null) {
-			map.put("text", noticeText);
-			map.put("level", meetingManager.getNoticeLevel());
-		}
-		return new ActionReturn(map);
-	}
-	
-	@EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-	public ActionReturn getAutorefreshInterval(Map<String,Object> params)
-	{
-		if(logger.isDebugEnabled()) logger.debug("getAutorefreshInterval");
-		Map<String,String> map = new HashMap<String, String>();
-		String autorefreshMeetings = meetingManager.getAutorefreshForMeetings(); 
-		if(autorefreshMeetings != null) {
-			map.put("meetings", autorefreshMeetings);
-		}
-		String autorefreshRecordings = meetingManager.getAutorefreshForRecordings(); 
-		if(autorefreshRecordings != null) {
-			map.put("recordings", autorefreshRecordings);
-		}
-		return new ActionReturn(map);
-	}
-	
-    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
-    public ActionReturn getAddUpdateFormConfigParameters(Map<String,Object> params)
-    {
-        if(logger.isDebugEnabled()) logger.debug("getAddUpdateFormConfiguration");
-        Map<String,String> map = new HashMap<String, String>();
-        String recordingEnabled = meetingManager.isRecordingEnabled(); 
-        if(recordingEnabled != null) {
+        return new ActionReturn(map);
+
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getNoticeText(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getNoticeText");
+        Map<String, String> map = new HashMap<String, String>();
+        String noticeText = meetingManager.getNoticeText();
+        if (noticeText != null) {
+            map.put("text", noticeText);
+            map.put("level", meetingManager.getNoticeLevel());
+        }
+        return new ActionReturn(map);
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getAutorefreshInterval(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getAutorefreshInterval");
+        Map<String, String> map = new HashMap<String, String>();
+        String autorefreshMeetings = meetingManager.getAutorefreshForMeetings();
+        if (autorefreshMeetings != null) {
+            map.put("meetings", autorefreshMeetings);
+        }
+        String autorefreshRecordings = meetingManager
+                .getAutorefreshForRecordings();
+        if (autorefreshRecordings != null) {
+            map.put("recordings", autorefreshRecordings);
+        }
+        return new ActionReturn(map);
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getAddUpdateFormConfigParameters(
+            Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("getAddUpdateFormConfiguration");
+        Map<String, String> map = new HashMap<String, String>();
+        String recordingEnabled = meetingManager.isRecordingEnabled();
+        if (recordingEnabled != null) {
             map.put("recording", recordingEnabled);
         }
-        String descriptionMaxLength = meetingManager.getMaxLengthForDescription(); 
-        if(descriptionMaxLength != null) {
+        String descriptionMaxLength = meetingManager
+                .getMaxLengthForDescription();
+        if (descriptionMaxLength != null) {
             map.put("descriptionMaxLength", descriptionMaxLength);
         }
         return new ActionReturn(map);
     }
 
-    // --- Statisticable -------------------------------------------------------------
-	public String getAssociatedToolId()
-	{
-		return BBBMeetingManager.TOOL_ID;
-	}
+    // --- Statisticable
+    // -------------------------------------------------------------
+    public String getAssociatedToolId() {
+        return BBBMeetingManager.TOOL_ID;
+    }
 
-	public String[] getEventKeys()
-	{
-		return BBBMeetingManager.EVENT_KEYS;
-	}
+    public String[] getEventKeys() {
+        return BBBMeetingManager.EVENT_KEYS;
+    }
 
-	public Map<String, String> getEventNames(Locale locale)
-	{
-		Map<String, String> localeEventNames = new HashMap<String, String>(); 
-		ResourceLoader msgs = new ResourceLoader("Events");
-		msgs.setContextLocale(locale);
-		for(int i=0; i<BBBMeetingManager.EVENT_KEYS.length; i++)
-		{
-			localeEventNames.put(BBBMeetingManager.EVENT_KEYS[i], msgs.getString(BBBMeetingManager.EVENT_KEYS[i]));
-		}
-		return localeEventNames;
-	}
+    public Map<String, String> getEventNames(Locale locale) {
+        Map<String, String> localeEventNames = new HashMap<String, String>();
+        ResourceLoader msgs = new ResourceLoader("Events");
+        msgs.setContextLocale(locale);
+        for (int i = 0; i < BBBMeetingManager.EVENT_KEYS.length; i++) {
+            localeEventNames.put(BBBMeetingManager.EVENT_KEYS[i],
+                    msgs.getString(BBBMeetingManager.EVENT_KEYS[i]));
+        }
+        return localeEventNames;
+    }
 
-	
-	// --- UTILITY METHODS -----------------------------------------------------------
-	private List<Participant> extractParticipants(Map<String, Object> params, String meetingOwnerId) {
-		List<Participant> participants = new ArrayList<Participant>();
-		for(String key : params.keySet()) {
-			String selectionType = null;
-			String selectionId = null;
-			String role = null;
-			
-			if(key.startsWith("all_")) {
-				selectionType = Participant.SELECTION_ALL;
-				selectionId = Participant.SELECTION_ALL;
-				role = (String) params.get("all-role_" + params.get(key));
-				
-			}else if(key.startsWith("group_")) {
-				selectionType = Participant.SELECTION_GROUP;
-				selectionId = (String) params.get(key);
-				role = (String) params.get("group-role_" + selectionId);
-				
-			}else if(key.startsWith("role_")) {
-				selectionType = Participant.SELECTION_ROLE;
-				selectionId = (String) params.get(key);
-				role = (String) params.get("role-role_" + selectionId);
-				
-			}else if(key.startsWith("user_")) {
-				selectionType = Participant.SELECTION_USER;
-				selectionId = (String) params.get(key);
-				role = (String) params.get("user-role_" + selectionId);
-			}
+    // --- UTILITY METHODS
+    // -----------------------------------------------------------
+    private List<Participant> extractParticipants(Map<String, Object> params,
+            String meetingOwnerId) {
+        List<Participant> participants = new ArrayList<Participant>();
+        for (String key : params.keySet()) {
+            String selectionType = null;
+            String selectionId = null;
+            String role = null;
 
-			if(selectionType != null && selectionId != null && role != null) {
-				participants.add(new Participant(selectionType, selectionId, role));
-			}
-		}
-		return participants;
-	}
+            if (key.startsWith("all_")) {
+                selectionType = Participant.SELECTION_ALL;
+                selectionId = Participant.SELECTION_ALL;
+                role = (String) params.get("all-role_" + params.get(key));
+
+            } else if (key.startsWith("group_")) {
+                selectionType = Participant.SELECTION_GROUP;
+                selectionId = (String) params.get(key);
+                role = (String) params.get("group-role_" + selectionId);
+
+            } else if (key.startsWith("role_")) {
+                selectionType = Participant.SELECTION_ROLE;
+                selectionId = (String) params.get(key);
+                role = (String) params.get("role-role_" + selectionId);
+
+            } else if (key.startsWith("user_")) {
+                selectionType = Participant.SELECTION_USER;
+                selectionId = (String) params.get(key);
+                role = (String) params.get("user-role_" + selectionId);
+            }
+
+            if (selectionType != null && selectionId != null && role != null) {
+                participants.add(new Participant(selectionType, selectionId,
+                        role));
+            }
+        }
+        return participants;
+    }
 
     /** Generate a random password */
-	private String generatePassword() {
-	    Random randomGenerator = new Random(System.currentTimeMillis());
+    private String generatePassword() {
+        Random randomGenerator = new Random(System.currentTimeMillis());
         return Long.toHexString(randomGenerator.nextLong());
     }
-	
+
 }

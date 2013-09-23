@@ -30,10 +30,6 @@ public class BBBAPI_070 extends BaseBBBAPI {
 		super(url,salt);
 	}
 	
-	protected String getParametersEncoding() {
-		return "UTF-8";
-	}
-
 	// In 0.70 (<0.80) this is not implemented so, nullify all values!
 	public Map<String,Object> getRecordings(String meetingID) throws BBBException {
 		Map<String,Object> map = super.getRecordings(meetingID);
