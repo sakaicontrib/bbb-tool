@@ -115,15 +115,9 @@ var BBBUtils;
             startMillis = date.getTime();
             startMillis += time[0] * 60 * 60 * 1000;
             startMillis += time[1] * 60 * 1000;
-            
-            date.setTime(startMillis);
             startMillis -= date.getTimezoneOffset() * 60 * 1000;
             startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
-            
             date.setTime(startMillis);
-            if( today.dst() != date.dst() ){
-                startMillis = startMillis + 3600000;
-            }
             
             jQuery('#startDate').val(startMillis);
         }else{
@@ -136,15 +130,9 @@ var BBBUtils;
             endMillis = date.getTime();
             endMillis += time[0] * 60 * 60 * 1000;
             endMillis += time[1] * 60 * 1000;
-            
-            date.setTime(endMillis);
             endMillis -= date.getTimezoneOffset() * 60 * 1000;
             endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
-            
             date.setTime(endMillis);
-            if( today.dst() != date.dst() ){
-                endMillis = endMillis + 3600000;
-            }
             
             jQuery('#endDate').val(endMillis);
         }else{

@@ -158,8 +158,8 @@ $(document).ready(function(){
         {var statusClass = m.joinable ? 'status_joinable_' : (m.notStarted ? 'status_notstarted' : 'status_finished')}
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: m.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: bbb_status_joinable_unreachable ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
         <td id="meeting_status_${m.id}" class="${statusClass}${m.joinableMode}">${statusText}</td>
-        <td>${m.startDate ? new Date( parseInt(m.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset) ).toISO8601String() : ''}</td>
-        <td>${m.endDate ? new Date( parseInt(m.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset)).toISO8601String() : ''}</td>
+        <td>${m.startDate ? new Date( parseInt(m.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset) + ( (new Date()).dst() && !(new Date( parseInt(m.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(m.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? (3600000 * -1): 0 ) ).toISO8601String() : ''}</td>
+        <td>${m.endDate ? new Date( parseInt(m.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset) + ( (new Date()).dst() && !(new Date( parseInt(m.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(m.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? (3600000 * -1): 0 ) ).toISO8601String() : ''}</td>
         <td>${m.ownerDisplayName}</td>
       </tr>
     {/if}  
