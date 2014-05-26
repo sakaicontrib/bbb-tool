@@ -280,6 +280,13 @@ $(document).ready(function(){
             <input id="recordingDuration" name="recordingDuration" type="text" value="${meeting.recordingDuration}" style="width: 35px;" />&nbsp;${bbb_info_recording_duration_units}
         </td>
       </tr>
+      <tr>
+        <td class="lbl">${bbb_info_waitformoderator}</td>
+        <td>
+            {var waitForModerator = isNew ? false : meeting.waitForModerator }
+            <input id="waitForModerator" name="waitForModerator" type="checkbox" {if waitForModerator}checked{/if}/>
+        </td>
+      </tr>
     </table>
     
     <br/>

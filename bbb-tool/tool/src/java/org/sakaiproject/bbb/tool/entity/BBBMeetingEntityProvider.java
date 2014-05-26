@@ -185,8 +185,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             Map<String, Object> params) {
         if (logger.isDebugEnabled())
             logger.debug("createMeeting");
-        logger.debug("EntityReference:" + ref.toString() + ", Entity:"
-                + entity.toString() + ", params:" + params.toString());
+        logger.debug("EntityReference:" + ref.toString() + ", Entity:" + entity.toString() + ", params:" + params.toString());
 
         BBBMeeting meeting = (BBBMeeting) entity;
 
@@ -195,32 +194,32 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
         // owner
         meeting.setOwnerId(userDirectoryService.getCurrentUser().getId());
-        meeting.setOwnerDisplayName(userDirectoryService.getCurrentUser()
-                .getDisplayName());
+        meeting.setOwnerDisplayName(userDirectoryService.getCurrentUser().getDisplayName());
 
         // recording flag
         String recordingStr = (String) params.get("recording");
-        boolean recording = (recordingStr != null && (recordingStr
-                .toLowerCase().equals("on") || recordingStr.toLowerCase()
-                .equals("true")));
+        boolean recording = (recordingStr != null && 
+                (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
         meeting.setRecording(recording ? Boolean.TRUE : Boolean.FALSE);
+
+        // waitForModerator flag
+        String waitForModeratorStr = (String) params.get("waitForModerator");
+        boolean waitForModerator = (waitForModeratorStr != null && 
+                (waitForModeratorStr.toLowerCase().equals("on") || waitForModeratorStr.toLowerCase().equals("true")));
+        meeting.setRecording(waitForModerator ? Boolean.TRUE : Boolean.FALSE);
 
         // participants
         String meetingOwnerId = meeting.getOwnerId();
-        List<Participant> participants = extractParticipants(params,
-                meetingOwnerId);
+        List<Participant> participants = extractParticipants(params, meetingOwnerId);
         meeting.setParticipants(participants);
 
         // store meeting
         String addToCalendarStr = (String) params.get("addToCalendar");
-        String notifyParticipantsStr = (String) params
-                .get("notifyParticipants");
-        boolean addToCalendar = addToCalendarStr != null
-                && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr
-                        .toLowerCase().equals("true"));
-        boolean notifyParticipants = notifyParticipantsStr != null
-                && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr
-                        .toLowerCase().equals("true"));
+        String notifyParticipantsStr = (String) params.get("notifyParticipants");
+        boolean addToCalendar = addToCalendarStr != null && 
+                (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
+        boolean notifyParticipants = notifyParticipantsStr != null && 
+                (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
 
         // generate differentiated passwords
         meeting.setAttendeePassword(generatePassword());
@@ -241,13 +240,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
 
         try {
-            if (!meetingManager.createMeeting(meeting, notifyParticipants,
-                    addToCalendar))
-                throw new EntityException("Unable to store meeting in DB",
-                        meeting.getReference(), 400);
+            if (!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
+                throw new EntityException("Unable to store meeting in DB", meeting.getReference(), 400);
         } catch (BBBException e) {
-            throw new EntityException(e.getPrettyMessage(),
-                    meeting.getReference(), 400);
+            throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
         }
 
         return meeting.getId();
@@ -263,8 +259,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         try {
             BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
             if (meeting == null) {
-                throw new IllegalArgumentException(
-                        "Could not locate meeting to update");
+                throw new IllegalArgumentException("Could not locate meeting to update");
             }
             // update name
             String nameStr = (String) params.get("name");
@@ -272,21 +267,18 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 meeting.setName(nameStr);
 
             // update description
-            String welcomeMessageStr = (String) params
-                    .get("props.welcomeMessage");
+            String welcomeMessageStr = (String) params.get("props.welcomeMessage");
             if (welcomeMessageStr != null)
                 meeting.setWelcomeMessage(welcomeMessageStr);
 
             // update recording
             String recordingStr = (String) params.get("recording");
-            boolean recording = (recordingStr != null && (recordingStr
-                    .toLowerCase().equals("on") || recordingStr.toLowerCase()
-                    .equals("true")));
+            boolean recording = (recordingStr != null && 
+                    (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
             meeting.setRecording(Boolean.valueOf(recording));
 
             // update recordingDuration
-            String recordingDurationStr = (String) params
-                    .get("recordingDuration");
+            String recordingDurationStr = (String) params.get("recordingDuration");
             if (recordingDurationStr != null)
                 meeting.setRecordingDuration(Long.valueOf(recordingDurationStr));
             else
@@ -305,6 +297,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 }
             }
 
+            // update recording
+            String waitForModeratorStr = (String) params.get("waitForModerator");
+            boolean waitForModerator = (waitForModeratorStr != null && 
+                    (waitForModeratorStr.toLowerCase().equals("on") || waitForModeratorStr.toLowerCase().equals("true")));
+            meeting.setWaitForModerator(Boolean.valueOf(waitForModerator));
+
+
             // update dates
             if (params.get("startDate") != null)
                 meeting.setStartDate(newMeeting.getStartDate());
@@ -317,29 +316,22 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
             // update participants
             String meetingOwnerId = meeting.getOwnerId();
-            List<Participant> participants = extractParticipants(params,
-                    meetingOwnerId);
+            List<Participant> participants = extractParticipants(params, meetingOwnerId);
             meeting.setParticipants(participants);
 
             // store meeting
             String addToCalendarStr = (String) params.get("addToCalendar");
-            String notifyParticipantsStr = (String) params
-                    .get("notifyParticipants");
+            String notifyParticipantsStr = (String) params.get("notifyParticipants");
             boolean addToCalendar = addToCalendarStr != null
-                    && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr
-                            .toLowerCase().equals("true"));
+                    && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
             boolean notifyParticipants = notifyParticipantsStr != null
-                    && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr
-                            .toLowerCase().equals("true"));
+                    && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
 
             try {
-                if (!meetingManager.updateMeeting(meeting, notifyParticipants,
-                        addToCalendar))
-                    throw new EntityException("Unable to update meeting in DB",
-                            meeting.getReference(), 400);
+                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
+                    throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
             } catch (BBBException e) {
-                throw new EntityException(e.getPrettyMessage(),
-                        meeting.getReference(), 400);
+                throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
             }
         } catch (SecurityException se) {
             throw new EntityException(se.getMessage(), ref.getReference(), 400);
