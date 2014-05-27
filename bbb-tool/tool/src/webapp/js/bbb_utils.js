@@ -487,38 +487,43 @@ var BBBUtils;
         return response;
     }
 
+    BBBUtils.test = function(){ return "Hello World"; }
     // Log an event indicating user is joining meeting
-    BBBUtils.joinMeeting = function(meeting, linkSelector) {
-        var p = getParticipantFromMeeting(meeting);
+    BBBUtils.joinMeeting = function(meetingId, linkSelector) {
+        var meeting = null;
+        for(var i=0; i<bbbCurrentMeetings.length; i++) {
+            if(bbbCurrentMeetings[i].id == meetingId)
+                meeting = bbbCurrentMeetings[i];
+        }
+        var p = BBBUtils.getParticipantFromMeeting(meeting);
         console.debug(p);
-        //if(isAttendee && waitForModerator){
-        //    $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" alt="Waiting for moderator..." />')
-        //} else {
-        //}
-        var meetingId = meeting.id;
-        jQuery.ajax( {
-            url: "/direct/bbb-tool/"+meetingId+"/joinMeeting",
-            async : false,
-            success : function(url) {
-            	BBBUtils.hideMessage();
-            	if(linkSelector) {
-            		jQuery(linkSelector).attr('href', url);
-            		jQuery('#meeting_joinlink_' + meetingId).hide();
+        if(meeting.waitForModerator && !p.moderator){
+            $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" title="${bbb_meetinginfo_waiting_for_moderator_tooltip}" alt="${bbb_meetinginfo_waiting_for_moderator_tooltip}" />')
+        } else {
+            jQuery.ajax( {
+                url: "/direct/bbb-tool/"+meetingId+"/joinMeeting",
+                async : false,
+                success : function(url) {
+                    BBBUtils.hideMessage();
+                    if(linkSelector) {
+                        jQuery(linkSelector).attr('href', url);
+                        jQuery('#meeting_joinlink_' + meetingId).hide();
 
-            		//After joining stop requesting updates
-            		clearInterval(bbbCheckOneMeetingAvailabilityId);
-					clearInterval(bbbCheckRecordingAvailabilityId);
-            	}
-            	return true;
-            },
-            error : function(xmlHttpRequest,status,error) {
-                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                if(linkSelector) {
-                	jQuery(linkSelector).removeAttr('href');
+                        //After joining stop requesting updates
+                        clearInterval(bbbCheckOneMeetingAvailabilityId);
+                        clearInterval(bbbCheckRecordingAvailabilityId);
+                    }
+                    return true;
+                },
+                error : function(xmlHttpRequest,status,error) {
+                    BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                    if(linkSelector) {
+                        jQuery(linkSelector).removeAttr('href');
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        }
     }
     
     // Get current server time (in milliseconds) in user timezone
@@ -744,7 +749,7 @@ var BBBUtils;
     // Get the participant object associated with the current user
 	BBBUtils.getParticipantFromMeeting = function(meeting) {
 	    var userId = bbbCurrentUser.id;
-        var role = "maintain"; //bbbCurrentUser.role;
+        var role = bbbCurrentUser.roles != null? bbbCurrentUser.roles.role: null;
 		if(meeting && meeting.participants) {
 	        // 1. we want to first check individual user selection as it may
 	        // override all/group/role selection...
@@ -762,22 +767,6 @@ var BBBUtils;
                     return meeting.participants[i];
                 }
             }
-/*
-            String userRole = getUserRoleInSite(userId, meeting.getSiteId());
-            List<String> userGroups = getUserGroupIdsInSite(userId, meeting.getSiteId());
-            List<Participant> unprocessed2 = new ArrayList<Participant>();
-            for (Participant p : unprocessed1) {
-                if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
-                    if (userRole != null && userRole.equals(p.getSelectionId()))
-                        return p;
-                } else if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
-                    if (userGroups.contains(p.getSelectionId()))
-                        return p;
-                } else {
-                    unprocessed2.add(p);
-                }
-            }
-*/
 
             // 3. ... then go with 'all' selection type
             for(var i=0; i<meeting.participants.length; i++) {
@@ -785,19 +774,14 @@ var BBBUtils;
                     return meeting.participants[i];
                 }
             }
-/*
-            for (Participant p : unprocessed2) {
-                if (Participant.SELECTION_ALL.equals(p.getSelectionType()))
-                    return p;
-            }
-*/
 
             // 4. If not found, just check if is superuser
-/*
+            ///No need for this, the superadmin has always the maintainer role
+            /*
             if (securityService.isSuperUser()) {
                 return new Participant(Participant.SELECTION_USER, "admin", Participant.MODERATOR);
             }
-*/
+            */
         }
         return null;
 	}

@@ -1239,11 +1239,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public String getUserRoleInSite(String userId, String siteId) {
+        String userRoleInSite = null;
         if (siteId != null) {
             try {
                 Site site = siteService.getSite(siteId);
                 if (!securityService.isSuperUser()) {
-                    return site.getUserRole(userId).getId();
+                    userRoleInSite = site.getUserRole(userId).getId();
+                } else {
+                    userRoleInSite = site.getMaintainRole();
                 }
             } catch (IdUnusedException e) {
                 logger.error("No such site while resolving user role in site: " + siteId);
@@ -1251,7 +1254,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 logger.error("Unknown error while resolving user role in site: " + siteId);
             }
         }
-        return null;
+        return userRoleInSite;
     }
 
     private List<String> getUserGroupIdsInSite(String userId, String siteId) {
