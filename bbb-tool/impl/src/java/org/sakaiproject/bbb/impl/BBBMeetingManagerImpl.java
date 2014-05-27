@@ -214,7 +214,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public BBBMeeting getMeeting(String meetingId) 
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
-
         return processMeeting(meeting);
     }
 
@@ -1239,7 +1238,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return false;
     }
 
-    private String getUserRoleInSite(String userId, String siteId) {
+    public String getUserRoleInSite(String userId, String siteId) {
         if (siteId != null) {
             try {
                 Site site = siteService.getSite(siteId);

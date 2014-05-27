@@ -284,4 +284,6 @@ public interface BBBMeetingManager {
 
     public boolean databaseDeleteMeeting(BBBMeeting meeting);
 
+    public String getUserRoleInSite(String userId, String siteId);
+
 }
