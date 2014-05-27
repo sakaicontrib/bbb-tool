@@ -458,7 +458,7 @@ $(document).ready(function(){
             </span>
             {var displayLink = meeting.joinUrl && meeting.joinable && meeting.joinableMode == 'available'? 'display:inline' : 'display:none'}
             <span id="meeting_joinlink_${meeting.id}" style="${displayLink}">
-                (<a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return BBBUtils.joinMeeting('${meeting.id}', '#joinMeetingLink')" title="${bbb_launch_meeting_tooltip}" style="font-weight:bold">${bbb_meetinginfo_link}</a>
+                (<a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return BBBUtils.joinMeeting('${meeting}', '#joinMeetingLink')" title="${bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${bbb_meetinginfo_link}</a>
                 <img src="/library/image/silk/user_go.png" alt=">" style="vertical-align:middle"/>)
             </span>
         </td>

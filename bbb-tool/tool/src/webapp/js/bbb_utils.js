@@ -60,7 +60,26 @@ var BBBUtils;
 
 		return maintainRole;
 	}
-	
+
+    // Get the current user role in current site
+    BBBUtils.getUserRoleInSite = function(siteId) {                
+        var role = null;
+        jQuery.ajax( {
+            url: "/direct/bbb-tool/getUserRoleInSite.json?siteId=" + siteId,
+            dataType : "json",
+            async : false,
+            success : function(data) {
+                console.debug(data);
+                role = data;
+            },
+            error : function(xmlHttpRequest,status,error) {
+                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                return null;
+            }
+        });
+        return role;
+    }
+
 	// Get a meeting
 	BBBUtils.getMeeting = function(meetingId) {                
 		var meeting = null;
@@ -469,7 +488,14 @@ var BBBUtils;
     }
 
     // Log an event indicating user is joining meeting
-    BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
+    BBBUtils.joinMeeting = function(meeting, linkSelector) {
+        var p = getParticipantFromMeeting(meeting);
+        console.debug(p);
+        //if(isAttendee && waitForModerator){
+        //    $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" alt="Waiting for moderator..." />')
+        //} else {
+        //}
+        var meetingId = meeting.id;
         jQuery.ajax( {
             url: "/direct/bbb-tool/"+meetingId+"/joinMeeting",
             async : false,
@@ -477,7 +503,7 @@ var BBBUtils;
             	BBBUtils.hideMessage();
             	if(linkSelector) {
             		jQuery(linkSelector).attr('href', url);
-            		$('#meeting_joinlink_' + meetingId).hide();
+            		jQuery('#meeting_joinlink_' + meetingId).hide();
 
             		//After joining stop requesting updates
             		clearInterval(bbbCheckOneMeetingAvailabilityId);
@@ -715,15 +741,63 @@ var BBBUtils;
     }
 	
 
-    // Get the participant object associated with the specified userId
-	BBBUtils.getParticipantFromMeeting = function(meeting, userId) {
+    // Get the participant object associated with the current user
+	BBBUtils.getParticipantFromMeeting = function(meeting) {
+	    var userId = bbbCurrentUser.id;
+        var role = "maintain"; //bbbCurrentUser.role;
 		if(meeting && meeting.participants) {
+	        // 1. we want to first check individual user selection as it may
+	        // override all/group/role selection...
             for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'user'
-                && meeting.participants[i].selectionId == userId) {
+                if(meeting.participants[i].selectionType == 'user' 
+                    && meeting.participants[i].selectionId == userId) {
                     return meeting.participants[i];
                 }
             }
+
+            // 2. ... then with group/role selection types...
+            for(var i=0; i<meeting.participants.length; i++) {
+                if(meeting.participants[i].selectionType == 'role' 
+                    && meeting.participants[i].selectionId == role) {
+                    return meeting.participants[i];
+                }
+            }
+/*
+            String userRole = getUserRoleInSite(userId, meeting.getSiteId());
+            List<String> userGroups = getUserGroupIdsInSite(userId, meeting.getSiteId());
+            List<Participant> unprocessed2 = new ArrayList<Participant>();
+            for (Participant p : unprocessed1) {
+                if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
+                    if (userRole != null && userRole.equals(p.getSelectionId()))
+                        return p;
+                } else if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
+                    if (userGroups.contains(p.getSelectionId()))
+                        return p;
+                } else {
+                    unprocessed2.add(p);
+                }
+            }
+*/
+
+            // 3. ... then go with 'all' selection type
+            for(var i=0; i<meeting.participants.length; i++) {
+                if(meeting.participants[i].selectionType == 'all') {
+                    return meeting.participants[i];
+                }
+            }
+/*
+            for (Participant p : unprocessed2) {
+                if (Participant.SELECTION_ALL.equals(p.getSelectionType()))
+                    return p;
+            }
+*/
+
+            // 4. If not found, just check if is superuser
+/*
+            if (securityService.isSuperUser()) {
+                return new Participant(Participant.SELECTION_USER, "admin", Participant.MODERATOR);
+            }
+*/
         }
         return null;
 	}

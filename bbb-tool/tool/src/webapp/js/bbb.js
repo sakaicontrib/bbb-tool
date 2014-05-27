@@ -43,6 +43,7 @@ var bbbErrorLog = new Object();
     }
     bbbSiteId = arg.siteId;
     bbbCurrentUser = BBBUtils.getCurrentUser();
+    bbbCurrentUser.role = BBBUtils.getUserRoleInSite(bbbSiteId);
     bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
     bbbUserTimeZoneOffset = arg.timezoneoffset;
     var d = new Date();
@@ -201,7 +202,6 @@ function switchState(state,arg) {
                 'isRecording': 	bbbAddUpdateFormConfigParameters.recording,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
-        
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
 
         $(document).ready(function() {
@@ -281,6 +281,7 @@ function switchState(state,arg) {
             BBBUtils.adjustFrameHeight();
         });
     } else if('joinMeeting' === state || 'meetingInfo' === state) {
+        console.debug(state);
     	if('joinMeeting' === state ) refreshMeetingList();
     	
         $('#bbb_recordings_link').parent().parent().hide();
@@ -298,6 +299,9 @@ function switchState(state,arg) {
         	}
 
 			if (meeting) {
+                console.debug(bbbCurrentUser);
+                console.debug(bbbUserPerms);
+			    console.debug(meeting);
 				BBBUtils.render('bbb_meeting-info_template', {'meeting' : meeting}, 'bbb_content');
 				$(document).ready(function() {
 					BBBUtils.checkOneMeetingAvailability(arg.meetingId);
