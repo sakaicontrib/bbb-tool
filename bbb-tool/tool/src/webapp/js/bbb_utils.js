@@ -487,7 +487,6 @@ var BBBUtils;
         return response;
     }
 
-    BBBUtils.test = function(){ return "Hello World"; }
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) {
         var meeting = null;
@@ -495,9 +494,10 @@ var BBBUtils;
             if(bbbCurrentMeetings[i].id == meetingId)
                 meeting = bbbCurrentMeetings[i];
         }
-        var p = BBBUtils.getParticipantFromMeeting(meeting);
-        console.debug(p);
-        if(meeting.waitForModerator && !p.moderator){
+        console.debug(meeting);
+        var participant = BBBUtils.getParticipantFromMeeting(meeting);
+        console.debug(participant);
+        if(meeting.waitForModerator && !participant.moderator){
             $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" title="${bbb_meetinginfo_waiting_for_moderator_tooltip}" alt="${bbb_meetinginfo_waiting_for_moderator_tooltip}" />')
         } else {
             jQuery.ajax( {
