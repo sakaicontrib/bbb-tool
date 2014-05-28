@@ -501,7 +501,7 @@ var BBBUtils;
             $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" title="${bbb_meetinginfo_waiting_for_moderator_tooltip}" alt="${bbb_meetinginfo_waiting_for_moderator_tooltip}" />')
         } else {
             jQuery.ajax( {
-                url: "/direct/bbb-tool/"+meetingId+"/joinMeeting",
+                url: "/direct/bbb-tool/"+meetingId+"/getJoinMeetingUrl",
                 async : false,
                 success : function(url) {
                     BBBUtils.hideMessage();

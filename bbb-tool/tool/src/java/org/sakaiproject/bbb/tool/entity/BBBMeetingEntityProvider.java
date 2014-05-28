@@ -112,7 +112,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     // --- Outputable, Inputable
     // -----------------------------------------------------
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.JSON };
+        return new String[] { Formats.HTML, Formats.JSON };
     }
 
     public String[] getHandledInputFormats() {
@@ -567,10 +567,19 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public String joinMeeting(OutputStream out, EntityView view,
-            EntityReference ref) {
+    public String testJoinMeeting(OutputStream out, EntityView view, EntityReference ref) {
+        if (logger.isDebugEnabled()) logger.debug("testJoinMeeting");
+        if (ref == null) {
+            throw new EntityNotFoundException("Meeting not found", null);
+        }
+
+        return "<html><head><title>This is a test</title></head><body>Hello world</body></html>";
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
+    public String getJoinMeetingUrl(OutputStream out, EntityView view, EntityReference ref) {
         if (logger.isDebugEnabled())
-            logger.debug("joinMeeting");
+            logger.debug("getJoinUrl");
         if (ref == null) {
             throw new EntityNotFoundException("Meeting not found", null);
         }
@@ -702,7 +711,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         map.put("role", meetingManager.getUserRoleInSite(userDirectoryService.getCurrentUser().getId(), siteId));
 
         return new ActionReturn(map);
-
     }
     
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
@@ -714,7 +722,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         map = meetingManager.getServerTimeInDefaultTimezone();
 
         return new ActionReturn(map);
-
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
@@ -726,7 +733,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         map = meetingManager.getToolVersion();
 
         return new ActionReturn(map);
-
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
