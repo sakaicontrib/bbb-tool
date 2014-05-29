@@ -460,10 +460,7 @@ $(document).ready(function(){
             <span id="meeting_joinlink_${meeting.id}" style="${displayLink}">
                 (<a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return BBBUtils.joinMeeting('${meeting.id}', '#joinMeetingLink')" title="${bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${bbb_meetinginfo_link}</a>
                 <img src="/library/image/silk/user_go.png" alt=">" style="vertical-align:middle"/>)
-                (<a id="joinMeetingLink2" target="_blank" href="/direct/bbb-tool/${meeting.id}/testJoinMeeting.html" title="${bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${bbb_meetinginfo_link}</a>
-                <img src="/library/image/silk/user_go.png" alt=">" style="vertical-align:middle"/>)
             </span>
-            <span id="waiting_moderator"></span>
         </td>
       </tr>
       <tr id="bbb_meeting_info_participants_count_tr" style="display:none">

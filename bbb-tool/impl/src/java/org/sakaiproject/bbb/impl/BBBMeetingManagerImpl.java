@@ -1091,7 +1091,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         eventTrackingService.post(eventTrackingService.newEvent(event, meeting.getId(), meeting.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
     }
 
-    private Participant getParticipantFromMeeting(BBBMeeting meeting, String userId) {
+    public Participant getParticipantFromMeeting(BBBMeeting meeting, String userId) {
         // 1. we want to first check individual user selection as it may
         // override all/group/role selection...
         List<Participant> unprocessed1 = new ArrayList<Participant>();

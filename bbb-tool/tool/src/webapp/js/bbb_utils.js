@@ -69,7 +69,6 @@ var BBBUtils;
             dataType : "json",
             async : false,
             success : function(data) {
-                console.debug(data);
                 role = data;
             },
             error : function(xmlHttpRequest,status,error) {
@@ -489,6 +488,21 @@ var BBBUtils;
 
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) {
+        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting.html";
+        BBBUtils.hideMessage();
+        if(linkSelector) {
+            jQuery(linkSelector).attr('href', url);
+            jQuery('#meeting_joinlink_' + meetingId).hide();
+
+            //After joining stop requesting updates
+            clearInterval(bbbCheckOneMeetingAvailabilityId);
+            clearInterval(bbbCheckRecordingAvailabilityId);
+        }
+        return true;
+    }
+
+    // Log an event indicating user is joining meeting
+    BBBUtils.joinMeetingBak = function(meetingId, linkSelector) {
         var meeting = null;
         for(var i=0; i<bbbCurrentMeetings.length; i++) {
             if(bbbCurrentMeetings[i].id == meetingId)
@@ -501,7 +515,7 @@ var BBBUtils;
             $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" title="${bbb_meetinginfo_waiting_for_moderator_tooltip}" alt="${bbb_meetinginfo_waiting_for_moderator_tooltip}" />')
         } else {
             jQuery.ajax( {
-                url: "/direct/bbb-tool/"+meetingId+"/getJoinMeetingUrl",
+                url: "/direct/bbb-tool/"+meetingId+"/getJoinMeetingUrl.txt",
                 async : false,
                 success : function(url) {
                     BBBUtils.hideMessage();
@@ -525,7 +539,7 @@ var BBBUtils;
             });
         }
     }
-    
+
     // Get current server time (in milliseconds) in user timezone
     BBBUtils.updateServerTime = function() {
     	var response = Object();

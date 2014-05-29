@@ -112,7 +112,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     // --- Outputable, Inputable
     // -----------------------------------------------------
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.HTML, Formats.JSON };
+        return new String[] { Formats.HTML, Formats.JSON, Formats.TXT };
     }
 
     public String[] getHandledInputFormats() {
@@ -517,16 +517,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String recordID = (String) params.get("recordID");
         String publish = (String) params.get("publish");
         if (meetingID == null) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter [meetingID]");
+            throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
         if (recordID == null) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter [recordID]");
+            throw new IllegalArgumentException("Missing required parameter [recordID]");
         }
         if (publish == null) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter [publish]");
+            throw new IllegalArgumentException("Missing required parameter [publish]");
         }
 
         try {
@@ -547,12 +544,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String meetingID = (String) params.get("meetingID");
         String recordID = (String) params.get("recordID");
         if (meetingID == null) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter [meetingID]");
+            throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
         if (recordID == null) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter [recordID]");
+            throw new IllegalArgumentException("Missing required parameter [recordID]");
         }
 
         try {
@@ -563,17 +558,111 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                     + Entity.SEPARATOR + meetingID;
             throw new EntityException(e.getPrettyMessage(), ref, 400);
         }
-
     }
 
+    public final static boolean WAITFORMODERATOR = true;
+    public final static boolean NOTWAITFORMODERATOR = false;
+
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public String testJoinMeeting(OutputStream out, EntityView view, EntityReference ref) {
-        if (logger.isDebugEnabled()) logger.debug("testJoinMeeting");
+    public String joinMeeting(OutputStream out, EntityView view, EntityReference ref, Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("joinMeeting");
         if (ref == null) {
             throw new EntityNotFoundException("Meeting not found", null);
         }
 
-        return "<html><head><title>This is a test</title></head><body>Hello world</body></html>";
+        // get join url
+        try {
+            BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
+            logger.debug("**********MEETING*************");
+            logger.debug(meeting);
+            Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(ref.getId());
+            logger.debug("**********MEETINGINFO*************");
+            logger.debug(meetingInfo);
+
+            if (meeting == null) {
+                throw new EntityException("This meeting is no longer available.", null, 404);
+            }
+            String joinUrl = meeting.getJoinUrl();
+
+            if (joinUrl == null) {
+                throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
+            }
+
+            try {
+                meetingManager.checkJoinMeetingPreConditions(meeting);
+            } catch (BBBException e) {
+                throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+            }
+
+            // log meeting join event
+            meetingManager.logMeetingJoin(ref.getId());
+
+            //Build the corresponding page for joining
+            String html;
+            if( meeting.getWaitForModerator() ){
+                Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
+                if( Participant.MODERATOR.equals(p.getRole())) {
+                    html = getHtmlForJoining(joinUrl, NOTWAITFORMODERATOR);
+                } else {
+                    if( Integer.parseInt((String) meetingInfo.get("moderatorCount")) > 0 ) {
+                        html = getHtmlForJoining(joinUrl, NOTWAITFORMODERATOR);
+                    } else {
+                        html = getHtmlForJoining(joinUrl, WAITFORMODERATOR);
+                    }
+                }
+            } else {
+                html = getHtmlForJoining(joinUrl, NOTWAITFORMODERATOR);
+            }
+            return html;
+
+        } catch (Exception e) {
+            throw new EntityException(e.getMessage(), ref.getReference(), 400);
+        }
+        // pre-join meeting
+    }
+    private String getHtmlForJoining(String joinUrl){
+        return getHtmlForJoining(joinUrl, false);
+    }
+    private String getHtmlForJoining(String joinUrl, boolean waitformoderator){
+        if( waitformoderator ){
+            return "<html>\n" +
+                    "  <head>\n" +
+                    "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
+                    "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
+                    "    <meta http-equiv='cache-control' content='no-cache' />\n" +
+                    "    <meta http-equiv='expires' content='0' />\n" +
+                    "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
+                    "    <meta http-equiv='pragma' content='no-cache' />\n" +
+                    "    <title>BigBlueButton</title>\n" +
+                    "    <script type='text/javascript' language='JavaScript' src='/bbb-tool/lib/jquery-1.3.2.min.js'></script>\n" +
+                    "    <script type='text/javascript' language='JavaScript'>\n" +
+                    "    </script>\n" +
+                    "  </head>\n" +
+                    "  <body>\n" +
+                    "    <div align='center'>\n" +
+                    "      Waiting for moderator to join the meeting<br>\n" +
+                    "      <img id='joining' src='/bbb-tool/images/2.gif' title='Waiting for moderator to join the meeting' alt='Waiting for moderator to join the meeting' />\n" +
+                    "    </div>\n" +
+                    "  </body>\n" +
+                    "</html>";
+        } else {
+            return "<html>\n" +
+                    "  <head>\n" +
+                    "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
+                    "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
+                    "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
+                    "    <meta http-equiv='cache-control' content='no-cache' />\n" +
+                    "    <meta http-equiv='expires' content='0' />\n" +
+                    "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
+                    "    <meta http-equiv='pragma' content='no-cache' />\n" +
+                    "    <title>BigBlueButton</title>\n" +
+                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
+                    "  </head>\n" +
+                    "  <body>\n" +
+                    "  </body>\n" +
+                    "</html>";
+        }
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
@@ -619,8 +708,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             logger.debug("getUserSelectionOptions");
         String siteId = (String) params.get("siteId");
         if (siteId == null) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter siteId");
+            throw new IllegalArgumentException("Missing required parameter siteId");
         }
 
         try {
@@ -655,15 +743,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                     displayName = userDirectoryService.getUser(u.getUserId())
                             .getDisplayName();
                 } catch (UserNotDefinedException e1) {
-                    logger.warn("Could not retrieve displayName for userId: "
-                            + u.getUserId());
+                    logger.warn("Could not retrieve displayName for userId: " + u.getUserId());
                 }
 
                 if (displayName != null) {
                     Map<String, String> m = new HashMap<String, String>();
                     m.put("id", u.getUserId());
-                    m.put("title", displayName + " (" + u.getUserDisplayId()
-                            + ")");
+                    m.put("title", displayName + " (" + u.getUserDisplayId() + ")");
                     users.add(m);
                 }
             }
@@ -671,16 +757,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
             // defaults
             Map<String, String> dlfts = new HashMap<String, String>();
-            dlfts.put(
-                    BBBMeetingManager.CFG_DEFAULT_ALLUSERS,
-                    serverConfigurationService.getString(
-                            BBBMeetingManager.CFG_DEFAULT_ALLUSERS, "true")
-                            .toLowerCase());
-            dlfts.put(
-                    BBBMeetingManager.CFG_DEFAULT_OWNER,
-                    serverConfigurationService.getString(
-                            BBBMeetingManager.CFG_DEFAULT_OWNER, "moderator")
-                            .toLowerCase());
+            dlfts.put(BBBMeetingManager.CFG_DEFAULT_ALLUSERS,
+                    serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_ALLUSERS, "true").toLowerCase());
+            dlfts.put(BBBMeetingManager.CFG_DEFAULT_OWNER,
+                    serverConfigurationService.getString(BBBMeetingManager.CFG_DEFAULT_OWNER, "moderator").toLowerCase());
             map.put("defaults", dlfts);
 
             return new ActionReturn(map);
@@ -757,8 +837,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (autorefreshMeetings != null) {
             map.put("meetings", autorefreshMeetings);
         }
-        String autorefreshRecordings = meetingManager
-                .getAutorefreshForRecordings();
+        String autorefreshRecordings = meetingManager.getAutorefreshForRecordings();
         if (autorefreshRecordings != null) {
             map.put("recordings", autorefreshRecordings);
         }
@@ -766,8 +845,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getAddUpdateFormConfigParameters(
-            Map<String, Object> params) {
+    public ActionReturn getAddUpdateFormConfigParameters(Map<String, Object> params) {
         if (logger.isDebugEnabled())
             logger.debug("getAddUpdateFormConfiguration");
         Map<String, String> map = new HashMap<String, String>();
@@ -798,8 +876,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         ResourceLoader msgs = new ResourceLoader("Events");
         msgs.setContextLocale(locale);
         for (int i = 0; i < BBBMeetingManager.EVENT_KEYS.length; i++) {
-            localeEventNames.put(BBBMeetingManager.EVENT_KEYS[i],
-                    msgs.getString(BBBMeetingManager.EVENT_KEYS[i]));
+            localeEventNames.put(BBBMeetingManager.EVENT_KEYS[i], msgs.getString(BBBMeetingManager.EVENT_KEYS[i]));
         }
         return localeEventNames;
     }
