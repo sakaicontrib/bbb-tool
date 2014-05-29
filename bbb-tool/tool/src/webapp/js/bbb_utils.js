@@ -432,7 +432,6 @@ var BBBUtils;
     // Get meeting info from BBB server
     BBBUtils.getMeetingInfo = function(meetingId) {  
     	var meetingInfo = null;
-
         jQuery.ajax( {
             url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json",
             dataType : "json",
@@ -488,7 +487,7 @@ var BBBUtils;
 
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) {
-        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting.html";
+        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting";
         BBBUtils.hideMessage();
         if(linkSelector) {
             jQuery(linkSelector).attr('href', url);

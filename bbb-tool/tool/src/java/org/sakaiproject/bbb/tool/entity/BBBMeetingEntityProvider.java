@@ -603,16 +603,16 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if( meeting.getWaitForModerator() ){
                 Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
                 if( Participant.MODERATOR.equals(p.getRole())) {
-                    html = getHtmlForJoining(joinUrl, NOTWAITFORMODERATOR);
+                    html = getHtmlForJoining(joinUrl, ref.getId(), NOTWAITFORMODERATOR);
                 } else {
                     if( Integer.parseInt((String) meetingInfo.get("moderatorCount")) > 0 ) {
-                        html = getHtmlForJoining(joinUrl, NOTWAITFORMODERATOR);
+                        html = getHtmlForJoining(joinUrl, ref.getId(), NOTWAITFORMODERATOR);
                     } else {
-                        html = getHtmlForJoining(joinUrl, WAITFORMODERATOR);
+                        html = getHtmlForJoining(joinUrl, ref.getId(), WAITFORMODERATOR);
                     }
                 }
             } else {
-                html = getHtmlForJoining(joinUrl, NOTWAITFORMODERATOR);
+                html = getHtmlForJoining(joinUrl, ref.getId(), NOTWAITFORMODERATOR);
             }
             return html;
 
@@ -621,27 +621,52 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
         // pre-join meeting
     }
-    private String getHtmlForJoining(String joinUrl){
-        return getHtmlForJoining(joinUrl, false);
+    private String getHtmlForJoining(String joinUrl, String meetingId){
+        return getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
     }
-    private String getHtmlForJoining(String joinUrl, boolean waitformoderator){
+    private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator){
         if( waitformoderator ){
             return "<html>\n" +
                     "  <head>\n" +
                     "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
                     "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
                     "    <meta http-equiv='cache-control' content='no-cache' />\n" +
-                    "    <meta http-equiv='expires' content='0' />\n" +
+                    "    <meta http-equiv='expires' content='-1' />\n" +
                     "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
                     "    <meta http-equiv='pragma' content='no-cache' />\n" +
                     "    <title>BigBlueButton</title>\n" +
                     "    <script type='text/javascript' language='JavaScript' src='/bbb-tool/lib/jquery-1.3.2.min.js'></script>\n" +
                     "    <script type='text/javascript' language='JavaScript'>\n" +
+                    "        (function worker() {\n" +
+                    "            var meetingInfo;\n" +
+                    "            // Disable caching of AJAX responses\n" +
+                    "            jQuery.ajaxSetup ({\n" +
+                    "                cache: false\n" +
+                    "            });\n" +
+                    "            // Validates if a moderator has joined\n" +
+                    "            jQuery.ajax( {\n" +
+                    "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json',\n" +
+                    "                dataType : 'json',\n" +
+                    "                async : false,\n" +
+                    "                success : function(data) {\n" +
+                    "                    meetingInfo = data;\n" +
+                    "                },\n" +
+                    "                error : function(xmlHttpRequest, status, error) {\n" +
+                    "                    return null;\n" +
+                    "                },\n" +
+                    "                complete : function() {\n" +
+                    "                    if( parseInt(meetingInfo.moderatorCount) == 0 )\n" +
+                    "                        setTimeout(worker, 5000);\n" +
+                    "                    else\n" +
+                    "                        window.location.reload();\n" +
+                    "                }\n" +
+                    "            });\n" +
+                    "        })();\n" +
                     "    </script>\n" +
                     "  </head>\n" +
                     "  <body>\n" +
                     "    <div align='center'>\n" +
-                    "      Waiting for moderator to join the meeting<br>\n" +
+                    "      Waiting for moderator to join the meeting<br/><br/>\n" +
                     "      <img id='joining' src='/bbb-tool/images/2.gif' title='Waiting for moderator to join the meeting' alt='Waiting for moderator to join the meeting' />\n" +
                     "    </div>\n" +
                     "  </body>\n" +
@@ -649,7 +674,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         } else {
             return "<html>\n" +
                     "  <head>\n" +
-                    "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
                     "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
                     "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
                     "    <meta http-equiv='cache-control' content='no-cache' />\n" +
