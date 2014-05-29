@@ -621,6 +621,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         return getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
     }
     private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator){
+        ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
+        Locale locale = (new ResourceLoader()).getLocale();
+        toolMessages.setContextLocale(locale);
+        String waiting_for_moderator_tooltip = toolMessages.getString("bbb_meetinginfo_waiting_for_moderator_tooltip");
+
         if( waitformoderator ){
             return "<html>\n" +
                     "  <head>\n" +
@@ -663,7 +668,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                     "  <body>\n" +
                     "    <div align='center'>\n" +
                     "      Waiting for moderator to join the meeting<br/><br/>\n" +
-                    "      <img id='joining' src='/bbb-tool/images/2.gif' title='Waiting for moderator to join the meeting' alt='Waiting for moderator to join the meeting' />\n" +
+                    "      <img id='joining' src='/bbb-tool/images/2.gif' title='" + waiting_for_moderator_tooltip + "' alt='" + waiting_for_moderator_tooltip + "' />\n" +
                     "    </div>\n" +
                     "  </body>\n" +
                     "</html>";
