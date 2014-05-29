@@ -574,11 +574,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         // get join url
         try {
             BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
-            logger.debug("**********MEETING*************");
-            logger.debug(meeting);
             Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(ref.getId());
-            logger.debug("**********MEETINGINFO*************");
-            logger.debug(meetingInfo);
 
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
