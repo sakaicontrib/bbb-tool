@@ -500,45 +500,6 @@ var BBBUtils;
         return true;
     }
 
-    // Log an event indicating user is joining meeting
-    BBBUtils.joinMeetingBak = function(meetingId, linkSelector) {
-        var meeting = null;
-        for(var i=0; i<bbbCurrentMeetings.length; i++) {
-            if(bbbCurrentMeetings[i].id == meetingId)
-                meeting = bbbCurrentMeetings[i];
-        }
-        console.debug(meeting);
-        var participant = BBBUtils.getParticipantFromMeeting(meeting);
-        console.debug(participant);
-        if(meeting.waitForModerator && !participant.moderator){
-            $('#meeting_joinlink_' + meetingId).html('<img id="joining" src="images/2-0.gif" title="${bbb_meetinginfo_waiting_for_moderator_tooltip}" alt="${bbb_meetinginfo_waiting_for_moderator_tooltip}" />')
-        } else {
-            jQuery.ajax( {
-                url: "/direct/bbb-tool/"+meetingId+"/getJoinMeetingUrl.txt",
-                async : false,
-                success : function(url) {
-                    BBBUtils.hideMessage();
-                    if(linkSelector) {
-                        jQuery(linkSelector).attr('href', url);
-                        jQuery('#meeting_joinlink_' + meetingId).hide();
-
-                        //After joining stop requesting updates
-                        clearInterval(bbbCheckOneMeetingAvailabilityId);
-                        clearInterval(bbbCheckRecordingAvailabilityId);
-                    }
-                    return true;
-                },
-                error : function(xmlHttpRequest,status,error) {
-                    BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                    if(linkSelector) {
-                        jQuery(linkSelector).removeAttr('href');
-                    }
-                    return false;
-                }
-            });
-        }
-    }
-
     // Get current server time (in milliseconds) in user timezone
     BBBUtils.updateServerTime = function() {
     	var response = Object();
