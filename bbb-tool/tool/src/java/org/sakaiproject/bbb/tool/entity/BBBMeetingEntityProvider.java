@@ -635,6 +635,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                                   "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
                                   "    <meta http-equiv='pragma' content='no-cache' />\n" +
                                   "    <title>BigBlueButton</title>\n" +
+                                  "    <link rel='stylesheet' type='text/css' href='/library/skin/tool_base.css' />\n" +
+                                  "    <link rel='stylesheet' type='text/css' href='/bbb-tool/css/bbb.css' />\n" +
                                   "    <script type='text/javascript' language='JavaScript' src='/bbb-tool/lib/jquery-1.3.2.min.js'></script>\n";
         String commonHtmlFooter = "</html>\n";
 
@@ -672,7 +674,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "  </head>\n" +
                    "  <body>\n" +
                    "    <div align='center'>\n" +
-                   "      Waiting for moderator to join the meeting<br/><br/>\n" +
+                   "      <h3>Waiting for moderator to join the meeting</h3><br/><br/>\n" +
                    "      <img id='joining' src='/bbb-tool/images/2.gif' title='" + waiting_for_moderator_tooltip + "' alt='" + waiting_for_moderator_tooltip + "' />\n" +
                    "    </div>\n" +
                    "  </body>\n" +
