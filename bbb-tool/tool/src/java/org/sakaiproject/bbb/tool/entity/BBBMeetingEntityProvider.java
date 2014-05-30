@@ -626,67 +626,67 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         toolMessages.setContextLocale(locale);
         String waiting_for_moderator_tooltip = toolMessages.getString("bbb_meetinginfo_waiting_for_moderator_tooltip");
 
+        String commonHtmlHeader = "<html>\n" +
+                                  "  <head>\n" +
+                                  "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
+                                  "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
+                                  "    <meta http-equiv='cache-control' content='no-cache' />\n" +
+                                  "    <meta http-equiv='expires' content='-1' />\n" +
+                                  "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
+                                  "    <meta http-equiv='pragma' content='no-cache' />\n" +
+                                  "    <title>BigBlueButton</title>\n" +
+                                  "    <script type='text/javascript' language='JavaScript' src='/bbb-tool/lib/jquery-1.3.2.min.js'></script>\n";
+        String commonHtmlFooter = "</html>\n";
+
         if( waitformoderator ){
-            return "<html>\n" +
-                    "  <head>\n" +
-                    "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
-                    "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
-                    "    <meta http-equiv='cache-control' content='no-cache' />\n" +
-                    "    <meta http-equiv='expires' content='-1' />\n" +
-                    "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
-                    "    <meta http-equiv='pragma' content='no-cache' />\n" +
-                    "    <title>BigBlueButton</title>\n" +
-                    "    <script type='text/javascript' language='JavaScript' src='/bbb-tool/lib/jquery-1.3.2.min.js'></script>\n" +
-                    "    <script type='text/javascript' language='JavaScript'>\n" +
-                    "        (function worker() {\n" +
-                    "            var meetingInfo;\n" +
-                    "            // Disable caching of AJAX responses\n" +
-                    "            jQuery.ajaxSetup ({\n" +
-                    "                cache: false\n" +
-                    "            });\n" +
-                    "            // Validates if a moderator has joined\n" +
-                    "            jQuery.ajax( {\n" +
-                    "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json',\n" +
-                    "                dataType : 'json',\n" +
-                    "                async : false,\n" +
-                    "                success : function(data) {\n" +
-                    "                    meetingInfo = data;\n" +
-                    "                },\n" +
-                    "                error : function(xmlHttpRequest, status, error) {\n" +
-                    "                    return null;\n" +
-                    "                },\n" +
-                    "                complete : function() {\n" +
-                    "                    if( parseInt(meetingInfo.moderatorCount) == 0 )\n" +
-                    "                        setTimeout(worker, 5000);\n" +
-                    "                    else\n" +
-                    "                        window.location.reload();\n" +
-                    "                }\n" +
-                    "            });\n" +
-                    "        })();\n" +
-                    "    </script>\n" +
-                    "  </head>\n" +
-                    "  <body>\n" +
-                    "    <div align='center'>\n" +
-                    "      Waiting for moderator to join the meeting<br/><br/>\n" +
-                    "      <img id='joining' src='/bbb-tool/images/2.gif' title='" + waiting_for_moderator_tooltip + "' alt='" + waiting_for_moderator_tooltip + "' />\n" +
-                    "    </div>\n" +
-                    "  </body>\n" +
-                    "</html>";
+            return commonHtmlHeader +
+                   "    <script type='text/javascript' language='JavaScript'>\n" +
+                   "        (function worker() {\n" +
+                   "            var meetingInfo;\n" +
+                   "            // Disable caching of AJAX responses\n" +
+                   "            // Validates if a moderator has joined\n" +
+                   "            jQuery.ajax( {\n" +
+                   "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json',\n" +
+                   "                dataType : 'json',\n" +
+                   "                async : false,\n" +
+                   "                cache: false,\n" +
+                   "                success : function(data) {\n" +
+                   "                    meetingInfo = data;\n" +
+                   "                },\n" +
+                   "                error : function(xmlHttpRequest, status, error) {\n" +
+                   "                    return null;\n" +
+                   "                },\n" +
+                   "                complete : function() {\n" +
+                   "                    if( parseInt(meetingInfo.moderatorCount) == 0 ){\n" +
+                   "                        setTimeout(worker, 5000);\n" +
+                   "                    } else {\n" +
+                   "                        if (typeof window.opener != 'undefined') {\n" +
+                   "                           window.opener.refresh('" + meetingId + "');\n" +
+                   "                        }\n" +
+                   "                        window.location.reload();\n" +
+                   "                    }\n" +
+                   "                }\n" +
+                   "            });\n" +
+                   "        })();\n" +
+                   "    </script>\n" +
+                   "  </head>\n" +
+                   "  <body>\n" +
+                   "    <div align='center'>\n" +
+                   "      Waiting for moderator to join the meeting<br/><br/>\n" +
+                   "      <img id='joining' src='/bbb-tool/images/2.gif' title='" + waiting_for_moderator_tooltip + "' alt='" + waiting_for_moderator_tooltip + "' />\n" +
+                   "    </div>\n" +
+                   "  </body>\n" +
+                   commonHtmlFooter;
         } else {
-            return "<html>\n" +
-                    "  <head>\n" +
-                    "    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>\n" +
-                    "    <meta http-equiv='cache-control' content='max-age=0' />\n" +
-                    "    <meta http-equiv='cache-control' content='no-cache' />\n" +
-                    "    <meta http-equiv='expires' content='0' />\n" +
-                    "    <meta http-equiv='expires' content='Tue, 01 Jan 1980 1:00:00 GMT' />\n" +
-                    "    <meta http-equiv='pragma' content='no-cache' />\n" +
-                    "    <title>BigBlueButton</title>\n" +
-                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
-                    "  </head>\n" +
-                    "  <body>\n" +
-                    "  </body>\n" +
-                    "</html>";
+            return commonHtmlHeader +
+                   "    <script type='text/javascript' language='JavaScript'>\n" +
+                   "        window.opener.refresh('" + meetingId + "');\n" +
+                   "    </script>\n" +
+                   "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
+                   "  </head>\n" +
+                   "  <body>\n" +
+                   "  </body>\n" +
+                   commonHtmlFooter;
         }
     }
 

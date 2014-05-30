@@ -487,6 +487,13 @@ var BBBUtils;
 
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) {
+        //var meeting = null;
+        //for(var i=0; i<bbbCurrentMeetings.length; i++) {
+        //    if(bbbCurrentMeetings[i].id == meetingId)
+        //        meeting = bbbCurrentMeetings[i];
+        //}
+        //var participant = BBBUtils.getParticipantFromMeeting(meeting);
+
         var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting";
         BBBUtils.hideMessage();
         if(linkSelector) {
@@ -496,6 +503,10 @@ var BBBUtils;
             //After joining stop requesting updates
             clearInterval(bbbCheckOneMeetingAvailabilityId);
             clearInterval(bbbCheckRecordingAvailabilityId);
+            //if(!meeting.waitForModerator || participant.moderator){
+            //    //bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", bbbInterval.meetings);
+            //    bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", 10000);
+            //}
         }
         return true;
     }

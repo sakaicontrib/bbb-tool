@@ -79,6 +79,9 @@ $(document).ready(function(){
         }
     }
 });
+function refresh(meetingId) {
+    var bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", 10000);
+};
 </script>
 </head>
 <body>
