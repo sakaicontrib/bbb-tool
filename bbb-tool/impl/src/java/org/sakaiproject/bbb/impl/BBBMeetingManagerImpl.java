@@ -446,7 +446,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         Site meetingSite = null;
         try{
             meetingSite = siteService.getSite(meeting.getSiteId() );
-            
         } catch( Exception e) {
             logger.warn("There is an error with the site in this meeting " + meeting.getSiteId() + ": " + e.getMessage(), e);
         }
@@ -518,7 +517,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
         */
         // Metadata ends
-        
 
         // check if is running, (re)create it if not
         bbbAPI.makeSureMeetingExists(meeting);
