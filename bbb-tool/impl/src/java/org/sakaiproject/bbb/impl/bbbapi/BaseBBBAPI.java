@@ -413,10 +413,10 @@ public class BaseBBBAPI implements BBBAPI {
         }
         joinQuery.append("&password=");
         joinQuery.append(password);
-        if (userId != null) {
-            joinQuery.append("&userID=");
-            joinQuery.append(userId);
-        }
+        //if (userId != null) {
+        //    joinQuery.append("&userID=");
+        //    joinQuery.append(userId);
+        //}
         joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);
