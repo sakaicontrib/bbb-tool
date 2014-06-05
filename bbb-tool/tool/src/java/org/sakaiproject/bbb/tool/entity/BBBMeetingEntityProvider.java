@@ -556,6 +556,43 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
     }
 
+    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
+    public String getJoinMeetingUrl(OutputStream out, EntityView view, EntityReference ref) {
+        if (logger.isDebugEnabled())
+            logger.debug("getJoinUrl");
+        if (ref == null) {
+            throw new EntityNotFoundException("Meeting not found", null);
+        }
+
+        // get join url
+        try {
+            BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
+
+            if (meeting == null) {
+                throw new EntityException("This meeting is no longer available.", null, 404);
+            }
+            String joinUrl = meeting.getJoinUrl();
+
+            if (joinUrl == null) {
+                throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
+            }
+
+            try {
+                meetingManager.checkJoinMeetingPreConditions(meeting);
+            } catch (BBBException e) {
+                throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+            }
+
+            // log meeting join event
+            meetingManager.logMeetingJoin(ref.getId());
+            return joinUrl;
+
+        } catch (Exception e) {
+            throw new EntityException(e.getMessage(), ref.getReference(), 400);
+        }
+        // pre-join meeting
+    }
+
     public final static boolean WAITFORMODERATOR = true;
     public final static boolean NOTWAITFORMODERATOR = false;
 
@@ -566,10 +603,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (ref == null) {
             throw new EntityNotFoundException("Meeting not found", null);
         }
-        String meetingId;
+
         // get join url
         try {
-            meetingId = ref.getId();
+            String meetingId = ref.getId();
             BBBMeeting meeting = meetingManager.getMeeting(meetingId);
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
@@ -688,43 +725,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "  </body>\n" +
                    commonHtmlFooter;
         }
-    }
-
-    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public String getJoinMeetingUrl(OutputStream out, EntityView view, EntityReference ref) {
-        if (logger.isDebugEnabled())
-            logger.debug("getJoinUrl");
-        if (ref == null) {
-            throw new EntityNotFoundException("Meeting not found", null);
-        }
-
-        // get join url
-        try {
-            BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
-
-            if (meeting == null) {
-                throw new EntityException("This meeting is no longer available.", null, 404);
-            }
-            String joinUrl = meeting.getJoinUrl();
-
-            if (joinUrl == null) {
-                throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
-            }
-
-            try {
-                meetingManager.checkJoinMeetingPreConditions(meeting);
-            } catch (BBBException e) {
-                throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
-            }
-
-            // log meeting join event
-            meetingManager.logMeetingJoin(ref.getId());
-            return joinUrl;
-
-        } catch (Exception e) {
-            throw new EntityException(e.getMessage(), ref.getReference(), 400);
-        }
-        // pre-join meeting
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)

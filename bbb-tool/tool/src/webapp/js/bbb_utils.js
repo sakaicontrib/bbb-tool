@@ -494,7 +494,8 @@ var BBBUtils;
         //}
         //var participant = BBBUtils.getParticipantFromMeeting(meeting);
 
-        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting";
+        var nonce = new Date().getTime();
+        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
         BBBUtils.hideMessage();
         if(linkSelector) {
             jQuery(linkSelector).attr('href', url);
