@@ -30,6 +30,10 @@
 <script type="text/javascript" language="JavaScript" src="lib/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" language="JavaScript" src="lib/jquery.datepick.package-3.7.5/jquery.datepick.pack.js"></script>
 <script type="text/javascript" language="JavaScript" src="lib/jquery.timePicker.js"></script>
+<script type="text/javascript" language="JavaScript">var CKEDITOR_BASEPATH='/library/editor/ckeditor/';
+</script>
+<script type="text/javascript" language="JavaScript" src="/library/editor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" language="JavaScript" src="/library/editor/ckeditor.launch.js"></script>
 <script type="text/javascript" language="JavaScript" src="/library/editor/FCKeditor/fckeditor.js"></script>
 <script type="text/javascript" language="JavaScript" src="lib/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" language="JavaScript" src="js/bbb_utils.js"></script>
@@ -265,7 +269,7 @@ function refresh(meetingId) {
       <tr>
         <td class="lbl">${bbb_info_description}</td>
         <td>
-            <textarea id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${bbb_default_welcome_description}{else}${meeting.props.welcomeMessage}{/if}</textarea>
+            <textarea class="bbb_welcome_message_textarea" id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${bbb_default_welcome_description}{else}${meeting.props.welcomeMessage}{/if}</textarea>
         </td>
       </tr>
       {if isRecording}

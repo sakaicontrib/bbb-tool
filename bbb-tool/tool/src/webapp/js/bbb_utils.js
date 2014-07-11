@@ -187,7 +187,7 @@ var BBBUtils;
         }
         
         // Get description/welcome msg from FCKEditor
-        BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+        BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
 
         // Validate description length
         var maxLength = bbbAddUpdateFormConfigParameters.descriptionMaxLength;
@@ -1079,7 +1079,63 @@ var BBBUtils;
     	if(window.frameElement && window.frameElement.id)
     	   setMainFrameHeightNow(window.frameElement.id);
     }
-    
+
+    /** Transform a textarea element on to a CKEditor, uppon user click */
+    BBBUtils.makeInlineCKEditor = function(textAreaId, toolBarSet, width, height) {
+        var textArea = jQuery('#'+textAreaId);
+        var textAreaContents = jQuery(textArea).text();
+        var fakeTextAreaId = textAreaId + '-' + 'fake';
+        var fakeTextAreaInstrId = textAreaId + '-' + 'fakeInstr';
+        if(jQuery('#'+fakeTextAreaId).length > 0) {
+            jQuery('#'+fakeTextAreaId).remove();
+        }
+        jQuery(textArea)
+           .hide()
+           .before('<div id="'+fakeTextAreaId+'" class="inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
+
+        // Apply CKEditor
+        var applyCKEditor = function() {
+            console.log(textAreaId);
+
+            jQuery('#'+fakeTextAreaId).hide();
+            jQuery(this).unbind('click');
+            jQuery('#'+fakeTextAreaInstrId).unbind('mouseenter').unbind('mouseleave');
+            jQuery('#bbb_meeting_name_field').unbind('keydown');
+
+            toolbarSet = !toolBarSet ? 'Basic' : toolBarSet;
+            width = !width ? '600' : width;
+            height = !height ? '320' : height;
+            sakai.editor.launch(textAreaId, {toolbarSet: toolbarSet}, width, height );
+            jQuery('#my_test').hide();
+        };
+
+        // events
+        jQuery('#'+fakeTextAreaId).bind('mouseenter', function() {
+            jQuery('#'+fakeTextAreaInstrId).fadeIn();
+        }).bind('mouseleave', function() {
+            jQuery('#'+fakeTextAreaInstrId).fadeOut();
+        }).one('click', applyCKEditor);
+        jQuery('#bbb_meeting_name_field').bind('keydown', function(e){
+            if(e.keyCode == 9 ) { // TAB key
+                applyCKEditor(textAreaId);
+            }
+        });
+    }
+
+    /** Update data from inline FCKEditor */
+    BBBUtils.updateFromInlineCKEditor = function(textAreaId) {
+        if(typeof CKEDITOR != "undefined") {
+            var editor = CKEDITOR.instances.content;
+            if(editor != null && editor.checkDirty()) {
+                editor.updateElement();
+                var ta_temp = document.createElement("textarea");
+                ta_temp.innerHTML = editor.getData().replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                var decoded_html = ta_temp.value;
+                jQuery('#'+textAreaId).text(decoded_html);
+            }
+        }
+    }
+
     /** Transform a textarea element on to a FCKEditor, uppon user click */
     BBBUtils.makeInlineFCKEditor = function(textAreaId, toolBarSet, width, height) {
         var textArea = jQuery('#'+textAreaId);
@@ -1092,7 +1148,7 @@ var BBBUtils;
         jQuery(textArea)
            .hide()
            .before('<div id="'+fakeTextAreaId+'" class="inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
-        
+
         // Apply FCKEditor 
         var applyFCKEditor = function() {
             jQuery('#'+fakeTextAreaId).hide();
@@ -1119,7 +1175,7 @@ var BBBUtils;
             oFCKeditor.ReplaceTextarea(); 
             BBBUtils.adjustFrameHeight();
         };
-           
+
         // events
         jQuery('#'+fakeTextAreaId).bind('mouseenter', function() {
             jQuery('#'+fakeTextAreaInstrId).fadeIn();
@@ -1132,7 +1188,7 @@ var BBBUtils;
             }
         });
     }
-            
+
     /** Update data from inline FCKEditor */
     BBBUtils.updateFromInlineFCKEditor = function(textAreaId) {
         if(typeof FCKeditorAPI != "undefined") {
@@ -1145,7 +1201,7 @@ var BBBUtils;
             }
         }
     }
-    
+
     /** Trimpath modifiers :) */
     BBBUtils.getTrimpathModifiers = function() {
     	if(!bbbTrimpathModifiers) {
@@ -1154,7 +1210,7 @@ var BBBUtils;
     	}
     	return bbbTrimpathModifiers;
     }
-    
+
     /** Trimpath macros :) */
     BBBUtils.getTrimpathMacros = function() {
         if(!bbbTrimpathMacros) {
