@@ -186,7 +186,7 @@ var BBBUtils;
             }
         }
         
-        // Get description/welcome msg from FCKEditor
+        // Get description/welcome msg from CKEditor
         BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
 
         // Validate description length
@@ -1095,8 +1095,6 @@ var BBBUtils;
 
         // Apply CKEditor
         var applyCKEditor = function() {
-            console.log(textAreaId);
-
             jQuery('#'+fakeTextAreaId).hide();
             jQuery(this).unbind('click');
             jQuery('#'+fakeTextAreaInstrId).unbind('mouseenter').unbind('mouseleave');
@@ -1106,7 +1104,6 @@ var BBBUtils;
             width = !width ? '600' : width;
             height = !height ? '320' : height;
             sakai.editor.launch(textAreaId, {toolbarSet: toolbarSet}, width, height );
-            jQuery('#my_test').hide();
         };
 
         // events
@@ -1124,14 +1121,17 @@ var BBBUtils;
 
     /** Update data from inline FCKEditor */
     BBBUtils.updateFromInlineCKEditor = function(textAreaId) {
-        if(typeof CKEDITOR != "undefined") {
-            var editor = CKEDITOR.instances.content;
-            if(editor != null && editor.checkDirty()) {
-                editor.updateElement();
-                var ta_temp = document.createElement("textarea");
-                ta_temp.innerHTML = editor.getData().replace(/</g,"&lt;").replace(/>/g,"&gt;");
-                var decoded_html = ta_temp.value;
-                jQuery('#'+textAreaId).text(decoded_html);
+        if( typeof CKEDITOR != "undefined" ) {
+            var editor = CKEDITOR.instances[textAreaId];
+            if ( editor != null ) {
+                if ( editor.checkDirty()) {
+                    editor.updateElement();
+                    var ta_temp = document.createElement("textarea");
+                    ta_temp.innerHTML = editor.getData().replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                    var decoded_html = ta_temp.value;
+                    jQuery('#'+textAreaId).text(decoded_html);
+                }
+                editor.destroy();
             }
         }
     }
