@@ -125,21 +125,34 @@ class SakaiProxy
 		
 		return placement.getId();
 	}
-	
+
 	public String getUserLanguageCode()
 	{
 	    Locale locale = (new ResourceLoader()).getLocale();
 	    String languageCode = (locale.toString() == null || "".equals(locale.toString()))? "en": locale.toString();
 	    return languageCode;
 	}
-	
+
+    private static final String SAKAI_VERSION_25 = "2.5";
+    private static final String SAKAI_VERSION_26 = "2.6";
+    private static final String SAKAI_VERSION_27 = "2.7";
+    private static final String SAKAI_VERSION_28 = "2.8";
+    private static final String SAKAI_VERSION_29 = "2.9";
+    private static final String SAKAI_VERSION_MIN = "SAKAI_VERSION_25";
+
+    public String getSakaiVersion()
+    {
+        String sakaiVersion = serverConfigurationService.getString("version.sakai");
+        return sakaiVersion;
+    }
+
 	public String getSakaiSkin()
 	{
 		String skin = serverConfigurationService.getString("skin.default");
 		String siteSkin = siteService.getSiteSkin(getCurrentSiteId());
 		return siteSkin != null ? siteSkin : (skin != null ? skin : "default");
 	}
-	
+
 	public long getServerTimeInUserTimezone()
 	{
 	    Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();

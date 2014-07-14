@@ -51,7 +51,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
 
     //private static BBBMeetingEntityProducer entityProducer = null; 
     
-    private static final String ARCHIVE_VERSION = "1.0.7"; // in case new features are added in future exports
+    private static final String ARCHIVE_VERSION = "1.0.8"; // in case new features are added in future exports
     private static final String VERSION_ATTR = "version";
     private static final String NAME = "name";
     private static final String VALUE = "value";

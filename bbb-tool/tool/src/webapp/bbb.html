@@ -43,6 +43,7 @@
 <link rel="stylesheet" type="text/css" href="css/bbb.css" />
 <link rel="stylesheet" type="text/css" href="lib/jquery.datepick.package-3.7.5/redmond.datepick.css" />
 <script type="text/javascript" language="JavaScript">
+var sakaiVersion;
 $(document).ready(function(){
     var arg = BBBUtils.getParameters();
     // load Sakai skin
@@ -82,6 +83,7 @@ $(document).ready(function(){
             jQuery.getScript("lib/jquery.datepick.package-3.7.5/jquery.datepick-" + lang[0] + ".js");
         }
     }
+    sakaiVersion = arg['version'];
 });
 function refresh(meetingId) {
     var bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", 10000);
