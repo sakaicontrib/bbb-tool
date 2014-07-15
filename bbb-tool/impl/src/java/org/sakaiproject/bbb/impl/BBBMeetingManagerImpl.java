@@ -861,12 +861,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
 
-        // generate an ical to attach to email (if, at least, start date is defined)
-        String icalFilename = generateIcalFromMeeting(meeting);
-        final File icalFile = icalFilename != null ? new File(icalFilename): null;
-        if (icalFile != null)
-            icalFile.deleteOnExit();
-
         ResourceLoader msgs = null;
         // iterate over all user locales found
         logger.debug("Sending notifications to " + meetingUsers.size() + " users.");
@@ -907,6 +901,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     serverConfigurationService.getString("ui.institution"),
                     serverConfigurationService.getServerUrl() + "/portal",
                     siteTitle }));
+
+            // Generate an ical to attach to email (if, at least, start date is defined)
+            String icalFilename = generateIcalFromMeetingInUserTimezone(meeting, userId);
+            final File icalFile = icalFilename != null ? new File(icalFilename): null;
+            if (icalFile != null)
+                icalFile.deleteOnExit();
 
             // Send (a single) email (per userId)!
             final String emailMessage = msg.toString();
@@ -1278,14 +1278,32 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
      */
     private String generateIcalFromMeeting(BBBMeeting meeting) {
         TimeZone defaultTimezone = TimeZone.getDefault();
-        Date startDate = convertDateToTimezone(meeting.getStartDate(), defaultTimezone);
+        return generateIcalFromMeetingInTimeZone(meeting, defaultTimezone);
+    }
+
+    private String generateIcalFromMeetingInUserTimezone(BBBMeeting meeting, String userId) {
+
+        Preferences prefs = preferencesService.getPreferences(userId);
+        TimeZone timeZone = TimeZone.getDefault();
+        if (prefs != null) {
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
+            String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
+            if( timeZoneStr != null )
+                timeZone = TimeZone.getTimeZone(timeZoneStr);
+        }
+
+        return generateIcalFromMeetingInTimeZone(meeting, timeZone);
+    }
+
+    private String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, TimeZone timeZone) {
+        Date startDate = meeting.getStartDate();
         if (startDate == null)
             return null;
-        Date endDate = convertDateToTimezone(meeting.getEndDate(), defaultTimezone);
+        Date endDate = meeting.getEndDate();
 
         // Create a TimeZone
         TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-        net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(defaultTimezone.getID());
+        net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(timeZone.getID());
         VTimeZone tz = timezone.getVTimeZone();
 
         // Create the event
@@ -1295,7 +1313,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             DateTime start = new DateTime(startDate.getTime());
             DateTime end = new DateTime(endDate.getTime());
             vEvent = new VEvent(start, end, eventName);
-
         } else {
             DateTime start = new DateTime(startDate.getTime());
             vEvent = new VEvent(start, eventName);
