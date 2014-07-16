@@ -39,16 +39,21 @@ import java.util.TimeZone;
 
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyFactoryRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
+import net.fortuna.ical4j.model.property.Action;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.Version;
@@ -1301,13 +1306,25 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             return null;
         Date endDate = meeting.getEndDate();
 
+        String eventName = meeting.getName();
+
         // Create a TimeZone
         TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
         net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(timeZone.getID());
         VTimeZone tz = timezone.getVTimeZone();
 
+        // Create a reminder
+        VAlarm vAlarm = new VAlarm(new Dur(0, -1, 0, 0));
+
+        // repeat reminder four (4) more times every fifteen (15) minutes..
+        vAlarm.getProperties().add(new Repeat(4));
+        vAlarm.getProperties().add(new Duration(new Dur(0, 0, 15, 0)));
+
+        // display a message..
+        vAlarm.getProperties().add(Action.DISPLAY);
+        vAlarm.getProperties().add(new Description(eventName));
+
         // Create the event
-        String eventName = meeting.getName();
         VEvent vEvent = null;
         if (endDate != null) {
             DateTime start = new DateTime(startDate.getTime());
@@ -1342,6 +1359,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         } catch (SocketException e) {
             logger.warn("Unable to generate iCal Event UID.", e);
         }
+
+        // add the reminder
+        vEvent.getAlarms().add(vAlarm);
 
         // create a calendar
         net.fortuna.ical4j.model.Calendar icsCalendar = new net.fortuna.ical4j.model.Calendar();
