@@ -229,7 +229,11 @@ function refresh(meetingId) {
               {for p in r.playback}
               	{var recType = bbb_recording_type[p.type] === undefined ? p.type : bbb_recording_type[p.type]}
               	{var viewRecType = bbb_recording_view_tooltip[p.type] === undefined ? p.type : bbb_recording_view_tooltip[p.type]}
-        	    <a href="${p.url}" title="${viewRecType}" target="_blank">${recType}</a>&nbsp;
+                {if r.published == 'true'}
+                    <a href="${p.url}" title="${viewRecType}" target="_blank">${recType}</a>&nbsp;
+                {else}
+                    ${recType}&nbsp;
+                {/if}
               {/for}
             </td>
             <td>
