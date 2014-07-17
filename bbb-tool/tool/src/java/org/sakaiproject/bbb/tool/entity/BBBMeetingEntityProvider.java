@@ -212,10 +212,15 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         // store meeting
         String addToCalendarStr = (String) params.get("addToCalendar");
         String notifyParticipantsStr = (String) params.get("notifyParticipants");
-        boolean addToCalendar = addToCalendarStr != null && 
-                (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
-        boolean notifyParticipants = notifyParticipantsStr != null && 
-                (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+        String iCalAttachedStr = (String) params.get("iCalAttached");
+        String iCalAlarmMinutesStr = (String) params.get("iCalAlarmMinutes");
+        boolean addToCalendar = addToCalendarStr != null
+                && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
+        boolean notifyParticipants = notifyParticipantsStr != null
+                && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+        boolean iCalAttached = iCalAttachedStr != null
+                && (iCalAttachedStr.toLowerCase().equals("on") || iCalAttachedStr.toLowerCase().equals("true"));
+        Long iCalAlarmMinutes = iCalAlarmMinutesStr != null? Long.valueOf(iCalAlarmMinutesStr): 0L;
 
         // generate differentiated passwords
         meeting.setAttendeePassword(generatePassword());
@@ -236,7 +241,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
 
         try {
-            if (!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar))
+            if (!meetingManager.createMeeting(meeting, notifyParticipants, addToCalendar, iCalAttached, iCalAlarmMinutes))
                 throw new EntityException("Unable to store meeting in DB", meeting.getReference(), 400);
         } catch (BBBException e) {
             throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
@@ -318,13 +323,18 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             // store meeting
             String addToCalendarStr = (String) params.get("addToCalendar");
             String notifyParticipantsStr = (String) params.get("notifyParticipants");
+            String iCalAttachedStr = (String) params.get("iCalAttached");
+            String iCalAlarmMinutesStr = (String) params.get("iCalAlarmMinutes");
             boolean addToCalendar = addToCalendarStr != null
                     && (addToCalendarStr.toLowerCase().equals("on") || addToCalendarStr.toLowerCase().equals("true"));
             boolean notifyParticipants = notifyParticipantsStr != null
                     && (notifyParticipantsStr.toLowerCase().equals("on") || notifyParticipantsStr.toLowerCase().equals("true"));
+            boolean iCalAttached = iCalAttachedStr != null
+                    && (iCalAttachedStr.toLowerCase().equals("on") || iCalAttachedStr.toLowerCase().equals("true"));
+            Long iCalAlarmMinutes = iCalAlarmMinutesStr != null? Long.valueOf(iCalAlarmMinutesStr): 0L;
 
             try {
-                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar))
+                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar, iCalAttached, iCalAlarmMinutes))
                     throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
             } catch (BBBException e) {
                 throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);

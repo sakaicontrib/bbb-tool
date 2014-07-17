@@ -1362,18 +1362,18 @@ function FCKeditor_OnComplete(editorInstance) {editorInstance.Focus();}
 BBBUtils.setNotifictionOptions = function() {
     if ( jQuery('#notifyParticipants')[0].checked ) {
         jQuery('#notifyParticipants_iCalAttach_span').empty()
-        .html('<br>' + bbb_notification_notify_ical + '&nbsp;<input id="notifyParticipants_iCalAttach_input" name="notifyParticipants_iCalAttach_input" type="checkbox" checked="checked" onclick="BBBUtils.setNotifictioniCalOptions();"/>&nbsp;<span id="notifyParticipants_iCalAlarm_span"></span>')
+        .html('<br>' + bbb_notification_notify_ical + '&nbsp;<input id="iCalAttached" name="iCalAttached" type="checkbox" checked="checked" onclick="BBBUtils.setNotifictioniCalOptions();"/>&nbsp;<span id="notifyParticipants_iCalAlarm_span"></span>')
         .show();
         jQuery('#notifyParticipants_iCalAlarm_span').empty()
         .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
         .show();
     } else {
-        if ( jQuery('#notifyParticipants_iCalAttach_input')[0].checked ) {
+        if ( jQuery('#iCalAttached')[0].checked ) {
             //Hide the iCalAlarm
             jQuery('#notifyParticipants_iCalAlarm_span').empty()
             .hide();
             //Uncheck the iCalAttach checkbox
-            $('#notifyParticipants_iCalAttach_input').removeAttr('checked');
+            $('#iCalAttached').removeAttr('checked');
         }
         //Hide the iCalAttach
         jQuery('#notifyParticipants_iCalAttach_span').empty()
@@ -1382,7 +1382,7 @@ BBBUtils.setNotifictionOptions = function() {
 }
 
 BBBUtils.setNotifictioniCalOptions = function() {
-    if ( jQuery('#notifyParticipants_iCalAttach_input')[0].checked ) {
+    if ( jQuery('#iCalAttached')[0].checked ) {
         jQuery('#notifyParticipants_iCalAlarm_span').empty()
         .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
         .show();

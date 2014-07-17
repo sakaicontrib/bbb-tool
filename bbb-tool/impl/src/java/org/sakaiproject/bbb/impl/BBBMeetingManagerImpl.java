@@ -239,7 +239,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return filteredMeetings;
     }
 
-    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException {
         if (!getCanCreate(meeting.getSiteId())) {
             throw new SecurityException("You are not allowed to create meetings in this site");
@@ -256,7 +256,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.storeMeeting(meeting)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting, true);
+                notifyParticipants(meeting, true, iCalAttached, iCalAlarmMinutes);
             }
 
             // add start date to Calendar
@@ -278,7 +278,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
     }
 
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException {
         if (!getCanEdit(meeting.getSiteId(), meeting)) {
             throw new SecurityException("You are not allow to update this meeting");
@@ -288,7 +288,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.updateMeeting(meeting, true)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting, false);
+                notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes);
             }
 
             // add start date to Calendar
@@ -809,7 +809,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return null;
     }
 
-    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting) {
+    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting, boolean iCalAttached, long iCalAlarmMinutes) {
         // Site title, url and directtool (universal) url for joining meeting
         Site site;
         try {
@@ -908,6 +908,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     siteTitle }));
 
             // Generate an ical to attach to email (if, at least, start date is defined)
+            final boolean iCalAttachedFinal = iCalAttached;
             String icalFilename = generateIcalFromMeetingInUserTimezone(meeting, userId);
             final File icalFile = icalFilename != null ? new File(icalFilename): null;
             if (icalFile != null)

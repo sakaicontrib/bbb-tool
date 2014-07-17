@@ -116,7 +116,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException;
 
     /**
@@ -125,7 +125,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException;
 
     /**
