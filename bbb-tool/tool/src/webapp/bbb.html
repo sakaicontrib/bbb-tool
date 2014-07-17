@@ -87,7 +87,6 @@ function refresh(meetingId) {
 <body>
 
 <div id="bbb_toolbar" class="portletBody"></div>
-<br />
 <div id="bbb_messages" style="display: none"></div>
 <div id="bbb_container">
     <div id="bbb_content"></div>
@@ -97,14 +96,12 @@ function refresh(meetingId) {
 <!--  Templates Start -->
 <div id="bbb_toolbar_template" style="display:none;"><!--
 <ul id="bbb_toolbar_items" class="navIntraTool actionToolBar" role="menu">
+    
     <li class="firstToolBarItem" role="menuitem">
           <span><a id="bbb_home_link" title="${bbb_home_tooltip}" href="javascript:;">${bbb_home_label}</a></span>
     </li>
     <li role="menuitem">
           <span><a id="bbb_recordings_link" title="${bbb_recordings_tooltip}" href="javascript:;">${bbb_recordings_label}</a></span>
-    </li>
-    <li role="menuitem">
-          <span><a id="bbb_create_meeting_link" title="${bbb_create_meeting_tooltip}" href="javascript:;">${bbb_create_meeting_label}</a></span>
     </li>
     <li role="menuitem">
           <span><a id="bbb_permissions_link" title="${bbb_permissions_tooltip}" href="javascript:;">${bbb_permissions_label}</a></span>
@@ -114,6 +111,8 @@ function refresh(meetingId) {
 </div>
 
 <div id="bbb_rooms_template" style="display:none"><!--
+         <input type="button" id="bbb_create_meeting_link" title="${bbb_create_meeting_tooltip}" value="${bbb_create_meeting_label}" />
+
 <table id="bbb_meeting_table" class="listHier">
     <thead>
         <tr>

@@ -59,10 +59,6 @@ var bbbErrorLog = new Object();
         return switchState('currentMeetings');
     });
 
-    $('#bbb_create_meeting_link').bind('click',function(e) {
-        return switchState('addUpdateMeeting');
-    });
-
     $('#bbb_end_meetings_link').bind('click',BBBUtils.endAllMeetingsForCurrentSite);
 
     $('#bbb_permissions_link').bind('click',function(e) {
@@ -100,9 +96,14 @@ function switchState(state,arg) {
 	bbbServerTimeZoneOffset = bbbServerTimeStamp.defaultOffset;
 	
     BBBUtils.hideMessage();
+    
+    //Clean navbar button state
+    $("#bbb_toolbar_items li>span").removeClass('current');
+    
     if('currentMeetings' === state) {
+    	$("#bbb_home_link").parent().addClass('current');
         $('#bbb_recordings_link').parent().parent().show();
-
+        
         // show permissions links only if site maintainer
         if(bbbUserPerms.bbbAdmin) {
             $('#bbb_permissions_link').parent().parent().show();
@@ -110,13 +111,7 @@ function switchState(state,arg) {
             $('#bbb_permissions_link').parent().parent().hide();
         }
         
-        // show links if user has appropriate permissions
-        if(bbbUserPerms.bbbCreate) {   
-            $('#bbb_create_meeting_link').parent().parent().show();     
-        }else{
-            $('#bbb_create_meeting_link').parent().parent().hide();       
-        }
-        if(bbbUserPerms.bbbDeleteAny) {   
+       if(bbbUserPerms.bbbDeleteAny) {   
             $('#bbb_end_meetings_link').parent().parent().show();        
         }else{
             $('#bbb_end_meetings_link').parent().parent().hide();         
@@ -134,6 +129,18 @@ function switchState(state,arg) {
             	bbbToolVersion = BBBUtils.getToolVersion();
             	BBBUtils.render('bbb_toolfooter_template',{'bbbTool':bbbToolVersion},'bbb_footer');
             }
+
+	    $('#bbb_create_meeting_link').bind('click',function(e) {
+	        return switchState('addUpdateMeeting');
+	    });
+
+	    // show links if user has appropriate permissions
+	    if(bbbUserPerms.bbbCreate) {   
+        	$('#bbb_create_meeting_link').show();     
+	    }else{
+	 	$('#bbb_create_meeting_link').hide();      
+	    }
+ 
 
             $(document).ready(function() {
                 // auto hide actions
@@ -187,10 +194,9 @@ function switchState(state,arg) {
         
     } else if('addUpdateMeeting' === state) {
         $('#bbb_recordings_link').parent().parent().hide();
-        $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
-        
+
         var isNew = !(arg && arg.meetingId); 
         var meeting = isNew ? {} : BBBUtils.getMeeting(arg.meetingId);
         var contextData = {
@@ -258,10 +264,7 @@ function switchState(state,arg) {
         });
         
     } else if('permissions' === state) {
-        $('#bbb_recordings_link').parent().parent().hide();
-        $('#bbb_create_meeting_link').parent().parent().hide();
-        $('#bbb_end_meetings_link').parent().parent().hide();
-        $('#bbb_permissions_link').parent().parent().hide();
+    	$("#bbb_permissions_link").parent().addClass('current');
 
         BBBUtils.render('bbb_permissions_template', {'permissions': BBBUtils.getSitePermissions()}, 'bbb_content');
         
@@ -283,12 +286,11 @@ function switchState(state,arg) {
     } else if('joinMeeting' === state || 'meetingInfo' === state) {
         //console.debug(state);
     	if('joinMeeting' === state ) refreshMeetingList();
-    	
         $('#bbb_recordings_link').parent().parent().hide();
-        $('#bbb_create_meeting_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
-        
+
+
         if(arg && arg.meetingId) {
         	var meeting = null;
         	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
@@ -322,9 +324,7 @@ function switchState(state,arg) {
         	switchState('currentMeetings');
         }
     } else if('recordings' === state) {
-        $('#bbb_create_meeting_link').parent().parent().hide();
-        $('#bbb_end_meetings_link').parent().parent().hide();
-        $('#bbb_permissions_link').parent().parent().hide();
+    	$("#bbb_recordings_link").parent().addClass('current');
 
         // show meeting list
         if(bbbUserPerms.bbbViewMeetingList) {
@@ -387,9 +387,7 @@ function switchState(state,arg) {
             $('#bbb_content').empty();
         }
     } else if('recordings_meeting' === state) {
-    	$('#bbb_create_meeting_link').parent().parent().hide();
-    	$('#bbb_end_meetings_link').parent().parent().hide();
-    	$('#bbb_permissions_link').parent().parent().hide();
+    	$("#bbb_recordings_link").parent().addClass('current inactive');
 
     	if(arg && arg.meetingId) {
     	    if(bbbUserPerms.bbbViewMeetingList) {
