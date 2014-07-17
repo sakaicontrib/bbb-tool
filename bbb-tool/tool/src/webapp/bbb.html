@@ -117,7 +117,7 @@ function refresh(meetingId) {
 </div>
 
 <div id="bbb_rooms_template" style="display:none"><!--
-         <input type="button" id="bbb_create_meeting_link" title="${bbb_create_meeting_tooltip}" value="${bbb_create_meeting_label}" />
+<input type="button" id="bbb_create_meeting_link" title="${bbb_create_meeting_tooltip}" value="${bbb_create_meeting_label}" />
 
 <table id="bbb_meeting_table" class="listHier">
     <thead>
@@ -376,7 +376,8 @@ function refresh(meetingId) {
         <td class="lbl">{if isNew}${bbb_notification_notify}{else}${bbb_notification_notify_edit}{/if}</td>
         <td>
             {var notifyParticipantsChecked = false }
-            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if notifyParticipantsChecked}checked{/if}/>
+            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if notifyParticipantsChecked}checked{/if} onclick="BBBUtils.setNotifictionOptions();"/>
+            <span id="notifyParticipants_iCalAttach_span"></span>
         </td>
       </tr>
     </table>

@@ -37,7 +37,7 @@ var bbbErrorLog = new Object();
     
     // Process parameters
     var arg = BBBUtils.getParameters(); 
-    if(!arg || !arg.siteId) {
+    if (!arg || !arg.siteId) {
         BBBUtils.showMessage(bbb_err_no_siteid, 'error');
         return;
     }
@@ -74,7 +74,7 @@ var bbbErrorLog = new Object();
     $('#bbb_recordings_link').show();
 
     // Now switch into the requested state
-    if(bbbCurrentUser != null) {
+    if (bbbCurrentUser != null) {
         switchState(arg.state,arg);
     } else {
         BBBUtils.showMessage(bbb_err_no_user, 'error');
@@ -100,47 +100,46 @@ function switchState(state,arg) {
     //Clean navbar button state
     $("#bbb_toolbar_items li>span").removeClass('current');
     
-    if('currentMeetings' === state) {
+    if ('currentMeetings' === state) {
     	$("#bbb_home_link").parent().addClass('current');
         $('#bbb_recordings_link').parent().parent().show();
         
         // show permissions links only if site maintainer
-        if(bbbUserPerms.bbbAdmin) {
+        if (bbbUserPerms.bbbAdmin) {
             $('#bbb_permissions_link').parent().parent().show();
-        }else{
+        } else {
             $('#bbb_permissions_link').parent().parent().hide();
         }
         
-       if(bbbUserPerms.bbbDeleteAny) {   
+        if (bbbUserPerms.bbbDeleteAny) {
             $('#bbb_end_meetings_link').parent().parent().show();        
-        }else{
+        } else {
             $('#bbb_end_meetings_link').parent().parent().hide();         
         }
         
         // show meeting list
-        if(bbbUserPerms.bbbViewMeetingList) {
+        if (bbbUserPerms.bbbViewMeetingList) {
             // Get meeting list
             refreshMeetingList();
             
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
 
             // show tool footer message only if site maintainer
-            if(bbbUserPerms.siteUpdate) {
+            if (bbbUserPerms.siteUpdate) {
             	bbbToolVersion = BBBUtils.getToolVersion();
             	BBBUtils.render('bbb_toolfooter_template',{'bbbTool':bbbToolVersion},'bbb_footer');
             }
 
-	    $('#bbb_create_meeting_link').bind('click',function(e) {
-	        return switchState('addUpdateMeeting');
-	    });
+            $('#bbb_create_meeting_link').bind('click',function(e) {
+                return switchState('addUpdateMeeting');
+            });
 
-	    // show links if user has appropriate permissions
-	    if(bbbUserPerms.bbbCreate) {   
-        	$('#bbb_create_meeting_link').show();     
-	    }else{
-	 	$('#bbb_create_meeting_link').hide();      
-	    }
- 
+            // show links if user has appropriate permissions
+            if (bbbUserPerms.bbbCreate) {
+                $('#bbb_create_meeting_link').show();
+            } else {
+                $('#bbb_create_meeting_link').hide();
+            }
 
             $(document).ready(function() {
                 // auto hide actions
@@ -180,19 +179,20 @@ function switchState(state,arg) {
                 BBBUtils.adjustFrameHeight();
             });
 
-            if(bbbInterval.meetings > 0) bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbInterval.meetings);
+            if (bbbInterval.meetings > 0)
+                bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbInterval.meetings);
 
-        }else{
+        } else {
             // warn about lack of permissions
-            if(bbbUserPerms.siteUpdate) {
+            if (bbbUserPerms.siteUpdate) {
                 BBBUtils.showMessage(bbb_err_no_tool_permissions_maintainer);
-            }else{
+            } else {
                 BBBUtils.showMessage(bbb_err_no_tool_permissions);
             }
             $('#bbb_content').empty();
         }
-        
-    } else if('addUpdateMeeting' === state) {
+
+    } else if ('addUpdateMeeting' === state) {
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
@@ -213,14 +213,14 @@ function switchState(state,arg) {
         $(document).ready(function() {
             // Focus on meeting name/title
             $('#bbb_meeting_name_field').focus();
-            
+
             // Setup description/welcome msg editor. Depending of the sakai version it will use CKEditor or FCKEditor
             var sakaiVersionArr = sakaiVersion.split('.');
-            if( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
+            if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
                 BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
             else
                 BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
-            
+
             // Setup dates
             var now = new Date(); 
             var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
@@ -229,14 +229,14 @@ function switchState(state,arg) {
 
             var startDate = (!isNew && meeting.startDate) ? new Date(parseInt(meeting.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset) + ( (new Date()).dst() && !(new Date( parseInt(meeting.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(meeting.startDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? (3600000 * -1): 0 ) ) : now_local;
             var endDate = (!isNew && meeting.endDate) ? new Date(parseInt(meeting.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset) + ( (new Date()).dst() && !(new Date( parseInt(meeting.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(meeting.endDate) - parseInt(bbbBrowserTimeZoneOffset) + parseInt(bbbUserTimeZoneOffset))).dst()? (3600000 * -1): 0 ) ) : now_local_plus_1;
-            
+
             // Setup time picker
             var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
             jQuery('#startTime').val(zeropad(startDate.getHours()) +':'+ zeropad(startDate.getMinutes()));
             jQuery('#endTime').val(zeropad(endDate.getHours()) +':'+ zeropad(endDate.getMinutes()));
             jQuery(".time-picker").remove();
             jQuery("#startTime, #endTime").timePicker({separator:':'});
-            
+
             // Setup date picker
             jQuery.datepick.setDefaults({
                 dateFormat:         jQuery.datepick.W3C,
@@ -249,65 +249,61 @@ function switchState(state,arg) {
             jQuery('#startDate2, #endDate2').datepick();
             jQuery('#startDate2').datepick('setDate', startDate);
             jQuery('#endDate2').datepick('setDate', endDate);
-            
+
             // Add meeting participants
             addParticipantSelectionToUI(meeting, isNew);
-            
+
             // Setup form submission
             jQuery("#bbb_add_update_form").submit(function() {
                 BBBUtils.addUpdateMeeting();
                 return false;
             });
-            
+
             // User warnings
-            if(!allSiteMembersCanParticipate()) {
+            if (!allSiteMembersCanParticipate()) {
                  BBBUtils.showMessage(bbb_err_not_everyone_can_participate);
             }
 
             BBBUtils.adjustFrameHeight();
         });
-        
-    } else if('permissions' === state) {
+
+    } else if ('permissions' === state) {
     	$("#bbb_permissions_link").parent().addClass('current');
 
         BBBUtils.render('bbb_permissions_template', {'permissions': BBBUtils.getSitePermissions()}, 'bbb_content');
-        
+
         $(document).ready(function() {
             $('#bbb_permissions_save_button').bind('click', function() {
                BBBUtils.setSitePermissions('.bbb_permission_checkbox', function() {
                    // success callback
                    bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
-                   if(bbbUserPerms.bbbViewMeetingList)
+                   if (bbbUserPerms.bbbViewMeetingList)
                        refreshMeetingList();
                    switchState('currentMeetings');
-                   if(bbbUserPerms.bbbViewMeetingList) 
+                   if (bbbUserPerms.bbbViewMeetingList)
                         BBBUtils.showMessage(bbb_permissions_saved, 'success');
                })
             });
 
             BBBUtils.adjustFrameHeight();
         });
-    } else if('joinMeeting' === state || 'meetingInfo' === state) {
+    } else if ('joinMeeting' === state || 'meetingInfo' === state) {
         //console.debug(state);
-    	if('joinMeeting' === state ) refreshMeetingList();
+        if ('joinMeeting' === state ) refreshMeetingList();
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
 
-
-        if(arg && arg.meetingId) {
-        	var meeting = null;
-        	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-        		if( bbbCurrentMeetings[i].id == arg.meetingId ) {
+        if (arg && arg.meetingId) {
+            var meeting = null;
+            for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+                if ( bbbCurrentMeetings[i].id == arg.meetingId ) {
         			meeting = bbbCurrentMeetings[i];
         			break;
         		}
         	}
 
 			if (meeting) {
-                //console.debug(bbbCurrentUser);
-                //console.debug(bbbUserPerms);
-			    //console.debug(meeting);
 				BBBUtils.render('bbb_meeting-info_template', {'meeting' : meeting}, 'bbb_content');
 				$(document).ready(function() {
 					BBBUtils.checkOneMeetingAvailability(arg.meetingId);
@@ -324,22 +320,22 @@ function switchState(state,arg) {
 				BBBUtils.showMessage(bbb_err_meeting_unavailable_instr,	'warning', bbb_err_meeting_unavailable, false);
 				BBBUtils.adjustFrameHeight();
 			}
-        }else{
+        } else {
         	switchState('currentMeetings');
         }
-    } else if('recordings' === state) {
+    } else if ('recordings' === state) {
     	$("#bbb_recordings_link").parent().addClass('current');
 
         // show meeting list
-        if(bbbUserPerms.bbbViewMeetingList) {
+        if (bbbUserPerms.bbbViewMeetingList) {
             // Get recording list
         	refreshRecordingList();
-        	
+
         	// watch for permissions changes, check meeting dates
             for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
                 BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
             }
-            
+
             BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings,'stateFunction':'recordings'},'bbb_content');
 
             $(document).ready(function() {
@@ -354,7 +350,7 @@ function switchState(state,arg) {
                         jQuery(this).removeClass('bbb_even_row');
                     }
                 );
-                
+
                 // Add parser for customized date format
                 $.tablesorter.addParser({
                     id: "bbbDateTimeFormat",
@@ -376,25 +372,26 @@ function switchState(state,arg) {
                     // Sort DESC status:
                     sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
                 });
-                
+
                 BBBUtils.adjustFrameHeight();
             });
 
-            if(bbbInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
-        }else{
+            if (bbbInterval.recordings > 0)
+                bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
+        } else {
             // warn about lack of permissions
-            if(bbbUserPerms.siteUpdate) {
+            if (bbbUserPerms.siteUpdate) {
                 BBBUtils.showMessage(bbb_err_no_tool_permissions_maintainer);
-            }else{
+            } else {
                 BBBUtils.showMessage(bbb_err_no_tool_permissions);
             }
             $('#bbb_content').empty();
         }
-    } else if('recordings_meeting' === state) {
-    	$("#bbb_recordings_link").parent().addClass('current inactive');
+    } else if ('recordings_meeting' === state) {
+        $("#bbb_recordings_link").parent().addClass('current inactive');
 
-    	if(arg && arg.meetingId) {
-    	    if(bbbUserPerms.bbbViewMeetingList) {
+        if (arg && arg.meetingId) {
+            if (bbbUserPerms.bbbViewMeetingList) {
                 // Get meeting list
             	refreshRecordingList(arg.meetingId);
 
@@ -403,7 +400,7 @@ function switchState(state,arg) {
                 	bbbCurrentRecordings[i].ownerId = "";
                     BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
                 }
-    	        
+
                 BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
 
     	        $(document).ready(function() {
@@ -418,7 +415,7 @@ function switchState(state,arg) {
     	                    jQuery(this).removeClass('bbb_even_row');
     	                }
     	            );
-    	            
+
     	            // add sorting capabilities
     	            $("#bbb_recording_table").tablesorter({
     	                cssHeader:'bbb_sortable_table_header',
@@ -432,19 +429,19 @@ function switchState(state,arg) {
     	            BBBUtils.adjustFrameHeight();
     	        });
 
-    	        if(bbbInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbInterval.recordings);
-            }else{
+    	        if (bbbInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbInterval.recordings);
+            } else {
                 // warn about lack of permissions
-                if(bbbUserPerms.siteUpdate) {
+                if (bbbUserPerms.siteUpdate) {
                     BBBUtils.showMessage(bbb_err_no_tool_permissions_maintainer);
-                }else{
+                } else {
                     BBBUtils.showMessage(bbb_err_no_tool_permissions);
                 }
                 $('#bbb_content').empty();
             }
-    	}else{
-    		switchState('recordings');
-    	}
+        } else {
+            switchState('recordings');
+        }
     }
 }
 
@@ -453,46 +450,46 @@ function allSiteMembersCanParticipate() {
     var totalRoles = perms.length;
     var totalRolesThatCanParticipate = 0;
     for(var r=0; r<perms.length; r++) {
-        if(perms[r].bbb_participate) totalRolesThatCanParticipate++;
+        if (perms[r].bbb_participate) totalRolesThatCanParticipate++;
     }
     return totalRoles == totalRolesThatCanParticipate;
 }
 
 function addParticipantSelectionToUI(meeting, isNew) {
     var selOptions = BBBUtils.getUserSelectionOptions();
-	if(isNew) {
+	if (isNew) {
 		var defaults = selOptions['defaults'];
-		
+
         // meeting creator (default: as moderator)
 		var ownerDefault = defaults['bbb.default.participants.owner'];
-		if(ownerDefault != 'none') {
+		if (ownerDefault != 'none') {
             addParticipantRow('user', bbbCurrentUser.id, bbbCurrentUser.displayName +' ('+bbbCurrentUser.displayId+')', ownerDefault == 'moderator');
 		}
-        
+
         // all site participants (default: none)
 		var allUsersDefault = defaults['bbb.default.participants.all_users'];
-        if(allUsersDefault != 'none') {
+        if (allUsersDefault != 'none') {
             addParticipantRow('all', null, null, allUsersDefault == 'moderator');
         }
-    
-    }else{
+
+    } else {
     	// existing participants
         for(var i=0; i<meeting.participants.length; i++) {
             var selectionType = meeting.participants[i].selectionType;
             var selectionId = meeting.participants[i].selectionId;
             var role = meeting.participants[i].role;
             
-            if(selectionType == 'all') {
+            if (selectionType == 'all') {
                 addParticipantRow('all', null, null, role == 'moderator');
-                
-            }else{
+
+            } else {
                 var opts = null;
-                if(selectionType == 'user') opts = selOptions['users'];
-                if(selectionType == 'group') opts = selOptions['groups'];
-                if(selectionType == 'role') opts = selOptions['roles'];
+                if (selectionType == 'user') opts = selOptions['users'];
+                if (selectionType == 'group') opts = selOptions['groups'];
+                if (selectionType == 'role') opts = selOptions['roles'];
                 
                 for(var n=0; n<opts.length; n++) {
-                    if(opts[n]['id'] == selectionId) {
+                    if (opts[n]['id'] == selectionId) {
                     	addParticipantRow(selectionType, selectionId, opts[n]['title'], role == 'moderator');
                         break;
                     }
@@ -508,11 +505,11 @@ function updateParticipantSelectionUI() {
     var selType = jQuery('#selType').val();
     jQuery('#selOption option').remove();
     
-    if(selType == 'user' || selType == 'group' || selType == 'role') {
+    if (selType == 'user' || selType == 'group' || selType == 'role') {
         var opts = null;
-        if(selType == 'user') opts = selOptions['users'];
-        if(selType == 'group') opts = selOptions['groups'];
-        if(selType == 'role') opts = selOptions['roles'];
+        if (selType == 'user') opts = selOptions['users'];
+        if (selType == 'group') opts = selOptions['groups'];
+        if (selType == 'role') opts = selOptions['roles'];
         for(var i=0; i<opts.length; i++) {
             jQuery('#selOption').append(
               '<option value="'+ opts[i]['id'] +'">'+ opts[i]['title'] +'</option>'
@@ -524,7 +521,7 @@ function updateParticipantSelectionUI() {
         }));
 
         jQuery('#selOption').removeAttr('disabled');
-    }else{
+    } else {
         jQuery('#selOption').attr('disabled','disabled');
     }
 }
@@ -534,16 +531,16 @@ function addParticipantRow(_selType, _id, _title, _moderator) {
     var selectionType = _selType + '_' + _id;
     var selectionId = _selType + '-' + 'role_' + _id;
     var selectionTitle = null;
-    if(_selType == 'all') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_all +'</span>';
-    if(_selType == 'group') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_group + ':</span> ' + _title;
-    if(_selType == 'role') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_role + ':</span> ' + _title;
-    if(_selType == 'user') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_user + ':</span> ' + _title;
+    if (_selType == 'all') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_all +'</span>';
+    if (_selType == 'group') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_group + ':</span> ' + _title;
+    if (_selType == 'role') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_role + ':</span> ' + _title;
+    if (_selType == 'user') selectionTitle = '<span class="bbb_role_selection">'+ bbb_seltype_user + ':</span> ' + _title;
     var moderatorSelection = _moderator ? ' selected' : '';
     var attendeeSelection = _moderator ? '' : ' selected';
-    
+
     var trId = 'row-' + _selType + '-' + _id;
     var trRowClass = 'row-' + _selType;
-    if(jQuery('#'+trId).length == 0) {    
+    if (jQuery('#'+trId).length == 0) {
         var row = jQuery(
             '<tr id="'+ trId +'" class="' + trRowClass + '" style="display:none">'+
                 '<td>'+
@@ -556,13 +553,13 @@ function addParticipantRow(_selType, _id, _title, _moderator) {
                     '<input type="hidden" name="'+ selectionType +'" value="'+ _id +'"/>'+
                 '</td>'+
             '</tr>');        
-        if(jQuery('table#selContainer tbody tr.'+trRowClass+':last').size() > 0)
+        if (jQuery('table#selContainer tbody tr.'+trRowClass+':last').size() > 0)
             jQuery('table#selContainer tbody tr.'+trRowClass+':last').after(row);
         else
             jQuery('table#selContainer tbody').append(row);
         row.fadeIn();
         BBBUtils.adjustFrameHeight();
-    }else{
+    } else {
     	jQuery('#'+trId).animate({opacity:'hide'}, 'fast', function() {
             jQuery('#'+trId).animate({opacity:'show'}, 'slow');
         });
@@ -572,34 +569,34 @@ function addParticipantRow(_selType, _id, _title, _moderator) {
 function updateMeetingInfo(meeting) {
 	jQuery('#bbb_meeting_info_participants_count').html('?');
 	var meetingInfo = meeting;
-	if(meetingInfo != null) {
-		if(meetingInfo.participantCount != null && parseInt(meetingInfo.participantCount) >= 0) {
+	if (meetingInfo != null) {
+		if (meetingInfo.participantCount != null && parseInt(meetingInfo.participantCount) >= 0) {
 			// prepare participant count text
 			var attendeeCount = meetingInfo.participantCount - meetingInfo.moderatorCount;
 			var moderatorCount = meetingInfo.moderatorCount;
 			var attendeeText = attendeeCount + ' ' + (attendeeCount == 1 ? bbb_meetinginfo_participants_atendee : bbb_meetinginfo_participants_atendees);
 			var moderatorText = moderatorCount + ' ' + (moderatorCount == 1 ? bbb_meetinginfo_participants_moderator : bbb_meetinginfo_participants_moderators);
             // prepare participant links
-            if(attendeeCount > 0) {
-            	var attendees = '';
-            	for(var p=0; p<meetingInfo.attendees.length; p++) {
-            	   if(meetingInfo.attendees[p].role == 'VIEWER') {
-            	   	if(attendees != '')
-            	       attendees += ', ' + meetingInfo.attendees[p].fullName;
-            	    else
-            	       attendees = meetingInfo.attendees[p].fullName;
-            	   }
+            if (attendeeCount > 0) {
+                var attendees = '';
+                for(var p=0; p<meetingInfo.attendees.length; p++) {
+                    if (meetingInfo.attendees[p].role == 'VIEWER') {
+                        if (attendees != '')
+                            attendees += ', ' + meetingInfo.attendees[p].fullName;
+                        else
+                            attendees = meetingInfo.attendees[p].fullName;
+                    }
             	}            	   
-            	attendeeText = '<a id="attendees" title="'+attendees+'" href="javascript:;" onclick="return false;">'+ attendeeText +'</a>';            	
+                attendeeText = '<a id="attendees" title="'+attendees+'" href="javascript:;" onclick="return false;">'+ attendeeText +'</a>';            	
             }
-            if(moderatorCount > 0) {
+            if (moderatorCount > 0) {
                 var moderators = '';
                 for(var p=0; p<meetingInfo.attendees.length; p++) {
-                   if(meetingInfo.attendees[p].role == 'MODERATOR') {
-                    if(moderators != '')
-                       moderators += ', ' + meetingInfo.attendees[p].fullName;
-                    else
-                       moderators = meetingInfo.attendees[p].fullName;
+                   if (meetingInfo.attendees[p].role == 'MODERATOR') {
+                       if (moderators != '')
+                           moderators += ', ' + meetingInfo.attendees[p].fullName;
+                       else
+                           moderators = meetingInfo.attendees[p].fullName;
                    }
                 }
                 moderatorText = '<a id="moderators" title="'+moderators+'" href="javascript:;" onclick="return false;">'+ moderatorText +'</a>';
@@ -616,25 +613,26 @@ function updateMeetingInfo(meeting) {
 			});
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
-                if(bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
+                if (bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
 					$('#meeting_joinlink_' + meeting.id).hide();
 				}
           	}
-		}else if(meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1){
+		} else if (meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1){
             jQuery('#bbb_meeting_info_participants_count_tr').hide();
             return;
-		}else{
+		} else {
 			jQuery('#bbb_meeting_info_participants_count').html('0');
 		}
 	    jQuery('#bbb_meeting_info_participants_count_tr').fadeIn();
-	}else{
+	} else {
 	    jQuery('#bbb_meeting_info_participants_count_tr').hide();
 	}
 }
 
 function refreshMeetingList() {
 	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
-	if( bbbCurrentMeetings.length == null ) bbbCurrentMeetings = Array();
+	if ( bbbCurrentMeetings.length == null )
+	    bbbCurrentMeetings = Array();
 
 	// watch for permissions changes, check meeting dates
     for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
@@ -642,13 +640,11 @@ function refreshMeetingList() {
         BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
         BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
     }
-		
 }
 
 function refreshRecordingList(meetingId) {
-	
 	var getRecordingResponse = (meetingId == null)? BBBUtils.getSiteRecordingList(bbbSiteId): BBBUtils.getMeetingRecordingList(meetingId);
-	
+
 	if ( getRecordingResponse.returncode == 'SUCCESS' ){
 		bbbCurrentRecordings = getRecordingResponse.recordings;
 	} else {
@@ -661,6 +657,4 @@ function refreshRecordingList(meetingId) {
 	    	BBBUtils.showMessage("Unable to get response from the BigBlueButton server", 'warning');
 		}
 	}
-
 }
-
