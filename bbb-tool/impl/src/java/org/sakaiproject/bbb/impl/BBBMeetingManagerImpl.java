@@ -908,9 +908,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     siteTitle }));
 
             // Generate an ical to attach to email (if, at least, start date is defined)
-            final boolean iCalAttachedFinal = iCalAttached;
-            String icalFilename = generateIcalFromMeetingInUserTimezone(meeting, userId);
-            final File icalFile = icalFilename != null ? new File(icalFilename): null;
+            String icalFilename = iCalAttached? generateIcalFromMeetingInUserTimezone(meeting, userId): null;
+            final File icalFile = icalFilename != null? new File(icalFilename): null;
             if (icalFile != null)
                 icalFile.deleteOnExit();
 
