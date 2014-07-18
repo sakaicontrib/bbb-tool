@@ -908,7 +908,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     siteTitle }));
 
             // Generate an ical to attach to email (if, at least, start date is defined)
-            String icalFilename = iCalAttached? generateIcalFromMeetingInUserTimezone(meeting, userId): null;
+            String icalFilename = iCalAttached? generateIcalFromMeetingInUserTimezone(meeting, iCalAlarmMinutes, userId): null;
             final File icalFile = icalFilename != null? new File(icalFilename): null;
             if (icalFile != null)
                 icalFile.deleteOnExit();
@@ -1283,10 +1283,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
      */
     private String generateIcalFromMeeting(BBBMeeting meeting) {
         TimeZone defaultTimezone = TimeZone.getDefault();
-        return generateIcalFromMeetingInTimeZone(meeting, defaultTimezone);
+        Long iCalAlarmMinutesuserId = 30L;
+        return generateIcalFromMeetingInTimeZone(meeting, iCalAlarmMinutesuserId, defaultTimezone);
     }
 
-    private String generateIcalFromMeetingInUserTimezone(BBBMeeting meeting, String userId) {
+    private String generateIcalFromMeetingInUserTimezone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, String userId) {
 
         Preferences prefs = preferencesService.getPreferences(userId);
         TimeZone timeZone = TimeZone.getDefault();
@@ -1297,10 +1298,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 timeZone = TimeZone.getTimeZone(timeZoneStr);
         }
 
-        return generateIcalFromMeetingInTimeZone(meeting, timeZone);
+        return generateIcalFromMeetingInTimeZone(meeting, iCalAlarmMinutesuserId, timeZone);
     }
 
-    private String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, TimeZone timeZone) {
+    private String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, TimeZone timeZone) {
         Date startDate = meeting.getStartDate();
         if (startDate == null)
             return null;
@@ -1314,11 +1315,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         VTimeZone tz = timezone.getVTimeZone();
 
         // Create a reminder
-        VAlarm vAlarm = new VAlarm(new Dur(0, -1, 0, 0));
-
-        // repeat reminder four (4) more times every fifteen (15) minutes..
-        vAlarm.getProperties().add(new Repeat(4));
-        vAlarm.getProperties().add(new Duration(new Dur(0, 0, 15, 0)));
+        int minutes = (iCalAlarmMinutesuserId.intValue() % 60);
+        int hours = (iCalAlarmMinutesuserId.intValue() / 60 % 24);
+        int days = (iCalAlarmMinutesuserId.intValue() / 60 / 24);
+        VAlarm vAlarm = new VAlarm(new Dur(days>0? days*-1: 0, hours>0? hours*-1: 0, minutes>0? minutes*-1: 0, 0));
 
         // display a message..
         vAlarm.getProperties().add(Action.DISPLAY);
