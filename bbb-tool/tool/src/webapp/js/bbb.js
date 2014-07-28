@@ -217,7 +217,7 @@ function switchState(state,arg) {
             // Setup description/welcome msg editor. Depending of the sakai version it will use CKEditor or FCKEditor
             var sakaiVersionArr = sakaiVersion.split('.');
             if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
-                BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
+                BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
             else
                 BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
 
