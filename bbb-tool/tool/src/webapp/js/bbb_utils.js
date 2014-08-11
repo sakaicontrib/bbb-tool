@@ -1286,6 +1286,14 @@ var BBBUtils;
             toolbarSet = !toolBarSet ? 'Basic' : toolBarSet;
             width = !width ? '600' : width;
             height = !height ? '320' : height;
+            //Make sure the editor doesn't exist
+            if( typeof CKEDITOR != "undefined" ) {
+                var editor = CKEDITOR.instances[textAreaId];
+                if ( editor != null ) {
+                    editor.destroy();
+                }
+            }
+            //Launch the editor
             sakai.editor.launch(textAreaId, {toolbarSet: toolbarSet, toolbarTemplate: toolbarTemplate}, width, height );
         };
 
