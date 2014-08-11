@@ -277,28 +277,32 @@ function refresh(meetingId) {
             <textarea class="bbb_welcome_message_textarea" id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${bbb_default_welcome_description}{else}${meeting.props.welcomeMessage}{/if}</textarea>
         </td>
       </tr>
-      {if isRecording}
+      {if recordingEnabled}
       <tr>
         <td class="lbl">${bbb_info_recording}</td>
         <td>
-            {var recordingChecked = isNew ? false : meeting.recording }
+            {var recordingChecked = isNew ? recordingDefault : meeting.recording }
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
       {/if}
+      {if durationEnabled}
       <tr>
         <td class="lbl">${bbb_info_duration}</td>
         <td>
             <input id="recordingDuration" name="recordingDuration" type="text" value="${meeting.recordingDuration}" style="width: 35px;" />&nbsp;${bbb_info_recording_duration_units}
         </td>
       </tr>
+      {/if}
+      {if waitmoderatorEnabled}
       <tr>
         <td class="lbl">${bbb_info_waitformoderator}</td>
         <td>
-            {var waitForModerator = isNew ? false : meeting.waitForModerator }
+            {var waitForModerator = isNew ? waitmoderatorDefault : meeting.waitForModerator }
             <input id="waitForModerator" name="waitForModerator" type="checkbox" {if waitForModerator}checked{/if}/>
         </td>
       </tr>
+      {/if}
     </table>
     
     <br/>

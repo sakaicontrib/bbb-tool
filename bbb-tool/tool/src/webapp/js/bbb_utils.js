@@ -854,10 +854,15 @@ var BBBUtils;
             dataType : "json",
             async : false,
             success : function(formConfigParams) {
-            	if(formConfigParams) {
-            		addUpdateFormConfigParams.recording = (formConfigParams.recording == 'true');
-            		addUpdateFormConfigParams.descriptionMaxLength = formConfigParams.descriptionMaxLength;
-            	}
+                if(formConfigParams) {
+                    addUpdateFormConfigParams.recordingEnabled = (formConfigParams.recordingEnabled == 'true');
+                    addUpdateFormConfigParams.recordingDefault = (formConfigParams.recordingDefault == 'true');
+                    addUpdateFormConfigParams.durationEnabled = (formConfigParams.durationEnabled == 'true');
+                    addUpdateFormConfigParams.durationDefault = formConfigParams.durationDefault;
+                    addUpdateFormConfigParams.waitmoderatorEnabled = (formConfigParams.waitmoderatorEnabled == 'true');
+                    addUpdateFormConfigParams.waitmoderatorDefault = (formConfigParams.waitmoderatorDefault == 'true');
+                    addUpdateFormConfigParams.descriptionMaxLength = formConfigParams.descriptionMaxLength;
+                }
             }
         });
         return addUpdateFormConfigParams;

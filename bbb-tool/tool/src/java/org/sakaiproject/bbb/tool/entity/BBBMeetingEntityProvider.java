@@ -884,12 +884,35 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (logger.isDebugEnabled())
             logger.debug("getAddUpdateFormConfiguration");
         Map<String, String> map = new HashMap<String, String>();
+        //UX settings for 'recording' checkbox
         String recordingEnabled = meetingManager.isRecordingEnabled();
         if (recordingEnabled != null) {
-            map.put("recording", recordingEnabled);
+            map.put("recordingEnabled", recordingEnabled);
         }
-        String descriptionMaxLength = meetingManager
-                .getMaxLengthForDescription();
+        String recordingDefault = meetingManager.getRecordingDefault();
+        if (recordingDefault != null) {
+            map.put("recordingDefault", recordingDefault);
+        }
+        //UX settings for 'duration' box
+        String durationEnabled = meetingManager.isDurationEnabled();
+        if (durationEnabled != null) {
+            map.put("durationEnabled", durationEnabled);
+        }
+        String durationDefault = meetingManager.getDurationDefault();
+        if (durationDefault != null) {
+            map.put("durationDefault", durationDefault);
+        }
+        //UX settings for 'wait moderator' box
+        String waitmoderatorEnabled = meetingManager.isWaitModeratorEnabled();
+        if (waitmoderatorEnabled != null) {
+            map.put("waitmoderatorEnabled", waitmoderatorEnabled);
+        }
+        String waitmoderatorDefault = meetingManager.getWaitModeratorDefault();
+        if (waitmoderatorDefault != null) {
+            map.put("waitmoderatorDefault", waitmoderatorDefault);
+        }
+        //UX settings for 'description' box
+        String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
         if (descriptionMaxLength != null) {
             map.put("descriptionMaxLength", descriptionMaxLength);
         }

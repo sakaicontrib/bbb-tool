@@ -738,10 +738,30 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isRecordingEnabled();
     }
     
+    public String getRecordingDefault(){
+        return "" + bbbAPI.getRecordingDefault();
+    }
+
+    public String isDurationEnabled(){
+        return "" + bbbAPI.isDurationEnabled();
+    }
+
+    public String getDurationDefault(){
+        return "" + bbbAPI.getDurationDefault();
+    }
+
+    public String isWaitModeratorEnabled(){
+        return "" + bbbAPI.isWaitModeratorEnabled();
+    }
+
+    public String getWaitModeratorDefault(){
+        return "" + bbbAPI.getWaitModeratorDefault();
+    }
+
     public String getMaxLengthForDescription(){
         return "" + bbbAPI.getMaxLengthForDescription();
     }
-    
+
     public boolean databaseStoreMeeting(BBBMeeting meeting) {
         if( meeting.getId() == null ){
             // generate uuid

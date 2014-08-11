@@ -49,9 +49,15 @@ public interface BBBMeetingManager {
     public final static String CFG_AUTOREFRESHMEETINGS = "bbb.autorefresh.meetings";
     public final static String CFG_AUTOREFRESHRECORDINGS = "bbb.autorefresh.recordings";
     public final static String CFG_GETSITERECORDINGS = "bbb.getsiterecordings";
-    public final static String CFG_RECORDING = "bbb.recording";
+    public final static String CFG_RECORDING = "bbb.recording";                             // [true|false]
+    public final static String CFG_RECORDING_ENABLED = "bbb.recording.enabled";             // [true|false]
+    public final static String CFG_RECORDING_DEFAULT = "bbb.recording.default";             // [true|false]
     public final static String CFG_DESCRIPTIONMAXLENGTH = "bbb.descriptionmaxlength";
-    
+    public final static String CFG_DURATION_ENABLED = "bbb.duration.enabled";               // [true|false]
+    public final static String CFG_DURATION_DEFAULT = "bbb.duration.default";
+    public final static String CFG_WAITMODERATOR_ENABLED = "bbb.waitmoderator.enabled";     // [true|false]
+    public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
+
     // Permissions
     public static final String FN_PREFIX = "bbb.";
     public static final String FN_CREATE = "bbb.create";
@@ -277,7 +283,17 @@ public interface BBBMeetingManager {
     public String getAutorefreshForRecordings();
 
     public String isRecordingEnabled();
-    
+
+    public String getRecordingDefault();
+
+    public String isDurationEnabled();
+
+    public String getDurationDefault();
+
+    public String isWaitModeratorEnabled();
+
+    public String getWaitModeratorDefault();
+
     public String getMaxLengthForDescription();
     
     public boolean databaseStoreMeeting(BBBMeeting meeting); 

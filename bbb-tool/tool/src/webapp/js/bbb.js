@@ -205,7 +205,12 @@ function switchState(state,arg) {
                 'selTypes':     BBBUtils.getUserSelectionTypes(),
                 'selOptions':   BBBUtils.getUserSelectionOptions(),
                 'siteId':       bbbSiteId,
-                'isRecording': 	bbbAddUpdateFormConfigParameters.recording,
+                'recordingEnabled': 	bbbAddUpdateFormConfigParameters.recordingEnabled,
+                'recordingDefault':     bbbAddUpdateFormConfigParameters.recordingDefault,
+                'durationEnabled':      bbbAddUpdateFormConfigParameters.durationEnabled,
+                'durationDefault':      bbbAddUpdateFormConfigParameters.durationDefault,
+                'waitmoderatorEnabled': bbbAddUpdateFormConfigParameters.waitmoderatorEnabled,
+                'waitmoderatorDefault': bbbAddUpdateFormConfigParameters.waitmoderatorDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
