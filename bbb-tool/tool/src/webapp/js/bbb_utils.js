@@ -569,12 +569,13 @@ var BBBUtils;
 
     // Check ALL meetings availability and update meeting details page if appropriate
     BBBUtils.checkAllMeetingAvailability = function() {
-    	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-    		BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+        for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            if( !bbbCurrentMeetings[i].joinable ) {
+                BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+            }
             BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
-    	}
-
+        }
     }
     
     // Check specific meeting availability and update meeting details page if appropriate

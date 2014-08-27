@@ -641,8 +641,10 @@ function refreshMeetingList() {
 
 	// watch for permissions changes, check meeting dates
     for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-    	BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
-        BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+        BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
+        if( bbbCurrentMeetings[i].joinable ) {
+            BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+        }
         BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
     }
 }
