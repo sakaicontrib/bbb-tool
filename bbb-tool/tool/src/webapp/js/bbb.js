@@ -20,12 +20,9 @@ var bbbSettings = null;
 var bbbCurrentUser = null;
 var bbbUserTimeZoneOffset = 0;
 var bbbBrowserTimeZoneOffset = 0;
-var bbbServerTimeZoneOffset = 0;
-var bbbServerTimeStamp = Object();
 var bbbUserPerms = null;
 var bbbCurrentMeetings = [];
 var bbbCurrentRecordings = Array();
-var bbbInterval = null;
 var bbbCheckOneMeetingAvailabilityId = null;
 var bbbCheckAllMeetingAvailabilityId = null; 
 var bbbCheckRecordingAvailabilityId = null; 
@@ -52,9 +49,6 @@ var bbbErrorLog = new Object();
     
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
-    
-    bbbInterval = bbbSettings.config.autorefreshInterval;
-	bbbAddUpdateFormConfigParameters = bbbSettings.config.addUpdateFormParameters;
     
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');
@@ -90,10 +84,6 @@ function switchState(state,arg) {
 	if ( bbbCheckRecordingAvailabilityId != null ) clearInterval(bbbCheckRecordingAvailabilityId);
 	if ( bbbRefreshRecordingListId != null ) clearInterval(bbbRefreshRecordingListId);
 	
-    // Make sure we have the correct server time (needed if user duplicated tab/window)
-	bbbServerTimeStamp = bbbSettings.config.serverTimeInDefaultTimezone;
-	bbbServerTimeZoneOffset = bbbServerTimeStamp.defaultOffset;
-	
     BBBUtils.hideMessage();
     
     //Clean navbar button state
@@ -120,13 +110,13 @@ function switchState(state,arg) {
         if (bbbUserPerms.bbbViewMeetingList) {
             // Get meeting list
             refreshMeetingList();
-            
+
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
 
             // show tool footer message only if site maintainer
             if (bbbUserPerms.siteUpdate) {
-            	bbbToolVersion = BBBUtils.getToolVersion();
-            	BBBUtils.render('bbb_toolfooter_template',{'bbbTool':bbbToolVersion},'bbb_footer');
+                bbbToolVersion = bbbSettings.toolVersion;
+                BBBUtils.render('bbb_toolfooter_template',{'bbbTool':bbbToolVersion},'bbb_footer');
             }
 
             $('#bbb_create_meeting_link').bind('click',function(e) {
@@ -178,8 +168,8 @@ function switchState(state,arg) {
                 BBBUtils.adjustFrameHeight();
             });
 
-            if (bbbInterval.meetings > 0)
-                bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbInterval.meetings);
+            if (bbbSettings.config.autorefreshInterval.meetings > 0)
+                bbbCheckAllMeetingAvailabilityId = setInterval("BBBUtils.checkAllMeetingAvailability()", bbbSettings.config.autorefreshInterval.meetings);
 
         } else {
             // warn about lack of permissions
@@ -204,12 +194,12 @@ function switchState(state,arg) {
                 'selTypes':     BBBUtils.getUserSelectionTypes(),
                 'selOptions':   BBBUtils.getUserSelectionOptions(),
                 'siteId':       bbbSiteId,
-                'recordingEnabled': 	bbbAddUpdateFormConfigParameters.recordingEnabled,
-                'recordingDefault':     bbbAddUpdateFormConfigParameters.recordingDefault,
-                'durationEnabled':      bbbAddUpdateFormConfigParameters.durationEnabled,
-                'durationDefault':      bbbAddUpdateFormConfigParameters.durationDefault,
-                'waitmoderatorEnabled': bbbAddUpdateFormConfigParameters.waitmoderatorEnabled,
-                'waitmoderatorDefault': bbbAddUpdateFormConfigParameters.waitmoderatorDefault,
+                'recordingEnabled': 	bbbSettings.config.addUpdateFormParameters.recordingEnabled,
+                'recordingDefault':     bbbSettings.config.addUpdateFormParameters.recordingDefault,
+                'durationEnabled':      bbbSettings.config.addUpdateFormParameters.durationEnabled,
+                'durationDefault':      bbbSettings.config.addUpdateFormParameters.durationDefault,
+                'waitmoderatorEnabled': bbbSettings.config.addUpdateFormParameters.waitmoderatorEnabled,
+                'waitmoderatorDefault': bbbSettings.config.addUpdateFormParameters.waitmoderatorDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
@@ -280,7 +270,7 @@ function switchState(state,arg) {
             $('#bbb_permissions_save_button').bind('click', function() {
                BBBUtils.setSitePermissions('.bbb_permission_checkbox', function() {
                    // success callback
-                   bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
+                   bbbUserPerms = new BBBPermissions(bbbCurrentUser.permissions);
                    if (bbbUserPerms.bbbViewMeetingList)
                        refreshMeetingList();
                    switchState('currentMeetings');
@@ -315,9 +305,9 @@ function switchState(state,arg) {
 					BBBUtils.adjustFrameHeight();
 				});
 
-				if (bbbInterval.meetings > 0)
-					bbbCheckOneMeetingAvailabilityId = setInterval(	"BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbInterval.meetings);
-				    //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbInterval.recordings);
+				if (bbbSettings.config.autorefreshInterval.meetings > 0)
+					bbbCheckOneMeetingAvailabilityId = setInterval(	"BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.meetings);
+				    //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbSettings.config.autorefreshInterval.recordings);
 
 			} else {
 				BBBUtils.hideMessage();
@@ -380,8 +370,8 @@ function switchState(state,arg) {
                 BBBUtils.adjustFrameHeight();
             });
 
-            if (bbbInterval.recordings > 0)
-                bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbInterval.recordings);
+            if (bbbSettings.config.autorefreshInterval.recordings > 0)
+                bbbRefreshRecordingListId = setInterval("switchState('recordings')", bbbSettings.config.autorefreshInterval.recordings);
         } else {
             // warn about lack of permissions
             if (bbbUserPerms.siteUpdate) {
@@ -397,43 +387,43 @@ function switchState(state,arg) {
         if (arg && arg.meetingId) {
             if (bbbUserPerms.bbbViewMeetingList) {
                 // Get meeting list
-            	refreshRecordingList(arg.meetingId);
+                refreshRecordingList(arg.meetingId);
 
-            	// watch for permissions changes, check meeting dates
+                // watch for permissions changes, check meeting dates
                 for(var i=0,j=bbbCurrentRecordings.length;i<j;i++) {
-                	bbbCurrentRecordings[i].ownerId = "";
+                    bbbCurrentRecordings[i].ownerId = "";
                     BBBUtils.setRecordingPermissionParams(bbbCurrentRecordings[i]);
                 }
 
                 BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
 
-    	        $(document).ready(function() {
-    	            // auto hide actions
-    	            jQuery('.recordingRow')
-    	                .bind('mouseenter', function() {
-    	                    jQuery(this).find('div.itemAction').show();
+                $(document).ready(function() {
+                    // auto hide actions
+                    jQuery('.recordingRow')
+                        .bind('mouseenter', function() {
+                            jQuery(this).find('div.itemAction').show();
     	                    jQuery(this).addClass('bbb_even_row');
-    	                })
-    	                .bind('mouseleave', function() {
-    	                    jQuery(this).find('div.itemAction').hide();
-    	                    jQuery(this).removeClass('bbb_even_row');
-    	                }
-    	            );
+                        })
+                        .bind('mouseleave', function() {
+                            jQuery(this).find('div.itemAction').hide();
+                            jQuery(this).removeClass('bbb_even_row');
+                        }
+                    );
 
-    	            // add sorting capabilities
-    	            $("#bbb_recording_table").tablesorter({
-    	                cssHeader:'bbb_sortable_table_header',
-    	                cssAsc:'bbb_sortable_table_header_sortup',
-    	                cssDesc:'bbb_sortable_table_header_sortdown',
+                    // add sorting capabilities
+                    $("#bbb_recording_table").tablesorter({
+                        cssHeader:'bbb_sortable_table_header',
+                        cssAsc:'bbb_sortable_table_header_sortup',
+                        cssDesc:'bbb_sortable_table_header_sortdown',
                         headers: { 2: { sorter: 'bbbDateTimeFormat'} },
                         // Sort DESC status:
                         sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
-    	            });
+                    });
 
-    	            BBBUtils.adjustFrameHeight();
-    	        });
+                    BBBUtils.adjustFrameHeight();
+                });
 
-    	        if (bbbInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbInterval.recordings);
+                if (bbbSettings.config.autorefreshInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbSettings.config.autorefreshInterval.recordings);
             } else {
                 // warn about lack of permissions
                 if (bbbUserPerms.siteUpdate) {

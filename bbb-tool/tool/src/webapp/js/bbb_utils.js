@@ -43,60 +43,6 @@ var BBBUtils;
         return settings;
     }
 
-	// Get the current user from EB
-	BBBUtils.getCurrentUser = function() {
-		var user = null;
-		jQuery.ajax( {
-	 		url : "/direct/user/current.json",
-	   		dataType : "json",
-	   		async : false,
-		   	success : function(u) {
-				user = u;
-			},
-			error : function(xmlHttpRequest,status,error) {
-				BBBUtils.handleError(bbb_err_curr_user, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-
-		return user;
-	}
-
-	// Get the current site from EB and returns its maintainRole
-	BBBUtils.getMaintainRole = function() {
-		var maintainRole = null;
-		jQuery.ajax( {
-	 		url : "/direct/site/" + bbbSiteId + ".json",
-	   		dataType : "json",
-	   		async : false,
-		   	success : function(site) {
-				maintainRole = site.maintainRole;
-			},
-			error : function(xmlHttpRequest,status,error) {
-				BBBUtils.handleError(bbb_err_maintain_role, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-
-		return maintainRole;
-	}
-
-    // Get the current user role in current site
-    BBBUtils.getUserRoleInSite = function(siteId) {                
-        var role = null;
-        jQuery.ajax( {
-            url : "/direct/bbb-tool/getUserRoleInSite.json?siteId=" + siteId,
-            dataType : "json",
-            async : false,
-            success : function(data) {
-                role = data;
-            },
-            error : function(xmlHttpRequest,status,error) {
-                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                return null;
-            }
-        });
-        return role;
-    }
-
 	// Get a meeting
 	BBBUtils.getMeeting = function(meetingId) {                
 		var meeting = null;
@@ -208,7 +154,7 @@ var BBBUtils;
         BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
 
         // Validate description length
-        var maxLength = bbbAddUpdateFormConfigParameters.descriptionMaxLength;
+        var maxLength = bbbSettings.config.addUpdateFormParameters.descriptionMaxLength;
         var descriptionLength = jQuery('#bbb_welcome_message_textarea').val().length;
         if( descriptionLength > maxLength ) {
             BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
@@ -280,7 +226,7 @@ var BBBUtils;
 
 	BBBUtils.setRecordingPermissionParams = function(recording) {
         // specific recording permissions
-        var offset = bbbServerTimeStamp.timezoneOffset;
+        var offset = bbbSettings.config.serverTimeInDefaultTimezone.timezoneOffset;
         recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
         
         if(bbbCurrentUser.id === recording.ownerId) {
@@ -298,7 +244,7 @@ var BBBUtils;
 
 		// joinable only if on specified date interval (if any)
 		
-		var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp);
+		var serverTimeStamp = parseInt(bbbSettings.config.serverTimeInDefaultTimezone.timestamp);
 		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000);
 
 		var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
@@ -505,13 +451,6 @@ var BBBUtils;
 
     // Log an event indicating user is joining meeting
     BBBUtils.joinMeeting = function(meetingId, linkSelector) {
-        //var meeting = null;
-        //for(var i=0; i<bbbCurrentMeetings.length; i++) {
-        //    if(bbbCurrentMeetings[i].id == meetingId)
-        //        meeting = bbbCurrentMeetings[i];
-        //}
-        //var participant = BBBUtils.getParticipantFromMeeting(meeting);
-
         var nonce = new Date().getTime();
         var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
         BBBUtils.hideMessage();
@@ -522,43 +461,8 @@ var BBBUtils;
             //After joining stop requesting updates
             clearInterval(bbbCheckOneMeetingAvailabilityId);
             clearInterval(bbbCheckRecordingAvailabilityId);
-            //if(!meeting.waitForModerator || participant.moderator){
-            //    //bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", bbbInterval.meetings);
-            //    bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", 10000);
-            //}
         }
         return true;
-    }
-
-    // Get current server time (in milliseconds) in user timezone
-    BBBUtils.updateServerTime = function() {
-    	var response = Object();
-    	jQuery.ajax( {
-            url: "/direct/bbb-tool/getServerTimeInDefaultTimezone.json",
-            dataType : "json",
-            async : false,
-            success : function(timestamp) {
-            	response = timestamp;
-            }
-        });
-        return response;
-    }
-
-    // Get tool version
-    BBBUtils.getToolVersion = function() {
-
-    	var response = Object();
-
-    	jQuery.ajax( {
-            url: "/direct/bbb-tool/getToolVersion.json",
-            dataType : "json",
-            async : false,
-            success : function(version) {
-            	response = version;
-            }
-        });
-
-    	return response;
     }
 
     // Check if a user is already logged on a meeting
@@ -821,72 +725,6 @@ var BBBUtils;
         return bbbUserSelectionOptions;
     }
 	
-	// Get the user permissions
-	BBBUtils.getUserPermissions = function() {
-		var perms = null;
-        jQuery.ajax( {
-            url: "/direct/site/"+bbbSiteId+"/userPerms.json",
-            dataType : "json",
-            async : false,
-            success : function(userPermissions) {
-            	if(userPermissions != null) perms = userPermissions.data;
-            	if(bbbCurrentUser.id == 'admin' || perms.indexOf('site.upd') >= 0 ) perms.push("bbb.admin");
-            },
-            error : function(xmlHttpRequest,status,error) {
-            	if(bbbCurrentUser.id == 'admin') {
-            		// Workaround for SAK-18534
-            		perms = ["bbb.admin", "bbb.create", "bbb.edit.any", "bbb.delete.any", "bbb.participate",
-                             "site.upd", "site.viewRoster", "calendar.new", "calendar.revise.any", "calendar.delete.any"];
-            	}else{
-                    BBBUtils.handleError(bbb_err_get_user_permissions, xmlHttpRequest.status, xmlHttpRequest.statusText);
-            	}
-            }
-        });
-        return perms;
-    }
-
-	// Get notice message to be displayed on the UI (first time access)
-    BBBUtils.autorefreshInterval = function() {
-		var interval = [];
-		interval.meetings = 30000;
-		interval.recordings = 60000;
-        jQuery.ajax( {
-            url: "/direct/bbb-tool/getAutorefreshInterval.json",
-            dataType : "json",
-            async : false,
-            success : function(autorefresh) {
-            	if(autorefresh) {
-            		interval.meetings = autorefresh.meetings;
-            		interval.recordings = autorefresh.recordings;
-            	}
-            }
-        });
-        return interval;
-    }
-    
-    BBBUtils.addUpdateFormConfigParameters = function() {
-		var addUpdateFormConfigParams = [];
-		addUpdateFormConfigParams.recording = true;
-		addUpdateFormConfigParams.descriptionMaxLength = 60000;
-        jQuery.ajax( {
-            url: "/direct/bbb-tool/getAddUpdateFormConfigParameters.json",
-            dataType : "json",
-            async : false,
-            success : function(formConfigParams) {
-                if(formConfigParams) {
-                    addUpdateFormConfigParams.recordingEnabled = (formConfigParams.recordingEnabled == 'true');
-                    addUpdateFormConfigParams.recordingDefault = (formConfigParams.recordingDefault == 'true');
-                    addUpdateFormConfigParams.durationEnabled = (formConfigParams.durationEnabled == 'true');
-                    addUpdateFormConfigParams.durationDefault = formConfigParams.durationDefault;
-                    addUpdateFormConfigParams.waitmoderatorEnabled = (formConfigParams.waitmoderatorEnabled == 'true');
-                    addUpdateFormConfigParams.waitmoderatorDefault = (formConfigParams.waitmoderatorDefault == 'true');
-                    addUpdateFormConfigParams.descriptionMaxLength = formConfigParams.descriptionMaxLength;
-                }
-            }
-        });
-        return addUpdateFormConfigParams;
-    }
-
     // Get the site permissions
     BBBUtils.getSitePermissions = function() {
         var perms = [];

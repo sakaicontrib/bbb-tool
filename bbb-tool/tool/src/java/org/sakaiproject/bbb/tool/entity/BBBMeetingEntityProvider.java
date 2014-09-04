@@ -417,7 +417,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         config.put("autorefreshInterval", getAutorefreshInterval());
         config.put("addUpdateFormParameters", getAddUpdateFormConfigParameters());
         config.put("serverTimeInDefaultTimezone", getServerTimeInDefaultTimezone());
+        config.put("serverTimeInUserTimezone", getServerTimeInUserTimezone());
         settings.put("config", config);
+        settings.put("toolVersion", getToolVersion());
         return new ActionReturn(settings);
     }
 
@@ -445,6 +447,20 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             permissions.add(meetingManager.FN_DELETE_ANY);
         if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_PARTICIPATE, siteId) )
             permissions.add(meetingManager.FN_PARTICIPATE);
+        if( meetingManager.isUserAllowedInLocation(userId, "site.upd", siteId) )
+            permissions.add("site.upd");
+        if( meetingManager.isUserAllowedInLocation(userId, "site.viewRoster", siteId) )
+            permissions.add("site.viewRoster");
+        if( meetingManager.isUserAllowedInLocation(userId, "calendar.new", siteId) )
+            permissions.add("calendar.new");
+        if( meetingManager.isUserAllowedInLocation(userId, "calendar.revise.own", siteId) )
+            permissions.add("calendar.revise.own");
+        if( meetingManager.isUserAllowedInLocation(userId, "calendar.revise.any", siteId) )
+            permissions.add("calendar.revise.any");
+        if( meetingManager.isUserAllowedInLocation(userId, "calendar.delete.own", siteId) )
+            permissions.add("calendar.delete.own");
+        if( meetingManager.isUserAllowedInLocation(userId, "calendar.delete.any", siteId) )
+            permissions.add("calendar.delete.any");
         return permissions;
     }
 
@@ -503,6 +519,20 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         map = meetingManager.getServerTimeInDefaultTimezone();
         return map;
     }
+
+    private Map<String, Object> getServerTimeInUserTimezone() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = meetingManager.getServerTimeInUserTimezone();
+        return map;
+
+    }
+
+    private Map<String, Object> getToolVersion() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = meetingManager.getToolVersion();
+        return map;
+    }
+
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public String isMeetingRunning(Map<String, Object> params) {
@@ -881,49 +911,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getServerTimeInUserTimezone(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getServerTimeInUserTimezone");
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map = meetingManager.getServerTimeInUserTimezone();
-
-        return new ActionReturn(map);
-
-    }
-
-    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getUserRoleInSite(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getUserRoleInSite");
-
-        String siteId = params.containsKey("siteId")? (String) params.get("siteId"): null;
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("role", meetingManager.getUserRoleInSite(userDirectoryService.getCurrentUser().getId(), siteId));
-
-        return new ActionReturn(map);
-    }
-    
-    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getServerTimeInDefaultTimezone(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getServerTimeInDefaultTimezone");
-
-        return new ActionReturn(getServerTimeInDefaultTimezone());
-    }
-
-    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getToolVersion(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getToolVersion");
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map = meetingManager.getToolVersion();
-
-        return new ActionReturn(map);
-    }
-
-    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getNoticeText(Map<String, Object> params) {
         if (logger.isDebugEnabled())
             logger.debug("getNoticeText");
@@ -934,20 +921,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             map.put("level", meetingManager.getNoticeLevel());
         }
         return new ActionReturn(map);
-    }
-
-    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getAutorefreshInterval(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getAutorefreshInterval");
-        return new ActionReturn(getAutorefreshInterval());
-    }
-
-    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getAddUpdateFormConfigParameters(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getAddUpdateFormConfiguration");
-        return new ActionReturn(getAddUpdateFormConfigParameters());
     }
 
     // --- Statisticable
