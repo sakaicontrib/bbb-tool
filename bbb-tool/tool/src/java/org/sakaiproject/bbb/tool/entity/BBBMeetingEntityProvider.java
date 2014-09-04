@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,6 +63,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
@@ -399,33 +401,107 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     // --- ActionsExecutable (Custom actions)
     // ----------------------------------------
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public String testMeeting(Map<String, Object> params) {
-
+    public ActionReturn getSettings(Map<String, Object> params) {
         if (logger.isDebugEnabled())
-            logger.debug("testMeeting");
-        String meetingID = (String) params.get("meetingID");
-        if (meetingID == null) {
-            throw new IllegalArgumentException("Missing required parameters meetingId");
+            logger.debug("getSettings");
+        Map<String, Object> settings = new LinkedHashMap<String, Object>();
+
+        String siteId = params.containsKey("siteId")? (String) params.get("siteId"): null;
+        User user = userDirectoryService.getCurrentUser();
+        Map<String, Object> currentUser = getCurrentUser(user);
+        currentUser.put("role", meetingManager.getUserRoleInSite((String)currentUser.get("id"), siteId));
+        currentUser.put("permissions", getUserPermissionsInSite((String)currentUser.get("id"), siteId));
+        settings.put("currentUser", currentUser);
+
+        Map<String, Object> config = new LinkedHashMap<String, Object>();
+        config.put("autorefreshInterval", getAutorefreshInterval());
+        config.put("addUpdateFormParameters", getAddUpdateFormConfigParameters());
+        config.put("serverTimeInDefaultTimezone", getServerTimeInDefaultTimezone());
+        settings.put("config", config);
+        return new ActionReturn(settings);
+    }
+
+    private Map<String, Object>getCurrentUser(User user) {
+        Map<String, Object> currentUser = new LinkedHashMap<String, Object>();
+        currentUser.put("id", user.getId());
+        currentUser.put("displayId", user.getDisplayId());
+        currentUser.put("displayName", user.getDisplayName());
+        currentUser.put("eid", user.getEid());
+        currentUser.put("email", user.getEmail());
+        return currentUser;
+    }
+
+    private List<String> getUserPermissionsInSite(String userId, String siteId) {
+        List<String> permissions = new ArrayList<String>();
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_CREATE, siteId) )
+            permissions.add(meetingManager.FN_CREATE);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_EDIT_OWN, siteId) )
+            permissions.add(meetingManager.FN_EDIT_OWN);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_EDIT_ANY, siteId) )
+            permissions.add(meetingManager.FN_EDIT_ANY);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_DELETE_OWN, siteId) )
+            permissions.add(meetingManager.FN_DELETE_OWN);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_DELETE_ANY, siteId) )
+            permissions.add(meetingManager.FN_DELETE_ANY);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_PARTICIPATE, siteId) )
+            permissions.add(meetingManager.FN_PARTICIPATE);
+        return permissions;
+    }
+
+    private Map<String, String> getAutorefreshInterval() {
+        Map<String, String> interval = new LinkedHashMap<String, String>();
+        String autorefreshMeetings = meetingManager.getAutorefreshForMeetings();
+        if (autorefreshMeetings != null) {
+            interval.put("meetings", autorefreshMeetings);
         }
-
-        try {
-            BBBMeeting meeting = meetingManager.getMeeting(meetingID);
-
-            return "startDate="
-                    + (new java.sql.Date(meeting.getStartDate().getTime())).toString()
-                    + " "
-                    + (new java.sql.Time(meeting.getStartDate().getTime())).toString()
-                    + " timeStamp="
-                    + (new java.sql.Timestamp(meeting.getStartDate().getTime())
-                    + " startDateUTC=" 
-                    + meeting.getStartDate().getTime());
-
-            // return meeting.toString();
-
-        } catch (Exception e) {
-            throw new EntityException(e.getMessage(), e.getMessage());
+        String autorefreshRecordings = meetingManager.getAutorefreshForRecordings();
+        if (autorefreshRecordings != null) {
+            interval.put("recordings", autorefreshRecordings);
         }
+        return interval;
+    }
 
+    private Map<String, Object> getAddUpdateFormConfigParameters() {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        //UX settings for 'recording' checkbox
+        Boolean recordingEnabled = Boolean.parseBoolean(meetingManager.isRecordingEnabled());
+        if (recordingEnabled != null) {
+            map.put("recordingEnabled", recordingEnabled);
+        }
+        Boolean recordingDefault = Boolean.parseBoolean(meetingManager.getRecordingDefault());
+        if (recordingDefault != null) {
+            map.put("recordingDefault", recordingDefault);
+        }
+        //UX settings for 'duration' box
+        Boolean durationEnabled = Boolean.parseBoolean(meetingManager.isDurationEnabled());
+        if (durationEnabled != null) {
+            map.put("durationEnabled", durationEnabled);
+        }
+        String durationDefault = meetingManager.getDurationDefault();
+        if (durationDefault != null) {
+            map.put("durationDefault", durationDefault);
+        }
+        //UX settings for 'wait moderator' box
+        Boolean waitmoderatorEnabled = Boolean.parseBoolean(meetingManager.isWaitModeratorEnabled());
+        if (waitmoderatorEnabled != null) {
+            map.put("waitmoderatorEnabled", waitmoderatorEnabled);
+        }
+        Boolean waitmoderatorDefault = Boolean.parseBoolean(meetingManager.getWaitModeratorDefault());
+        if (waitmoderatorDefault != null) {
+            map.put("waitmoderatorDefault", waitmoderatorDefault);
+        }
+        //UX settings for 'description' box
+        String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
+        if (descriptionMaxLength != null) {
+            map.put("descriptionMaxLength", descriptionMaxLength);
+        }
+        return map;
+    }
+
+    private Map<String, Object> getServerTimeInDefaultTimezone() {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        map = meetingManager.getServerTimeInDefaultTimezone();
+        return map;
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
@@ -833,10 +909,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (logger.isDebugEnabled())
             logger.debug("getServerTimeInDefaultTimezone");
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map = meetingManager.getServerTimeInDefaultTimezone();
-
-        return new ActionReturn(map);
+        return new ActionReturn(getServerTimeInDefaultTimezone());
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
@@ -867,56 +940,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     public ActionReturn getAutorefreshInterval(Map<String, Object> params) {
         if (logger.isDebugEnabled())
             logger.debug("getAutorefreshInterval");
-        Map<String, String> map = new HashMap<String, String>();
-        String autorefreshMeetings = meetingManager.getAutorefreshForMeetings();
-        if (autorefreshMeetings != null) {
-            map.put("meetings", autorefreshMeetings);
-        }
-        String autorefreshRecordings = meetingManager.getAutorefreshForRecordings();
-        if (autorefreshRecordings != null) {
-            map.put("recordings", autorefreshRecordings);
-        }
-        return new ActionReturn(map);
+        return new ActionReturn(getAutorefreshInterval());
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getAddUpdateFormConfigParameters(Map<String, Object> params) {
         if (logger.isDebugEnabled())
             logger.debug("getAddUpdateFormConfiguration");
-        Map<String, String> map = new HashMap<String, String>();
-        //UX settings for 'recording' checkbox
-        String recordingEnabled = meetingManager.isRecordingEnabled();
-        if (recordingEnabled != null) {
-            map.put("recordingEnabled", recordingEnabled);
-        }
-        String recordingDefault = meetingManager.getRecordingDefault();
-        if (recordingDefault != null) {
-            map.put("recordingDefault", recordingDefault);
-        }
-        //UX settings for 'duration' box
-        String durationEnabled = meetingManager.isDurationEnabled();
-        if (durationEnabled != null) {
-            map.put("durationEnabled", durationEnabled);
-        }
-        String durationDefault = meetingManager.getDurationDefault();
-        if (durationDefault != null) {
-            map.put("durationDefault", durationDefault);
-        }
-        //UX settings for 'wait moderator' box
-        String waitmoderatorEnabled = meetingManager.isWaitModeratorEnabled();
-        if (waitmoderatorEnabled != null) {
-            map.put("waitmoderatorEnabled", waitmoderatorEnabled);
-        }
-        String waitmoderatorDefault = meetingManager.getWaitModeratorDefault();
-        if (waitmoderatorDefault != null) {
-            map.put("waitmoderatorDefault", waitmoderatorDefault);
-        }
-        //UX settings for 'description' box
-        String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
-        if (descriptionMaxLength != null) {
-            map.put("descriptionMaxLength", descriptionMaxLength);
-        }
-        return new ActionReturn(map);
+        return new ActionReturn(getAddUpdateFormConfigParameters());
     }
 
     // --- Statisticable

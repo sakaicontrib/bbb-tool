@@ -302,6 +302,8 @@ public interface BBBMeetingManager {
 
     public Participant getParticipantFromMeeting(BBBMeeting meeting, String userId);
 
+    public boolean isUserAllowedInLocation(String userId, String permission, String locationId);
+
     public String getUserRoleInSite(String userId, String siteId);
 
 }

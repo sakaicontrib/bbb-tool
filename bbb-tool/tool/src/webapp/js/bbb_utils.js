@@ -25,6 +25,24 @@ var BBBUtils;
 	var bbbTrimpathModifiers = null;
 	var bbbTrimpathMacros = null;
 
+    // Get the current user from EB
+    BBBUtils.getSettings = function(siteId) {
+        var settings = null;
+        jQuery.ajax( {
+            url : "/direct/bbb-tool/getSettings.json?siteId=" + siteId,
+            dataType : "json",
+            async : false,
+            success : function(s) {
+                settings = s;
+            },
+            error : function(xmlHttpRequest,status,error) {
+                BBBUtils.handleError(bbb_err_curr_user, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
+
+        return settings;
+    }
+
 	// Get the current user from EB
 	BBBUtils.getCurrentUser = function() {
 		var user = null;
@@ -65,7 +83,7 @@ var BBBUtils;
     BBBUtils.getUserRoleInSite = function(siteId) {                
         var role = null;
         jQuery.ajax( {
-            url: "/direct/bbb-tool/getUserRoleInSite.json?siteId=" + siteId,
+            url : "/direct/bbb-tool/getUserRoleInSite.json?siteId=" + siteId,
             dataType : "json",
             async : false,
             success : function(data) {
@@ -83,7 +101,7 @@ var BBBUtils;
 	BBBUtils.getMeeting = function(meetingId) {                
 		var meeting = null;
 		jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + ".json",
+            url : "/direct/bbb-tool/" + meetingId + ".json",
             dataType : "json",
             async : false,
             success : function(data) {

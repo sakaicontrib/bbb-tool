@@ -16,6 +16,7 @@
 
 /* Stuff that we always expect to be setup */
 var bbbSiteId = null;
+var bbbSettings = null;
 var bbbCurrentUser = null;
 var bbbUserTimeZoneOffset = 0;
 var bbbBrowserTimeZoneOffset = 0;
@@ -42,9 +43,9 @@ var bbbErrorLog = new Object();
         return;
     }
     bbbSiteId = arg.siteId;
-    bbbCurrentUser = BBBUtils.getCurrentUser();
-    bbbCurrentUser.roles = BBBUtils.getUserRoleInSite(bbbSiteId);
-    bbbUserPerms = new BBBPermissions(BBBUtils.getUserPermissions());
+    bbbSettings = BBBUtils.getSettings(bbbSiteId);
+    bbbCurrentUser = bbbSettings.currentUser;
+    bbbUserPerms = new BBBPermissions(bbbCurrentUser.permissions);
     bbbUserTimeZoneOffset = arg.timezoneoffset;
     var d = new Date();
     bbbBrowserTimeZoneOffset = d.getTimezoneOffset() * 60 * 1000 * -1;
@@ -52,14 +53,12 @@ var bbbErrorLog = new Object();
     // We need the toolbar in a template so we can swap in the translations
     BBBUtils.render('bbb_toolbar_template',{},'bbb_toolbar');
     
-    bbbInterval = BBBUtils.autorefreshInterval();
-	bbbAddUpdateFormConfigParameters = BBBUtils.addUpdateFormConfigParameters();
+    bbbInterval = bbbSettings.config.autorefreshInterval;
+	bbbAddUpdateFormConfigParameters = bbbSettings.config.addUpdateFormParameters;
     
     $('#bbb_home_link').bind('click',function(e) {
         return switchState('currentMeetings');
     });
-
-    $('#bbb_end_meetings_link').bind('click',BBBUtils.endAllMeetingsForCurrentSite);
 
     $('#bbb_permissions_link').bind('click',function(e) {
         return switchState('permissions');
@@ -92,7 +91,7 @@ function switchState(state,arg) {
 	if ( bbbRefreshRecordingListId != null ) clearInterval(bbbRefreshRecordingListId);
 	
     // Make sure we have the correct server time (needed if user duplicated tab/window)
-	bbbServerTimeStamp = BBBUtils.updateServerTime();
+	bbbServerTimeStamp = bbbSettings.config.serverTimeInDefaultTimezone;
 	bbbServerTimeZoneOffset = bbbServerTimeStamp.defaultOffset;
 	
     BBBUtils.hideMessage();

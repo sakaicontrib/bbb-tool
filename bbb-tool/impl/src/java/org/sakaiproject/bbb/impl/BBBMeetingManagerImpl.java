@@ -1248,7 +1248,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return tzDate;
     }
 
-    private boolean isUserAllowedInLocation(String userId, String permission, String locationId) {
+    public boolean isUserAllowedInLocation(String userId, String permission, String locationId) {
         if (securityService.isSuperUser()) {
             return true;
         }
