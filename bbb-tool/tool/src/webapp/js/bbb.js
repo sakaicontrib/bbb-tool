@@ -110,10 +110,12 @@ function switchState(state,arg) {
         if (bbbUserPerms.bbbViewMeetingList) {
             // Set meeting list
             setMeetingList();
-            refreshMeetingList();
 
             // Show meeting list
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
+
+            // Update meeting list
+            refreshMeetingList();
 
             // show tool footer message only if site maintainer
             if (bbbUserPerms.siteUpdate) {

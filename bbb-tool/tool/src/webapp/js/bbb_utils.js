@@ -206,7 +206,7 @@ var BBBUtils;
         jQuery.ajax( {
             url: "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
             dataType : "json",
-            async : false,
+            async : true,
             success : function(data) {
             },
             error : function(xmlHttpRequest,status,error) {
@@ -306,6 +306,11 @@ var BBBUtils;
 				meeting.joinableMode = "unreachable";
 			}
 		}
+
+        // Update status in the view
+		var statusClass = meeting.joinable ? 'status_joinable_' + meeting.joinableMode: (meeting.notStarted ? 'status_notstarted' : 'status_finished')
+        var statusText = meeting.joinable ? (meeting.joinableMode == 'available'? bbb_status_joinable_available: meeting.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: meeting.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: meeting.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (meeting.notStarted ? bbb_status_notstarted : bbb_status_finished);
+        jQuery('#meeting_status_'+meeting.id).toggleClass(statusClass).html(statusText);
 	}
 	
 	// End the specified meeting. The name parameter is required for the confirm
