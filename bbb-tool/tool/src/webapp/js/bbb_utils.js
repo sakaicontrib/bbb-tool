@@ -311,6 +311,16 @@ var BBBUtils;
 		var statusClass = meeting.joinable ? 'status_joinable_' + meeting.joinableMode: (meeting.notStarted ? 'status_notstarted' : 'status_finished')
         var statusText = meeting.joinable ? (meeting.joinableMode == 'available'? bbb_status_joinable_available: meeting.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: meeting.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: meeting.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (meeting.notStarted ? bbb_status_notstarted : bbb_status_finished);
         jQuery('#meeting_status_'+meeting.id).toggleClass(statusClass).html(statusText);
+        // If meeting can be ended, update end action link in the view
+        if( meeting.canEnd ){
+            var end_meetingClass = "end_meeting_hidden";
+            var end_meetingText = "";
+            if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
+                end_meetingClass = "end_meeting_shown";
+                end_meetingText = "&nbsp;|&nbsp;" + "<a href=\"javascript:;\" onclick=\"return BBBUtils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+            }
+            jQuery('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
+        }
 	}
 	
 	// End the specified meeting. The name parameter is required for the confirm
