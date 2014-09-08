@@ -108,9 +108,11 @@ function switchState(state,arg) {
         
         // show meeting list
         if (bbbUserPerms.bbbViewMeetingList) {
-            // Get meeting list
+            // Set meeting list
+            setMeetingList();
             refreshMeetingList();
 
+            // Show meeting list
             BBBUtils.render('bbb_rooms_template',{'meetings':bbbCurrentMeetings},'bbb_content');
 
             // show tool footer message only if site maintainer
@@ -272,7 +274,7 @@ function switchState(state,arg) {
                    // success callback
                    bbbUserPerms = new BBBPermissions(bbbCurrentUser.permissions);
                    if (bbbUserPerms.bbbViewMeetingList)
-                       refreshMeetingList();
+                       setMeetingList();
                    switchState('currentMeetings');
                    if (bbbUserPerms.bbbViewMeetingList)
                         BBBUtils.showMessage(bbb_permissions_saved, 'success');
@@ -283,7 +285,7 @@ function switchState(state,arg) {
         });
     } else if ('joinMeeting' === state || 'meetingInfo' === state) {
         //console.debug(state);
-        if ('joinMeeting' === state ) refreshMeetingList();
+        if ('joinMeeting' === state ) setMeetingList();
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
@@ -623,18 +625,27 @@ function updateMeetingInfo(meeting) {
 	}
 }
 
-function refreshMeetingList() {
-	bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
-	if ( bbbCurrentMeetings.length == null )
-	    bbbCurrentMeetings = Array();
+function setMeetingList() {
+    bbbCurrentMeetings = BBBUtils.getMeetingList(bbbSiteId);
+    if ( bbbCurrentMeetings.length == null )
+        bbbCurrentMeetings = Array();
 
-	// watch for permissions changes, check meeting dates
-    for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+    // watch for permissions changes, check meeting dates
+    for(var i=0; i<bbbCurrentMeetings.length; i++) {
         BBBUtils.setMeetingPermissionParams(bbbCurrentMeetings[i]);
         if( bbbCurrentMeetings[i].joinable ) {
-            BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+            bbbCurrentMeetings[i].joinableMode = "";
         }
         BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
+    }
+}
+
+function refreshMeetingList() {
+	// watch for permissions changes, check meeting dates
+    for(var i=0; i<bbbCurrentMeetings.length; i++) {
+        if( bbbCurrentMeetings[i].joinable ) {
+            BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
+        }
     }
 }
 

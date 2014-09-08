@@ -52,6 +52,7 @@ var BBBUtils;
             async : false,
             success : function(data) {
                 meeting = data;
+                console.debug(data);
                 BBBUtils.setMeetingPermissionParams(meeting); 
             },
             error : function(xmlHttpRequest,status,error) {
@@ -198,8 +199,33 @@ var BBBUtils;
             }
         });
     }
-	
-	BBBUtils.setMeetingInfoParams = function(meeting) {
+
+    // Get meeting info from BBB server
+    BBBUtils.setMeetingInfo = function(meeting) {
+        var meetingInfo = null;
+        jQuery.ajax( {
+            url: "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
+            dataType : "json",
+            async : false,
+            success : function(data) {
+            },
+            error : function(xmlHttpRequest,status,error) {
+                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                return null;
+            },
+            complete : function(xmlHttpRequest,status){
+                if( xmlHttpRequest.responseText == null )
+                    meetingInfo = {};
+                else
+                    meetingInfo = JSON.parse(xmlHttpRequest.responseText);
+                BBBUtils.setMeetingInfoParams(meeting, meetingInfo);
+                BBBUtils.setMeetingJoinableModeParams(meeting);
+            }
+        });
+        return meetingInfo;
+    }
+
+	BBBUtils.setMeetingInfoParams = function(meeting, meetingInfo) {
 		//Clear attendees
 		if( meeting.attendees && meeting.attendees.length > 0 )
 			delete meeting.attendees;
@@ -208,8 +234,7 @@ var BBBUtils;
 		meeting.participantCount = 0;
 		meeting.moderatorCount = 0;
 		meeting.unreachableServer = "false";
-			
-		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
+
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
 			if ( meetingInfo.returncode != 'FAILED' ) {
 				meeting.attendees = meetingInfo.attendees;
@@ -221,7 +246,6 @@ var BBBUtils;
 				meeting.unreachableServer = "true";
 			}
 		}
-
 	}
 
 	BBBUtils.setRecordingPermissionParams = function(recording) {
@@ -241,7 +265,6 @@ var BBBUtils;
 	}
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
-
 		// joinable only if on specified date interval (if any)
 		
 		var serverTimeStamp = parseInt(bbbSettings.config.serverTimeInDefaultTimezone.timestamp);
@@ -270,7 +293,9 @@ var BBBUtils;
 	    //if joinable set the joinableMode
 		meeting.joinableMode = "nojoinable";
 		if( meeting.joinable ){
-			if( meeting.unreachableServer == "false" ){
+		    if( meeting.unreachableServer == null ){
+		        meeting.joinableMode = "";
+		    } else if( meeting.unreachableServer == "false" ){
 				meeting.joinableMode = "available";
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
@@ -399,7 +424,7 @@ var BBBUtils;
         jQuery.ajax( {
             url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json",
             dataType : "json",
-            async : false,
+            async : true,
             success : function(data) {
                 meetingInfo = data;
             },
@@ -479,7 +504,7 @@ var BBBUtils;
     BBBUtils.checkOneMeetingAvailability = function(meetingId) {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
     		if( bbbCurrentMeetings[i].id == meetingId ) {
-                BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
     			BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
       	   	 	updateMeetingInfo(bbbCurrentMeetings[i]);
@@ -493,7 +518,7 @@ var BBBUtils;
     BBBUtils.checkAllMeetingAvailability = function() {
         for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
             if( !bbbCurrentMeetings[i].joinable ) {
-                BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
             }
             BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
