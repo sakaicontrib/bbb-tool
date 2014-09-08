@@ -786,6 +786,24 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return serverConfigurationService.getString(CFG_NOTICE_LEVEL, "info").trim().toLowerCase();
     }
 
+    public String getJoinUrl(BBBMeeting meeting)
+            throws SecurityException, Exception {
+        if (meeting == null) return null;
+        
+        Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
+
+        // Case #1: is participant
+        if (getCanParticipate(meeting.getSiteId()) && p != null) {
+            // build join url
+            boolean isModerator = Participant.MODERATOR.equals(p.getRole());
+            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), password);
+            return joinURL;
+        }
+        
+        return null;
+    }
+
     // -----------------------------------------------------------------------
     // --- BBB Private methods -----------------------------------------------
     // -----------------------------------------------------------------------
@@ -803,17 +821,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
 
-
         Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 
         // Case #1: is participant
         if (getCanParticipate(meeting.getSiteId()) && p != null) {
-            // build join url
-            boolean isModerator = Participant.MODERATOR.equals(p.getRole());
-            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
-            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), password);
-            meeting.setJoinUrl(joinURL);
-            //Set also metadata
+            meeting.setJoinUrl(null);
 
             return meeting;
         }

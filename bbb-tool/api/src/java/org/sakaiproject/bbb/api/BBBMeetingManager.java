@@ -273,6 +273,12 @@ public interface BBBMeetingManager {
     public String getNoticeLevel();
 
     /**
+     * Returns the url for joining to a meeting
+     */
+    public String getJoinUrl(BBBMeeting meeting)
+            throws SecurityException, Exception;
+
+    /**
      * Returns bbb.autorefresh.meetings parameter set up on sakai.properties or the one set up by default.
      */
     public String getAutorefreshForMeetings();
