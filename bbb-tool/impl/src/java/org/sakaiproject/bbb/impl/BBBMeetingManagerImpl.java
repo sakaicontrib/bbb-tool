@@ -245,12 +245,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throw new SecurityException("You are not allowed to create meetings in this site");
         }
 
-        // create meeting in BBB
-        try{
-            meeting = bbbAPI.createMeeting(meeting);
-        } catch( Exception e) {
-            
-        }
+        // Due the old schema for internal loadbalancing the HostUrl must be not null
+        meeting.setHostUrl("");
 
         // store locally, in DB
         if (storageManager.storeMeeting(meeting)) {
@@ -263,9 +259,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             if (addToCalendar && meeting.getStartDate() != null) {
                 addEditCalendarEvent(meeting);
             }
-
-            // set meeting join url (for moderator, which is current user)
-            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), meeting.getModeratorPassword()));
 
             // log event
             logEvent(EVENT_MEETING_CREATE, meeting);
