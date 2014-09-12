@@ -185,10 +185,6 @@ public class BaseBBBAPI implements BBBAPI {
             String duration = meeting.getRecordingDuration() != null? meeting.getRecordingDuration().toString(): "0";
             query.append(duration);
 
-            query.append("&meta_description=");
-            String description = meeting.getRecordingDescription();
-            query.append(URLEncoder.encode(description == null? "": description.trim(), getParametersEncoding()));
-            
             // BSN: Parameters added for monitoring and recording search
             for(Entry<String, String> entry : meeting.getMeta().entrySet()) {
                 String key = entry.getKey();

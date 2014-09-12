@@ -477,7 +477,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if( !tmpMeta.containsKey("context")) tmpMeta.put("context", siteService.getSiteDisplay(meeting.getSiteId()) );
         if( !tmpMeta.containsKey("contextId")) tmpMeta.put("contextId", meeting.getSiteId() );
         if( !tmpMeta.containsKey("contextActivity")) tmpMeta.put("contextActivity", meeting.getName() );
-        if( !tmpMeta.containsKey("contextActivityDescription")) tmpMeta.put("contextActivityDescription", meeting.getRecordingDescription() );
 
         /*
          * //////////////////////////////////////////////////////////////////////////////////////////////////

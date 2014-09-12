@@ -96,10 +96,6 @@ public class BBBMeeting implements Entity {
 		return getUrl();
 	}
 	
-	public String getRecordingDescription() {
-	    return this.props.getWelcomeMessage();
-	}
-	
 	public Element toXml(Document arg0, Stack arg1) {
 		return null;
 	}
