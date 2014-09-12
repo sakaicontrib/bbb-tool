@@ -69,6 +69,8 @@ public interface BBBMeetingManager {
     public static final String[] FUNCTIONS = new String[] { FN_CREATE,
             FN_EDIT_OWN, FN_EDIT_ANY, FN_DELETE_OWN, FN_DELETE_ANY,
             FN_PARTICIPATE };
+    // Extra function used to enable admin interface in the client
+    public static final String FN_ADMIN = "bbb.admin";
 
     // Log Events
     /** A meeting was created on the BBB server */

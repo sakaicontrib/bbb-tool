@@ -437,6 +437,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
     private List<String> getUserPermissionsInSite(String userId, String siteId) {
         List<String> permissions = new ArrayList<String>();
+        if( meetingManager.isUserAllowedInLocation(userId, "site.viewRoster", siteId) )
+            permissions.add("site.viewRoster");
+        if( meetingManager.isUserAllowedInLocation(userId, "site.upd", siteId) ) {
+            permissions.add("site.upd");
+            permissions.add(meetingManager.FN_ADMIN);
+        }
         if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_CREATE, siteId) )
             permissions.add(meetingManager.FN_CREATE);
         if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_EDIT_OWN, siteId) )
@@ -449,10 +455,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             permissions.add(meetingManager.FN_DELETE_ANY);
         if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_PARTICIPATE, siteId) )
             permissions.add(meetingManager.FN_PARTICIPATE);
-        if( meetingManager.isUserAllowedInLocation(userId, "site.upd", siteId) )
-            permissions.add("site.upd");
-        if( meetingManager.isUserAllowedInLocation(userId, "site.viewRoster", siteId) )
-            permissions.add("site.viewRoster");
         if( meetingManager.isUserAllowedInLocation(userId, "calendar.new", siteId) )
             permissions.add("calendar.new");
         if( meetingManager.isUserAllowedInLocation(userId, "calendar.revise.own", siteId) )
