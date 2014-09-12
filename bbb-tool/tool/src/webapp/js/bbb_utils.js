@@ -52,7 +52,6 @@ var BBBUtils;
             async : false,
             success : function(data) {
                 meeting = data;
-                console.debug(data);
                 BBBUtils.setMeetingPermissionParams(meeting); 
             },
             error : function(xmlHttpRequest,status,error) {
