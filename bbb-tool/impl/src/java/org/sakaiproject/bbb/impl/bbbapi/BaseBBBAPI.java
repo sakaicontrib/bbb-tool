@@ -263,13 +263,11 @@ public class BaseBBBAPI implements BBBAPI {
         } catch (Exception e) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
-        
     }
     
     /** Get detailed live meeting information from BBB server */
     public Map<String, Object> getMeetingInfo(String meetingID, String password) 
             throws BBBException {
-        
         try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
@@ -279,7 +277,7 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, query.toString()));
 
             Map<String, Object> response = doAPICall(APICALL_GETMEETINGINFO, query.toString());
-            
+
             // nullify password fields
             for (String key : response.keySet()) {
                 if ("attendeePW".equals(key) || "moderatorPW".equals(key))
@@ -288,7 +286,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             return response;
         } catch (BBBException e) {
-            //logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
+            logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
     }
@@ -296,14 +294,13 @@ public class BaseBBBAPI implements BBBAPI {
     /** Get recordings from BBB server */
     public Map<String, Object> getRecordings(String meetingID) 
             throws BBBException {
-        
-    	Map<String, Object> response = null;
-    	
     	try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
             query.append(meetingID);
             query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
+
+            Map<String, Object> response = null;
 
             response = doAPICall(APICALL_GETRECORDINGS, query.toString());
 
@@ -321,7 +318,6 @@ public class BaseBBBAPI implements BBBAPI {
             logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
-        
     }
 
     /** End/delete a meeting on BBB server */

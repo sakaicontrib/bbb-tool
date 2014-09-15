@@ -175,7 +175,9 @@ public class BBBAPIWrapper/* implements Runnable */{
             try{
                 meetingInfoResponse = api.getMeetingInfo(meetingID, password); 
             } catch ( BBBException e){
-                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ){
+                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || 
+                        BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
+                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
                     meetingInfoResponse = responseError(e.getMessageKey(), e.getMessage() );
                 }
             } catch ( Exception e){
