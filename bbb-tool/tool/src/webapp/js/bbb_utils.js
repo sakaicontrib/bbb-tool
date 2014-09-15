@@ -149,20 +149,31 @@ var BBBUtils;
                 errors = true;
             }
         }
-        
-        // Get description/welcome msg from CKEditor
-        BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
+
+        var sakaiVersionArr = sakaiVersion.split('.');
+        if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8){
+            // Get description/welcome msg from CKEditor
+            BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
+        } else {
+            // Get description/welcome msg from CKEditor
+            BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+        }
 
         // Validate description length
         var maxLength = bbbSettings.config.addUpdateFormParameters.descriptionMaxLength;
         var descriptionLength = jQuery('#bbb_welcome_message_textarea').val().length;
         if( descriptionLength > maxLength ) {
             BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
+            //Restore the CKEditor or FCKEditor
+            if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
+                BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+            else
+                BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
             errors = true;
         }
-        
-        if(errors) return false
-        
+
+        if(errors) return false;
+
         $('.bbb_site_member,.bbb_site_member_role').removeAttr('disabled');
         
         // Submit!
