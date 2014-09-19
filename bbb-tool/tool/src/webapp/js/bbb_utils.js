@@ -214,9 +214,10 @@ var BBBUtils;
     BBBUtils.setMeetingInfo = function(meeting) {
         var meetingInfo = null;
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
+            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
             dataType : "json",
             async : true,
+            timeout : 10000,
             success : function(data) {
             },
             error : function(xmlHttpRequest,status,error) {
