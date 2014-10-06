@@ -501,13 +501,14 @@ var BBBUtils;
     }
 
     // Log an event indicating user is joining meeting
-    BBBUtils.joinMeeting = function(meetingId, linkSelector) {
+    BBBUtils.joinMeeting = function(meetingId, linkSelector, multipleSessionsAllowed) {
         var nonce = new Date().getTime();
         var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
         BBBUtils.hideMessage();
         if(linkSelector) {
             jQuery(linkSelector).attr('href', url);
-            jQuery('#meeting_joinlink_' + meetingId).hide();
+            if( !multipleSessionsAllowed )
+                jQuery('#meeting_joinlink_' + meetingId).fadeOut();
 
             //After joining stop requesting updates
             clearInterval(bbbCheckOneMeetingAvailabilityId);
@@ -569,15 +570,15 @@ var BBBUtils;
                    .text(bbb_status_joinable_available);
                 // Update for detail
                 jQuery('#meeting_status_joinable_'+meeting.id)
-                	.removeClass()
-                	.addClass('status_joinable_available')
-                	.text(bbb_status_joinable_available);
-        	} else if ( meeting.joinableMode === "inprogress" ){
-        		if( BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) )
-    				jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
-        		else
+                    .removeClass()
+                    .addClass('status_joinable_available')
+                    .text(bbb_status_joinable_available);
+            } else if ( meeting.joinableMode === "inprogress" ){
+                if( !meeting.multipleSessionsAllowed && BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) )
+                    jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                else
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
-        			
+
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     jQuery('#end_meeting_'+meeting.id)
@@ -1002,8 +1003,7 @@ var BBBUtils;
         if(jQuery('#'+fakeTextAreaId).length > 0) {
             jQuery('#'+fakeTextAreaId).remove();
         }
-        jQuery(textArea)
-           .hide()
+        jQuery(textArea).hide()
            .before('<div id="'+fakeTextAreaId+'" class="inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
 
         // Apply CKEditor
@@ -1244,8 +1244,7 @@ var BBBUtils;
         if(jQuery('#'+fakeTextAreaId).length > 0) {
             jQuery('#'+fakeTextAreaId).remove();
         }
-        jQuery(textArea)
-           .hide()
+        jQuery(textArea).hide()
            .before('<div id="'+fakeTextAreaId+'" class="inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
 
         // Apply FCKEditor 
@@ -1469,14 +1468,12 @@ BBBUtils.setNotifictionOptions = function() {
     } else {
         if ( jQuery('#iCalAttached')[0].checked ) {
             //Hide the iCalAlarm
-            jQuery('#notifyParticipants_iCalAlarm_span').empty()
-            .hide();
+            jQuery('#notifyParticipants_iCalAlarm_span').empty().hide();
             //Uncheck the iCalAttach checkbox
             $('#iCalAttached').removeAttr('checked');
         }
         //Hide the iCalAttach
-        jQuery('#notifyParticipants_iCalAttach_span').empty()
-        .hide();
+        jQuery('#notifyParticipants_iCalAttach_span').empty().hide();
     }
 }
 
@@ -1487,8 +1484,7 @@ BBBUtils.setNotifictioniCalOptions = function() {
         .show();
     } else {
         //Hide the iCalAlarm
-        jQuery('#notifyParticipants_iCalAlarm_span').empty()
-        .hide();
+        jQuery('#notifyParticipants_iCalAlarm_span').empty().hide();
     }
 
 }

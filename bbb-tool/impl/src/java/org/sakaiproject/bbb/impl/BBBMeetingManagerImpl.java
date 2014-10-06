@@ -219,7 +219,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public BBBMeeting getMeeting(String meetingId) 
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
-        return processMeeting(meeting);
+        meeting = processMeeting(meeting);
+        return meeting;
     }
 
     public List<BBBMeeting> getSiteMeetings(String siteId)
@@ -750,6 +751,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.getWaitModeratorDefault();
     }
 
+    public String isMultipleSessionsAllowedEnabled(){
+        return "" + bbbAPI.isMultipleSessionsAllowedEnabled();
+    }
+
+    public String getMultipleSessionsAllowedDefault(){
+        return "" + bbbAPI.getMultipleSessionsAllowedDefault();
+    }
+
     public String getMaxLengthForDescription(){
         return "" + bbbAPI.getMaxLengthForDescription();
     }
@@ -812,6 +821,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 meeting.setOwnerDisplayName(meeting.getOwnerId());
             }
         }
+
+        // If MultipleSessionsAllowed is not enabled and the Default is set to true, override the meeting value with true.
+        // This will enable all the meetings to allow any number of sessions per user
+        if( !bbbAPI.isMultipleSessionsAllowedEnabled() && bbbAPI.getMultipleSessionsAllowedDefault() )
+            meeting.setMultipleSessionsAllowed(Boolean.valueOf(true));
 
         Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 

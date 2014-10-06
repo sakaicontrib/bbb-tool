@@ -72,6 +72,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbWaitModeratorEnabled = true;
     /** BBB default value for 'wait for moderator' checkbox (default to true) */
     private boolean bbbWaitModeratorDefault = true;
+    /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' chekbox (default to false) */
+    private boolean bbbMultipleSessionsAllowedEnabled = false;
+    /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
+    private boolean bbbMultipleSessionsAllowedDefault = true;
 
     
     /** BBB API */
@@ -132,6 +136,9 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbDurationDefault = (int) config.getInt(BBBMeetingManager.CFG_DURATION_DEFAULT, bbbDurationDefault);
         bbbWaitModeratorEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_ENABLED, bbbWaitModeratorEnabled);
         bbbWaitModeratorDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_DEFAULT, bbbWaitModeratorDefault);
+        bbbMultipleSessionsAllowedEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_ENABLED, bbbMultipleSessionsAllowedEnabled);
+        bbbMultipleSessionsAllowedDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_DEFAULT, bbbMultipleSessionsAllowedDefault);
+        
     }
 
     public void destroy() {
@@ -341,6 +348,14 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public boolean getWaitModeratorDefault(){
         return bbbWaitModeratorDefault;
+    }
+
+    public boolean isMultipleSessionsAllowedEnabled(){
+        return bbbMultipleSessionsAllowedEnabled;
+    }
+
+    public boolean getMultipleSessionsAllowedDefault(){
+        return bbbMultipleSessionsAllowedDefault;
     }
 
     public int getMaxLengthForDescription(){

@@ -204,6 +204,8 @@ function switchState(state,arg) {
                 'durationDefault':      bbbSettings.config.addUpdateFormParameters.durationDefault,
                 'waitmoderatorEnabled': bbbSettings.config.addUpdateFormParameters.waitmoderatorEnabled,
                 'waitmoderatorDefault': bbbSettings.config.addUpdateFormParameters.waitmoderatorDefault,
+                'multiplesessionsallowedEnabled': bbbSettings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
+                'multiplesessionsallowedDefault': bbbSettings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
@@ -286,7 +288,6 @@ function switchState(state,arg) {
             BBBUtils.adjustFrameHeight();
         });
     } else if ('joinMeeting' === state || 'meetingInfo' === state) {
-        //console.debug(state);
         if ('joinMeeting' === state ) setMeetingList();
         $('#bbb_recordings_link').parent().parent().hide();
         $('#bbb_end_meetings_link').parent().parent().hide();
@@ -611,7 +612,7 @@ function updateMeetingInfo(meeting) {
 			});
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
-                if (bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
+                if (!meeting.multipleSessionsAllowed && bbbCurrentUser.id === meetingInfo.attendees[p].userID) {
 					$('#meeting_joinlink_' + meeting.id).hide();
 				}
           	}

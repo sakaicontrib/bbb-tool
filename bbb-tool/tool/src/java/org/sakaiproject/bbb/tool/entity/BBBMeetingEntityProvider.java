@@ -206,6 +206,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 (waitForModeratorStr.toLowerCase().equals("on") || waitForModeratorStr.toLowerCase().equals("true")));
         meeting.setWaitForModerator(Boolean.valueOf(waitForModerator));
 
+        // multipleSessionsAllowed flag
+        String multipleSessionsAllowedStr = (String) params.get("multipleSessionsAllowed");
+        boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
+                (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
+        meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
+
         // participants
         String meetingOwnerId = meeting.getOwnerId();
         List<Participant> participants = extractParticipants(params, meetingOwnerId);
@@ -306,6 +312,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                     (waitForModeratorStr.toLowerCase().equals("on") || waitForModeratorStr.toLowerCase().equals("true")));
             meeting.setWaitForModerator(Boolean.valueOf(waitForModerator));
 
+            // update multipleSessionsAllowed flag
+            String multipleSessionsAllowedStr = (String) params.get("multipleSessionsAllowed");
+            boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
+                    (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
+            meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
 
             // update dates
             if (params.get("startDate") != null)
@@ -509,6 +520,15 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean waitmoderatorDefault = Boolean.parseBoolean(meetingManager.getWaitModeratorDefault());
         if (waitmoderatorDefault != null) {
             map.put("waitmoderatorDefault", waitmoderatorDefault);
+        }
+        //UX settings for 'multiple sessions allowed' box
+        Boolean multiplesessionsallowedEnabled = Boolean.parseBoolean(meetingManager.isMultipleSessionsAllowedEnabled());
+        if (multiplesessionsallowedEnabled != null) {
+            map.put("multiplesessionsallowedEnabled", multiplesessionsallowedEnabled);
+        }
+        Boolean multiplesessionsallowedDefault = Boolean.parseBoolean(meetingManager.getMultipleSessionsAllowedDefault());
+        if (multiplesessionsallowedDefault != null) {
+            map.put("multiplesessionsallowedDefault", multiplesessionsallowedDefault);
         }
         //UX settings for 'description' box
         String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
