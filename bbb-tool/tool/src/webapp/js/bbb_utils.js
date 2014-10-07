@@ -536,7 +536,6 @@ var BBBUtils;
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
     		if( bbbCurrentMeetings[i].id == meetingId ) {
                 BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
-                BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
     			BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
       	   	 	updateMeetingInfo(bbbCurrentMeetings[i]);
     			return;
@@ -559,7 +558,10 @@ var BBBUtils;
     BBBUtils.checkMeetingAvailability = function(meeting) {
         if(meeting.joinable) {
             if ( meeting.joinableMode === "available" ){
-                jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                if( !meeting.multipleSessionsAllowed && BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) )
+                    jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                else
+                    jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     jQuery('#end_meeting_'+meeting.id)
