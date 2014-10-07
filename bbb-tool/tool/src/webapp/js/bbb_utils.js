@@ -20,7 +20,7 @@ var BBBUtils;
 
 	if(BBBUtils == null)
 		BBBUtils = new Object();
-		
+
     var bbbUserSelectionOptions = null;
 	var bbbTrimpathModifiers = null;
 	var bbbTrimpathMacros = null;
@@ -516,7 +516,7 @@ var BBBUtils;
 
             //After joining execute requesting updates only once
             var onceAutorefreshInterval = bbbSettings.config.autorefreshInterval.meetings > 0? bbbSettings.config.autorefreshInterval.meetings: 15000;
-            setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", onceAutorefreshInterval);
+            setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "', true)", onceAutorefreshInterval);
         }
         return true;
     }
@@ -532,15 +532,18 @@ var BBBUtils;
     }
 
     // Check ONE meetings availability and update meeting details page if appropriate
-    BBBUtils.checkOneMeetingAvailability = function(meetingId) {
-    	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-    		if( bbbCurrentMeetings[i].id == meetingId ) {
+    BBBUtils.checkOneMeetingAvailability = function(meetingId, joining) {
+        if(typeof(joining)==='undefined') joining = false;
+
+        for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            if( bbbCurrentMeetings[i].id == meetingId ) {
                 BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
-    			BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
-      	   	 	updateMeetingInfo(bbbCurrentMeetings[i]);
-    			return;
-    		}
-    	}
+                bbbCurrentMeetings[i].joining = joining;
+                BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
+                updateMeetingInfo(bbbCurrentMeetings[i]);
+                return;
+            }
+        }
     }
 
     // Check ALL meetings availability and update meeting details page if appropriate
@@ -558,10 +561,15 @@ var BBBUtils;
     BBBUtils.checkMeetingAvailability = function(meeting) {
         if(meeting.joinable) {
             if ( meeting.joinableMode === "available" ){
-                if( !meeting.multipleSessionsAllowed && BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) )
-                    jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
-                else
+                if( meeting.multipleSessionsAllowed ) {
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                } else {
+                    if( !BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) && !meeting.joining ) {
+                        jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                    } else {
+                        jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                    }
+                }
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     jQuery('#end_meeting_'+meeting.id)
@@ -579,10 +587,15 @@ var BBBUtils;
                     .addClass('status_joinable_available')
                     .text(bbb_status_joinable_available);
             } else if ( meeting.joinableMode === "inprogress" ){
-                if( !meeting.multipleSessionsAllowed && BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) )
-                    jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
-                else
+                if( meeting.multipleSessionsAllowed ) {
                     jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                } else {
+                    if( !BBBUtils.isUserInMeeting(bbbCurrentUser.displayName, meeting) && !meeting.joining ) {
+                        jQuery('#meeting_joinlink_'+meeting.id).fadeIn();
+                    } else {
+                        jQuery('#meeting_joinlink_'+meeting.id).fadeOut();
+                    }
+                }
 
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
