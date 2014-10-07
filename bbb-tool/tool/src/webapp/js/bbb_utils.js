@@ -508,11 +508,15 @@ var BBBUtils;
         if(linkSelector) {
             jQuery(linkSelector).attr('href', url);
             if( !multipleSessionsAllowed )
-                jQuery('#meeting_joinlink_' + meetingId).fadeOut();
+                jQuery('#meeting_joinlink_' + meetingId).hide();
 
-            //After joining stop requesting updates
+            //After joining stop requesting periodic updates
             clearInterval(bbbCheckOneMeetingAvailabilityId);
             clearInterval(bbbCheckRecordingAvailabilityId);
+
+            //After joining execute requesting updates only once
+            var onceAutorefreshInterval = bbbSettings.config.autorefreshInterval.meetings > 0? bbbSettings.config.autorefreshInterval.meetings: 15000;
+            setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", onceAutorefreshInterval);
         }
         return true;
     }
@@ -526,7 +530,7 @@ var BBBUtils;
 		}
 		return false;
     }
-    
+
     // Check ONE meetings availability and update meeting details page if appropriate
     BBBUtils.checkOneMeetingAvailability = function(meetingId) {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
@@ -538,7 +542,6 @@ var BBBUtils;
     			return;
     		}
     	}
-
     }
 
     // Check ALL meetings availability and update meeting details page if appropriate

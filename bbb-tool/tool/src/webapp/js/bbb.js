@@ -312,7 +312,7 @@ function switchState(state,arg) {
 
 				if (bbbSettings.config.autorefreshInterval.meetings > 0)
 					bbbCheckOneMeetingAvailabilityId = setInterval(	"BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.meetings);
-				    //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')" , bbbSettings.config.autorefreshInterval.recordings);
+				    //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.recordings);
 
 			} else {
 				BBBUtils.hideMessage();
@@ -428,7 +428,8 @@ function switchState(state,arg) {
                     BBBUtils.adjustFrameHeight();
                 });
 
-                if (bbbSettings.config.autorefreshInterval.recordings > 0) bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbSettings.config.autorefreshInterval.recordings);
+                if (bbbSettings.config.autorefreshInterval.recordings > 0)
+                    bbbRefreshRecordingListId = setInterval("switchState('recordings_meeting',{'meetingId':'" + arg.meetingId + "'})", bbbSettings.config.autorefreshInterval.recordings);
             } else {
                 // warn about lack of permissions
                 if (bbbUserPerms.siteUpdate) {

@@ -85,8 +85,8 @@ $(document).ready(function(){
     }
     sakaiVersion = arg['version'];
 });
-function refresh(meetingId) {
-    var bbbCheckOneMeetingAvailabilityId = setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", 10000);
+function waitForModeratorRefresh(meetingId) {
+    setTimeout( "BBBUtils.checkOneMeetingAvailability('" + meetingId + "')", 15000 );
 };
 </script>
 </head>

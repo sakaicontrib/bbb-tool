@@ -840,7 +840,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "                        setTimeout(worker, 5000);\n" +
                    "                    } else {\n" +
                    "                        if (typeof window.opener != 'undefined') {\n" +
-                   "                           window.opener.refresh('" + meetingId + "');\n" +
+                   "                           window.opener.waitForModeratorRefresh('" + meetingId + "');\n" +
                    "                        }\n" +
                    "                        window.location.reload();\n" +
                    "                    }\n" +
@@ -859,7 +859,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         } else {
             return commonHtmlHeader +
                    "    <script type='text/javascript' language='JavaScript'>\n" +
-                   "        window.opener.refresh('" + meetingId + "');\n" +
+                   "        window.opener.waitForModeratorRefresh('" + meetingId + "');\n" +
                    "    </script>\n" +
                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
                    "  </head>\n" +
