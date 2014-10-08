@@ -59,7 +59,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
         statements.put("BBB_MEETING", "CREATE TABLE BBB_MEETING (MEETING_ID " + CHAR + "(36) NOT NULL," +
                 "NAME " + VARCHAR + "(255) NOT NULL, " +
-                "HOST_URL " + VARCHAR + "(255) NOT NULL," +
+                "HOST_URL " + VARCHAR + "(255)," +
                 "SITE_ID " + VARCHAR + "(99) NOT NULL, " +
                 "ATTENDEE_PW " + VARCHAR + "(99) NOT NULL, " +
                 "MODERATOR_PW " + VARCHAR + "(99) NOT NULL, " +
@@ -89,7 +89,6 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return "SHOW TABLES like '" + table + "'";
     }
 
-
     // 
     //Code for automatic updates to the database
     //This is for updating from 1.0.6 to 1.0.7 however for next updates 
@@ -99,22 +98,24 @@ public class DefaultSqlGenerator implements SqlGenerator {
         Map<String, String> statements = new LinkedHashMap<String, String>();
 
         statements.put("BBB_MEETING:HOST_URL:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL " + VARCHAR + "(255) NOT NULL AFTER NAME;");
+                "ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL " + VARCHAR + "(255) AFTER NAME;");
         statements.put("BBB_MEETING:RECORDING:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;"); 
+                "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;"); 
         statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
+                "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
         statements.put("BBB_MEETING:DELETED:ADD", 
-        		"ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL AFTER PROPERTIES;");
+                "ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL AFTER PROPERTIES;");
         statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
-        		"ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
+                "ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
         statements.put("BBB_MEETING:VOICE_BRIDGE:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN VOICE_BRIDGE " + INT + " AFTER RECORDING_DURATION;"); 
         statements.put("BBB_MEETING:WAIT_FOR_MODERATOR:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN WAIT_FOR_MODERATOR " + BOOL + " AFTER VOICE_BRIDGE;"); 
         statements.put("BBB_MEETING:MULTIPLE_SESSIONS_ALLOWED:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN MULTIPLE_SESSIONS_ALLOWED " + BOOL + " AFTER WAIT_FOR_MODERATOR;"); 
-        
+        statements.put("BBB_MEETING:HOST_URL:CHANGE",
+                "ALTER TABLE BBB_MEETING CHANGE COLUMN HOST_URL HOST_URL " + VARCHAR + "(255);"); 
+
         return statements;
     }
 
