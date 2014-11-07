@@ -47,7 +47,7 @@ public class BBBMeeting implements Entity {
 	private String ownerDisplayName = null;
 	private Date startDate = null;
 	private Date endDate = null;
-	private Boolean waitformoderator = null;
+	private Boolean waitForModerator = null;
 	private Boolean deleted = null;
 	private Boolean recording = null; 
 	private Long recordingDuration = null;
@@ -94,10 +94,6 @@ public class BBBMeeting implements Entity {
 	
 	public String getUrl(String arg0) {
 		return getUrl();
-	}
-	
-	public String getRecordingDescription() {
-	    return this.props.getWelcomeMessage();
 	}
 	
 	public Element toXml(Document arg0, Stack arg1) {

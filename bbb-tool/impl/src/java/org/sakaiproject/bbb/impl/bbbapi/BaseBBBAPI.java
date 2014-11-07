@@ -185,10 +185,6 @@ public class BaseBBBAPI implements BBBAPI {
             String duration = meeting.getRecordingDuration() != null? meeting.getRecordingDuration().toString(): "0";
             query.append(duration);
 
-            query.append("&meta_description=");
-            String description = meeting.getRecordingDescription();
-            query.append(URLEncoder.encode(description == null? "": description.trim(), getParametersEncoding()));
-            
             // BSN: Parameters added for monitoring and recording search
             for(Entry<String, String> entry : meeting.getMeta().entrySet()) {
                 String key = entry.getKey();
@@ -267,13 +263,11 @@ public class BaseBBBAPI implements BBBAPI {
         } catch (Exception e) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
-        
     }
     
     /** Get detailed live meeting information from BBB server */
     public Map<String, Object> getMeetingInfo(String meetingID, String password) 
             throws BBBException {
-        
         try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
@@ -283,7 +277,7 @@ public class BaseBBBAPI implements BBBAPI {
             query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, query.toString()));
 
             Map<String, Object> response = doAPICall(APICALL_GETMEETINGINFO, query.toString());
-            
+
             // nullify password fields
             for (String key : response.keySet()) {
                 if ("attendeePW".equals(key) || "moderatorPW".equals(key))
@@ -292,7 +286,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             return response;
         } catch (BBBException e) {
-            //logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
+            logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
     }
@@ -300,14 +294,13 @@ public class BaseBBBAPI implements BBBAPI {
     /** Get recordings from BBB server */
     public Map<String, Object> getRecordings(String meetingID) 
             throws BBBException {
-        
-    	Map<String, Object> response = null;
-    	
     	try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
             query.append(meetingID);
             query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
+
+            Map<String, Object> response = null;
 
             response = doAPICall(APICALL_GETRECORDINGS, query.toString());
 
@@ -325,7 +318,6 @@ public class BaseBBBAPI implements BBBAPI {
             logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
-        
     }
 
     /** End/delete a meeting on BBB server */
@@ -413,10 +405,10 @@ public class BaseBBBAPI implements BBBAPI {
         }
         joinQuery.append("&password=");
         joinQuery.append(password);
-        if (userId != null) {
-            joinQuery.append("&userID=");
-            joinQuery.append(userId);
-        }
+        //if (userId != null) {
+        //    joinQuery.append("&userID=");
+        //    joinQuery.append(userId);
+        //}
         joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);

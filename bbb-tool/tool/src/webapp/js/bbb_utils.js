@@ -25,47 +25,29 @@ var BBBUtils;
 	var bbbTrimpathModifiers = null;
 	var bbbTrimpathMacros = null;
 
-	// Get the current user from EB
-	BBBUtils.getCurrentUser = function() {
-		var user = null;
-		jQuery.ajax( {
-	 		url : "/direct/user/current.json",
-	   		dataType : "json",
-	   		async : false,
-		   	success : function(u) {
-				user = u;
-			},
-			error : function(xmlHttpRequest,status,error) {
-				BBBUtils.handleError(bbb_err_curr_user, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
+    // Get the current user from EB
+    BBBUtils.getSettings = function(siteId) {
+        var settings = null;
+        jQuery.ajax( {
+            url : "/direct/bbb-tool/getSettings.json?siteId=" + siteId,
+            dataType : "json",
+            async : false,
+            success : function(s) {
+                settings = s;
+            },
+            error : function(xmlHttpRequest,status,error) {
+                BBBUtils.handleError(bbb_err_curr_user, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
 
-		return user;
-	}
+        return settings;
+    }
 
-	// Get the current site from EB and returns its maintainRole
-	BBBUtils.getMaintainRole = function() {
-		var maintainRole = null;
-		jQuery.ajax( {
-	 		url : "/direct/site/" + bbbSiteId + ".json",
-	   		dataType : "json",
-	   		async : false,
-		   	success : function(site) {
-				maintainRole = site.maintainRole;
-			},
-			error : function(xmlHttpRequest,status,error) {
-				BBBUtils.handleError(bbb_err_maintain_role, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-
-		return maintainRole;
-	}
-	
 	// Get a meeting
 	BBBUtils.getMeeting = function(meetingId) {                
 		var meeting = null;
 		jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + ".json",
+            url : "/direct/bbb-tool/" + meetingId + ".json",
             dataType : "json",
             async : false,
             success : function(data) {
@@ -167,20 +149,31 @@ var BBBUtils;
                 errors = true;
             }
         }
-        
-        // Get description/welcome msg from FCKEditor
-        BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+
+        var sakaiVersionArr = sakaiVersion.split('.');
+        if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8){
+            // Get description/welcome msg from CKEditor
+            BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
+        } else {
+            // Get description/welcome msg from CKEditor
+            BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+        }
 
         // Validate description length
-        var maxLength = bbbAddUpdateFormConfigParameters.descriptionMaxLength;
+        var maxLength = bbbSettings.config.addUpdateFormParameters.descriptionMaxLength;
         var descriptionLength = jQuery('#bbb_welcome_message_textarea').val().length;
         if( descriptionLength > maxLength ) {
             BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
+            //Restore the CKEditor or FCKEditor
+            if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
+                BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+            else
+                BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
             errors = true;
         }
-        
-        if(errors) return false
-        
+
+        if(errors) return false;
+
         $('.bbb_site_member,.bbb_site_member_role').removeAttr('disabled');
         
         // Submit!
@@ -216,8 +209,34 @@ var BBBUtils;
             }
         });
     }
-	
-	BBBUtils.setMeetingInfoParams = function(meeting) {
+
+    // Get meeting info from BBB server
+    BBBUtils.setMeetingInfo = function(meeting) {
+        var meetingInfo = null;
+        jQuery.ajax( {
+            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
+            dataType : "json",
+            async : true,
+            timeout : 10000,
+            success : function(data) {
+            },
+            error : function(xmlHttpRequest,status,error) {
+                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                return null;
+            },
+            complete : function(xmlHttpRequest,status){
+                if( xmlHttpRequest.responseText == null )
+                    meetingInfo = {};
+                else
+                    meetingInfo = JSON.parse(xmlHttpRequest.responseText);
+                BBBUtils.setMeetingInfoParams(meeting, meetingInfo);
+                BBBUtils.setMeetingJoinableModeParams(meeting);
+            }
+        });
+        return meetingInfo;
+    }
+
+	BBBUtils.setMeetingInfoParams = function(meeting, meetingInfo) {
 		//Clear attendees
 		if( meeting.attendees && meeting.attendees.length > 0 )
 			delete meeting.attendees;
@@ -226,8 +245,7 @@ var BBBUtils;
 		meeting.participantCount = 0;
 		meeting.moderatorCount = 0;
 		meeting.unreachableServer = "false";
-			
-		var meetingInfo = BBBUtils.getMeetingInfo(meeting.id);
+
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
 			if ( meetingInfo.returncode != 'FAILED' ) {
 				meeting.attendees = meetingInfo.attendees;
@@ -239,12 +257,11 @@ var BBBUtils;
 				meeting.unreachableServer = "true";
 			}
 		}
-
 	}
 
 	BBBUtils.setRecordingPermissionParams = function(recording) {
         // specific recording permissions
-        var offset = bbbServerTimeStamp.timezoneOffset;
+        var offset = bbbSettings.config.serverTimeInDefaultTimezone.timezoneOffset;
         recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
         
         if(bbbCurrentUser.id === recording.ownerId) {
@@ -259,10 +276,9 @@ var BBBUtils;
 	}
 	
 	BBBUtils.setMeetingPermissionParams = function(meeting) {
-
 		// joinable only if on specified date interval (if any)
 		
-		var serverTimeStamp = parseInt(bbbServerTimeStamp.timestamp);
+		var serverTimeStamp = parseInt(bbbSettings.config.serverTimeInDefaultTimezone.timestamp);
 		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000);
 
 		var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
@@ -288,7 +304,9 @@ var BBBUtils;
 	    //if joinable set the joinableMode
 		meeting.joinableMode = "nojoinable";
 		if( meeting.joinable ){
-			if( meeting.unreachableServer == "false" ){
+		    if( meeting.unreachableServer == null ){
+		        meeting.joinableMode = "";
+		    } else if( meeting.unreachableServer == "false" ){
 				meeting.joinableMode = "available";
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
@@ -299,6 +317,21 @@ var BBBUtils;
 				meeting.joinableMode = "unreachable";
 			}
 		}
+
+        // Update status in the view
+		var statusClass = meeting.joinable ? 'status_joinable_' + meeting.joinableMode: (meeting.notStarted ? 'status_notstarted' : 'status_finished')
+        var statusText = meeting.joinable ? (meeting.joinableMode == 'available'? bbb_status_joinable_available: meeting.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: meeting.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: meeting.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (meeting.notStarted ? bbb_status_notstarted : bbb_status_finished);
+        jQuery('#meeting_status_'+meeting.id).toggleClass(statusClass).html(statusText);
+        // If meeting can be ended, update end action link in the view
+        if( meeting.canEnd ){
+            var end_meetingClass = "end_meeting_hidden";
+            var end_meetingText = "";
+            if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
+                end_meetingClass = "end_meeting_shown";
+                end_meetingText = "&nbsp;|&nbsp;" + "<a href=\"javascript:;\" onclick=\"return BBBUtils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+            }
+            jQuery('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
+        }
 	}
 	
 	// End the specified meeting. The name parameter is required for the confirm
@@ -414,11 +447,10 @@ var BBBUtils;
     // Get meeting info from BBB server
     BBBUtils.getMeetingInfo = function(meetingId) {  
     	var meetingInfo = null;
-
         jQuery.ajax( {
             url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json",
             dataType : "json",
-            async : false,
+            async : true,
             success : function(data) {
                 meetingInfo = data;
             },
@@ -469,61 +501,19 @@ var BBBUtils;
     }
 
     // Log an event indicating user is joining meeting
-    BBBUtils.joinMeeting = function(meetingId, linkSelector) { 
-        jQuery.ajax( {
-            url: "/direct/bbb-tool/"+meetingId+"/joinMeeting",
-            async : false,
-            success : function(url) {
-            	BBBUtils.hideMessage();
-            	if(linkSelector) {
-            		jQuery(linkSelector).attr('href', url);
-            		$('#meeting_joinlink_' + meetingId).hide();
+    BBBUtils.joinMeeting = function(meetingId, linkSelector) {
+        var nonce = new Date().getTime();
+        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
+        BBBUtils.hideMessage();
+        if(linkSelector) {
+            jQuery(linkSelector).attr('href', url);
+            jQuery('#meeting_joinlink_' + meetingId).hide();
 
-            		//After joining stop requesting updates
-            		clearInterval(bbbCheckOneMeetingAvailabilityId);
-					clearInterval(bbbCheckRecordingAvailabilityId);
-            	}
-            	return true;
-            },
-            error : function(xmlHttpRequest,status,error) {
-                BBBUtils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                if(linkSelector) {
-                	jQuery(linkSelector).removeAttr('href');
-                }
-                return false;
-            }
-        });
-    }
-    
-    // Get current server time (in milliseconds) in user timezone
-    BBBUtils.updateServerTime = function() {
-    	var response = Object();
-    	jQuery.ajax( {
-            url: "/direct/bbb-tool/getServerTimeInDefaultTimezone.json",
-            dataType : "json",
-            async : false,
-            success : function(timestamp) {
-            	response = timestamp;
-            }
-        });
-        return response;
-    }
-
-    // Get tool version
-    BBBUtils.getToolVersion = function() {
-
-    	var response = Object();
-
-    	jQuery.ajax( {
-            url: "/direct/bbb-tool/getToolVersion.json",
-            dataType : "json",
-            async : false,
-            success : function(version) {
-            	response = version;
-            }
-        });
-
-    	return response;
+            //After joining stop requesting updates
+            clearInterval(bbbCheckOneMeetingAvailabilityId);
+            clearInterval(bbbCheckRecordingAvailabilityId);
+        }
+        return true;
     }
 
     // Check if a user is already logged on a meeting
@@ -540,7 +530,7 @@ var BBBUtils;
     BBBUtils.checkOneMeetingAvailability = function(meetingId) {
     	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
     		if( bbbCurrentMeetings[i].id == meetingId ) {
-                BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
                 BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
     			BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
       	   	 	updateMeetingInfo(bbbCurrentMeetings[i]);
@@ -552,12 +542,13 @@ var BBBUtils;
 
     // Check ALL meetings availability and update meeting details page if appropriate
     BBBUtils.checkAllMeetingAvailability = function() {
-    	for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
-    		BBBUtils.setMeetingInfoParams(bbbCurrentMeetings[i]);
+        for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
+            if( !bbbCurrentMeetings[i].joinable ) {
+                BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
+            }
             BBBUtils.setMeetingJoinableModeParams(bbbCurrentMeetings[i]);
             BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
-    	}
-
+        }
     }
     
     // Check specific meeting availability and update meeting details page if appropriate
@@ -715,15 +706,42 @@ var BBBUtils;
     }
 	
 
-    // Get the participant object associated with the specified userId
-	BBBUtils.getParticipantFromMeeting = function(meeting, userId) {
+    // Get the participant object associated with the current user
+	BBBUtils.getParticipantFromMeeting = function(meeting) {
+	    var userId = bbbCurrentUser.id;
+        var role = bbbCurrentUser.roles != null? bbbCurrentUser.roles.role: null;
 		if(meeting && meeting.participants) {
+	        // 1. we want to first check individual user selection as it may
+	        // override all/group/role selection...
             for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'user'
-                && meeting.participants[i].selectionId == userId) {
+                if(meeting.participants[i].selectionType == 'user' 
+                    && meeting.participants[i].selectionId == userId) {
                     return meeting.participants[i];
                 }
             }
+
+            // 2. ... then with group/role selection types...
+            for(var i=0; i<meeting.participants.length; i++) {
+                if(meeting.participants[i].selectionType == 'role' 
+                    && meeting.participants[i].selectionId == role) {
+                    return meeting.participants[i];
+                }
+            }
+
+            // 3. ... then go with 'all' selection type
+            for(var i=0; i<meeting.participants.length; i++) {
+                if(meeting.participants[i].selectionType == 'all') {
+                    return meeting.participants[i];
+                }
+            }
+
+            // 4. If not found, just check if is superuser
+            ///No need for this, the superadmin has always the maintainer role
+            /*
+            if (securityService.isSuperUser()) {
+                return new Participant(Participant.SELECTION_USER, "admin", Participant.MODERATOR);
+            }
+            */
         }
         return null;
 	}
@@ -758,67 +776,6 @@ var BBBUtils;
         return bbbUserSelectionOptions;
     }
 	
-	// Get the user permissions
-	BBBUtils.getUserPermissions = function() {
-		var perms = null;
-        jQuery.ajax( {
-            url: "/direct/site/"+bbbSiteId+"/userPerms.json",
-            dataType : "json",
-            async : false,
-            success : function(userPermissions) {
-            	if(userPermissions != null) perms = userPermissions.data;
-            	if(bbbCurrentUser.id == 'admin' || perms.indexOf('site.upd') >= 0 ) perms.push("bbb.admin");
-            },
-            error : function(xmlHttpRequest,status,error) {
-            	if(bbbCurrentUser.id == 'admin') {
-            		// Workaround for SAK-18534
-            		perms = ["bbb.admin", "bbb.create", "bbb.edit.any", "bbb.delete.any", "bbb.participate",
-                             "site.upd", "site.viewRoster", "calendar.new", "calendar.revise.any", "calendar.delete.any"];
-            	}else{
-                    BBBUtils.handleError(bbb_err_get_user_permissions, xmlHttpRequest.status, xmlHttpRequest.statusText);
-            	}
-            }
-        });
-        return perms;
-    }
-
-	// Get notice message to be displayed on the UI (first time access)
-    BBBUtils.autorefreshInterval = function() {
-		var interval = [];
-		interval.meetings = 30000;
-		interval.recordings = 60000;
-        jQuery.ajax( {
-            url: "/direct/bbb-tool/getAutorefreshInterval.json",
-            dataType : "json",
-            async : false,
-            success : function(autorefresh) {
-            	if(autorefresh) {
-            		interval.meetings = autorefresh.meetings;
-            		interval.recordings = autorefresh.recordings;
-            	}
-            }
-        });
-        return interval;
-    }
-    
-    BBBUtils.addUpdateFormConfigParameters = function() {
-		var addUpdateFormConfigParams = [];
-		addUpdateFormConfigParams.recording = true;
-		addUpdateFormConfigParams.descriptionMaxLength = 60000;
-        jQuery.ajax( {
-            url: "/direct/bbb-tool/getAddUpdateFormConfigParameters.json",
-            dataType : "json",
-            async : false,
-            success : function(formConfigParams) {
-            	if(formConfigParams) {
-            		addUpdateFormConfigParams.recording = (formConfigParams.recording == 'true');
-            		addUpdateFormConfigParams.descriptionMaxLength = formConfigParams.descriptionMaxLength;
-            	}
-            }
-        });
-        return addUpdateFormConfigParams;
-    }
-
     // Get the site permissions
     BBBUtils.getSitePermissions = function() {
         var perms = [];
@@ -1035,7 +992,249 @@ var BBBUtils;
     	if(window.frameElement && window.frameElement.id)
     	   setMainFrameHeightNow(window.frameElement.id);
     }
-    
+
+    /** Transform a textarea element on to a CKEditor, uppon user click */
+    BBBUtils.makeInlineCKEditor = function(textAreaId, toolBarSet, width, height) {
+        var textArea = jQuery('#'+textAreaId);
+        var textAreaContents = jQuery(textArea).text();
+        var fakeTextAreaId = textAreaId + '-' + 'fake';
+        var fakeTextAreaInstrId = textAreaId + '-' + 'fakeInstr';
+        if(jQuery('#'+fakeTextAreaId).length > 0) {
+            jQuery('#'+fakeTextAreaId).remove();
+        }
+        jQuery(textArea)
+           .hide()
+           .before('<div id="'+fakeTextAreaId+'" class="inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
+
+        // Apply CKEditor
+        var applyCKEditor = function() {
+            jQuery('#'+fakeTextAreaId).hide();
+            jQuery(this).unbind('click');
+            jQuery('#'+fakeTextAreaInstrId).unbind('mouseenter').unbind('mouseleave');
+            jQuery('#bbb_meeting_name_field').unbind('keydown');
+
+            toolbarSet = !toolBarSet ? 'Basic' : toolBarSet;
+            toolbarTemplate = toolbarSet == 'BBB'?
+                    [
+                        ['Source','-','Templates'],
+                        ['Cut','Copy','Paste','PasteText','PasteFromWord'],
+                        ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+                        ['NumberedList','BulletedList'], //,'-','Outdent','Indent','Blockquote','CreateDiv'
+                        '/',
+                        ['Bold','Italic','Underline','-','Subscript','Superscript'],
+                        ['atd-ckeditor'],
+                        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                        ['BidiLtr', 'BidiRtl' ],
+                        ['Link','Unlink','Anchor'],
+                        ['TextColor','BGColor'],
+                        '/',
+                        ['Styles','Format','Font','FontSize']
+                    ]: null;
+
+
+            // BBB-109
+            // This override is to keep consistency in the way the function is called and at the same time,
+            // to suppport a Custom toolbar with less options that the ones offered by the Full template 
+            // which are not supported in the BigBlueButton welcome message, but more than the ones offered 
+            // by the Basic template which are needed.
+            // This approach should be replaced as soon Sakai offers the way to customize the toolbar 
+            // in the same call.
+            sakai.editor.launch = (function(targetId, config, w, h) {
+                var original = sakai.editor.launch;
+                if( toolbarSet == 'BBB') {
+                    return function(targetId, config, w, h) {
+                        var folder = "";
+
+                        var collectionId = "";
+                        if (config != null && config.collectionId) {
+                            collectionId=config.collectionId;
+                        }
+                        else if (sakai.editor.collectionId) {
+                            collectionId=sakai.editor.collectionId
+                        }
+
+                        if (collectionId) {
+                            folder = "CurrentFolder=" + collectionId
+                        }
+
+                        var language = sakai.locale && sakai.locale.userLanguage || '';
+                        var country = sakai.locale && sakai.locale.userCountry || null;
+
+                        var ckconfig = {
+                            skin: 'v2',
+                            defaultLanguage: 'en',
+                            language: language + (country ? '-' + country.toLowerCase() : ''),
+                            height: 310,
+                            fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
+
+                            filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
+                            filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
+                            filebrowserFlashBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
+                                    extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
+
+
+                            // These two settings enable the browser's native spell checking and context menus.
+                            // Control-Right-Click (Windows/Linux) or Command-Right-Click (Mac) on highlighted words
+                            // will cause the CKEditor menu to be suppressed and display the browser's standard context
+                            // menu. In some cases (Firefox and Safari, at least), this supplies corrections, suggestions, etc.
+                            disableNativeSpellChecker: false,
+                            browserContextMenuOnCtrl: true,
+
+                            toolbar_Basic:
+                            [
+                                ['Source', '-', 'Bold', 'Italic', 'Link', 'Unlink']
+                            ],
+                            toolbar_Full:
+                            [
+                                ['Source','-','Templates'],
+                                // Uncomment the next line and comment the following to enable the default spell checker.
+                                // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
+                                //['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
+                                ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print'],
+                                ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+                                ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+                                '/',
+                                ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
+                                            ['atd-ckeditor'],
+                                ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                                ['BidiLtr', 'BidiRtl' ],
+                                ['Link','Unlink','Anchor'],
+                                (sakai.editor.enableResourceSearch
+                                    ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                                    : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                                '/',
+                                ['Styles','Format','Font','FontSize'],
+                                ['TextColor','BGColor'],
+                                ['Maximize', 'ShowBlocks']
+                            ],
+                            toolbar: 'Full',
+                            resize_dir: 'vertical',
+                            //SAK-23418
+                            pasteFromWordRemoveFontStyles : false,
+                            pasteFromWordRemoveStyles : false
+                        };
+
+                        //NOTE: The height and width properties are handled discretely here.
+                        //      The ultimate intent is that the caller-supplied config will simply
+                        //      overlay the default config. The outstanding question is whether
+                        //      some properties should disallow override (because of specific setup
+                        //      here that we would not want duplicated throughout calling code) or
+                        //      if their override would just be discouraged. We also probably want
+                        //      some symbolic things like editorSize: 'small', where the supplied
+                        //      values are interpreted and translated into dimensions, toolbar set,
+                        //      and anything else relevant. This will allow editor indifference
+                        //      on the part of tool code, requesting whatever editor be launched
+                        //      with appropriate settings applied, rather than detecting the editor
+                        //      and supplying specific values for the desired effect. This set of
+                        //      "logical" configuration options is yet to be determined.
+                        if (config) {
+                            if (config.width) {
+                                ckconfig.width = config.width;
+                            } else if (w) {
+                                ckconfig.width = w;
+                            }
+
+                            if (config.height) {
+                                ckconfig.height = config.height;
+                            } else if (h) {
+                                ckconfig.height = h;
+                            }
+
+                            if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
+                                ckconfig.toolbar = config.toolbarSet;
+                            } else if (config && config.toolbarSet && config.toolbarTemplate && config.toolbarTemplate != null ) {
+                                ckconfig['toolbar_' + config.toolbarSet] = config.toolbarTemplate;
+                                ckconfig.toolbar = config.toolbarSet;
+                            }
+                        }
+                        //get path of directory ckeditor
+                        //
+                        var basePath = CKEDITOR.basePath;
+                        basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/";
+                        //To add extra plugins outside the plugins directory, add them here! (And in the variable)
+                        (function() {
+                           CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
+                           CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
+                           CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 
+                             /*
+                              To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
+                              and to extraPlugins. This also needs extra stylesheets.
+                              See readme for more info http://www.polishmywriting.com/atd-ckeditor/readme.html
+                              You have to actually setup a server or get an API key
+                              Hopefully this will get easier to configure soon.
+                             */
+                             //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
+                             //ckconfig.atd_rpc='/proxy/atd';
+                             //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
+                             //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
+
+                             ckconfig.extraPlugins+="movieplayer,wordcount,fmath_formula";
+                        })();
+
+                        CKEDITOR.replace(targetId, ckconfig);
+                        //SAK-22505
+                        CKEDITOR.on('dialogDefinition', function(e) {
+                            var dialogName = e.data.name;
+                            var dialogDefinition = e.data.definition;
+                            dialogDefinition.dialog.parts.dialog.setStyles(
+                              {
+                                  position : 'absolute'
+                              });
+                        });
+
+                    }
+                } else {
+                    return function(targetId, config, w, h) {
+                        original(targetId, config, w, h);
+                    }
+                }
+
+            })();
+
+            toolbarSet = !toolBarSet ? 'Basic' : toolBarSet;
+            width = !width ? '600' : width;
+            height = !height ? '320' : height;
+            //Make sure the editor doesn't exist
+            if( typeof CKEDITOR != "undefined" ) {
+                var editor = CKEDITOR.instances[textAreaId];
+                if ( editor != null ) {
+                    editor.destroy();
+                }
+            }
+            //Launch the editor
+            sakai.editor.launch(textAreaId, {toolbarSet: toolbarSet, toolbarTemplate: toolbarTemplate}, width, height );
+        };
+
+        // events
+        jQuery('#'+fakeTextAreaId).bind('mouseenter', function() {
+            jQuery('#'+fakeTextAreaInstrId).fadeIn();
+        }).bind('mouseleave', function() {
+            jQuery('#'+fakeTextAreaInstrId).fadeOut();
+        }).one('click', applyCKEditor);
+        jQuery('#bbb_meeting_name_field').bind('keydown', function(e){
+            if(e.keyCode == 9 ) { // TAB key
+                applyCKEditor(textAreaId);
+            }
+        });
+    }
+
+    /** Update data from inline FCKEditor */
+    BBBUtils.updateFromInlineCKEditor = function(textAreaId) {
+        if( typeof CKEDITOR != "undefined" ) {
+            var editor = CKEDITOR.instances[textAreaId];
+            if ( editor != null ) {
+                if ( editor.checkDirty()) {
+                    editor.updateElement();
+                    var ta_temp = document.createElement("textarea");
+                    ta_temp.innerHTML = editor.getData().replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                    var decoded_html = ta_temp.value;
+                    jQuery('#'+textAreaId).text(decoded_html);
+                }
+                editor.destroy();
+            }
+        }
+    }
+
     /** Transform a textarea element on to a FCKEditor, uppon user click */
     BBBUtils.makeInlineFCKEditor = function(textAreaId, toolBarSet, width, height) {
         var textArea = jQuery('#'+textAreaId);
@@ -1048,7 +1247,7 @@ var BBBUtils;
         jQuery(textArea)
            .hide()
            .before('<div id="'+fakeTextAreaId+'" class="inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
-        
+
         // Apply FCKEditor 
         var applyFCKEditor = function() {
             jQuery('#'+fakeTextAreaId).hide();
@@ -1075,7 +1274,7 @@ var BBBUtils;
             oFCKeditor.ReplaceTextarea(); 
             BBBUtils.adjustFrameHeight();
         };
-           
+
         // events
         jQuery('#'+fakeTextAreaId).bind('mouseenter', function() {
             jQuery('#'+fakeTextAreaInstrId).fadeIn();
@@ -1088,7 +1287,7 @@ var BBBUtils;
             }
         });
     }
-            
+
     /** Update data from inline FCKEditor */
     BBBUtils.updateFromInlineFCKEditor = function(textAreaId) {
         if(typeof FCKeditorAPI != "undefined") {
@@ -1101,7 +1300,7 @@ var BBBUtils;
             }
         }
     }
-    
+
     /** Trimpath modifiers :) */
     BBBUtils.getTrimpathModifiers = function() {
     	if(!bbbTrimpathModifiers) {
@@ -1110,7 +1309,7 @@ var BBBUtils;
     	}
     	return bbbTrimpathModifiers;
     }
-    
+
     /** Trimpath macros :) */
     BBBUtils.getTrimpathMacros = function() {
         if(!bbbTrimpathMacros) {
@@ -1259,3 +1458,37 @@ if (!Array.prototype.indexOf)
 /** Automatically transfer focus to FCKEditor when loaded */
 function FCKeditor_OnComplete(editorInstance) {editorInstance.Focus();}
 
+BBBUtils.setNotifictionOptions = function() {
+    if ( jQuery('#notifyParticipants')[0].checked ) {
+        jQuery('#notifyParticipants_iCalAttach_span').empty()
+        .html('<br>' + bbb_notification_notify_ical + '&nbsp;<input id="iCalAttached" name="iCalAttached" type="checkbox" checked="checked" onclick="BBBUtils.setNotifictioniCalOptions();"/>&nbsp;<span id="notifyParticipants_iCalAlarm_span"></span>')
+        .show();
+        jQuery('#notifyParticipants_iCalAlarm_span').empty()
+        .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
+        .show();
+    } else {
+        if ( jQuery('#iCalAttached')[0].checked ) {
+            //Hide the iCalAlarm
+            jQuery('#notifyParticipants_iCalAlarm_span').empty()
+            .hide();
+            //Uncheck the iCalAttach checkbox
+            $('#iCalAttached').removeAttr('checked');
+        }
+        //Hide the iCalAttach
+        jQuery('#notifyParticipants_iCalAttach_span').empty()
+        .hide();
+    }
+}
+
+BBBUtils.setNotifictioniCalOptions = function() {
+    if ( jQuery('#iCalAttached')[0].checked ) {
+        jQuery('#notifyParticipants_iCalAlarm_span').empty()
+        .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
+        .show();
+    } else {
+        //Hide the iCalAlarm
+        jQuery('#notifyParticipants_iCalAlarm_span').empty()
+        .hide();
+    }
+
+}

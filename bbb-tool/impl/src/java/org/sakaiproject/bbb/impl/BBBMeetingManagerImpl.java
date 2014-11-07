@@ -39,16 +39,21 @@ import java.util.TimeZone;
 
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyFactoryRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
+import net.fortuna.ical4j.model.property.Action;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.Version;
@@ -214,7 +219,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public BBBMeeting getMeeting(String meetingId) 
     		throws SecurityException, Exception {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
-
         return processMeeting(meeting);
     }
 
@@ -235,33 +239,26 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return filteredMeetings;
     }
 
-    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException {
         if (!getCanCreate(meeting.getSiteId())) {
             throw new SecurityException("You are not allowed to create meetings in this site");
         }
 
-        // create meeting in BBB
-        try{
-            meeting = bbbAPI.createMeeting(meeting);
-        } catch( Exception e) {
-            
-        }
+        // Due the old schema for internal loadbalancing the HostUrl must be not null
+        meeting.setHostUrl("");
 
         // store locally, in DB
         if (storageManager.storeMeeting(meeting)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting, true);
+                notifyParticipants(meeting, true, iCalAttached, iCalAlarmMinutes);
             }
 
             // add start date to Calendar
             if (addToCalendar && meeting.getStartDate() != null) {
                 addEditCalendarEvent(meeting);
             }
-
-            // set meeting join url (for moderator, which is current user)
-            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), meeting.getModeratorPassword()));
 
             // log event
             logEvent(EVENT_MEETING_CREATE, meeting);
@@ -274,7 +271,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
     }
 
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException {
         if (!getCanEdit(meeting.getSiteId(), meeting)) {
             throw new SecurityException("You are not allow to update this meeting");
@@ -284,7 +281,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.updateMeeting(meeting, true)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting, false);
+                notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes);
             }
 
             // add start date to Calendar
@@ -447,7 +444,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         Site meetingSite = null;
         try{
             meetingSite = siteService.getSite(meeting.getSiteId() );
-            
         } catch( Exception e) {
             logger.warn("There is an error with the site in this meeting " + meeting.getSiteId() + ": " + e.getMessage(), e);
         }
@@ -474,7 +470,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if( !tmpMeta.containsKey("context")) tmpMeta.put("context", siteService.getSiteDisplay(meeting.getSiteId()) );
         if( !tmpMeta.containsKey("contextId")) tmpMeta.put("contextId", meeting.getSiteId() );
         if( !tmpMeta.containsKey("contextActivity")) tmpMeta.put("contextActivity", meeting.getName() );
-        if( !tmpMeta.containsKey("contextActivityDescription")) tmpMeta.put("contextActivityDescription", meeting.getRecordingDescription() );
 
         /*
          * //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -519,7 +514,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
         */
         // Metadata ends
-        
 
         // check if is running, (re)create it if not
         bbbAPI.makeSureMeetingExists(meeting);
@@ -736,10 +730,30 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isRecordingEnabled();
     }
     
+    public String getRecordingDefault(){
+        return "" + bbbAPI.getRecordingDefault();
+    }
+
+    public String isDurationEnabled(){
+        return "" + bbbAPI.isDurationEnabled();
+    }
+
+    public String getDurationDefault(){
+        return "" + bbbAPI.getDurationDefault();
+    }
+
+    public String isWaitModeratorEnabled(){
+        return "" + bbbAPI.isWaitModeratorEnabled();
+    }
+
+    public String getWaitModeratorDefault(){
+        return "" + bbbAPI.getWaitModeratorDefault();
+    }
+
     public String getMaxLengthForDescription(){
         return "" + bbbAPI.getMaxLengthForDescription();
     }
-    
+
     public boolean databaseStoreMeeting(BBBMeeting meeting) {
         if( meeting.getId() == null ){
             // generate uuid
@@ -764,6 +778,24 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return serverConfigurationService.getString(CFG_NOTICE_LEVEL, "info").trim().toLowerCase();
     }
 
+    public String getJoinUrl(BBBMeeting meeting)
+            throws SecurityException, Exception {
+        if (meeting == null) return null;
+        
+        Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
+
+        // Case #1: is participant
+        if (getCanParticipate(meeting.getSiteId()) && p != null) {
+            // build join url
+            boolean isModerator = Participant.MODERATOR.equals(p.getRole());
+            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), password);
+            return joinURL;
+        }
+        
+        return null;
+    }
+
     // -----------------------------------------------------------------------
     // --- BBB Private methods -----------------------------------------------
     // -----------------------------------------------------------------------
@@ -781,17 +813,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
 
-
         Participant p = getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
 
         // Case #1: is participant
         if (getCanParticipate(meeting.getSiteId()) && p != null) {
-            // build join url
-            boolean isModerator = Participant.MODERATOR.equals(p.getRole());
-            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
-            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), password);
-            meeting.setJoinUrl(joinURL);
-            //Set also metadata
+            meeting.setJoinUrl(null);
 
             return meeting;
         }
@@ -807,7 +833,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return null;
     }
 
-    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting) {
+    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting, boolean iCalAttached, long iCalAlarmMinutes) {
         // Site title, url and directtool (universal) url for joining meeting
         Site site;
         try {
@@ -864,12 +890,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
 
-        // generate an ical to attach to email (if, at least, start date is defined)
-        String icalFilename = generateIcalFromMeeting(meeting);
-        final File icalFile = icalFilename != null ? new File(icalFilename): null;
-        if (icalFile != null)
-            icalFile.deleteOnExit();
-
         ResourceLoader msgs = null;
         // iterate over all user locales found
         logger.debug("Sending notifications to " + meetingUsers.size() + " users.");
@@ -910,6 +930,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     serverConfigurationService.getString("ui.institution"),
                     serverConfigurationService.getServerUrl() + "/portal",
                     siteTitle }));
+
+            // Generate an ical to attach to email (if, at least, start date is defined)
+            String icalFilename = iCalAttached? generateIcalFromMeetingInUserTimezone(meeting, iCalAlarmMinutes, userId): null;
+            final File icalFile = icalFilename != null? new File(icalFilename): null;
+            if (icalFile != null)
+                icalFile.deleteOnExit();
 
             // Send (a single) email (per userId)!
             final String emailMessage = msg.toString();
@@ -1092,7 +1118,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         eventTrackingService.post(eventTrackingService.newEvent(event, meeting.getId(), meeting.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
     }
 
-    private Participant getParticipantFromMeeting(BBBMeeting meeting, String userId) {
+    public Participant getParticipantFromMeeting(BBBMeeting meeting, String userId) {
         // 1. we want to first check individual user selection as it may
         // override all/group/role selection...
         List<Participant> unprocessed1 = new ArrayList<Participant>();
@@ -1226,7 +1252,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return tzDate;
     }
 
-    private boolean isUserAllowedInLocation(String userId, String permission, String locationId) {
+    public boolean isUserAllowedInLocation(String userId, String permission, String locationId) {
         if (securityService.isSuperUser()) {
             return true;
         }
@@ -1239,12 +1265,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return false;
     }
 
-    private String getUserRoleInSite(String userId, String siteId) {
+    public String getUserRoleInSite(String userId, String siteId) {
+        String userRoleInSite = null;
         if (siteId != null) {
             try {
                 Site site = siteService.getSite(siteId);
                 if (!securityService.isSuperUser()) {
-                    return site.getUserRole(userId).getId();
+                    userRoleInSite = site.getUserRole(userId).getId();
+                } else {
+                    userRoleInSite = site.getMaintainRole();
                 }
             } catch (IdUnusedException e) {
                 logger.error("No such site while resolving user role in site: " + siteId);
@@ -1252,7 +1281,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 logger.error("Unknown error while resolving user role in site: " + siteId);
             }
         }
-        return null;
+        return userRoleInSite;
     }
 
     private List<String> getUserGroupIdsInSite(String userId, String siteId) {
@@ -1278,24 +1307,53 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
      */
     private String generateIcalFromMeeting(BBBMeeting meeting) {
         TimeZone defaultTimezone = TimeZone.getDefault();
-        Date startDate = convertDateToTimezone(meeting.getStartDate(), defaultTimezone);
+        Long iCalAlarmMinutesuserId = 30L;
+        return generateIcalFromMeetingInTimeZone(meeting, iCalAlarmMinutesuserId, defaultTimezone);
+    }
+
+    private String generateIcalFromMeetingInUserTimezone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, String userId) {
+
+        Preferences prefs = preferencesService.getPreferences(userId);
+        TimeZone timeZone = TimeZone.getDefault();
+        if (prefs != null) {
+            ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
+            String timeZoneStr = props.getProperty(TimeService.TIMEZONE_KEY);
+            if( timeZoneStr != null )
+                timeZone = TimeZone.getTimeZone(timeZoneStr);
+        }
+
+        return generateIcalFromMeetingInTimeZone(meeting, iCalAlarmMinutesuserId, timeZone);
+    }
+
+    private String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, TimeZone timeZone) {
+        Date startDate = meeting.getStartDate();
         if (startDate == null)
             return null;
-        Date endDate = convertDateToTimezone(meeting.getEndDate(), defaultTimezone);
+        Date endDate = meeting.getEndDate();
+
+        String eventName = meeting.getName();
 
         // Create a TimeZone
         TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-        net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(defaultTimezone.getID());
+        net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(timeZone.getID());
         VTimeZone tz = timezone.getVTimeZone();
 
+        // Create a reminder
+        int minutes = (iCalAlarmMinutesuserId.intValue() % 60);
+        int hours = (iCalAlarmMinutesuserId.intValue() / 60 % 24);
+        int days = (iCalAlarmMinutesuserId.intValue() / 60 / 24);
+        VAlarm vAlarm = new VAlarm(new Dur(days>0? days*-1: 0, hours>0? hours*-1: 0, minutes>0? minutes*-1: 0, 0));
+
+        // display a message..
+        vAlarm.getProperties().add(Action.DISPLAY);
+        vAlarm.getProperties().add(new Description(eventName));
+
         // Create the event
-        String eventName = meeting.getName();
         VEvent vEvent = null;
         if (endDate != null) {
             DateTime start = new DateTime(startDate.getTime());
             DateTime end = new DateTime(endDate.getTime());
             vEvent = new VEvent(start, end, eventName);
-
         } else {
             DateTime start = new DateTime(startDate.getTime());
             vEvent = new VEvent(start, eventName);
@@ -1325,6 +1383,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         } catch (SocketException e) {
             logger.warn("Unable to generate iCal Event UID.", e);
         }
+
+        // add the reminder
+        vEvent.getAlarms().add(vAlarm);
 
         // create a calendar
         net.fortuna.ical4j.model.Calendar icsCalendar = new net.fortuna.ical4j.model.Calendar();

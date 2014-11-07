@@ -58,10 +58,20 @@ public class BBBAPIWrapper/* implements Runnable */{
     private long bbbAutorefreshRecordings = 0;
     /** BBB API getSiteRecordings active flag (default to true) */
     private boolean bbbGetSiteRecordings = true;
-    /** BBB API recording flag to activate recording parameters in the client (default to true) */
-    private boolean bbbRecording = true;
-    /** BBB API maximum length allowed for meeting description (default 2083) */
+    /** BBB UX flag to activate/deactivate recording parameters in the client (default to true) */
+    private boolean bbbRecordingEnabled = true;
+    /** BBB default value for 'recording' checkbox (default to false) */
+    private boolean bbbRecordingDefault = false;
+    /** BBB UX maximum length allowed for meeting description (default 2083) */
     private int bbbDescriptionMaxLength = 2048;
+    /** BBB UX flag to activate/deactivate 'duration' box (default to false) */
+    private boolean bbbDurationEnabled = false;
+    /** BBB default value for 'duration' box (default 120 minutes) */
+    private int bbbDurationDefault = 120;
+    /** BBB UX flag to activate/deactivate 'wait for moderator' chekbox (default to true) */
+    private boolean bbbWaitModeratorEnabled = true;
+    /** BBB default value for 'wait for moderator' checkbox (default to true) */
+    private boolean bbbWaitModeratorDefault = true;
 
     
     /** BBB API */
@@ -116,9 +126,12 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
         bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
-        bbbRecording = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING, bbbRecording);
+        bbbRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
         bbbDescriptionMaxLength = (int) config.getInt(BBBMeetingManager.CFG_DESCRIPTIONMAXLENGTH, bbbDescriptionMaxLength);
-
+        bbbDurationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_DURATION_ENABLED, bbbDurationEnabled);
+        bbbDurationDefault = (int) config.getInt(BBBMeetingManager.CFG_DURATION_DEFAULT, bbbDurationDefault);
+        bbbWaitModeratorEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_ENABLED, bbbWaitModeratorEnabled);
+        bbbWaitModeratorDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_DEFAULT, bbbWaitModeratorDefault);
     }
 
     public void destroy() {
@@ -162,7 +175,9 @@ public class BBBAPIWrapper/* implements Runnable */{
             try{
                 meetingInfoResponse = api.getMeetingInfo(meetingID, password); 
             } catch ( BBBException e){
-                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ){
+                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || 
+                        BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
+                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
                     meetingInfoResponse = responseError(e.getMessageKey(), e.getMessage() );
                 }
             } catch ( Exception e){
@@ -305,9 +320,29 @@ public class BBBAPIWrapper/* implements Runnable */{
     }
     
     public boolean isRecordingEnabled(){
-        return bbbRecording;
+        return bbbRecordingEnabled;
     }
-    
+
+    public boolean getRecordingDefault(){
+        return bbbRecordingDefault;
+    }
+
+    public boolean isDurationEnabled(){
+        return bbbDurationEnabled;
+    }
+
+    public int getDurationDefault(){
+        return bbbDurationDefault;
+    }
+
+    public boolean isWaitModeratorEnabled(){
+        return bbbWaitModeratorEnabled;
+    }
+
+    public boolean getWaitModeratorDefault(){
+        return bbbWaitModeratorDefault;
+    }
+
     public int getMaxLengthForDescription(){
         return bbbDescriptionMaxLength;
     }

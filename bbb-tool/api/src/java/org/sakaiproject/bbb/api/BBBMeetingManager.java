@@ -49,9 +49,15 @@ public interface BBBMeetingManager {
     public final static String CFG_AUTOREFRESHMEETINGS = "bbb.autorefresh.meetings";
     public final static String CFG_AUTOREFRESHRECORDINGS = "bbb.autorefresh.recordings";
     public final static String CFG_GETSITERECORDINGS = "bbb.getsiterecordings";
-    public final static String CFG_RECORDING = "bbb.recording";
+    public final static String CFG_RECORDING = "bbb.recording";                             // [true|false]
+    public final static String CFG_RECORDING_ENABLED = "bbb.recording.enabled";             // [true|false]
+    public final static String CFG_RECORDING_DEFAULT = "bbb.recording.default";             // [true|false]
     public final static String CFG_DESCRIPTIONMAXLENGTH = "bbb.descriptionmaxlength";
-    
+    public final static String CFG_DURATION_ENABLED = "bbb.duration.enabled";               // [true|false]
+    public final static String CFG_DURATION_DEFAULT = "bbb.duration.default";
+    public final static String CFG_WAITMODERATOR_ENABLED = "bbb.waitmoderator.enabled";     // [true|false]
+    public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
+
     // Permissions
     public static final String FN_PREFIX = "bbb.";
     public static final String FN_CREATE = "bbb.create";
@@ -63,6 +69,8 @@ public interface BBBMeetingManager {
     public static final String[] FUNCTIONS = new String[] { FN_CREATE,
             FN_EDIT_OWN, FN_EDIT_ANY, FN_DELETE_OWN, FN_DELETE_ANY,
             FN_PARTICIPATE };
+    // Extra function used to enable admin interface in the client
+    public static final String FN_ADMIN = "bbb.admin";
 
     // Log Events
     /** A meeting was created on the BBB server */
@@ -116,7 +124,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException;
 
     /**
@@ -125,7 +133,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException;
 
     /**
@@ -267,6 +275,12 @@ public interface BBBMeetingManager {
     public String getNoticeLevel();
 
     /**
+     * Returns the url for joining to a meeting
+     */
+    public String getJoinUrl(BBBMeeting meeting)
+            throws SecurityException, Exception;
+
+    /**
      * Returns bbb.autorefresh.meetings parameter set up on sakai.properties or the one set up by default.
      */
     public String getAutorefreshForMeetings();
@@ -277,11 +291,27 @@ public interface BBBMeetingManager {
     public String getAutorefreshForRecordings();
 
     public String isRecordingEnabled();
-    
+
+    public String getRecordingDefault();
+
+    public String isDurationEnabled();
+
+    public String getDurationDefault();
+
+    public String isWaitModeratorEnabled();
+
+    public String getWaitModeratorDefault();
+
     public String getMaxLengthForDescription();
     
     public boolean databaseStoreMeeting(BBBMeeting meeting); 
 
     public boolean databaseDeleteMeeting(BBBMeeting meeting);
+
+    public Participant getParticipantFromMeeting(BBBMeeting meeting, String userId);
+
+    public boolean isUserAllowedInLocation(String userId, String permission, String locationId);
+
+    public String getUserRoleInSite(String userId, String siteId);
 
 }
