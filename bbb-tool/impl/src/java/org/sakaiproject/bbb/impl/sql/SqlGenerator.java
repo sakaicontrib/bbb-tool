@@ -28,31 +28,31 @@ import org.sakaiproject.bbb.api.BBBMeeting;
  * @author Adrian Fish, Nuno Fernandes
  */
 public interface SqlGenerator {
-	
+
 	/** Map of TABLE_NAME -> SQL CREATE STATEMENT */ 
 	Map<String, String> getSetupStatements();
-	
+
 	/** SQL Statement to check if table exists in DB (if it produces results, then table is created) */
 	String getShowTableStatement(String table);
 
 	/** SQL Statement to store meeting in DB */
 	List<PreparedStatement> getStoreMeetingStatements(BBBMeeting meeting,Connection connection) throws Exception;
-	
+
 	/** SQL Statement to update meeting in DB */
 	List<PreparedStatement> getUpdateMeetingStatements(BBBMeeting meeting,Connection connection) throws Exception;
 
 	/** SQL Statement to store meeting participants in DB */
 	List<PreparedStatement> getUpdateMeetingParticipantsStatements(BBBMeeting meeting,Connection connection) throws Exception;
-	
+
 	/** SQL Statement to list site meetings from DB */
-	String getSelectSiteMeetingsStatement(String siteId, boolean includeDeletedMeetings);
+    PreparedStatement getSelectSiteMeetingsStatement(String siteId, boolean includeDeletedMeetings, Connection connection) throws Exception;
 
 	/** SQL Statement to list meeting participants for the specified meeting from DB */
-	String getSelectMeetingParticipantsStatement(String meetingId);
+    PreparedStatement getSelectMeetingParticipantsStatement(String meetingId, Connection connection) throws Exception;
 
 	/** SQL Statement to get a meeting from DB */
-	String getSelectMeetingStatement(String meetingId);
-	
+    PreparedStatement getSelectMeetingStatement(String meetingId, Connection connection) throws Exception;
+
 	String getSelectAllMeetingsStatement();
 
 	/** SQL Statements to delete a meeting and its participants from DB */
@@ -60,14 +60,13 @@ public interface SqlGenerator {
 
 	/** SQL Statements to mark a meeting and its participants as deleted in DB */
     List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId, Connection connection) throws Exception; 
-	
+
 	/** SQL Statement to get the HOST_URL for a specified meeting ID */
-	String getSelectMeetingHostStatement(String meetingID);
+	PreparedStatement getSelectMeetingHostStatement(String meetingID, Connection connection) throws Exception;
 
 	PreparedStatement getUpdateHostForMeetingStatement(String meetingId, String url, Connection connection) throws Exception;
 
 	Map<String, String> getUpdateStatements();
 
 	String getShowColumnStatement(String tableName, String columnName);
-        
 }

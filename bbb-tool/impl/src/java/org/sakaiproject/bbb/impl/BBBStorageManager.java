@@ -272,13 +272,12 @@ public class BBBStorageManager {
         List<BBBMeeting> meetings = new ArrayList<BBBMeeting>();
 
         Connection connection = null;
-        Statement meetingST = null;
+        PreparedStatement meetingST = null;
 
         try {
             connection = sqlService.borrowConnection();
-            meetingST = connection.createStatement();
-            String sql = sqlGenerator.getSelectSiteMeetingsStatement(siteId, mode);
-            ResultSet meetingRS = meetingST.executeQuery(sql);
+            meetingST = sqlGenerator.getSelectSiteMeetingsStatement(siteId, mode, connection);
+            ResultSet meetingRS = meetingST.executeQuery();
 
             while (meetingRS.next()) {
                 BBBMeeting meeting = meetingFromResultSet(meetingRS, connection);
@@ -305,14 +304,13 @@ public class BBBStorageManager {
 
     public BBBMeeting getMeeting(String meetingId) {
         Connection connection = null;
-        Statement meetingST = null;
+        PreparedStatement meetingST = null;
         BBBMeeting meeting = null;
 
         try {
             connection = sqlService.borrowConnection();
-            meetingST = connection.createStatement();
-            String sql = sqlGenerator.getSelectMeetingStatement(meetingId);
-            ResultSet meetingRS = meetingST.executeQuery(sql);
+            meetingST = sqlGenerator.getSelectMeetingStatement(meetingId, connection);
+            ResultSet meetingRS = meetingST.executeQuery();
 
             if (meetingRS.next())
                 meeting = meetingFromResultSet(meetingRS, connection);
@@ -344,10 +342,9 @@ public class BBBStorageManager {
     private BBBMeeting meetingFromResultSet(ResultSet meetingRS, Connection connection) throws Exception {
         BBBMeeting meeting = null;
 
-        Statement participantST = null;
+        PreparedStatement participantST = null;
 
         try {
-            participantST = connection.createStatement();
             meeting = new BBBMeeting();
 
             meeting.setId(meetingRS.getString("MEETING_ID"));
@@ -367,8 +364,10 @@ public class BBBStorageManager {
             meeting.setMultipleSessionsAllowed(meetingRS.getBoolean("MULTIPLE_SESSIONS_ALLOWED"));
             meeting.setProps(XmlUtil.convertXmlToProps(meetingRS.getString("PROPERTIES")));
             meeting.setDeleted(meetingRS.getBoolean("DELETED"));
-            String particpantSql = sqlGenerator.getSelectMeetingParticipantsStatement(meeting.getId());
-            ResultSet participantsRS = participantST.executeQuery(particpantSql);
+
+            participantST = sqlGenerator.getSelectMeetingParticipantsStatement(meeting.getId(), connection);
+            ResultSet participantsRS = participantST.executeQuery();
+
             List<Participant> participants = new ArrayList<Participant>();
             while (participantsRS.next()) {
                 Participant p = new Participant();
@@ -440,15 +439,14 @@ public class BBBStorageManager {
 
     public String getMeetingHost(String meetingID) {
         Connection connection = null;
-        Statement st = null;
+        PreparedStatement st = null;
         ResultSet rs = null;
         BBBMeeting meeting = null;
 
         try {
             connection = sqlService.borrowConnection();
-            st = connection.createStatement();
-            String sql = sqlGenerator.getSelectMeetingHostStatement(meetingID);
-            rs = st.executeQuery(sql);
+            st = sqlGenerator.getSelectMeetingHostStatement(meetingID, connection);
+            rs = st.executeQuery();
 
             if (rs.next())
                 return rs.getString("HOST_URL");

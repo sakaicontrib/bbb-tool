@@ -220,42 +220,82 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public String getSelectSiteMeetingsStatement(String siteId, boolean includeDeletedMeetings) {
-        return "SELECT * FROM BBB_MEETING WHERE SITE_ID = '" + siteId + (includeDeletedMeetings? "'": "' AND DELETED=0");
+    public PreparedStatement getSelectSiteMeetingsStatement(String siteId, boolean includeDeletedMeetings, Connection connection)
+            throws Exception {
+
+        PreparedStatement statement = null;
+
+        if( includeDeletedMeetings ) {
+            statement = connection.prepareStatement("SELECT * FROM BBB_MEETING WHERE SITE_ID = ? AND DELETED = ?");
+            statement.setString(1, siteId);
+            statement.setInt(2, 0);
+        } else {
+            statement = connection.prepareStatement("SELECT * FROM BBB_MEETING WHERE SITE_ID = ?");
+            statement.setString(1, siteId);
+        }
+
+        return statement;
     }
 
-    public String getSelectMeetingParticipantsStatement(String meetingId) {
-        return "SELECT * FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = '" + meetingId + "'";
+    public PreparedStatement getSelectMeetingParticipantsStatement(String meetingId, Connection connection)
+            throws Exception {
+
+        PreparedStatement statement = null;
+
+        statement = connection.prepareStatement("SELECT * FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
+        statement.setString(1, meetingId);
+
+        return statement;
     }
 
-    public String getSelectMeetingStatement(String meetingId) {
-        return "SELECT * FROM BBB_MEETING WHERE MEETING_ID = '" + meetingId + "'";
+    public PreparedStatement getSelectMeetingStatement(String meetingId, Connection connection)
+            throws Exception {
+
+        PreparedStatement statement = null;
+
+        statement = connection.prepareStatement("SELECT * FROM BBB_MEETING WHERE MEETING_ID = ?");
+        statement.setString(1, meetingId);
+
+        return statement;
     }
 
     public List<PreparedStatement> getDeleteMeetingStatements(String meetingId, Connection connection) 
     		throws Exception {
+
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
+
         PreparedStatement meetingST = connection.prepareStatement("DELETE FROM BBB_MEETING WHERE MEETING_ID = ?");
         meetingST.setString(1, meetingId);
         statements.add(meetingST);
         PreparedStatement participantsST = connection.prepareStatement("DELETE FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
         participantsST.setString(1, meetingId);
         statements.add(participantsST);
+
         return statements;
     }
 
     public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId, Connection connection) 
     		throws Exception {
+
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
+
         PreparedStatement meetingST = connection.prepareStatement("UPDATE BBB_MEETING SET DELETED = 1 WHERE MEETING_ID = ?");
         meetingST.setString(1, meetingId);
         statements.add(meetingST);
+
         return statements;
     }
     
     
-    public String getSelectMeetingHostStatement(String meetingID) {
-        return "SELECT HOST_URL FROM BBB_MEETING WHERE MEETING_ID = '" + meetingID + "'";
+    public PreparedStatement getSelectMeetingHostStatement(String meetingID, Connection connection)
+            throws Exception {
+
+        PreparedStatement statement = null;
+
+        statement = connection.prepareStatement("SELECT HOST_URL FROM BBB_MEETING WHERE MEETING_ID = ?");
+        statement.setString(1, meetingID);
+
+        return statement;
     }
 
     public String getSelectAllMeetingsStatement() {
@@ -264,9 +304,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
     public PreparedStatement getUpdateHostForMeetingStatement(String meetingId, String url, Connection connection)
     		throws Exception {
+
         PreparedStatement st = connection.prepareStatement("UPDATE BBB_MEETING SET HOST_URL = ? WHERE MEETING_ID = ?");
+
         st.setString(1, url);
         st.setString(2, meetingId);
+
         return st;
     }
 }
