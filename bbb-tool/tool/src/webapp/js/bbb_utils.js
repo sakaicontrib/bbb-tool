@@ -211,12 +211,12 @@ var BBBUtils;
     }
 
     // Get meeting info from BBB server
-    BBBUtils.setMeetingInfo = function(meeting) {
+    BBBUtils.setMeetingInfo = function(meeting, asyncmode=true) {
         var meetingInfo = null;
         jQuery.ajax( {
             url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
             dataType : "json",
-            async : true,
+            async : asyncmode,
             timeout : 10000,
             success : function(data) {
             },
@@ -537,7 +537,7 @@ var BBBUtils;
 
         for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
             if( bbbCurrentMeetings[i].id == meetingId ) {
-                BBBUtils.setMeetingInfo(bbbCurrentMeetings[i]);
+                BBBUtils.setMeetingInfo(bbbCurrentMeetings[i], false);
                 bbbCurrentMeetings[i].joining = joining;
                 BBBUtils.checkMeetingAvailability(bbbCurrentMeetings[i]);
                 updateMeetingInfo(bbbCurrentMeetings[i]);
