@@ -225,14 +225,13 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
         PreparedStatement statement = null;
 
-        if( includeDeletedMeetings ) {
-            statement = connection.prepareStatement("SELECT * FROM BBB_MEETING WHERE SITE_ID = ? AND DELETED = ?");
-            statement.setString(1, siteId);
-            statement.setInt(2, 0);
-        } else {
-            statement = connection.prepareStatement("SELECT * FROM BBB_MEETING WHERE SITE_ID = ?");
-            statement.setString(1, siteId);
+        String sql = "SELECT * FROM BBB_MEETING WHERE SITE_ID = ?";
+        if( !includeDeletedMeetings ) {
+            sql += " AND DELETED != 1";
         }
+        System.out.println(sql);
+        statement = connection.prepareStatement(sql);
+        statement.setString(1, siteId);
 
         return statement;
     }

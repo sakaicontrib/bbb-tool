@@ -17,6 +17,7 @@
 package org.sakaiproject.bbb.tool.entity;
 
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -272,11 +274,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             }
             // update name
             String nameStr = (String) params.get("name");
+            nameStr = StringEscapeUtils.escapeHtml(nameStr);
             if (nameStr != null)
                 meeting.setName(nameStr);
 
             // update description
             String welcomeMessageStr = (String) params.get("props.welcomeMessage");
+            //welcomeMessageStr = StringEscapeUtils.escapeHtml(welcomeMessageStr);
             if (welcomeMessageStr != null)
                 meeting.setWelcomeMessage(welcomeMessageStr);
 
@@ -593,8 +597,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public ActionReturn getMeetingInfo(OutputStream out, EntityView view,
-            EntityReference ref) {
+    public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref) {
         if (logger.isDebugEnabled()) logger.debug("getMeetingInfo");
         if (ref == null) {
             throw new EntityNotFoundException("Meeting not found", null);
@@ -608,9 +611,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public ActionReturn getRecordings(OutputStream out, EntityView view,
-            EntityReference ref) {
-        // if(logger.isDebugEnabled()) logger.debug("getRecordings");
+    public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref) {
+        if(logger.isDebugEnabled()) logger.debug("getRecordings");
 
         if (ref == null)
             throw new EntityNotFoundException("Meeting not found", null);
@@ -706,11 +708,17 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
         // get join url
         try {
-            BBBMeeting meeting = meetingManager.getMeeting(ref.getId());
-
+            String meetingId = ref.getId();
+            BBBMeeting meeting = meetingManager.getMeeting(meetingId);
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
+            //Unescape Meeting name
+            String nameStr = meeting.getName();
+            meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
+            //Unescape Meeting description
+            //String welcomeMessageStr = meeting.getProps().getWelcomeMessage();
+            //meeting.setWelcomeMessage(StringEscapeUtils.unescapeHtml(welcomeMessageStr));
 
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
@@ -752,6 +760,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
+            //Unescape Meeting name
+            String nameStr = meeting.getName();
+            meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
+            //Unescape Meeting description
+            //String welcomeMessageStr = meeting.getProps().getWelcomeMessage();
+            //meeting.setWelcomeMessage(StringEscapeUtils.unescapeHtml(welcomeMessageStr));
 
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
