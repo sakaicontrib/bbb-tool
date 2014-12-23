@@ -280,7 +280,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
             // update description
             String welcomeMessageStr = (String) params.get("props.welcomeMessage");
-            //welcomeMessageStr = StringEscapeUtils.escapeHtml(welcomeMessageStr);
             if (welcomeMessageStr != null)
                 meeting.setWelcomeMessage(welcomeMessageStr);
 
@@ -716,9 +715,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             //Unescape Meeting name
             String nameStr = meeting.getName();
             meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
-            //Unescape Meeting description
-            //String welcomeMessageStr = meeting.getProps().getWelcomeMessage();
-            //meeting.setWelcomeMessage(StringEscapeUtils.unescapeHtml(welcomeMessageStr));
 
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
@@ -763,9 +759,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             //Unescape Meeting name
             String nameStr = meeting.getName();
             meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
-            //Unescape Meeting description
-            //String welcomeMessageStr = meeting.getProps().getWelcomeMessage();
-            //meeting.setWelcomeMessage(StringEscapeUtils.unescapeHtml(welcomeMessageStr));
 
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
