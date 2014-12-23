@@ -135,6 +135,8 @@ function switchState(state,arg) {
             }
 
             $(document).ready(function() {
+                BBBUtils.adjustFrameHeight();
+
                 // auto hide actions
                 jQuery('.meetingRow')
                     .bind('mouseenter', function() {
@@ -168,8 +170,6 @@ function switchState(state,arg) {
                     // Sort DESC status:
                     sortList: (bbbCurrentMeetings.length > 0) ? [[0,0]] : []
                 });
-                
-                BBBUtils.adjustFrameHeight();
             });
 
             if (bbbSettings.config.autorefreshInterval.meetings > 0)
@@ -211,6 +211,8 @@ function switchState(state,arg) {
         BBBUtils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
 
         $(document).ready(function() {
+            BBBUtils.adjustFrameHeight();
+
             // Focus on meeting name/title
             $('#bbb_meeting_name_field').focus();
 
@@ -263,8 +265,6 @@ function switchState(state,arg) {
             if (!allSiteMembersCanParticipate()) {
                  BBBUtils.showMessage(bbb_err_not_everyone_can_participate);
             }
-
-            BBBUtils.adjustFrameHeight();
         });
 
     } else if ('permissions' === state) {
@@ -273,6 +273,8 @@ function switchState(state,arg) {
         BBBUtils.render('bbb_permissions_template', {'permissions': BBBUtils.getSitePermissions()}, 'bbb_content');
 
         $(document).ready(function() {
+            BBBUtils.adjustFrameHeight();
+
             $('#bbb_permissions_save_button').bind('click', function() {
                BBBUtils.setSitePermissions('.bbb_permission_checkbox', function() {
                    // success callback
@@ -284,8 +286,6 @@ function switchState(state,arg) {
                         BBBUtils.showMessage(bbb_permissions_saved, 'success');
                })
             });
-
-            BBBUtils.adjustFrameHeight();
         });
     } else if ('joinMeeting' === state || 'meetingInfo' === state) {
         if ('joinMeeting' === state ) setMeetingList();
@@ -297,30 +297,30 @@ function switchState(state,arg) {
             var meeting = null;
             for(var i=0,j=bbbCurrentMeetings.length;i<j;i++) {
                 if ( bbbCurrentMeetings[i].id == arg.meetingId ) {
-        			meeting = bbbCurrentMeetings[i];
-        			break;
-        		}
-        	}
+                    meeting = bbbCurrentMeetings[i];
+                    break;
+                }
+            }
 
-			if (meeting) {
-				BBBUtils.render('bbb_meeting-info_template', {'meeting' : meeting}, 'bbb_content');
-				$(document).ready(function() {
-					BBBUtils.checkOneMeetingAvailability(arg.meetingId);
-					BBBUtils.checkRecordingAvailability(arg.meetingId);
-					BBBUtils.adjustFrameHeight();
-				});
+            if (meeting) {
+                BBBUtils.render('bbb_meeting-info_template', {'meeting' : meeting}, 'bbb_content');
+			    $(document).ready(function() {
+			        BBBUtils.adjustFrameHeight();
+			        BBBUtils.checkOneMeetingAvailability(arg.meetingId);
+			        BBBUtils.checkRecordingAvailability(arg.meetingId);
+			    });
 
-				if (bbbSettings.config.autorefreshInterval.meetings > 0)
-					bbbCheckOneMeetingAvailabilityId = setInterval(	"BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.meetings);
-				    //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.recordings);
+			    if (bbbSettings.config.autorefreshInterval.meetings > 0)
+			        bbbCheckOneMeetingAvailabilityId = setInterval(	"BBBUtils.checkOneMeetingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.meetings);
+			        //bbbCheckRecordingAvailabilityId = setInterval( "BBBUtils.checkRecordingAvailability('" + arg.meetingId + "')", bbbSettings.config.autorefreshInterval.recordings);
 
-			} else {
-				BBBUtils.hideMessage();
-				BBBUtils.showMessage(bbb_err_meeting_unavailable_instr,	'warning', bbb_err_meeting_unavailable, false);
-				BBBUtils.adjustFrameHeight();
-			}
+            } else {
+                BBBUtils.adjustFrameHeight();
+                BBBUtils.hideMessage();
+                BBBUtils.showMessage(bbb_err_meeting_unavailable_instr,	'warning', bbb_err_meeting_unavailable, false);
+            }
         } else {
-        	switchState('currentMeetings');
+            switchState('currentMeetings');
         }
     } else if ('recordings' === state) {
     	$("#bbb_recordings_link").parent().addClass('current');
@@ -338,6 +338,8 @@ function switchState(state,arg) {
             BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings,'stateFunction':'recordings'},'bbb_content');
 
             $(document).ready(function() {
+                BBBUtils.adjustFrameHeight();
+
                 // auto hide actions
                 jQuery('.recordingRow')
                     .bind('mouseenter', function() {
@@ -371,8 +373,6 @@ function switchState(state,arg) {
                     // Sort DESC status:
                     sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
                 });
-
-                BBBUtils.adjustFrameHeight();
             });
 
             if (bbbSettings.config.autorefreshInterval.recordings > 0)
@@ -403,6 +403,8 @@ function switchState(state,arg) {
                 BBBUtils.render('bbb_recordings_template',{'recordings':bbbCurrentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
 
                 $(document).ready(function() {
+                    BBBUtils.adjustFrameHeight();
+
                     // auto hide actions
                     jQuery('.recordingRow')
                         .bind('mouseenter', function() {
@@ -424,8 +426,6 @@ function switchState(state,arg) {
                         // Sort DESC status:
                         sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
                     });
-
-                    BBBUtils.adjustFrameHeight();
                 });
 
                 if (bbbSettings.config.autorefreshInterval.recordings > 0)
@@ -567,15 +567,15 @@ function addParticipantRow(_selType, _id, _title, _moderator) {
 }
 
 function updateMeetingInfo(meeting) {
-	jQuery('#bbb_meeting_info_participants_count').html('?');
-	var meetingInfo = meeting;
-	if (meetingInfo != null) {
-		if (meetingInfo.participantCount != null && parseInt(meetingInfo.participantCount) >= 0) {
-			// prepare participant count text
-			var attendeeCount = meetingInfo.participantCount - meetingInfo.moderatorCount;
-			var moderatorCount = meetingInfo.moderatorCount;
-			var attendeeText = attendeeCount + ' ' + (attendeeCount == 1 ? bbb_meetinginfo_participants_atendee : bbb_meetinginfo_participants_atendees);
-			var moderatorText = moderatorCount + ' ' + (moderatorCount == 1 ? bbb_meetinginfo_participants_moderator : bbb_meetinginfo_participants_moderators);
+    jQuery('#bbb_meeting_info_participants_count').html('?');
+    var meetingInfo = meeting;
+    if (meetingInfo != null) {
+        if (meetingInfo.participantCount != null && parseInt(meetingInfo.participantCount) >= 0) {
+            // prepare participant count text
+            var attendeeCount = meetingInfo.participantCount - meetingInfo.moderatorCount;
+            var moderatorCount = meetingInfo.moderatorCount;
+            var attendeeText = attendeeCount + ' ' + (attendeeCount == 1 ? bbb_meetinginfo_participants_atendee : bbb_meetinginfo_participants_atendees);
+            var moderatorText = moderatorCount + ' ' + (moderatorCount == 1 ? bbb_meetinginfo_participants_moderator : bbb_meetinginfo_participants_moderators);
             // prepare participant links
             if (attendeeCount > 0) {
                 var attendees = '';

@@ -716,10 +716,10 @@ var BBBUtils;
             dataType : "json",
             async : true,
             success : function(notice) {
-            	if(notice && notice.text) {
-            	   BBBUtils.showMessage(notice.text, notice.level);
-            	   BBBUtils.adjustFrameHeight();
-            	}
+                if(notice && notice.text) {
+                    BBBUtils.adjustFrameHeight();
+                    BBBUtils.showMessage(notice.text, notice.level);
+                }
             }
         });
     }
