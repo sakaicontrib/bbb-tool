@@ -229,7 +229,6 @@ public class DefaultSqlGenerator implements SqlGenerator {
         if( !includeDeletedMeetings ) {
             sql += " AND DELETED != 1";
         }
-        System.out.println(sql);
         statement = connection.prepareStatement(sql);
         statement.setString(1, siteId);
 

@@ -252,7 +252,7 @@ var BBBUtils;
 				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
-			} else {
+			} else if (meetingInfo.messageKey != 'notFound'){
 				//Different errors can be handled here
 				meeting.unreachableServer = "true";
 			}

@@ -105,9 +105,6 @@ public class BaseBBBAPI implements BBBAPI {
 
     protected ServerConfigurationService config;
 
-    protected DocumentBuilderFactory docBuilderFactory;
-    protected DocumentBuilder docBuilder;
-
     protected Random randomGenerator = new Random(System.currentTimeMillis());
 
     // -----------------------------------------------------------------------
@@ -125,17 +122,6 @@ public class BaseBBBAPI implements BBBAPI {
         config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
         bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
-
-        // Initialize XML libraries
-        docBuilderFactory = DocumentBuilderFactory.newInstance();
-        try {
-            docBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            docBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-
-            docBuilder = docBuilderFactory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            logger.error("Failed to initialise BaseBBBAPI", e);
-        }
     }
 
     public String getUrl() {
@@ -524,10 +510,26 @@ public class BaseBBBAPI implements BBBAPI {
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
-                
+
                 Document dom = null;
-                dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
-                
+
+
+                // Initialize XML libraries
+                DocumentBuilderFactory docBuilderFactory;
+                DocumentBuilder docBuilder;
+                docBuilderFactory = DocumentBuilderFactory.newInstance();
+                try {
+                    docBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                    docBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
+                    docBuilder = docBuilderFactory.newDocumentBuilder();
+
+                    dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
+                } catch (ParserConfigurationException e) {
+                    logger.error("Failed to initialise XML Parser", e);
+                }
+
+
                 Map<String, Object> response = getNodesAsMap(dom, "response");
                 
                 String returnCode = (String) response.get("returncode");
