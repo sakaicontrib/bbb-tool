@@ -211,7 +211,9 @@ var BBBUtils;
     }
 
     // Get meeting info from BBB server
-    BBBUtils.setMeetingInfo = function(meeting, asyncmode=true) {
+    BBBUtils.setMeetingInfo = function(meeting, asyncmode) {
+        if(typeof(asyncmode)==='undefined') asyncmode = true;
+
         var meetingInfo = null;
         jQuery.ajax( {
             url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
