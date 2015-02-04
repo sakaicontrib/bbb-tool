@@ -37,11 +37,11 @@
 }
 
 .bbb_sortable_table_header_sortup { 
-    background-image: url(../images/asc.gif); 
+    background-image: url(../images/asc.gif);
 }
 
 .bbb_sortable_table_header_sortdown { 
-    background-image: url(../images/desc.gif); 
+    background-image: url(../images/desc.gif);
 }
 
 .bbb_meeting_wait_message {

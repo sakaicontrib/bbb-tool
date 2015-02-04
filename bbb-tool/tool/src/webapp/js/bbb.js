@@ -168,7 +168,7 @@ function switchState(state,arg) {
                     cssDesc:'bbb_sortable_table_header_sortdown',
                     headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: 'bbbDateTimeFormat'} },
                     // Sort DESC status:
-                    sortList: (bbbCurrentMeetings.length > 0) ? [[0,0]] : []
+                    sortList: (bbbCurrentMeetings.length > 0) ? [[0,1]] : []
                 });
             });
 
@@ -369,9 +369,15 @@ function switchState(state,arg) {
                     cssHeader:'bbb_sortable_table_header',
                     cssAsc:'bbb_sortable_table_header_sortup',
                     cssDesc:'bbb_sortable_table_header_sortdown',
-                    headers: { 2: { sorter: 'bbbDateTimeFormat'} },
+                    headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: false}, 4: { sorter: false} },
                     // Sort DESC status:
-                    sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
+                    sortList: (bbbCurrentMeetings.length > 0) ? [[2,1]] : []
+                    //headers: { 2: { sorter: 'bbbDateTimeFormat'} },
+                    //// Sort DESC status:
+                    //sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
+                    //headers: { 2: { sorter: 'bbbDateTimeFormat'} },
+                    //// Sort DESC status:
+                    //sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
                 });
             });
 
@@ -417,14 +423,29 @@ function switchState(state,arg) {
                         }
                     );
 
+                    // Add parser for customized date format
+                    $.tablesorter.addParser({
+                        id: "bbbDateTimeFormat",
+                        is: function(s) {
+                            return false; 
+                        },
+                        format: function(s,table) {
+                            return $.tablesorter.formatFloat(new Date(s).getTime());
+                        },
+                        type: "numeric"
+                    });
+
                     // add sorting capabilities
                     $("#bbb_recording_table").tablesorter({
                         cssHeader:'bbb_sortable_table_header',
                         cssAsc:'bbb_sortable_table_header_sortup',
                         cssDesc:'bbb_sortable_table_header_sortdown',
-                        headers: { 2: { sorter: 'bbbDateTimeFormat'} },
+                        headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: false}, 4: { sorter: false} },
                         // Sort DESC status:
-                        sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
+                        sortList: (bbbCurrentMeetings.length > 0) ? [[2,1]] : []
+                        //headers: { 2: { sorter: 'bbbDateTimeFormat'} },
+                        //// Sort DESC status:
+                        //sortList: (bbbCurrentRecordings.length > 0) ? [[0,0]] : []
                     });
                 });
 
