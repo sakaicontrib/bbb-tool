@@ -1,8 +1,8 @@
-BigBlueButton Sakai Meeting Tool for Sakai 2.5/2.6/2.7/2.8/2.9
-==============================================================
+BigBlueButton Sakai Meeting Tool for Sakai 2.5/2.6/2.7/2.8/2.9/10
+=================================================================
 BigBlueButton is an open source web conferencing system that enables universities and colleges to deliver a high-quality learning experience to remote students.  
 
-These instructions describe how to install the BigBlueButton Meeting Tool for Sakai 2.5/2.6/2.7/2.8/2.9.
+These instructions describe how to install the BigBlueButton Meeting Tool for Sakai 2.5/2.6/2.7/2.8/2.9/10.
 
 With this plugin you can
     - Control meetings - create/edit/update/delete BBB meetings from Sakai.
