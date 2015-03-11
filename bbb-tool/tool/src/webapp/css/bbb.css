@@ -52,42 +52,38 @@
     background-color: orange !important;
 }
 
-th.name {
+th.bbb_name {
     text-align: left;
     width: 40%; max-width:40%;
 }
-th.status {
-    text-align: left;
-    width: 10%; max-width:10%;  
-}
-th.startDate, th.endDate {
+th.bbb_startDate, th.bbb_endDate {
     width: 140px; max-width:140px;
 }
-td.startDate, td.endDate {
+td.bbb_startDate, td.bbb_endDate {
     text-align: center;
 }
-th.owner {
+th.bbb_owner {
     text-align: left;
     width: 15%;
 }
-th.recStatus {
+th.bbb_recStatus {
     width: 100px; max-width:100px;
     text-align: left;
 }
-th.recStartDate {
+th.bbb_recStartDate {
     width: 200px; max-width:200px;
     text-align: left;
 }
-th.recLength {
+th.bbb_recLength {
     width: 60px; max-width:60px;
     text-align: center;
 }
-div.end_meeting_hidden {
+div.bbb_end_meeting_hidden {
 	display: none; 
 	margin:0; 
 	padding:0; 
 }
-div.end_meeting_shown {
+div.bbb_end_meeting_shown {
 	display: inline; 
 	margin:0; 
 	padding:0; 
@@ -110,40 +106,40 @@ div.end_meeting_shown {
 }
 
 /* Form: */
-.formContainer {
+.bbb_form_container {
     padding-left: 2px;
     margin: 0;
 }
-table.formContainer  {
+table.bbb_form_container  {
     margin: 12px 0 12px 0;
     padding-left: 0px;
 }
-.formContainer td {
+.bbb_form_container td {
     display: table-cell;
     line-height: 24px;
     margin: 0;
     padding: 2px 0px 2px 0px;
 }
-.formContainer td.lbl {
+.bbb_form_container td.bbb_lbl {
     padding: 0px 16px 0px 0px;
     font-weight: bold;
     text-align: right;
     width: 150px;
     vertical-align:top;
 }
-.formContainer select{
+.bbb_form_container select{
     margin: 0.1em 0.3em;
     border:1px solid #888888;
     width: auto !important;
     min-width:120px;
 }
-.formContainer input[type="text"], .formContainer textarea {
+.bbb_form_container input[type="text"], .bbb_form_container textarea {
     padding:0.1em 0.3em;
     margin: 0.1em 0.3em;
     border:1px solid #888888;
     width: 300px;
 }
-.formContainer textarea {
+.bbb_form_container textarea {
     height: 50px;
 }
 
@@ -165,23 +161,23 @@ table#bbb_meeting_info_table td h5  {
 /** -------------------------------------------- */
 /** --- Meeting Status ------------------------- */
 /** -------------------------------------------- */
-.status_notstarted {
+.bbb_status_notstarted {
 	color: #777;
 }
-.status_joinable_available {
+.bbb_status_joinable_available {
     color: #087817;
 }
-.status_joinable_inprogress {
+.bbb_status_joinable_inprogress {
     color: #087817;
     font-style: italic;
 }
-.status_joinable_unavailable {
+.bbb_status_joinable_unavailable {
     color: #EE9A00;
 }
-.status_joinable_unreachable {
+.bbb_status_joinable_unreachable {
     color: #FF0000;
 }
-.status_finished {
+.bbb_status_finished {
 	color: #777;
 	font-style: oblique;
 }
@@ -206,7 +202,7 @@ table#bbb_meeting_info_table td h5  {
 }
 
 /* Textarea: inline editor */
-.inlineFCKEditor {
+.bbb_inlineFCKEditor {
 	width:480px;
 	min-height:80px;
 	height:auto !important;
@@ -215,7 +211,7 @@ table#bbb_meeting_info_table td h5  {
 	border:1px solid #DDD;
 	margin: 0.1em 0.3em;
 }
-.inlineFCKEditorInstr {
+.bbb_inlineFCKEditorInstr {
     position:relative; 
     top:0; 
     right:0; 
@@ -226,11 +222,6 @@ table#bbb_meeting_info_table td h5  {
     display: none; 
     padding: 0px 7px; 
     float: right;
-}
-.disabled {
-    border:1px solid #888888;
-    color: #545454;
-    background-color: #EBEBE4;
 }
 
 

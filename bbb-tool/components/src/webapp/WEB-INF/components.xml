@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- BBB Meeting Manager -->
 	<bean id="org.sakaiproject.bbb.api.BBBMeetingManager"
     	class="org.sakaiproject.bbb.impl.BBBMeetingManagerImpl"
-    	init-method="init" singleton="true">
+    	init-method="init" scope="singleton">
 		<property name="storageManager" ref="org.sakaiproject.bbb.api.BBBStorageManager" />
         <property name="bbbAPIWrapper" ref="org.sakaiproject.bbb.impl.BBBAPIWrapper" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
@@ -33,7 +35,7 @@
     <!-- SQL: BBB Storage Manager -->
     <bean id="org.sakaiproject.bbb.api.BBBStorageManager"
         class="org.sakaiproject.bbb.impl.BBBStorageManager"
-        init-method="init" singleton="true">
+        init-method="init" scope="singleton">
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
