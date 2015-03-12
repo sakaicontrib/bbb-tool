@@ -16,7 +16,10 @@
 
 package org.sakaiproject.bbb.tool;
 
+import java.io.BufferedWriter;
+import java.io.Writer;
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -24,11 +27,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+
 import org.apache.log4j.Logger;
 
 /**
- * Bootstraps the bbb tool by redirecting to the start page, bbb.html and
- * supplying some basic stuff like site id and language via url params.
+ * Bootstraps the bbb tool by rendering a Velocity template with the apps JS
+ * variables prebuilt.
  * 
  * @author Adrian Fish
  */
@@ -39,6 +46,8 @@ public class BBBTool extends HttpServlet {
 
     private transient SakaiProxy sakaiProxy;
 
+    private Template bootstrapTemplate = null;
+
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
@@ -47,6 +56,11 @@ public class BBBTool extends HttpServlet {
 
         try {
             sakaiProxy = SakaiProxy.getInstance();
+            VelocityEngine ve = new VelocityEngine();
+            Properties props = new Properties();
+            props.setProperty("file.resource.loader.path",config.getServletContext().getRealPath("/WEB-INF"));
+            ve.init(props);
+            bootstrapTemplate = ve.getTemplate("bootstrap.vm");
         } catch (Throwable t) {
             throw new ServletException("Failed to initialise BBBTool servlet.", t);
         }
@@ -73,22 +87,28 @@ public class BBBTool extends HttpServlet {
         if (state == null)
             state = "currentMeetings";
 
-        // build url
-        StringBuilder url = new StringBuilder("/bbb-tool/bbb.html?");
-        url.append("&language=").append(sakaiProxy.getUserLanguageCode());
-        url.append("&siteId=").append(sakaiProxy.getCurrentSiteId());
-        url.append("&skin=").append(sakaiProxy.getSakaiSkin());
-        url.append("&state=").append(state);
-        url.append("&timestamp=").append(sakaiProxy.getServerTimeInUserTimezone());
-        url.append("&timezoneoffset=").append(sakaiProxy.getUserTimezoneOffset());
-        url.append("&timezone=").append(sakaiProxy.getUserTimezone());
-        url.append("&version=").append(sakaiProxy.getSakaiVersion());
-        if (meetingId != null)
-            url.append("&meetingId=").append(meetingId);
+        String sakaiHtmlHead = (String) request.getAttribute("sakai.html.head");
 
-        logger.debug("doGet(): " + url.toString());
-        
-        // redirect...
-        response.sendRedirect(url.toString());
+        String language = sakaiProxy.getUserLanguageCode();
+
+        VelocityContext ctx = new VelocityContext();
+
+        // This is needed so certain trimpath variables don't get parsed.
+        ctx.put("D", "$");
+
+        ctx.put("sakaiHtmlHead", sakaiHtmlHead);
+        ctx.put("isoLanguage", language);
+        ctx.put("language", language);
+        ctx.put("skin", sakaiProxy.getSakaiSkin());
+        ctx.put("siteId", sakaiProxy.getCurrentSiteId());
+        ctx.put("state", state);
+        ctx.put("timezoneOffset", sakaiProxy.getUserTimezoneOffset());
+        ctx.put("sakaiVersion", sakaiProxy.getSakaiVersion());
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("text/html");
+        Writer writer = new BufferedWriter(response.getWriter());
+        bootstrapTemplate.merge(ctx,writer);
+        writer.close();
     }
 }
