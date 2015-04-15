@@ -151,12 +151,15 @@ var BBBUtils;
         }
 
         var sakaiVersionArr = sakaiVersion.split('.');
-        if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8){
-            // Get description/welcome msg from CKEditor
-            BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
-        } else {
-            // Get description/welcome msg from CKEditor
-            BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+        var descriptionType = bbbSettings.config.addUpdateFormParameters.descriptionType;
+        if( descriptionType == 'fckeditor' || descriptionType == 'ckeditor' ) {
+            if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8){
+                // Get description/welcome msg from CKEditor
+                BBBUtils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
+            } else {
+                // Get description/welcome msg from FCKEditor
+                BBBUtils.updateFromInlineFCKEditor('bbb_welcome_message_textarea');
+            }
         }
 
         // Validate description length
@@ -165,10 +168,12 @@ var BBBUtils;
         if( descriptionLength > maxLength ) {
             BBBUtils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
             //Restore the CKEditor or FCKEditor
-            if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
-                BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
-            else
-                BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
+            if( descriptionType == 'fckeditor' || descriptionType == 'ckeditor' ) {
+                if ( parseInt(sakaiVersionArr[0]) == 2 && parseInt(sakaiVersionArr[1]) >= 8)
+                    BBBUtils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+                else
+                    BBBUtils.makeInlineFCKEditor('bbb_welcome_message_textarea', 'Basic', '480', '200');
+            }
             errors = true;
         }
 

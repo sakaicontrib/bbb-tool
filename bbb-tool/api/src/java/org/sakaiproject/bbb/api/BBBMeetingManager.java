@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2009 The Sakai Foundation
+ * Copyright (c) 2009-2015 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.sakaiproject.bbb.api.BBBException;
 /**
  * BBBMeetingManager is the API for managing BigBlueButton meetings.
  * 
- * @author Adrian Fish,Nuno Fernandes
+ * @author Adrian Fish, Nuno Fernandes
  */
 public interface BBBMeetingManager {
     /** Entity prefix */
@@ -53,6 +53,7 @@ public interface BBBMeetingManager {
     public final static String CFG_RECORDING_ENABLED = "bbb.recording.enabled";             // [true|false]
     public final static String CFG_RECORDING_DEFAULT = "bbb.recording.default";             // [true|false]
     public final static String CFG_DESCRIPTIONMAXLENGTH = "bbb.descriptionmaxlength";
+    public final static String CFG_DESCRIPTIONTYPE = "bbb.descriptiontype";                 // [fckeditor|ckeditor|plaintext]
     public final static String CFG_DURATION_ENABLED = "bbb.duration.enabled";               // [true|false]
     public final static String CFG_DURATION_DEFAULT = "bbb.duration.default";
     public final static String CFG_WAITMODERATOR_ENABLED = "bbb.waitmoderator.enabled";     // [true|false]
@@ -309,7 +310,9 @@ public interface BBBMeetingManager {
     public String getMultipleSessionsAllowedDefault();
 
     public String getMaxLengthForDescription();
-    
+
+    public String getTextBoxTypeForDescription();
+
     public boolean databaseStoreMeeting(BBBMeeting meeting); 
 
     public boolean databaseDeleteMeeting(BBBMeeting meeting);
