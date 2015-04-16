@@ -139,7 +139,7 @@ function waitForModeratorRefresh(meetingId) {
           {else}
               <span>${m.name}</span>
           {/if}
-          
+
               <div class="itemAction" style="display: none; margin:0; padding:0;">
               <small>
                 {if m.canEdit}
@@ -277,14 +277,16 @@ function waitForModeratorRefresh(meetingId) {
             <textarea class="bbb_welcome_message_textarea" id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${bbb_default_welcome_description}{else}${meeting.props.welcomeMessage}{/if}</textarea>
         </td>
       </tr>
+      {var recordingChecked = isNew ? recordingDefault : meeting.recording }
       {if recordingEnabled}
       <tr>
         <td class="lbl">${bbb_info_recording}</td>
         <td>
-            {var recordingChecked = isNew ? recordingDefault : meeting.recording }
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
+      {else}
+      <input id="recording" name="recording" type="hidden" value="{if recordingChecked}true{/if}"/>
       {/if}
       {if durationEnabled}
       <tr>
@@ -295,13 +297,15 @@ function waitForModeratorRefresh(meetingId) {
       </tr>
       {/if}
       {if waitmoderatorEnabled}
+      {var waitForModerator = isNew ? waitmoderatorDefault : meeting.waitForModerator }
       <tr>
         <td class="lbl">${bbb_info_waitformoderator}</td>
         <td>
-            {var waitForModerator = isNew ? waitmoderatorDefault : meeting.waitForModerator }
             <input id="waitForModerator" name="waitForModerator" type="checkbox" {if waitForModerator}checked{/if}/>
         </td>
       </tr>
+      {else}
+      <input id="waitForModerator" name="waitForModerator" type="hidden" value="{if waitForModerator}true{/if}"/>
       {/if}
       {if multiplesessionsallowedEnabled}
       <tr>
