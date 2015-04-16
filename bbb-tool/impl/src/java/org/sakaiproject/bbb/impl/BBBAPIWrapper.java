@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2009 The Sakai Foundation
+ * Copyright (c) 2009-2015 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbRecordingDefault = false;
     /** BBB UX maximum length allowed for meeting description (default 2083) */
     private int bbbDescriptionMaxLength = 2048;
+    /** BBB UX textBox type for meeting description (default fckeditor) */
+    private String bbbDescriptionType = "fckeditor";
     /** BBB UX flag to activate/deactivate 'duration' box (default to false) */
     private boolean bbbDurationEnabled = false;
     /** BBB default value for 'duration' box (default 120 minutes) */
@@ -133,6 +135,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
         bbbRecordingDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_DEFAULT, bbbRecordingDefault);
         bbbDescriptionMaxLength = (int) config.getInt(BBBMeetingManager.CFG_DESCRIPTIONMAXLENGTH, bbbDescriptionMaxLength);
+        bbbDescriptionType = (String) config.getString(BBBMeetingManager.CFG_DESCRIPTIONTYPE, bbbDescriptionType);
         bbbDurationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_DURATION_ENABLED, bbbDurationEnabled);
         bbbDurationDefault = (int) config.getInt(BBBMeetingManager.CFG_DURATION_DEFAULT, bbbDurationDefault);
         bbbWaitModeratorEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_ENABLED, bbbWaitModeratorEnabled);
@@ -361,6 +364,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public int getMaxLengthForDescription(){
         return bbbDescriptionMaxLength;
+    }
+
+    public String getTextBoxTypeForDescription(){
+        return bbbDescriptionType;
     }
 
     private Map<String, Object> responseError(String messageKey, String message){

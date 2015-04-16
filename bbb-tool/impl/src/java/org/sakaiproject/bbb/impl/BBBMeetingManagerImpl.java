@@ -763,6 +763,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.getMaxLengthForDescription();
     }
 
+    public String getTextBoxTypeForDescription(){
+        return "" + bbbAPI.getTextBoxTypeForDescription();
+    }
+
     public boolean databaseStoreMeeting(BBBMeeting meeting) {
         if( meeting.getId() == null ){
             // generate uuid

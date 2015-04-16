@@ -538,6 +538,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (descriptionMaxLength != null) {
             map.put("descriptionMaxLength", descriptionMaxLength);
         }
+        String descriptionType = meetingManager.getTextBoxTypeForDescription();
+        if (descriptionType != null) {
+            map.put("descriptionType", descriptionType);
+        }
         return map;
     }
 
