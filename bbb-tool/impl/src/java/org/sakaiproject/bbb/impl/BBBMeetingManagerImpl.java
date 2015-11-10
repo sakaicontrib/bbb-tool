@@ -1343,7 +1343,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return generateIcalFromMeetingInTimeZone(meeting, iCalAlarmMinutesuserId, timeZone);
     }
 
-    private String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, TimeZone timeZone) {
+    protected String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, TimeZone timeZone) {
         Date startDate = meeting.getStartDate();
         if (startDate == null)
             return null;
@@ -1370,12 +1370,16 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         VEvent vEvent = null;
         if (endDate != null) {
             DateTime start = new DateTime(startDate.getTime());
+            start.setTimeZone(timezone);
             DateTime end = new DateTime(endDate.getTime());
+            end.setTimeZone(timezone);
             vEvent = new VEvent(start, end, eventName);
         } else {
             DateTime start = new DateTime(startDate.getTime());
+            start.setTimeZone(timezone);
             vEvent = new VEvent(start, eventName);
         }
+        
 
         // add description & url
         String meetingUrl = getDirectToolJoinUrl(meeting);
