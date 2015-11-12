@@ -1344,6 +1344,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     protected String generateIcalFromMeetingInTimeZone(BBBMeeting meeting, Long iCalAlarmMinutesuserId, TimeZone timeZone) {
+        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+        timeZone = registry.getTimeZone(timeZone.getID()) != null ? timeZone : TimeZone.getDefault();
         Date startDate = meeting.getStartDate();
         if (startDate == null)
             return null;
@@ -1352,7 +1354,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         String eventName = meeting.getName();
 
         // Create a TimeZone
-        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
         net.fortuna.ical4j.model.TimeZone timezone = registry.getTimeZone(timeZone.getID());
         VTimeZone tz = timezone.getVTimeZone();
 

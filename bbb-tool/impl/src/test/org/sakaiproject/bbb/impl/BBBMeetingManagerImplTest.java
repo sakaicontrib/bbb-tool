@@ -58,16 +58,13 @@ public class BBBMeetingManagerImplTest extends BBBMeetingManagerImpl {
 		testForTimezone(meeting, startDate, endDate, DEFAULT_ZONE);
 		// Let's take it somewhere nice.
 		testForTimezone(meeting, startDate, endDate, TimeZone.getTimeZone("Brazil/East"));
+		// Now test with a non existing TZ.
+		testForTimezone(meeting, startDate, endDate, TimeZone.getTimeZone("EST"));
 		if (INTENSIVE) { 
 			// Get all Timezones
 			String[] availableIDs = TimeZone.getAvailableIDs();
-			// Get the defined zoend
-			TimeZoneRegistry createRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
 			for (String tzId : availableIDs) {
-				if (createRegistry.getTimeZone(tzId) != null) {
-					// Run only if ical4j knows the zone.
-					testForTimezone(meeting, startDate, endDate, TimeZone.getTimeZone(tzId));
-				}
+				testForTimezone(meeting, startDate, endDate, TimeZone.getTimeZone(tzId));
 			}
 		}
 
