@@ -2,21 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<packaging>pom</packaging> 
+
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
-        <version>2.8.4</version>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>10-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
     </parent>
 
 	<name>BigBlueButton</name>
+	<packaging>pom</packaging>
 	<groupId>org.sakaiproject.bbb</groupId>
 	<artifactId>bbb</artifactId>
-    <version>1.0.8</version>
+    <version>10-SNAPSHOT</version>
     <description>Sakai BigBlueButton integrates a Sakai instance with a BigBlueButton server, allowing Sakai users to easily create and join BigBlueButton meetings from a Sakai worksite and access playback recording.</description>
-
     <url>http://confluence.sakaiproject.org/confluence/display/BBB</url>
 
     <organization>
@@ -206,34 +207,11 @@
                 <type>jar</type>
             </dependency>
 
-            <!-- EntityBroker -->
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <version>${entitybroker.version}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
-                <version>${entitybroker-utils.version}</version>
-            </dependency>
-
             <!-- Apache Commons -->
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
-            </dependency>
             <dependency>
                 <groupId>commons-betwixt</groupId>
                 <artifactId>commons-betwixt</artifactId>
                 <version>${commons-betwixt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.version}</version>
             </dependency>
 
             <!-- Others -->
@@ -241,12 +219,6 @@
                 <groupId>org.mnode.ical4j</groupId>
                 <artifactId>ical4j</artifactId>
                 <version>${ical4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
