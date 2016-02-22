@@ -94,7 +94,7 @@
             startMillis += time[0] * 60 * 60 * 1000;
             startMillis += time[1] * 60 * 1000;
             startMillis -= date.getTimezoneOffset() * 60 * 1000;
-            startMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            startMillis += (parseInt(meetings.startupArgs.timezoneoffset) * -1);
             date.setTime(startMillis);
             
             $('#startDate').val(startMillis);
@@ -109,7 +109,7 @@
             endMillis += time[0] * 60 * 60 * 1000;
             endMillis += time[1] * 60 * 1000;
             endMillis -= date.getTimezoneOffset() * 60 * 1000;
-            endMillis += (parseInt(bbbUserTimeZoneOffset) * -1);
+            endMillis += (parseInt(meetings.startupArgs.timezoneoffset) * -1);
             date.setTime(endMillis);
             
             $('#endDate').val(endMillis);
