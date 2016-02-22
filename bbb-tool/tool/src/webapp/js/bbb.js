@@ -129,7 +129,9 @@ meetings.switchState = function (state, arg) {
             meetings.setMeetingList();
 
             // Show meeting list
-            meetings.utils.render('bbb_rooms_template',{'meetings':meetings.currentMeetings},'bbb_content');
+            meetings.utils.render('bbb_rooms_template'
+                    ,{'meetings': meetings.currentMeetings, 'timezoneoffset': meetings.startupArgs.timezoneoffset}
+                    ,'bbb_content');
 
             // Update meeting list
             meetings.refreshMeetingList();
@@ -325,7 +327,9 @@ meetings.switchState = function (state, arg) {
             }
 
             if (meeting) {
-                meetings.utils.render('bbb_meeting-info_template', {'meeting' : meeting}, 'bbb_content');
+                meetings.utils.render('bbb_meeting-info_template'
+                        , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset}
+                        , 'bbb_content');
                 meetings.utils.checkOneMeetingAvailability(arg.meetingId);
                 meetings.utils.checkRecordingAvailability(arg.meetingId);
 
