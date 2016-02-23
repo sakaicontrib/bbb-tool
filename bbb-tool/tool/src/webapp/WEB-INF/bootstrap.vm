@@ -282,7 +282,7 @@
       <tr>
         <td class="lbl">${D}{bbb_participants_add}</td>
         <td>
-            <select id="selType" onchange="updateParticipantSelectionUI()">
+            <select id="selType" onchange="meetings.updateParticipantSelectionUI()">
                 <option value="${D}{selTypes.all.id}" selected="selected">${D}{selTypes.all.title}</option>
                 <option value="${D}{selTypes.user.id}">${D}{selTypes.user.title}</option>
                 {if selOptions['groups'].length > 0}
