@@ -74,8 +74,10 @@
 			<artifactId>log4j</artifactId>
 		</dependency>
         <dependency>
-        	<groupId>org.projectlombok</groupId>
-        	<artifactId>lombok</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <!-- version number required for maven2 -->
+            <!-- <version>1.12.4</version> -->
         </dependency> 
         <dependency>
             <groupId>org.apache.velocity</groupId>
