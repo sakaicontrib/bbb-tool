@@ -78,6 +78,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbMultipleSessionsAllowedEnabled = false;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
     private boolean bbbMultipleSessionsAllowedDefault = true;
+    /** BBB default value for adminRecordingEnabled property (default to false) */
+    private boolean bbbAdminRecordingEnabled = false;
 
     
     /** BBB API */
@@ -142,6 +144,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbWaitModeratorDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_DEFAULT, bbbWaitModeratorDefault);
         bbbMultipleSessionsAllowedEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_ENABLED, bbbMultipleSessionsAllowedEnabled);
         bbbMultipleSessionsAllowedDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_DEFAULT, bbbMultipleSessionsAllowedDefault);
+        bbbAdminRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_ADMIN_RECORDING_ENABLED, bbbAdminRecordingEnabled);
         
     }
 
@@ -368,6 +371,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public String getTextBoxTypeForDescription(){
         return bbbDescriptionType;
+    }
+    
+    public boolean isAdminRecordingEnabled(){
+        return bbbAdminRecordingEnabled;
     }
 
     private Map<String, Object> responseError(String messageKey, String message){

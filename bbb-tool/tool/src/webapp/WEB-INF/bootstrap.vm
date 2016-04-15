@@ -240,7 +240,7 @@
             <textarea class="bbb_welcome_message_textarea" id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${D}{bbb_default_welcome_description}{else}${D}{meeting.props.welcomeMessage}{/if}</textarea>
         </td>
       </tr>
-      {if recordingEnabled}
+      {if recordingEnabled || (adminRecordingEnabled && currentUserAdmin)}
       <tr>
         <td class="bbb_lbl">${D}{bbb_info_recording}</td>
         <td>
@@ -248,6 +248,16 @@
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
+      {else}
+      {if adminRecordingEnabled}
+      <tr>
+        <td class="bbb_lbl">${D}{bbb_info_recording}</td>
+        <td>
+            {var recordingChecked = isNew ? recordingDefault : meeting.recording }
+            <input id="recording" name="recording" disabled="disabled" type="checkbox" {if recordingChecked}checked{/if}/>
+            ${D}{bbb_admin_info_recording}</td>
+      </tr>
+      {/if}
       {/if}
       {if durationEnabled}
       <tr>
