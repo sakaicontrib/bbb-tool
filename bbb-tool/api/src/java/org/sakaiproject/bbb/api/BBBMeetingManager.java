@@ -60,6 +60,7 @@ public interface BBBMeetingManager {
     public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_ENABLED = "bbb.multiplesessionsallowed.enabled";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
+    public final static String CFG_ADMIN_RECORDING_ENABLED = "bbb.admin.recording.enabled";             // [true|false]
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -294,6 +295,10 @@ public interface BBBMeetingManager {
     public String getAutorefreshForRecordings();
 
     public String isRecordingEnabled();
+    
+    public String isAdminRecordingEnabled();
+
+    public String isCurrentUserAdmin();
 
     public String getRecordingDefault();
 

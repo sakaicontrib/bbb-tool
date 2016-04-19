@@ -222,6 +222,8 @@ meetings.switchState = function (state, arg) {
                 'waitmoderatorDefault': meetings.settings.config.addUpdateFormParameters.waitmoderatorDefault,
                 'multiplesessionsallowedEnabled': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
+                'adminRecordingEnabled': meetings.settings.config.addUpdateFormParameters.adminRecordingEnabled,
+                'currentUserAdmin': meetings.settings.config.addUpdateFormParameters.currentUserAdmin,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
 
