@@ -1,0 +1,16 @@
+.idea
+.project
+.classpath
+.settings
+*.iml
+*.swp
+*.orig
+*.rej
+target
+sakai-demo.tar.gz
+sakai-demo.zip
+.directory
+.sass-cache
+.metadata
+.DS_Store
+*nb-configuration.xml
