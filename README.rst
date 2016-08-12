@@ -1,4 +1,4 @@
-BigBlueButton Sakai Meeting Tool for Sakai 2.5/2.6/2.7/2.8/2.9/10
+BigBlueButton Sakai Meeting Tool
 =================================================================
 BigBlueButton is an open source web conferencing system that enables universities and colleges to deliver a high-quality learning experience to remote students.  
 
@@ -19,8 +19,8 @@ Prerequisites
 =============
 You need:
 
-	1.  A server running Sakai 2.5+ with entitybroker 1.3.9+
-	2.  A BigBlueButton 0.8-beta-4 (or later) server running on a separate server (not on the same server as your Sakai site)
+	1.  A server running Sakai 2.5+
+	2.  A BigBlueButton 0.8 (or later) server running on a separate server (not on the same server as your Sakai site)
 	
 Blindside Networks provides you a test BigBlueButton server for testing this plugin.  To use this test server, just accept the default settings when configuring the activity module.  The default settings are
 
@@ -36,11 +36,11 @@ Obtaining the source
 ====================
 This GitHub repostiory at
 
-  https://github.com/blindsidenetworks/bigbluebutton-sakai
+  https://github.com/sakaicontrib/bbb-tool
 
 contains the latest source.  If you want to use the latest packaged snapshot, you can download it from the corresponding branch.
 
-  https://github.com/blindsidenetworks/bigbluebutton-sakai/tree/1.0.7-rc1-SNAPSHOT
+  https://github.com/sakaicontrib/bbb-tool/tree/11.x
 
 
 Installation
@@ -61,14 +61,14 @@ These instructions assume your Sakai server is installed at /opt/tomcat.
 
   2.1. Download the tool source code
 
-         cd ~/
+         cd ~/YOUR-SAKAI-SRC
          
-         git clone git://github.com/blindsidenetworks/bigbluebutton-sakai.git
+         git clone git://github.com/sakaicontrib/bbb-tool.git
 
 
   2.2. Compile & deploy to Tomcat
  
-         cd bigbluebutton-sakai/bbb-tool
+         cd bbb-tool
          
          mvn -Dmaven.tomcat.home={tomcat_folder} clean install sakai:deploy
     
