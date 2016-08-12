@@ -369,3 +369,7 @@ table#bbb_meeting_info_table td h5  {
 {
   content: "\f03d";
 }
+
+.portletBody .icon-sakai-bbb {
+    background-image: url(/library/image/silk/video_cam_available.png) !important;
+}
