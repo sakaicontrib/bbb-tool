@@ -40,7 +40,7 @@
     ${sakaiHtmlHead}
     <link rel="stylesheet" type="text/css" href="/bbb-tool/css/bbb.css" />
     <link rel="stylesheet" type="text/css" href="/bbb-tool/lib/jquery.datepick.package-3.7.5/redmond.datepick.css" />
-    <script type="text/javascript" src="/library/js/jquery/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/bbb-tool/lib/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="/library/js/trimpath-template-latest.js"></script>
     <script type="text/javascript" src="/library/js/jquery/i18n-properties/1.0.9/jquery.i18n.properties-min-1.0.9.js"></script>
     <script type="text/javascript" src="/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.min.js"></script>
