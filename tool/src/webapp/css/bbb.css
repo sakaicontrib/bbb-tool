@@ -363,3 +363,13 @@ table#bbb_meeting_info_table td h5  {
         border-top-color: #eee;
     }
 }
+
+.fa-bbb:before,
+.icon-sakai-bbb:before
+{
+  content: "\f03d";
+}
+
+.portletBody .icon-sakai-bbb {
+    background-image: url(/library/image/silk/video_cam_available.png) !important;
+}
