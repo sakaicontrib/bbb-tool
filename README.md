@@ -19,8 +19,8 @@ Prerequisites
 =============
 You need:
 
-	1.  A server running Sakai 2.5+
-	2.  A BigBlueButton 0.8 (or later) server running on a separate server (not on the same server as your Sakai site)
+  1.  A server running Sakai 2.5+
+  2.  A BigBlueButton 0.8 (or later) server running on a separate server (not on the same server as your Sakai site)
 	
 Blindside Networks provides you a test BigBlueButton server for testing this plugin.  To use this test server, just accept the default settings when configuring the activity module.  The default settings are
 
@@ -79,11 +79,11 @@ These instructions assume your Sakai server is installed at /opt/tomcat.
          
          bbb.salt=<salt>
        
-       To determine these values for your BigBlueButton, enter the command
+  To determine these values for your BigBlueButton, enter the command
     
          bbb-conf --salt
     
-       If you want to use the public test server for BigBlueButton, use the following settings 
+  If you want to use the public test server for BigBlueButton, use the following settings 
 
          bbb.url=http://test-install.blindsidenetworks.com/bigbluebutton
          
@@ -91,11 +91,11 @@ These instructions assume your Sakai server is installed at /opt/tomcat.
 
   2.4. Create the database schema
 
-       Run the schema creation script that corresponds to your database (MySQL or Oracle)
+  Run the schema creation script that corresponds to your database (MySQL or Oracle)
     
-       or
+  or
     
-       Set up auto.ddl=true into sakai.properties and restart your server  
+  Set up auto.ddl=true into sakai.properties and restart your server  
 
 
 At this point, you can activate the meeting tool to any site and start adding meetings.
