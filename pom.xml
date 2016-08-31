@@ -66,7 +66,7 @@
         <!-- Build tracking  -->
         <maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
         <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
-        <buildSerial>2015040500</buildSerial>
+        <buildSerial>2016040500</buildSerial>
         <!-- Regular properties -->
         <!-- entitybroker.version can be set to any version from 1.3.9 to 1.3.20, 
         by default it has been set up to 1.3.19, the one used with Sakai 2.8.2 -->
