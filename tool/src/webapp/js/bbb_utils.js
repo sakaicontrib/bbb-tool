@@ -100,9 +100,10 @@
             $('#startDate').val(startMillis);
         } else {
             $('#startDate').removeAttr('name');
+            $('#startDate').val(null);
             $('#addToCalendar').removeAttr('checked');
         }
-        if ($('#endDate1').attr('checked')) {
+        if ($('#endDate1').prop('checked')) {
             var date = $('#endDate2').datepick('getDate');
             var time = $('#endTime').val().split(':');
             endMillis = date.getTime();
@@ -134,9 +135,9 @@
             meetings.utils.showMessage(bbb_err_no_participants, 'warning');
             errors = true;
         }
-        
+
         // Validate date fields
-        if($('#startDate1').attr('checked') && $('#endDate1').attr('checked')) {
+        if($('#startDate1').prop('checked') && $('#endDate1').prop('checked')) {
             if(endMillis == startMillis) {
                 meetings.utils.showMessage(bbb_err_startdate_equals_enddate, 'warning');
                 errors = true;
