@@ -48,7 +48,7 @@ public class BBBMeeting implements Entity {
 	private Date startDate = null;
 	private Date endDate = null;
 	private Boolean waitForModerator = null;
-    private Boolean multipleSessionsAllowed = null;
+	private Boolean multipleSessionsAllowed = null;
 	private Boolean deleted = null;
 	private Boolean recording = null; 
 	private Long recordingDuration = null;

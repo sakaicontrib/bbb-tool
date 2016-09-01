@@ -96,10 +96,11 @@
             startMillis -= date.getTimezoneOffset() * 60 * 1000;
             startMillis += (parseInt(meetings.startupArgs.timezoneoffset) * -1);
             date.setTime(startMillis);
-            
+
             $('#startDate').val(startMillis);
         } else {
             $('#startDate').removeAttr('name');
+            $('#startDate').val(null);
             $('#addToCalendar').removeAttr('checked');
         }
         if ($('#endDate1').attr('checked')) {
@@ -111,7 +112,7 @@
             endMillis -= date.getTimezoneOffset() * 60 * 1000;
             endMillis += (parseInt(meetings.startupArgs.timezoneoffset) * -1);
             date.setTime(endMillis);
-            
+
             $('#endDate').val(endMillis);
         }else{
             $('#endDate').removeAttr('name');
@@ -121,22 +122,22 @@
         // Validation
         meetings.utils.hideMessage();
         var errors = false;
-        
+
         // Validate title field
         var meetingTitle = $('#bbb_meeting_name_field').val().replace(/^\s+/, '').replace(/\s+$/, '');
         if(meetingTitle == '') {
             meetings.utils.showMessage(bbb_err_no_title, 'warning');
         	errors = true;
         }
-        
+
         // Validate participants list
         if($('#selContainer tbody tr').length == 0) {
             meetings.utils.showMessage(bbb_err_no_participants, 'warning');
             errors = true;
         }
-        
+
         // Validate date fields
-        if($('#startDate1').attr('checked') && $('#endDate1').attr('checked')) {
+        if($('#startDate1').prop('checked') && $('#endDate1').prop('checked')) {
             if(endMillis == startMillis) {
                 meetings.utils.showMessage(bbb_err_startdate_equals_enddate, 'warning');
                 errors = true;
