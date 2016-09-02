@@ -2,19 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<packaging>pom</packaging> 
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>11-SNAPSHOT</version>
+        <version>11.1</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-	<name>BigBlueButton</name>
-	<groupId>org.sakaiproject.bbb</groupId>
-	<artifactId>bbb</artifactId>
+    <name>BigBlueButton</name>
+    <groupId>org.sakaiproject.bbb</groupId>
+    <artifactId>bbb</artifactId>
     <version>11-SNAPSHOT</version>
     <description>Sakai BigBlueButton integrates a Sakai instance with a BigBlueButton server, allowing Sakai users to easily create and join BigBlueButton meetings from a Sakai worksite and access playback recording.</description>
 
@@ -26,8 +26,8 @@
     </organization>    
     <inceptionYear>2010</inceptionYear>
 
-	<developers>
-		<developer>
+    <developers>
+        <developer>
             <name>Adrian Fish</name>
             <email>a.fish@lancaster.ac.uk</email>
             <organization>Lancaster University, Centre for e-Science</organization>
@@ -37,8 +37,8 @@
                 <role>Developer</role>
             </roles>
             <timezone>0</timezone>
-		</developer>
-		<developer>
+        </developer>
+        <developer>
             <name>Nuno Fernandes</name>
             <email>nuno@ufp.edu.pt</email>
             <organization>Universidade Fernando Pessoa</organization>
@@ -48,8 +48,8 @@
                 <role>Developer</role>
             </roles>
             <timezone>0</timezone>
-		</developer>
-		<developer>
+        </developer>
+        <developer>
             <name>Jesus Federico</name>
             <email>jesus@blindsidenetworks.com</email>
             <organization>Blindside Networks Inc</organization>
@@ -59,8 +59,8 @@
                 <role>Developer</role>
             </roles>
             <timezone>-5</timezone>
-		</developer>
-	</developers>
+        </developer>
+    </developers>
 
     <properties>
         <!-- Build tracking  -->
@@ -75,9 +75,9 @@
     </properties>
 
     <scm>
-		<connection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</connection>
-		<developerConnection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</developerConnection>
-		<url>https://github.com/blindsidenetworks/bigbluebutton-sakai.git</url>
+		    <connection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</connection>
+		    <developerConnection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</developerConnection>
+		    <url>https://github.com/blindsidenetworks/bigbluebutton-sakai.git</url>
     </scm>
 
     <issueManagement>
@@ -109,7 +109,18 @@
         </site>
     </distributionManagement>
 
-	<repositories>
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>sakai-maven2-snapshots</id>
             <name>Sakai Maven Repo Snapshots</name>
@@ -146,7 +157,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-	</repositories>
+    </repositories>
 
     <profiles>
         <profile>
@@ -167,8 +178,8 @@
     </profiles>
 
     <dependencyManagement>
-    	<dependencies>
-    	    <!-- BBB -->
+        <dependencies>
+            <!-- BBB -->
             <dependency>
                 <groupId>org.sakaiproject.bbb</groupId>
                 <artifactId>bbb-api</artifactId>
@@ -197,12 +208,12 @@
                 <artifactId>velocity</artifactId>
                 <version>1.7</version>
             </dependency>
-    	</dependencies>
+        </dependencies>
     </dependencyManagement>
 
     <build>
-    	<plugins>
-    		<plugin>
+        <plugins>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <configuration>
@@ -259,7 +270,7 @@
                     </execution>
                 </executions>
             </plugin>
-    	</plugins>
+        </plugins>
     </build>
 
     <reporting>
