@@ -317,13 +317,16 @@
         $('#meeting_status_'+meeting.id).toggleClass(statusClass).html(statusText);
         // If meeting can be ended, update end action link in the view
         if( meeting.canEnd ){
-            var end_meetingClass = "end_meeting_hidden";
+            var end_meetingClass = "bbb_end_meeting_hidden";
             var end_meetingText = "";
+            var end_meetingTextIntermediate = "";
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
-                end_meetingClass = "end_meeting_shown";
-                end_meetingText = "&nbsp;|&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                end_meetingClass = "bbb_end_meeting_shown";
+                end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                end_meetingTextIntermediate = "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
             }
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
+            $('#end_meeting_intermediate_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingTextIntermediate);
         }
 	};
 	
@@ -576,7 +579,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_hidden');
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -603,7 +606,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_shown');
+                    .addClass('bbb_end_meeting_shown');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -622,7 +625,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_hidden');
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -645,7 +648,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_hidden');
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
