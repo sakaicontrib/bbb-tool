@@ -78,6 +78,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbMultipleSessionsAllowedEnabled = false;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
     private boolean bbbMultipleSessionsAllowedDefault = true;
+    /** BBB default value for 'one session per group' checkbox (default to false) */
+    private boolean bbbOneSessionPerGroupDefault = false;
 
     
     /** BBB API */
@@ -142,6 +144,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbWaitModeratorDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_DEFAULT, bbbWaitModeratorDefault);
         bbbMultipleSessionsAllowedEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_ENABLED, bbbMultipleSessionsAllowedEnabled);
         bbbMultipleSessionsAllowedDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_DEFAULT, bbbMultipleSessionsAllowedDefault);
+        bbbOneSessionPerGroupDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_DEFAULT, bbbOneSessionPerGroupDefault);
         
     }
 
@@ -360,6 +363,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public boolean getMultipleSessionsAllowedDefault(){
         return bbbMultipleSessionsAllowedDefault;
+    }
+    
+    public boolean getOneSessionPerGroupDefault(){
+        return bbbOneSessionPerGroupDefault;
     }
 
     public int getMaxLengthForDescription(){

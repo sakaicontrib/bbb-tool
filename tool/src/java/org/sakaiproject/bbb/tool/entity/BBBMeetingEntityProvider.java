@@ -214,6 +214,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
         meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
 
+        // oneSessionPerGroup flag
+        String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
+        boolean oneSessionPerGroup = (oneSessionPerGroupStr != null &&
+                (oneSessionPerGroupStr.toLowerCase().equals("on") || oneSessionPerGroupStr.toLowerCase().equals("true")));
+        meeting.setOneSessionPerGroup(Boolean.valueOf(oneSessionPerGroup));
+
         // participants
         String meetingOwnerId = meeting.getOwnerId();
         List<Participant> participants = extractParticipants(params, meetingOwnerId);
@@ -320,6 +326,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
                     (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
             meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
+
+            // update oneSessionPerGroup flag
+            String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
+            boolean oneSessionPerGroup = (oneSessionPerGroupStr != null &&
+                    (oneSessionPerGroupStr.toLowerCase().equals("on") || oneSessionPerGroupStr.toLowerCase().equals("true")));
+            meeting.setOneSessionPerGroup(Boolean.valueOf(oneSessionPerGroup));
 
             // update dates
             if (params.get("startDate") != null)
@@ -532,6 +544,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean multiplesessionsallowedDefault = Boolean.parseBoolean(meetingManager.getMultipleSessionsAllowedDefault());
         if (multiplesessionsallowedDefault != null) {
             map.put("multiplesessionsallowedDefault", multiplesessionsallowedDefault);
+        }
+        //UX settings for 'one session per group' box
+        Boolean onesessionpergroupDefault = Boolean.parseBoolean(meetingManager.getOneSessionPerGroupDefault());
+        if (onesessionpergroupDefault != null) {
+            map.put("onesessionpergroupdefault", onesessionpergroupDefault);
         }
         //UX settings for 'description' box
         String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
@@ -763,7 +780,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             
             //One session per group
             String groupId = "";
-            if (params.get("groupId") != null) {
+            if (params.get("groupId") != null && meeting.getOneSessionPerGroup())
                 groupId = params.get("groupId").toString();
             meeting.setId(meeting.getId() + groupId);
 

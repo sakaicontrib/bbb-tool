@@ -223,6 +223,7 @@ meetings.switchState = function (state, arg) {
                 'waitmoderatorDefault': meetings.settings.config.addUpdateFormParameters.waitmoderatorDefault,
                 'multiplesessionsallowedEnabled': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
+                'onesessionpergroupDefault': meetings.settings.config.addUpdateFormParameters.onesessionpergroupDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
 
@@ -328,9 +329,12 @@ meetings.switchState = function (state, arg) {
             }
 
             if (meeting) {
-                var groupIds = meetings.utils.getNumberOfGroups(meeting);
-                if (jQuery.isEmptyObject(groupIds)){
-                    groupIds = undefined;
+                var groupIds;
+                if(meeting.oneSessionPerGroup){
+                    groupIds = meetings.utils.getNumberOfGroups(meeting);
+                    if (jQuery.isEmptyObject(groupIds)){
+                        groupIds = undefined;
+                    }
                 }
                 meetings.utils.render('bbb_meeting-info_template'
                         , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset, 'groupIds' : groupIds}

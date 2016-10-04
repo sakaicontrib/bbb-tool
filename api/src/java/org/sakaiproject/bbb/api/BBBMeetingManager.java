@@ -60,6 +60,7 @@ public interface BBBMeetingManager {
     public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_ENABLED = "bbb.multiplesessionsallowed.enabled";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
+    public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.onesessionpergroupDefault";                // [true|false]
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -308,6 +309,8 @@ public interface BBBMeetingManager {
     public String isMultipleSessionsAllowedEnabled();
 
     public String getMultipleSessionsAllowedDefault();
+
+    public String getOneSessionPerGroupDefault();
 
     public String getMaxLengthForDescription();
 

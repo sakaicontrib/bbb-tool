@@ -277,6 +277,11 @@
         </td>
       </tr>
       {/if}
+      <tr>
+        <td class="bbb_lbl">${D}{bbb_info_onesessionpergroup}</td>
+        <td>
+            {var oneSessionPerGroupAllowed = isNew ? onesessionpergroupDefault : meeting.oneSessionPerGroup }
+            <input id="oneSessionPerGroup" name="oneSessionPerGroup" type="checkbox" {if oneSessionPerGroupAllowed}checked{/if}/>
     </table>
     
     <br/>
@@ -429,7 +434,7 @@
         <td>${D}{new Date(parseInt(meeting.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset)).toISO8601String()}</td>
       </tr>
       {/if}
-      {if groupIds}
+      {if groupIds && meeting.oneSessionPerGroup}
         {for groupId in groupIds}
           <tr>
             <td><h5>${D}{bbb_meetinginfo_status}</h5></td>

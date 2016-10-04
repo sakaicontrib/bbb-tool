@@ -758,6 +758,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public String getMultipleSessionsAllowedDefault(){
         return "" + bbbAPI.getMultipleSessionsAllowedDefault();
     }
+    
+    public String getOneSessionPerGroupDefault(){
+        return "" + bbbAPI.getOneSessionPerGroupDefault();
+    }
 
     public String getMaxLengthForDescription(){
         return "" + bbbAPI.getMaxLengthForDescription();
