@@ -760,6 +760,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
+            
+            //One session per group
+            String groupId = "";
+            if (params.get("groupId") != null) {
+                groupId = params.get("groupId").toString();
+            meeting.setId(meeting.getId() + groupId);
+
             //Unescape Meeting name
             String nameStr = meeting.getName();
             meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
@@ -877,6 +884,36 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "  <body>\n" +
                    "  </body>\n" +
                    commonHtmlFooter;
+        }
+    }
+    
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getNumberOfGroups(Map<String, Object> params) {
+        if(logger.isDebugEnabled())
+            logger.debug("Getting Number of Groups");
+    
+        String meetingID = (String) params.get("meetingID");
+        if (meetingID == null) {
+            throw new IllegalArgumentException("Missing required parameter [meetingID]");
+        }
+        BBBMeeting meeting = null;
+        try {
+            meeting = meetingManager.getMeeting(meetingID);
+        } catch (Exception e) {
+            return null;
+        }
+        
+        Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
+        boolean isInGroup = Participant.SELECTION_GROUP.equals(p.getSelectionType());
+        if (isInGroup) {
+            List<String> userGroups = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
+            Map<String, String> meetingGroupIds = new HashMap<String, String>();
+            for(int i = 0; i < userGroups.size(); i++){
+                meetingGroupIds.put("group" + i, userGroups.get(i));
+            }
+            return new ActionReturn(meetingGroupIds);
+        } else {
+            return new ActionReturn(new HashMap<String, String>());
         }
     }
 

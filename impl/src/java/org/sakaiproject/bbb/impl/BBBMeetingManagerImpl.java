@@ -1302,7 +1302,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return userRoleInSite;
     }
 
-    private List<String> getUserGroupIdsInSite(String userId, String siteId) {
+    public List<String> getUserGroupIdsInSite(String userId, String siteId) {
         List<String> groupIds = new ArrayList<String>();
         if (siteId != null) {
             try {

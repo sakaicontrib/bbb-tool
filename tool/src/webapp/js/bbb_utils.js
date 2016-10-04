@@ -224,6 +224,24 @@
         });
         return meetingInfo;
     };
+    
+    meetings.utils.getNumberOfGroups = function (meeting) {
+        var groups;
+        jQuery.ajax( {
+            url : "/direct/bbb-tool/getNumberOfGroups.json?meetingID=" + meeting.id,
+            dataType : "json",
+            async : false,
+            timeout : 10000,
+            success : function (data) {
+                groups = data;
+            },
+            error : function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                return null;
+            }
+        });
+        return groups;
+    };
 
 	meetings.utils.setMeetingInfoParams = function (meeting, meetingInfo) {
 
@@ -501,15 +519,16 @@
     };
 
     // Log an event indicating user is joining meeting
-    meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed) {
+    meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed, groupId) {
 
         var nonce = new Date().getTime();
         var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
+        url += groupId ? "&groupId=" + groupId : "";
         meetings.utils.hideMessage();
         if(linkSelector) {
             $(linkSelector).attr('href', url);
             if( !multipleSessionsAllowed )
-                $('#meeting_joinlink_' + meetingId).hide();
+                $('.meeting_joinlink_' + meetingId).hide();
 
             //After joining stop requesting periodic updates
             clearInterval(meetings.checkOneMeetingAvailabilityId);
@@ -567,12 +586,12 @@
         if(meeting.joinable) {
             if ( meeting.joinableMode === "available" ){
                 if( meeting.multipleSessionsAllowed ) {
-                    $('#meeting_joinlink_'+meeting.id).fadeIn();
+                    $('.meeting_joinlink_'+meeting.id).fadeIn();
                 } else {
                     if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) && !meeting.joining ) {
-                        $('#meeting_joinlink_'+meeting.id).fadeIn();
+                        $('.meeting_joinlink_'+meeting.id).fadeIn();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).fadeOut();
+                        $('.meeting_joinlink_'+meeting.id).fadeOut();
                     }
                 }
                 // Update the actionbar on the list
@@ -593,12 +612,12 @@
                     .text(bbb_status_joinable_available);
             } else if ( meeting.joinableMode === "inprogress" ){
                 if( meeting.multipleSessionsAllowed ) {
-                    $('#meeting_joinlink_'+meeting.id).fadeIn();
+                    $('.meeting_joinlink_'+meeting.id).fadeIn();
                 } else {
                     if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) && !meeting.joining ) {
-                        $('#meeting_joinlink_'+meeting.id).fadeIn();
+                        $('.meeting_joinlink_'+meeting.id).fadeIn();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).fadeOut();
+                        $('.meeting_joinlink_'+meeting.id).fadeOut();
                     }
                 }
 
@@ -620,7 +639,7 @@
                 	.text(bbb_status_joinable_inprogress);
 
         	} else if ( meeting.joinableMode === "unavailable" ){
-                $('#meeting_joinlink_'+meeting.id).fadeOut();
+                $('.meeting_joinlink_'+meeting.id).fadeOut();
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
@@ -643,7 +662,7 @@
                 $('#bbb_meeting_info_participants_count_tr').hide();
 
         	} else if ( meeting.joinableMode === "unreachable" ){
-                $('#meeting_joinlink_'+meeting.id).fadeOut();
+                $('.meeting_joinlink_'+meeting.id).fadeOut();
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
@@ -666,13 +685,13 @@
                 $('#bbb_meeting_info_participants_count_tr').hide();
         	}
         } else if(meeting.notStarted) {
-            $('#meeting_joinlink_'+meeting.id).fadeOut();
+            $('.meeting_joinlink_'+meeting.id).fadeOut();
             $('#meeting_status_'+meeting.id)
                .removeClass()
                .addClass('status_notstarted')
                .text(bbb_status_notstarted);
         }else if(meeting.finished) {
-            $('#meeting_joinlink_'+meeting.id).fadeOut();
+            $('.meeting_joinlink_'+meeting.id).fadeOut();
             $('#meeting_status_'+meeting.id)
                .removeClass()
                .addClass('status_finished')

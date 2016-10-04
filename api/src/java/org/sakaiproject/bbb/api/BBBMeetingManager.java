@@ -323,4 +323,6 @@ public interface BBBMeetingManager {
 
     public String getUserRoleInSite(String userId, String siteId);
 
+    public List<String> getUserGroupIdsInSite(String userId, String siteId);
+
 }

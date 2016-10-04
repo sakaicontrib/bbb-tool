@@ -328,8 +328,12 @@ meetings.switchState = function (state, arg) {
             }
 
             if (meeting) {
+                var groupIds = meetings.utils.getNumberOfGroups(meeting);
+                if (jQuery.isEmptyObject(groupIds)){
+                    groupIds = undefined;
+                }
                 meetings.utils.render('bbb_meeting-info_template'
-                        , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset}
+                        , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset, 'groupIds' : groupIds}
                         , 'bbb_content');
                 meetings.utils.checkOneMeetingAvailability(arg.meetingId);
                 meetings.utils.checkRecordingAvailability(arg.meetingId);
@@ -646,7 +650,7 @@ meetings.updateMeetingInfo = function (meeting) {
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
                 if (!meeting.multipleSessionsAllowed && meetings.currentUser.id === meetingInfo.attendees[p].userID) {
-					$('#meeting_joinlink_' + meeting.id).hide();
+					$('.meeting_joinlink_' + meeting.id).hide();
 				}
           	}
 		} else if (meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1){
