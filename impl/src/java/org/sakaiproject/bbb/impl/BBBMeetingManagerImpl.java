@@ -394,6 +394,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // end meeting on server, if running
         bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
 
+        if(meeting.getOneSessionPerGroup()){
+            //End all group sessions that could be running
+            for (Participant p : meeting.getParticipants()) {
+                if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
+                    bbbAPI.endMeeting(meetingId + p.getSelectionId(), meeting.getModeratorPassword());
+                }
+            }
+        }
         // log event
         logEvent(EVENT_MEETING_END, meeting);
 

@@ -60,6 +60,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Group;
@@ -905,7 +906,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
     
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getNumberOfGroups(Map<String, Object> params) {
+    public ActionReturn getUsersGroups(Map<String, Object> params) {
         if(logger.isDebugEnabled())
             logger.debug("Getting Number of Groups");
     
@@ -913,22 +914,38 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (meetingID == null) {
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
+        
+        //Get meeting
         BBBMeeting meeting = null;
         try {
             meeting = meetingManager.getMeeting(meetingID);
         } catch (Exception e) {
             return null;
         }
-        
+
+        Site site;
+        try {
+            site = siteService.getSite(meeting.getSiteId());
+        } catch (IdUnusedException e) {
+            logger.error("Unable to get groups in '" + meeting.getName() + "'.", e);
+            return null;
+        }
         Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
         boolean isInGroup = Participant.SELECTION_GROUP.equals(p.getSelectionType());
         if (isInGroup) {
-            List<String> userGroups = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
-            Map<String, String> meetingGroupIds = new HashMap<String, String>();
-            for(int i = 0; i < userGroups.size(); i++){
-                meetingGroupIds.put("group" + i, userGroups.get(i));
+            //Get group ids
+            List<String> groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
+            Map<String, Object> groups = new HashMap<String, Object>();
+
+            for(int i = 0; i < groupIds.size(); i++){
+                Map<String, String> groupInfo = new HashMap<String, String>();
+                Group group = site.getGroup(groupIds.get(i));
+
+                groupInfo.put("groupId", groupIds.get(i));
+                groupInfo.put("groupTitle", group.getTitle());
+                groups.put("group" + i, groupInfo);
             }
-            return new ActionReturn(meetingGroupIds);
+            return new ActionReturn(groups);
         } else {
             return new ActionReturn(new HashMap<String, String>());
         }

@@ -329,16 +329,25 @@ meetings.switchState = function (state, arg) {
             }
 
             if (meeting) {
-                var groupIds;
+                var groups;
                 if(meeting.oneSessionPerGroup){
-                    groupIds = meetings.utils.getNumberOfGroups(meeting);
-                    if (jQuery.isEmptyObject(groupIds)){
-                        groupIds = undefined;
+                    groups = meetings.utils.getUsersGroups(meeting);
+                    if (jQuery.isEmptyObject(groups)){
+                        groups = undefined;
                     }
                 }
                 meetings.utils.render('bbb_meeting-info_template'
-                        , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset, 'groupIds' : groupIds}
+                        , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset, 'groups' : groups}
                         , 'bbb_content');
+
+                $("#groupSession").change(function() {
+                    if(this.value != "Default"){
+                        $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"');");
+                    } else {
+                        $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");
+                    }
+                });
+
                 meetings.utils.checkOneMeetingAvailability(arg.meetingId);
                 meetings.utils.checkRecordingAvailability(arg.meetingId);
 
@@ -654,7 +663,7 @@ meetings.updateMeetingInfo = function (meeting) {
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
                 if (!meeting.multipleSessionsAllowed && meetings.currentUser.id === meetingInfo.attendees[p].userID) {
-					$('.meeting_joinlink_' + meeting.id).hide();
+					$('#meeting_joinlink_' + meeting.id).hide();
 				}
           	}
 		} else if (meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1){
