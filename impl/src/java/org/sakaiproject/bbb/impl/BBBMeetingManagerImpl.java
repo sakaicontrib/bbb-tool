@@ -313,10 +313,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return bbbAPI.isMeetingRunning(meetingID);
     }
 
-    public Map<String, Object> getMeetingInfo(String meetingID)
+    public Map<String, Object> getMeetingInfo(String meetingID, String groupId)
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
-        return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
+        String gId = "";
+        if(groupId != "" && groupId != null){
+            gId = groupId;
+        }
+        return bbbAPI.getMeetingInfo(meeting.getId() + gId, meeting.getModeratorPassword());
     }
 
     public Map<String, Object> getRecordings(String meetingID)

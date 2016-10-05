@@ -150,7 +150,7 @@ public interface BBBMeetingManager {
     /**
      * Get live meeting details from BBB server.
      */
-    public Map<String, Object> getMeetingInfo(String meetingID)
+    public Map<String, Object> getMeetingInfo(String meetingID, String groupId)
             throws BBBException;
 
     /**

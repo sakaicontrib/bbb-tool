@@ -618,14 +618,17 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref) {
+    public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref, Map<String, Object> params) {
         if (logger.isDebugEnabled()) logger.debug("getMeetingInfo");
         if (ref == null) {
             throw new EntityNotFoundException("Meeting not found", null);
         }
 
         try {
-            return new ActionReturn(meetingManager.getMeetingInfo(ref.getId()));
+            if(params.get("groupId") != null){
+                return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), params.get("groupId").toString()));
+            }
+            return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), ""));
         } catch (BBBException e) {
             return new ActionReturn(new HashMap<String, String>());
         }
@@ -811,7 +814,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 if( Participant.MODERATOR.equals(p.getRole())) {
                     html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
                 } else {
-                    Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(meetingId);
+                    Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(meetingId, "");
                     if( meetingInfo != null && Integer.parseInt((String)meetingInfo.get("moderatorCount")) > 0 ) {
                         html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
                     } else {

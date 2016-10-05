@@ -340,13 +340,28 @@ meetings.switchState = function (state, arg) {
                         , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset, 'groups' : groups}
                         , 'bbb_content');
 
-                $("#groupSession").change(function() {
-                    if(this.value != "Default"){
-                        $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"');");
-                    } else {
-                        $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");
-                    }
-                });
+                if(meeting.oneSessionPerGroup){
+                    $("#groupSession").change(function() {
+                        if(this.value != "Default"){
+                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"');");
+                            
+                            meetings.utils.checkOneMeetingAvailability(meeting.id, false, this.value);
+                            $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', false, '"+this.value+"'); return false;");
+                            if (meetings.settings.config.autorefreshInterval.meetings > 0)
+                                meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', false, '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
+                            return;
+                        } else {
+                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");
+                            
+                            meetings.utils.checkOneMeetingAvailability(meeting.id);
+                            meetings.utils.checkRecordingAvailability(meeting.id);
+                            $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"');");
+                            if (meetings.settings.config.autorefreshInterval.meetings > 0)
+                                meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "')", meetings.settings.config.autorefreshInterval.meetings);
+                            return;
+                        }
+                    });
+                }
 
                 meetings.utils.checkOneMeetingAvailability(arg.meetingId);
                 meetings.utils.checkRecordingAvailability(arg.meetingId);

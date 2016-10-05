@@ -197,13 +197,14 @@
     };
 
     // Get meeting info from BBB server
-    meetings.utils.setMeetingInfo = function (meeting, asyncmode) {
+    meetings.utils.setMeetingInfo = function (meeting, asyncmode, groupId) {
 
         if(typeof(asyncmode)==='undefined') asyncmode = true;
 
         var meetingInfo = null;
+        var group = groupId ? "?groupId=" + groupId : "";
         jQuery.ajax( {
-            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
+            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json" + group,
             dataType : "json",
             async : asyncmode,
             timeout : 10000,
@@ -536,7 +537,8 @@
 
             //After joining execute requesting updates only once
             var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0? meetings.settings.config.autorefreshInterval.meetings: 15000;
-            setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true)", onceAutorefreshInterval);
+            var group = groupId ? ", '" + groupId + "'" : "";
+            setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true" + group + ")", onceAutorefreshInterval);
         }
         return true;
     };
@@ -553,18 +555,26 @@
     };
 
     // Check ONE meetings availability and update meeting details page if appropriate
-    meetings.utils.checkOneMeetingAvailability = function (meetingId, joining) {
+    meetings.utils.checkOneMeetingAvailability = function (meetingId, joining, groupId) {
 
         if(typeof(joining)==='undefined') joining = false;
 
-        for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
-            if( meetings.currentMeetings[i].id == meetingId ) {
-                meetings.utils.setMeetingInfo(meetings.currentMeetings[i], false);
-                meetings.currentMeetings[i].joining = joining;
-                meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
-                meetings.updateMeetingInfo(meetings.currentMeetings[i]);
-                return;
+        if(typeof(groupId)==='undefined'){
+            for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
+                if( meetings.currentMeetings[i].id == meetingId ) {
+                    meetings.utils.setMeetingInfo(meetings.currentMeetings[i], false);
+                    meetings.currentMeetings[i].joining = joining;
+                    meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
+                    meetings.updateMeetingInfo(meetings.currentMeetings[i]);
+                    return;
+                }
             }
+        } else {
+            var currentMeeting = meetings.utils.getMeeting(meetingId);
+            meetings.utils.setMeetingInfo(currentMeeting, false, groupId);
+            meetings.utils.checkMeetingAvailability(currentMeeting);
+            meetings.updateMeetingInfo(currentMeeting);
+            return;
         }
     };
 
