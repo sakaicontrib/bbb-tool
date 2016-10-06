@@ -608,9 +608,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (meetingID == null) {
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
-
+        String groupId = (String) params.get("groupId");
+        String gID = "";
+        if (groupId != null) {
+            gID = groupId;
+        }
         try {
-            return Boolean.toString(meetingManager.endMeeting(meetingID));
+            return Boolean.toString(meetingManager.endMeeting(meetingID, gID));
         } catch (BBBException e) {
             String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
             throw new EntityException(e.getPrettyMessage(), ref, 400);

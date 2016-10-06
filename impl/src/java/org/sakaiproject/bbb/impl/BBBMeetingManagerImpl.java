@@ -387,7 +387,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         logEvent(EVENT_MEETING_JOIN, meeting);
     }
 
-    public boolean endMeeting(String meetingId) 
+    public boolean endMeeting(String meetingId, String groupId) 
     		throws SecurityException, BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
@@ -396,13 +396,17 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // end meeting on server, if running
-        bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
+        if (groupId != "" && groupId != null) {
+            bbbAPI.endMeeting(meetingId + groupId, meeting.getModeratorPassword());
+        } else {
+            bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
 
-        if(meeting.getOneSessionPerGroup()){
-            //End all group sessions that could be running
-            for (Participant p : meeting.getParticipants()) {
-                if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
-                    bbbAPI.endMeeting(meetingId + p.getSelectionId(), meeting.getModeratorPassword());
+            if(meeting.getOneSessionPerGroup()){
+                //End all group sessions that could be running
+                for (Participant p : meeting.getParticipants()) {
+                    if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
+                        bbbAPI.endMeeting(meetingId + p.getSelectionId(), meeting.getModeratorPassword());
+                    }
                 }
             }
         }

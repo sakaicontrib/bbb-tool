@@ -186,7 +186,7 @@ public interface BBBMeetingManager {
     /**
      * Only executes endMeeting.
      */
-    public boolean endMeeting(String id) 
+    public boolean endMeeting(String id, String groupId) 
             throws SecurityException, BBBException;
 
     /**

@@ -342,7 +342,7 @@
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
                 end_meetingClass = "bbb_end_meeting_shown";
                 end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
-                end_meetingTextIntermediate = "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
             }
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
             $('#end_meeting_intermediate_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingTextIntermediate);
@@ -351,18 +351,22 @@
 	
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
-	meetings.utils.endMeeting = function (name, meetingID) {
+	meetings.utils.endMeeting = function (name, meetingID, groupID) {
 
 		var question = bbb_action_end_meeting_question(unescape(name));
 	
 		if(!confirm(question)) return;
-		
+
+	    var group = groupID ? "&groupId=" + groupID : "";
 		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID,
+	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + group,
 			dataType:'text',
 			type:"GET",
 		   	success : function (result) {
-				meetings.switchState('currentMeetings');
+				if(!groupID)
+                    meetings.switchState('currentMeetings');
+                else
+                    meetings.utils.checkOneMeetingAvailability(meetingID, false, groupID);
 			},
 			error : function (xmlHttpRequest,status,error) {
                 var msg = bbb_err_end_meeting(name);
@@ -574,6 +578,7 @@
             meetings.utils.setMeetingInfo(currentMeeting, false, groupId);
             meetings.utils.checkMeetingAvailability(currentMeeting);
             meetings.updateMeetingInfo(currentMeeting);
+            $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+currentMeeting.name+"','"+currentMeeting.id+"', '"+groupId+"');");
             return;
         }
     };
@@ -609,6 +614,9 @@
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -636,6 +644,9 @@
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_shown');
+                    $('#end_meeting_intermediate_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_shown');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -653,6 +664,9 @@
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
                 }
@@ -676,6 +690,9 @@
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
                 }

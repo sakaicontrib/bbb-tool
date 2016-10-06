@@ -485,7 +485,7 @@
     {var end_meetingClass = (meeting.joinable && meeting.joinableMode == 'inprogress')? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
     <div id="end_meeting_intermediate_${D}{meeting.id}" class="${D}{end_meetingClass}" >
         &nbsp;|&nbsp;
-        <a href="javascript:;" onclick="return meetings.utils.endMeeting('${D}{escape(meeting.name)}','${D}{meeting.id}');" title="${D}{bbb_action_end_meeting_tooltip}" style="font-weight:bold">${D}{bbb_action_end_meeting}</a>
+        <a id="end_session_link" href="javascript:;" onclick="return meetings.utils.endMeeting('${D}{escape(meeting.name)}','${D}{meeting.id}');" title="${D}{bbb_action_end_meeting_tooltip}" style="font-weight:bold">${D}{bbb_action_end_meeting}</a>
     </div>
     {/if}
 -->
