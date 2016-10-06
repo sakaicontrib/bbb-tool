@@ -920,7 +920,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getUsersGroups(Map<String, Object> params) {
         if(logger.isDebugEnabled())
-            logger.debug("Getting Number of Groups");
+            logger.debug("Getting User's Groups");
     
         String meetingID = (String) params.get("meetingID");
         if (meetingID == null) {
@@ -945,8 +945,24 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
         boolean isInGroup = Participant.SELECTION_GROUP.equals(p.getSelectionType());
         if (isInGroup) {
-            //Get group ids
+            //Get user's group ids
             List<String> groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
+            
+            //Get list of groups in meetings
+            List<String> meetingGroupIds = new ArrayList<String>();
+            for (Participant pp : meeting.getParticipants()) {
+                if (Participant.SELECTION_GROUP.equals(pp.getSelectionType())) {
+                    meetingGroupIds.add(pp.getSelectionId());
+                }
+            }
+            
+            //remove groups that are not in the meeting
+            for(int i = 0; i < groupIds.size(); i++){
+                if(!meetingGroupIds.contains(groupIds.get(i))){
+                    groupIds.remove(i);
+                }
+            }
+            
             Map<String, Object> groups = new HashMap<String, Object>();
 
             for(int i = 0; i < groupIds.size(); i++){
