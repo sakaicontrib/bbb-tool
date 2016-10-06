@@ -346,6 +346,7 @@ meetings.switchState = function (state, arg) {
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"');");
                             
                             meetings.utils.checkOneMeetingAvailability(meeting.id, false, this.value);
+                            meetings.utils.checkRecordingAvailability(meeting.id, this.value);
                             $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', false, '"+this.value+"'); return false;");
                             if (meetings.settings.config.autorefreshInterval.meetings > 0)
                                 meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', false, '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
@@ -444,7 +445,7 @@ meetings.switchState = function (state, arg) {
         if (arg && arg.meetingId) {
             if (meetings.userPerms.bbbViewMeetingList) {
                 // Get meeting list
-                meetings.refreshRecordingList(arg.meetingId);
+                meetings.refreshRecordingList(arg.meetingId, arg.groupId);
 
                 // watch for permissions changes, check meeting dates
                 for(var i=0,j=meetings.currentRecordings.length;i<j;i++) {
@@ -719,9 +720,8 @@ meetings.refreshMeetingList = function () {
     }
 };
 
-meetings.refreshRecordingList = function (meetingId) {
-
-	var getRecordingResponse = (meetingId == null)? meetings.utils.getSiteRecordingList(meetings.startupArgs.siteId): meetings.utils.getMeetingRecordingList(meetingId);
+meetings.refreshRecordingList = function (meetingId, groupId) {
+	var getRecordingResponse = (meetingId == null)? meetings.utils.getSiteRecordingList(meetings.startupArgs.siteId): meetings.utils.getMeetingRecordingList(meetingId, groupId);
 
 	if ( getRecordingResponse.returncode == 'SUCCESS' ){
 		meetings.currentRecordings = getRecordingResponse.recordings;

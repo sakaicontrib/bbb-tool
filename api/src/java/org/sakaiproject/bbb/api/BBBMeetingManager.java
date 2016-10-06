@@ -156,7 +156,7 @@ public interface BBBMeetingManager {
     /**
      * Get playback recordings from BBB server.
      */
-    public Map<String, Object> getRecordings(String meetingID)
+    public Map<String, Object> getRecordings(String meetingID, String groupId)
             throws BBBException;
 
     /**

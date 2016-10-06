@@ -639,15 +639,20 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref) {
+    public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref, Map<String, Object> params) {
         if(logger.isDebugEnabled()) logger.debug("getRecordings");
 
         if (ref == null)
             throw new EntityNotFoundException("Meeting not found", null);
 
         try {
+            String groupId = (String) params.get("groupId");
+            String gId = "";
+            if(groupId != null){
+                gId = groupId;
+            }
             Map<String, Object> recordingsResponse = meetingManager
-                    .getRecordings(ref.getId());
+                    .getRecordings(ref.getId(), gId);
 
             return new ActionReturn(recordingsResponse);
 

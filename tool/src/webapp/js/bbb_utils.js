@@ -365,9 +365,11 @@
 		   	success : function (result) {
 				if(!groupID)
                     meetings.switchState('currentMeetings');
-                else
+                else {
                     meetings.utils.checkOneMeetingAvailability(meetingID, false, groupID);
-			},
+                    meetings.utils.checkRecordingAvailability(meetingID, groupID);
+                }
+            },
 			error : function (xmlHttpRequest,status,error) {
                 var msg = bbb_err_end_meeting(name);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -504,13 +506,15 @@
     };
     
     // Get meeting recordings from BBB server
-    meetings.utils.getMeetingRecordingList = function (meetingId) {
+    meetings.utils.getMeetingRecordingList = function (meetingId, groupId) {
 
     	if (meetingId == null) meetingId = "";
-
+        
+        var group = groupId ? "?groupId=" + groupId : "";
+        
     	var response = Object();
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json",
+            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json" + group,
             dataType : "json",
             async : false,
             success : function (data) {
@@ -745,17 +749,18 @@
     	}
     };
     
-    meetings.utils.checkRecordingAvailability = function (meetingId) {
+    meetings.utils.checkRecordingAvailability = function (meetingId, groupId) {
 
-		var recordings = meetings.utils.getMeetingRecordingList(meetingId).recordings;
+		var recordings = meetings.utils.getMeetingRecordingList(meetingId, groupId).recordings;
 		if( recordings == null ){
             meetings.utils.showMessage(bbb_err_get_recording, 'warning');
         } else {
         	meetings.utils.hideMessage();	
         	
         	var htmlRecordings = "";
+            var group = groupId ? "', 'groupId':'" + groupId : "";
         	if(recordings.length > 0)
-				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
+				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + group +'\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
         	else
             	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
         		
