@@ -277,11 +277,14 @@
         </td>
       </tr>
       {/if}
+      {if onesessionpergroupEnabled}
       <tr>
         <td class="bbb_lbl">${D}{bbb_info_onesessionpergroup}</td>
         <td>
             {var oneSessionPerGroupAllowed = isNew ? onesessionpergroupDefault : meeting.oneSessionPerGroup }
             <input id="oneSessionPerGroup" name="oneSessionPerGroup" type="checkbox" {if oneSessionPerGroupAllowed}checked{/if}/>
+      </tr>
+      {/if}
     </table>
     
     <br/>

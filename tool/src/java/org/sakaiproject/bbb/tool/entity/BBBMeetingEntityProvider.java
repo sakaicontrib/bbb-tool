@@ -547,6 +547,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             map.put("multiplesessionsallowedDefault", multiplesessionsallowedDefault);
         }
         //UX settings for 'one session per group' box
+        Boolean onesessionpergroupEnabled = Boolean.parseBoolean(meetingManager.isOneSessionPerGroupEnabled());
+        if (onesessionpergroupEnabled != null) {
+            map.put("onesessionpergroupEnabled", onesessionpergroupEnabled);
+        }
         Boolean onesessionpergroupDefault = Boolean.parseBoolean(meetingManager.getOneSessionPerGroupDefault());
         if (onesessionpergroupDefault != null) {
             map.put("onesessionpergroupdefault", onesessionpergroupDefault);
