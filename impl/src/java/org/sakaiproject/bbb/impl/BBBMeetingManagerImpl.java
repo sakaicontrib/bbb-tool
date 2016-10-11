@@ -316,18 +316,20 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public Map<String, Object> getMeetingInfo(String meetingID, String groupId)
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
-        String gId = "";
-        if(groupId != "" && groupId != null){
-            gId = groupId;
-        }
-        return bbbAPI.getMeetingInfo(meeting.getId() + gId, meeting.getModeratorPassword());
+        
+        if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
+            return bbbAPI.getMeetingInfo(meeting.getId() + groupId, meeting.getModeratorPassword());
+
+        return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
     }
 
     public Map<String, Object> getRecordings(String meetingID, String groupId)
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
-        if(groupId != null)
+
+        if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
             return bbbAPI.getRecordings(meeting.getId() + groupId);
+
         return bbbAPI.getRecordings(meeting.getId());
     }
 
@@ -347,6 +349,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 if( !meetingIDs.equals("") )
                     meetingIDs += ",";
                 meetingIDs += meeting.getId();
+                if( meeting.getOneSessionPerGroup() ){
+                    for (Participant p : meeting.getParticipants()) {
+                        if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
+                            meetingIDs += "," + meeting.getId() + p.getSelectionId();
+                        }
+                    }
+                }
             }
 
             Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
@@ -398,7 +407,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // end meeting on server, if running
-        if (groupId != "" && groupId != null) {
+        if (meeting.getOneSessionPerGroup() && groupId != "" && groupId != null) {
             bbbAPI.endMeeting(meetingId + groupId, meeting.getModeratorPassword());
         } else {
             bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());

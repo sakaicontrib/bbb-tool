@@ -613,12 +613,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
         String groupId = (String) params.get("groupId");
-        String gID = "";
-        if (groupId != null) {
-            gID = groupId;
-        }
         try {
-            return Boolean.toString(meetingManager.endMeeting(meetingID, gID));
+            if (groupId != null)
+                return Boolean.toString(meetingManager.endMeeting(meetingID, groupId));
+
+            return Boolean.toString(meetingManager.endMeeting(meetingID, ""));
         } catch (BBBException e) {
             String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
             throw new EntityException(e.getPrettyMessage(), ref, 400);
@@ -632,10 +631,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             throw new EntityNotFoundException("Meeting not found", null);
         }
 
+        String groupId = (String) params.get("groupId");
         try {
-            if(params.get("groupId") != null){
-                return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), params.get("groupId").toString()));
-            }
+            if (groupId != null)
+                return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), groupId));
+
             return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), ""));
         } catch (BBBException e) {
             return new ActionReturn(new HashMap<String, String>());
@@ -650,14 +650,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             throw new EntityNotFoundException("Meeting not found", null);
 
         try {
+            Map<String, Object> recordingsResponse = null;
             String groupId = (String) params.get("groupId");
-            String gId = "";
-            if(groupId != null){
-                gId = groupId;
+            if (groupId != null) {
+                recordingsResponse = meetingManager.getRecordings(ref.getId(), groupId);
+            } else {
+                recordingsResponse = meetingManager.getRecordings(ref.getId(), "");
             }
-            Map<String, Object> recordingsResponse = meetingManager
-                    .getRecordings(ref.getId(), gId);
-
             return new ActionReturn(recordingsResponse);
 
         } catch (BBBException e) {
@@ -796,15 +795,22 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             }
             
             //One session per group
-            String groupId = "";
-            if (params.get("groupId") != null && meeting.getOneSessionPerGroup())
-                groupId = params.get("groupId").toString();
-            meeting.setId(meeting.getId() + groupId);
+            String groupId = (String) params.get("groupId");
+            if (groupId != null && meeting.getOneSessionPerGroup()) {
+                meeting.setId(meeting.getId() + groupId);
+            } else {
+                meeting.setId(meeting.getId());
+            }
 
             //Unescape Meeting name
+            String groupTitle = (String) params.get("groupTitle");
             String nameStr = meeting.getName();
-            meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
-
+            if (groupTitle != null){
+                meeting.setName(StringEscapeUtils.unescapeHtml(nameStr) + " - " + groupTitle);
+            } else {
+                meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
+            }
+            logger.debug("****************************************************"+meeting.getName()+"****************************************************************");
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
             if (joinUrl == null) {

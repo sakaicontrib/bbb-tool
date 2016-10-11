@@ -202,9 +202,9 @@
         if(typeof(asyncmode)==='undefined') asyncmode = true;
 
         var meetingInfo = null;
-        var group = groupId ? "?groupId=" + groupId : "";
+        var groupID = groupId ? "?groupId=" + groupId : "";
         jQuery.ajax( {
-            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json" + group,
+            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json" + groupID,
             dataType : "json",
             async : asyncmode,
             timeout : 10000,
@@ -320,6 +320,8 @@
 		        meeting.joinableMode = "";
 		    } else if( meeting.unreachableServer == "false" ){
 				meeting.joinableMode = "available";
+                
+                //check if any groups have a session running
                 var activeGroup = false;
                 if(meeting.oneSessionPerGroup){
                     groups = meetings.utils.getUsersGroups(meeting);
@@ -379,9 +381,9 @@
         }
 		if(!confirm(question)) return;
 
-	    var group = groupID ? "&groupId=" + groupID : "";
+	    var groupId = groupID ? "&groupId=" + groupID : "";
 		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + group,
+	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + groupId,
 			dataType:'text',
 			type:"GET",
 		   	success : function (result) {
@@ -389,7 +391,6 @@
                     meetings.switchState('currentMeetings');
                 else {
                     meetings.utils.checkOneMeetingAvailability(meetingID, false, groupID);
-                    meetings.utils.checkRecordingAvailability(meetingID, groupID);
                 }
             },
 			error : function (xmlHttpRequest,status,error) {
@@ -490,11 +491,11 @@
 
     // Get meeting info from BBB server
     meetings.utils.getMeetingInfo = function (meetingId, groupId, asynch) {  
-        var group = groupId ? "?groupId=" + groupId : "";
+        var groupID = groupId ? "?groupId=" + groupId : "";
     	var meetingInfo = null;
         if (typeof asynch == 'undefined') asynch = true;
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + group,
+            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + groupID,
             dataType : "json",
             async : asynch,
             success : function (data) {
@@ -533,11 +534,11 @@
 
     	if (meetingId == null) meetingId = "";
         
-        var group = groupId ? "?groupId=" + groupId : "";
+        var groupID = groupId ? "?groupId=" + groupId : "";
         
     	var response = Object();
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json" + group,
+            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json" + groupID,
             dataType : "json",
             async : false,
             success : function (data) {
@@ -551,11 +552,12 @@
     };
 
     // Log an event indicating user is joining meeting
-    meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed, groupId) {
+    meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed, groupId, groupTitle) {
 
         var nonce = new Date().getTime();
         var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
         url += groupId ? "&groupId=" + groupId : "";
+        url += groupTitle ? "&groupTitle=" + groupTitle : "";
         meetings.utils.hideMessage();
         if(linkSelector) {
             $(linkSelector).attr('href', url);
@@ -568,8 +570,8 @@
 
             //After joining execute requesting updates only once
             var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0? meetings.settings.config.autorefreshInterval.meetings: 15000;
-            var group = groupId ? ", '" + groupId + "'" : "";
-            setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true" + group + ")", onceAutorefreshInterval);
+            var groupID = groupId ? ", '" + groupId + "'" : "";
+            setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true" + groupID + ")", onceAutorefreshInterval);
         }
         return true;
     };
@@ -597,6 +599,7 @@
                     meetings.currentMeetings[i].joining = joining;
                     meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
                     meetings.updateMeetingInfo(meetings.currentMeetings[i]);
+                    $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+meetings.currentMeetings[i].name+"', '"+meetings.currentMeetings[i].id+"', "+undefined+", true);");
                     return;
                 }
             }
@@ -781,9 +784,9 @@
         	meetings.utils.hideMessage();	
         	
         	var htmlRecordings = "";
-            var group = groupId ? "', 'groupId':'" + groupId : "";
+            var groupID = groupId ? "', 'groupId':'" + groupId : "";
         	if(recordings.length > 0)
-				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + group +'\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
+				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + groupID +'\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
         	else
             	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
         		

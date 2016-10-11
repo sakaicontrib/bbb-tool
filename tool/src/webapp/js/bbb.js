@@ -344,7 +344,8 @@ meetings.switchState = function (state, arg) {
                 if(meeting.oneSessionPerGroup){
                     $("#groupSession").change(function() {
                         if(this.value != "Default"){
-                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"');");
+                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
+                            $("#meetingName").html(meeting.name + ' - ' + $('#groupSession option:selected').text());
                             
                             meetings.utils.checkOneMeetingAvailability(meeting.id, false, this.value);
                             meetings.utils.checkRecordingAvailability(meeting.id, this.value);
@@ -354,7 +355,8 @@ meetings.switchState = function (state, arg) {
                             return;
                         } else {
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");
-                            
+                            $("#meetingName").html(meeting.name);
+
                             meetings.utils.checkOneMeetingAvailability(meeting.id);
                             meetings.utils.checkRecordingAvailability(meeting.id);
                             $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"');");
