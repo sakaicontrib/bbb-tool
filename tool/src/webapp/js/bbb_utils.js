@@ -320,9 +320,24 @@
 		        meeting.joinableMode = "";
 		    } else if( meeting.unreachableServer == "false" ){
 				meeting.joinableMode = "available";
+                var activeGroup = false;
+                if(meeting.oneSessionPerGroup){
+                    groups = meetings.utils.getUsersGroups(meeting);
+                    if (jQuery.isEmptyObject(groups)){
+                        groups = undefined;
+                    }
+                    if(groups != undefined);
+                    for(var group in groups) {
+                        var meetingInfo = meetings.utils.getMeetingInfo(meeting.id, groups[group].groupId, false);
+                        if (meetingInfo && meetingInfo.attendees && meetingInfo.attendees.length > 0) {
+                            activeGroup = true;
+                            break;
+                        }
+                    }
+                }
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
-				} else if ( meeting.attendees.length > 0 ) {
+				} else if ( meeting.attendees.length > 0 || activeGroup ) {
 					meeting.joinableMode = "inprogress";
 				}
 			} else {
@@ -341,7 +356,11 @@
             var end_meetingTextIntermediate = "";
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
                 end_meetingClass = "bbb_end_meeting_shown";
-                end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                if(meeting.oneSessionPerGroup){
+                    end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                } else {
+                    end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                }
                 end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
             }
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
@@ -351,10 +370,13 @@
 	
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
-	meetings.utils.endMeeting = function (name, meetingID, groupID) {
-
-		var question = bbb_action_end_meeting_question(unescape(name));
-	
+	meetings.utils.endMeeting = function (name, meetingID, groupID, endAll) {
+        var question;
+        if(endAll){
+            question = bbb_action_end_all_meeting_question(unescape(name));
+        } else {
+		    question = bbb_action_end_meeting_question(unescape(name));
+        }
 		if(!confirm(question)) return;
 
 	    var group = groupID ? "&groupId=" + groupID : "";
@@ -467,13 +489,14 @@
 	};
 
     // Get meeting info from BBB server
-    meetings.utils.getMeetingInfo = function (meetingId) {  
-
+    meetings.utils.getMeetingInfo = function (meetingId, groupId, asynch) {  
+        var group = groupId ? "?groupId=" + groupId : "";
     	var meetingInfo = null;
+        if (typeof asynch == 'undefined') asynch = true;
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json",
+            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + group,
             dataType : "json",
-            async : true,
+            async : asynch,
             success : function (data) {
                 meetingInfo = data;
             },
