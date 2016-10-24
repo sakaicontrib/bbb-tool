@@ -390,6 +390,11 @@
             <th style="text-align:center;">${D}{bbb_permissions_delete_own}</th>
             <th style="text-align:center;">${D}{bbb_permissions_delete_any}</th>
             <th style="text-align:center;">${D}{bbb_permissions_participate}</th>
+            <th style="text-align:center;">${D}{bbb_permissions_recordings_view}</th>
+            <th style="text-align:center;">${D}{bbb_permissions_recordings_edit_own}</th>
+            <th style="text-align:center;">${D}{bbb_permissions_recordings_edit_any}</th>
+            <th style="text-align:center;">${D}{bbb_permissions_recordings_delete_own}</th>
+            <th style="text-align:center;">${D}{bbb_permissions_recordings_delete_any}</th>
         </tr>
     </thead>
 <tbody>
@@ -402,6 +407,11 @@
     <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_delete_own}checked="checked"{/if} id="${D}{p.role}:bbb.delete.own"/></td>
     <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_delete_any}checked="checked"{/if} id="${D}{p.role}:bbb.delete.any"/></td>
     <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_participate}checked="checked"{/if} id="${D}{p.role}:bbb.participate"/></td>
+    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_view}checked="checked"{/if} id="${D}{p.role}:bbb.recording.view"/></td>
+    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_edit_own}checked="checked"{/if} id="${D}{p.role}:bbb.recording.edit.own"/></td>
+    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_edit_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.edit.any"/></td>
+    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_delete_own}checked="checked"{/if} id="${D}{p.role}:bbb.recording.delete.own"/></td>
+    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_delete_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.delete.any"/></td>
 </tr>
 {/for}
 </tbody>

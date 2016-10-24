@@ -118,6 +118,13 @@ meetings.switchState = function (state, arg) {
             $('#bbb_permissions_link').parent().parent().hide();
         }
         
+        // show recordings links only if site maintainer or if has specific view permission
+        if (!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) {
+            $('#bbb_recordings_link').parent().parent().hide();
+        } else {
+            $('#bbb_recordings_link').parent().parent().show();
+        }
+
         if (meetings.userPerms.bbbDeleteAny) {
             $('#bbb_end_meetings_link').parent().parent().show();        
         } else {
