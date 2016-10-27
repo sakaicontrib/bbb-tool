@@ -469,6 +469,16 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             permissions.add(meetingManager.FN_DELETE_ANY);
         if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_PARTICIPATE, siteId) )
             permissions.add(meetingManager.FN_PARTICIPATE);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_RECORDING_VIEW, siteId) )
+            permissions.add(meetingManager.FN_RECORDING_VIEW);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_RECORDING_EDIT_OWN, siteId) )
+            permissions.add(meetingManager.FN_RECORDING_EDIT_OWN);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_RECORDING_EDIT_ANY, siteId) )
+            permissions.add(meetingManager.FN_RECORDING_EDIT_ANY);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_RECORDING_DELETE_OWN, siteId) )
+            permissions.add(meetingManager.FN_RECORDING_DELETE_OWN);
+        if( meetingManager.isUserAllowedInLocation(userId, meetingManager.FN_RECORDING_DELETE_ANY, siteId) )
+            permissions.add(meetingManager.FN_RECORDING_DELETE_ANY);
         if( meetingManager.isUserAllowedInLocation(userId, "calendar.new", siteId) )
             permissions.add("calendar.new");
         if( meetingManager.isUserAllowedInLocation(userId, "calendar.revise.own", siteId) )

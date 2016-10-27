@@ -118,7 +118,14 @@ meetings.switchState = function (state, arg) {
         } else {
             $('#bbb_permissions_link').parent().parent().hide();
         }
-        
+
+        // show recordings links only if site maintainer or if has specific view permission
+        if (!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) {
+            $('#bbb_recordings_link').parent().parent().hide();
+        } else {
+            $('#bbb_recordings_link').parent().parent().show();
+        }
+
         if (meetings.userPerms.bbbDeleteAny) {
             $('#bbb_end_meetings_link').parent().parent().show();        
         } else {
@@ -315,6 +322,30 @@ meetings.switchState = function (state, arg) {
     	$("#bbb_permissions_link").parent().addClass('current');
 
         meetings.utils.render('bbb_permissions_template', {'permissions': meetings.utils.getSitePermissions()}, 'bbb_content');
+
+        if ($("table")) {
+            $("table").each(function() {
+                var $this = $(this);
+                var newrows = [];
+                $this.find("tr").each(function(){
+                    var i = 0;
+                    $(this).find("td, th").each(function(){
+                        i++;
+                        if(newrows[i] === undefined) { newrows[i] = $("<tr></tr>"); }
+                        if(i == 1)
+                            newrows[i].append("<th style=\"text-align:center;font-weight: bold;\">" + this.innerHTML  + "</th>");
+                        else
+                            newrows[i].append("<td align=\"center\">" + this.innerHTML  + "</td>");
+                    });
+                });
+                $this.find("tr").remove();
+                $.each(newrows, function(){
+                    $this.append(this);
+                });
+            });
+            $('td:first-child').removeAttr('align');
+            $('th:first').css('text-align', 'left');
+        }
 
         $(document).ready(function() {
             meetings.utils.adjustFrameHeight();
