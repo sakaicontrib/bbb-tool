@@ -355,7 +355,7 @@
         if( meeting.canEnd ){
             var end_meetingClass = "bbb_end_meeting_hidden";
             var end_meetingText = "";
-            var end_meetingTextIntermediate = "";
+            //var end_meetingTextIntermediate = "";
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
                 end_meetingClass = "bbb_end_meeting_shown";
                 if(meeting.oneSessionPerGroup){
@@ -363,10 +363,12 @@
                 } else {
                     end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                 }
-                end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                //end_meetingTextIntermediate = "&nbsp;|&nbsp;&nbsp;<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>";
+                //if( !meeting.multipleSessionsAllowed && $('#meeting_joinlink_' + meeting.id).is(':visible'))
+                //    end_meetingTextIntermediate = end_meetingTextIntermediate.substring(end_meetingTextIntermediate.indexOf('<'));
             }
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
-            $('#end_meeting_intermediate_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingTextIntermediate);
+            //$('#end_meeting_intermediate_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingTextIntermediate);
         }
 	};
 	
@@ -387,11 +389,7 @@
 			dataType:'text',
 			type:"GET",
 		   	success : function (result) {
-				if(!groupID)
-                    meetings.switchState('currentMeetings');
-                else {
-                    meetings.utils.checkOneMeetingAvailability(meetingID, false, groupID);
-                }
+                meetings.utils.checkOneMeetingAvailability(meetingID, false, groupID);
             },
 			error : function (xmlHttpRequest,status,error) {
                 var msg = bbb_err_end_meeting(name);
@@ -571,7 +569,7 @@
             //After joining execute requesting updates only once
             var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0? meetings.settings.config.autorefreshInterval.meetings: 15000;
             var groupID = groupId ? ", '" + groupId + "'" : "";
-            setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true" + groupID + ")", onceAutorefreshInterval);
+            meetings.updateMeetingOnceTimeoutId = setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true" + groupID + ")", onceAutorefreshInterval);
         }
         return true;
     };
@@ -659,6 +657,7 @@
                     .addClass('status_joinable_available')
                     .text(bbb_status_joinable_available);
             } else if ( meeting.joinableMode === "inprogress" ){
+                var end_meetingTextIntermediate = "&nbsp;|&nbsp;&nbsp;<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>";
                 if( meeting.multipleSessionsAllowed ) {
                     $('#meeting_joinlink_'+meeting.id).fadeIn();
                 } else {
@@ -666,8 +665,10 @@
                         $('#meeting_joinlink_'+meeting.id).fadeIn();
                     } else {
                         $('#meeting_joinlink_'+meeting.id).fadeOut();
+                        end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>";
                     }
                 }
+                $('#end_meeting_intermediate_'+meeting.id).toggleClass("bbb_end_meeting_shown").html(end_meetingTextIntermediate);
 
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 

@@ -318,7 +318,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
         
         if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
-            return bbbAPI.getMeetingInfo(meeting.getId() + groupId, meeting.getModeratorPassword());
+            return bbbAPI.getMeetingInfo(meeting.getId() + "[" + groupId + "]", meeting.getModeratorPassword());
 
         return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
     }
@@ -328,7 +328,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
 
         if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
-            return bbbAPI.getRecordings(meeting.getId() + groupId);
+            return bbbAPI.getRecordings(meeting.getId() + "[" + groupId + "]");
 
         return bbbAPI.getRecordings(meeting.getId());
     }
@@ -350,10 +350,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     meetingIDs += ",";
                 meetingIDs += meeting.getId();
                 if( meeting.getOneSessionPerGroup() ){
-                    for (Participant p : meeting.getParticipants()) {
-                        if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
-                            meetingIDs += "," + meeting.getId() + p.getSelectionId();
-                        }
+                    Site site;
+                    try {
+                        site = siteService.getSite(siteId);
+                        Collection<Group> userGroups = site.getGroups();
+                        for (Group g : userGroups)
+                            meetingIDs += "," + meeting.getId() + "[" + g.getId() + "]";
+                    } catch (IdUnusedException e) {
+                        logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
                     }
                 }
             }
@@ -408,16 +412,21 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // end meeting on server, if running
         if (meeting.getOneSessionPerGroup() && groupId != "" && groupId != null) {
-            bbbAPI.endMeeting(meetingId + groupId, meeting.getModeratorPassword());
+            bbbAPI.endMeeting(meetingId + "[" + groupId + "]", meeting.getModeratorPassword());
         } else {
             bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
 
             if(meeting.getOneSessionPerGroup()){
                 //End all group sessions that could be running
-                for (Participant p : meeting.getParticipants()) {
-                    if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
-                        bbbAPI.endMeeting(meetingId + p.getSelectionId(), meeting.getModeratorPassword());
-                    }
+                Site site;
+                try {
+                    site = siteService.getSite(meeting.getSiteId());
+                    Collection<Group> userGroups = site.getGroups();
+                    for (Group g : userGroups)
+                        bbbAPI.endMeeting(meetingId + "[" + g.getId() + "]", meeting.getModeratorPassword());
+                } catch (IdUnusedException e) {
+                    logger.error("Unable to end all group sessions for meeting '" + meeting.getName() + "'.", e);
+                    return false;
                 }
             }
         }

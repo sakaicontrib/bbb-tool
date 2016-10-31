@@ -343,9 +343,11 @@ meetings.switchState = function (state, arg) {
 
                 if(meeting.oneSessionPerGroup){
                     $("#groupSession").change(function() {
+                        //clear timeout if group sessions is changed so the meeting info page isn't updated with wrong meeting
+                        clearTimeout(meetings.updateMeetingOnceTimeoutId);
                         if(this.value != "Default"){
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
-                            $("#meetingName").html(meeting.name + ' - ' + $('#groupSession option:selected').text());
+                            $("#meetingName").html(meeting.name + ' (' + $('#groupSession option:selected').text() + ')');
                             
                             meetings.utils.checkOneMeetingAvailability(meeting.id, false, this.value);
                             meetings.utils.checkRecordingAvailability(meeting.id, this.value);

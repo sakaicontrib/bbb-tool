@@ -417,6 +417,19 @@
     <h3>${D}{bbb_meetinginfo_title}</h3>
         <br/>
     <table cellpadding="0" cellspacing="0" border="0" id="bbb_meeting_info_table">
+      {if groups && meeting.oneSessionPerGroup}
+      <tr>
+        <td><h5>${D}{bbb_meetinginfo_group}</h5></td>
+        <td>
+            <select id="groupSession">
+                <option selected value="Default">Default (No Group)</option>
+            {for group in groups}
+                <option value="${D}{group.groupId}">${D}{group.groupTitle}</option>
+            {/for}
+            </select>
+        </td>
+      </tr>
+      {/if}
       <tr>
         <td><h5>${D}{bbb_info_title}</h5></td>
         <td id="meetingName">${D}{meeting.name}</td>
@@ -454,19 +467,21 @@
                 ${D}{bbb_status_finished}
             </span>
             {var displayLink = meeting.joinUrl && meeting.joinable && meeting.joinableMode == 'available'? 'display:inline' : 'display:none'}
-            <span id="meeting_joinlink_${D}{meeting.id}" style="${D}{displayLink}">
-                (<a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return meetings.utils.joinMeeting('${D}{meeting.id}', '#joinMeetingLink', ${D}{meeting.multipleSessionsAllowed});" title="${D}{bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${D}{bbb_meetinginfo_link}</a>
-                <img src="/library/image/silk/user_go.png" alt=">" style="vertical-align:middle"/>)
-                {if groups && meeting.oneSessionPerGroup}
-                    <select id="groupSession">
-                        <option selected disabled>Group Session</option>
-                        <option value="Default">Default</option>
-                    {for group in groups}
-                        <option value="${D}{group.groupId}">${D}{group.groupTitle}</option>
-                    {/for}
-                    </select>
+            <span>
+                (
+                <span id="meeting_joinlink_${D}{meeting.id}" style="${D}{displayLink}">
+                        <a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return meetings.utils.joinMeeting('${D}{meeting.id}', '#joinMeetingLink', ${D}{meeting.multipleSessionsAllowed});" title="${D}{bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${D}{bbb_meetinginfo_link}</a>
+                        <img src="/library/image/silk/user_go.png" alt=">" style="vertical-align:middle"/>
+                </span>
+                {if meeting.canEnd}
+                {var end_meetingClass = (meeting.joinable && meeting.joinableMode == 'inprogress')? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
+                <div id="end_meeting_intermediate_${D}{meeting.id}" class="${D}{end_meetingClass}" >
+                    &nbsp;|&nbsp;
+                    <a id="end_session_link" href="javascript:;" onclick="return meetings.utils.endMeeting('${D}{escape(meeting.name)}','${D}{meeting.id}');" title="${D}{bbb_action_end_meeting_tooltip}" style="font-weight:bold">${D}{bbb_action_end_meeting}</a>
+                </div>
                 {/if}
-            </span>
+                )
+            <span>
         </td>
       </tr>
       <tr id="bbb_meeting_info_participants_count_tr" style="display:none">
@@ -484,13 +499,6 @@
         </td>
       </tr>
     </table>
-    {if meeting.canEnd}
-    {var end_meetingClass = (meeting.joinable && meeting.joinableMode == 'inprogress')? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
-    <div id="end_meeting_intermediate_${D}{meeting.id}" class="${D}{end_meetingClass}" >
-        &nbsp;|&nbsp;
-        <a id="end_session_link" href="javascript:;" onclick="return meetings.utils.endMeeting('${D}{escape(meeting.name)}','${D}{meeting.id}');" title="${D}{bbb_action_end_meeting_tooltip}" style="font-weight:bold">${D}{bbb_action_end_meeting}</a>
-    </div>
-    {/if}
 -->
 </div>
 

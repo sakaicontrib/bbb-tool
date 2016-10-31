@@ -797,7 +797,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             //One session per group
             String groupId = (String) params.get("groupId");
             if (groupId != null && meeting.getOneSessionPerGroup()) {
-                meeting.setId(meeting.getId() + groupId);
+                meeting.setId(meeting.getId() + "[" + groupId + "]");
             } else {
                 meeting.setId(meeting.getId());
             }
@@ -806,7 +806,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             String groupTitle = (String) params.get("groupTitle");
             String nameStr = meeting.getName();
             if (groupTitle != null){
-                meeting.setName(StringEscapeUtils.unescapeHtml(nameStr) + " - " + groupTitle);
+                meeting.setName(StringEscapeUtils.unescapeHtml(nameStr) + " (" + groupTitle + ")");
             } else {
                 meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
             }
@@ -952,41 +952,22 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             logger.error("Unable to get groups in '" + meeting.getName() + "'.", e);
             return null;
         }
-        Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
-        boolean isInGroup = Participant.SELECTION_GROUP.equals(p.getSelectionType());
-        if (isInGroup) {
-            //Get user's group ids
-            List<String> groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
-            
-            //Get list of groups in meetings
-            List<String> meetingGroupIds = new ArrayList<String>();
-            for (Participant pp : meeting.getParticipants()) {
-                if (Participant.SELECTION_GROUP.equals(pp.getSelectionType())) {
-                    meetingGroupIds.add(pp.getSelectionId());
-                }
-            }
-            
-            //remove groups that are not in the meeting
-            for(int i = 0; i < groupIds.size(); i++){
-                if(!meetingGroupIds.contains(groupIds.get(i))){
-                    groupIds.remove(i);
-                }
-            }
-            
-            Map<String, Object> groups = new HashMap<String, Object>();
 
-            for(int i = 0; i < groupIds.size(); i++){
-                Map<String, String> groupInfo = new HashMap<String, String>();
-                Group group = site.getGroup(groupIds.get(i));
+        //Get user's group ids
+        List<String> groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
 
-                groupInfo.put("groupId", groupIds.get(i));
-                groupInfo.put("groupTitle", group.getTitle());
-                groups.put("group" + i, groupInfo);
-            }
-            return new ActionReturn(groups);
-        } else {
-            return new ActionReturn(new HashMap<String, String>());
+        Map<String, Object> groups = new HashMap<String, Object>();
+
+        for(int i = 0; i < groupIds.size(); i++){
+            Map<String, String> groupInfo = new HashMap<String, String>();
+            Group group = site.getGroup(groupIds.get(i));
+
+            groupInfo.put("groupId", groupIds.get(i));
+            groupInfo.put("groupTitle", group.getTitle());
+            groups.put("group" + i, groupInfo);
         }
+
+        return new ActionReturn(groups);
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)

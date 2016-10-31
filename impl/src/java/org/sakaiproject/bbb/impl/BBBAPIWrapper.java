@@ -77,7 +77,7 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' chekbox (default to false) */
     private boolean bbbMultipleSessionsAllowedEnabled = false;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
-    private boolean bbbMultipleSessionsAllowedDefault = true;
+    private boolean bbbMultipleSessionsAllowedDefault = false;
     /** BBB default value for 'one session per group' checkbox (default to false) */
     private boolean bbbOneSessionPerGroupEnabled = false;
     /** BBB default value for 'one session per group' checkbox (default to false) */
