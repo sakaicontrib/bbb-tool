@@ -67,12 +67,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
                 "START_DATE " + TIMESTAMP + ", " +
                 "END_DATE " + TIMESTAMP + ", " +
                 "RECORDING " + BOOL + ", " +
-				"RECORDING_READY_NOTIFICATION " + BOOL + ", " +
                 "RECORDING_DURATION " + INT + ", " +
+                "RECORDING_READY_NOTIFICATION " + BOOL + ", " +
                 "VOICE_BRIDGE " + INT + ", " +
                 "WAIT_FOR_MODERATOR " + BOOL + ", " +
                 "MULTIPLE_SESSIONS_ALLOWED " + BOOL + ", " +
-				"ONE_SESSION_PER_GROUP " + BOOL + ", " +
+                "ONE_SESSION_PER_GROUP " + BOOL + ", " +
                 "PROPERTIES " + TEXT + ", " +
                 "DELETED " + INT + " DEFAULT 0 NOT NULL," +
                 "CONSTRAINT bbb_meeting_pk PRIMARY KEY (MEETING_ID))");
@@ -104,8 +104,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         statements.put("BBB_MEETING:RECORDING:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;"); 
         statements.put("BBB_MEETING:RECORDING_READY_NOTIFICATION:ADD",
-				"ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_READY_NOTIFICATION " + BOOL + " AFTER RECORDING;");
-		statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
+                "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_READY_NOTIFICATION " + BOOL + " AFTER RECORDING;");
+        statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
         statements.put("BBB_MEETING:DELETED:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL AFTER PROPERTIES;");
@@ -118,8 +118,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         statements.put("BBB_MEETING:MULTIPLE_SESSIONS_ALLOWED:ADD", 
                 "ALTER TABLE BBB_MEETING ADD COLUMN MULTIPLE_SESSIONS_ALLOWED " + BOOL + " AFTER WAIT_FOR_MODERATOR;"); 
         statements.put("BBB_MEETING:ONE_SESSION_PER_GROUP:ADD",
-				"ALTER TABLE BBB_MEETING ADD COLUMN ONE_SESSION_PER_GROUP " + BOOL + " AFTER MULTIPLE_SESSIONS_ALLOWED;");
-		statements.put("BBB_MEETING:HOST_URL:CHANGE",
+                "ALTER TABLE BBB_MEETING ADD COLUMN ONE_SESSION_PER_GROUP " + BOOL + " AFTER MULTIPLE_SESSIONS_ALLOWED;");
+        statements.put("BBB_MEETING:HOST_URL:CHANGE",
                 "ALTER TABLE BBB_MEETING CHANGE COLUMN HOST_URL HOST_URL " + VARCHAR + "(255);"); 
 
         return statements;
@@ -150,12 +150,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setTimestamp(8, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()) );
         meetingST.setTimestamp(9, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
         meetingST.setBoolean(10, meeting.getRecording());
-		meetingST.setBoolean(11, meeting.getRecordingReadyNotification());
+        meetingST.setBoolean(11, meeting.getRecordingReadyNotification());
         meetingST.setLong(12, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setLong(13, meeting.getVoiceBridge() );
         meetingST.setBoolean(14, meeting.getWaitForModerator());
         meetingST.setBoolean(15, meeting.getMultipleSessionsAllowed());
-		meetingST.setBoolean(16, meeting.getOneSessionPerGroup());
+        meetingST.setBoolean(16, meeting.getOneSessionPerGroup());
         meetingST.setString(17, XmlUtil.convertPropsToXml(meeting.getProps()));
         meetingST.setString(18, NODELETED);
 
@@ -192,12 +192,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setTimestamp(7, meeting.getStartDate() == null ? null: new Timestamp(meeting.getStartDate().getTime()) );
         meetingST.setTimestamp(8, meeting.getEndDate() == null ? null: new Timestamp(meeting.getEndDate().getTime()) );
         meetingST.setBoolean(9, meeting.getRecording());
-		meetingST.setBoolean(10, meeting.getRecordingReadyNotification());
+        meetingST.setBoolean(10, meeting.getRecordingReadyNotification());
         meetingST.setLong(11, meeting.getRecordingDuration() == null ? 0L: meeting.getRecordingDuration());
         meetingST.setLong(12, meeting.getVoiceBridge() );
         meetingST.setBoolean(13, meeting.getWaitForModerator());
         meetingST.setBoolean(14, meeting.getMultipleSessionsAllowed());
-		meetingST.setBoolean(15, meeting.getOneSessionPerGroup());
+        meetingST.setBoolean(15, meeting.getOneSessionPerGroup());
         meetingST.setString(16, XmlUtil.convertPropsToXml(meeting.getProps()));
         meetingST.setString(17, meeting.getId());
 
