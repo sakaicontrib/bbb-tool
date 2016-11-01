@@ -138,8 +138,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING " +
-                "(MEETING_ID, NAME, HOST_URL, SITE_ID, ATTENDEE_PW, MODERATOR_PW, OWNER_ID, START_DATE, END_DATE, RECORDING, RECORDING_READY_NOTIFICATION, RECORDING_DURATION, VOICE_BRIDGE, WAIT_FOR_MODERATOR, MULTIPLE_SESSIONS_ALLOWED, ONE_SESSION_PER_GROUP, PROPERTIES, DELETED)" +
-                " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                "(MEETING_ID, NAME, HOST_URL, SITE_ID, ATTENDEE_PW, MODERATOR_PW, OWNER_ID, START_DATE, END_DATE, RECORDING, RECORDING_READY_NOTIFICATION, RECORDING_DURATION, VOICE_BRIDGE, WAIT_FOR_MODERATOR, MULTIPLE_SESSIONS_ALLOWED, PREUPLOAD_PRESENTATION, PRESENTATION, ONE_SESSION_PER_GROUP, PROPERTIES, DELETED)" +
+                " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         meetingST.setString(1, meeting.getId());
         meetingST.setString(2, meeting.getName());
         meetingST.setString(3, meeting.getHostUrl());
@@ -158,6 +158,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setBoolean(16, meeting.getOneSessionPerGroup());
         meetingST.setString(17, XmlUtil.convertPropsToXml(meeting.getProps()));
         meetingST.setString(18, NODELETED);
+        meetingST.setString(19, XmlUtil.convertPropsToXml(meeting.getProps()));
+        meetingST.setString(20, NODELETED);
 
         statements.add(meetingST);
 
@@ -182,7 +184,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection
-                .prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, RECORDING=?, RECORDING_READY_NOTIFICATION=?, RECORDING_DURATION=?, VOICE_BRIDGE=?, WAIT_FOR_MODERATOR=?, MULTIPLE_SESSIONS_ALLOWED=?, ONE_SESSION_PER_GROUP=?, PROPERTIES=? WHERE MEETING_ID=?");
+                .prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, RECORDING=?, RECORDING_READY_NOTIFICATION=?, RECORDING_DURATION=?, VOICE_BRIDGE=?, WAIT_FOR_MODERATOR=?, MULTIPLE_SESSIONS_ALLOWED=?, PREUPLOAD_PRESENTATION=?, PRESENTATION=?, ONE_SESSION_PER_GROUP=?, PROPERTIES=? WHERE MEETING_ID=?");
         meetingST.setString(1, meeting.getName());
         meetingST.setString(2, meeting.getSiteId());
         meetingST.setString(3, meeting.getHostUrl());
@@ -200,6 +202,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
         meetingST.setBoolean(15, meeting.getOneSessionPerGroup());
         meetingST.setString(16, XmlUtil.convertPropsToXml(meeting.getProps()));
         meetingST.setString(17, meeting.getId());
+        meetingST.setString(18, XmlUtil.convertPropsToXml(meeting.getProps()));
+        meetingST.setString(19, meeting.getId());
 
         statements.add(meetingST);
 

@@ -81,6 +81,73 @@
         return list;
     };
 
+    //upload selected file
+    meetings.utils.doUpload = function(files) {
+        file = files.files[0];
+        var fd = new FormData();
+        fd.append('file', file);
+        var url;
+
+        jQuery.ajax({
+            url : '/direct/bbb-tool/doUpload',
+            data : fd,
+            processData : false,
+            contentType : false,
+            type : 'POST',
+            dataType : 'text',
+            beforeSend : function (xmlHttpRequest) {
+                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+                meetings.utils.showAjaxIndicator('#bbb_addFile_ajaxInd');
+            },
+            success : function (data) {
+                url = data;
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+                $("#fileUrl").val(url.substring(url.indexOf('/access')));
+                $("#url").attr("href", url);
+                $("#url").text(url.substring(url.lastIndexOf("/") + 1));
+                $("#fileView").show();
+            },
+            error : function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_do_upload, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+            }
+        });
+        return url;
+    };
+
+    //remove uploaded file
+    meetings.utils.removeUpload = function (url, meetingId) {
+        var response;
+        var meetingID = '';
+        if (typeof meetingId != undefined)
+            meetingID = '&meetingId=' + meetingId;
+        jQuery.ajax({
+            url : '/direct/bbb-tool/removeUpload?url=' + url + meetingID,
+            dataType : 'text',
+            beforeSend : function (xmlHttpRequest) {
+                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+                meetings.utils.showAjaxIndicator('#bbb_addFile_ajaxInd');
+            },
+            success : function (data) {
+                response = data;
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+                $("#fileUrl").val('');
+                $("#selectFile").val('');
+                $("#selectFile").attr("disabled", false);
+                $("#fileView").hide();
+            },
+            error : function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_remove_upload, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+            }
+        });
+        return response;
+    }
+
 	// Create a json representation of the meeting and post it to new on the bbb-tool provider
 	meetings.utils.addUpdateMeeting = function () {
 
@@ -1135,7 +1202,7 @@
     meetings.utils.showAjaxIndicator = function (outputSelector) {
 
     	$(outputSelector).empty()
-            .html('<img src="images/ajaxload.gif" alt="..." class="bbb_imgIndicator"/>')
+            .html('<img src="/bbb-tool/images/ajaxload.gif" alt="..." class="bbb_imgIndicator"/>')
             .show();
     };
 
@@ -1190,8 +1257,8 @@
             // by the Basic template which are needed.
             // This approach should be replaced as soon Sakai offers the way to customize the toolbar 
             // in the same call.
-            sakai.editor.launch = (function (targetId, config, w, h) {
-                var original = sakai.editor.launch;
+            sakai.editor.editors.launch = (function (targetId, config, w, h) {
+                var original = sakai.editor.editors.launch;
                 if( toolbarSet == 'BBB') {
                     return function (targetId, config, w, h) {
                         var folder = "";
@@ -1349,7 +1416,7 @@
             if( typeof CKEDITOR != "undefined" ) {
                 var editor = CKEDITOR.instances[textAreaId];
                 if ( editor != null ) {
-                    editor.remove();
+                    editor.destroy();
                 }
             }
             //Launch the editor

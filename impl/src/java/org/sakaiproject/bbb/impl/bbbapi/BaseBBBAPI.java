@@ -48,6 +48,7 @@ import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
@@ -104,6 +105,8 @@ public class BaseBBBAPI implements BBBAPI {
     public final static String APIVERSION_LATEST = APIVERSION_081;
 
     protected ServerConfigurationService config;
+
+    private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 
     protected Random randomGenerator = new Random(System.currentTimeMillis());
 
@@ -212,14 +215,26 @@ public class BaseBBBAPI implements BBBAPI {
 
             query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 
+            //preupload presentation
+            String xml_presentation = "";
+            if (meeting.getPreuploadPresentation()){
+                if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
+                    m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);
+                    StringBuilder presentationUrl = new StringBuilder(config.getServerUrl());
+                    presentationUrl.append(meeting.getPresentation());
+                    xml_presentation = "<modules> <module name=\"presentation\"> <document url=\""+presentationUrl+"\" /> </module> </modules>";
+                    logger.debug(xml_presentation);
+                }
+            }
+
             // do API call
-            Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString());
+            Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString(), xml_presentation);
         } catch (BBBException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
-
+        m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), false);
         return meeting;
     }
 
@@ -408,7 +423,11 @@ public class BaseBBBAPI implements BBBAPI {
         joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);
-        url.append(API_SERVERPATH);
+        if (url.toString().endsWith("/api")) {
+            url.append("/");
+        } else {
+            url.append(API_SERVERPATH);
+        }
         url.append(APICALL_JOIN);
         url.append("?");
         url.append(joinQuery);
@@ -470,11 +489,20 @@ public class BaseBBBAPI implements BBBAPI {
         return "UTF-8";
     }
 
+    protected Map<String, Object> doAPICall(String apiCall, String query)
+            throws BBBException {
+        return doAPICall(apiCall, query, "");
+    }
+
     /** Make an API call */
-    protected Map<String, Object> doAPICall(String apiCall, String query) 
+    protected Map<String, Object> doAPICall(String apiCall, String query, String presentation) 
             throws BBBException {
         StringBuilder urlStr = new StringBuilder(bbbUrl);
-        urlStr.append(API_SERVERPATH);
+        if (urlStr.toString().endsWith("/api")){
+            urlStr.append("/");
+        } else {
+            urlStr.append(API_SERVERPATH);
+        }
         urlStr.append(apiCall);
         if (query != null) {
             urlStr.append("?");
@@ -489,7 +517,20 @@ public class BaseBBBAPI implements BBBAPI {
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
             httpConnection.setDoOutput(true);
-            httpConnection.setRequestMethod("GET");
+            if(presentation != ""){
+                httpConnection.setRequestMethod("POST");
+                httpConnection.setRequestProperty("Content-Type", "text/xml");
+                httpConnection.setRequestProperty("Content-Length", "" + Integer.toString(presentation.getBytes().length));
+                httpConnection.setRequestProperty("Content-Language", "en-US");
+                httpConnection.setDoInput(true);
+                
+                DataOutputStream wr = new DataOutputStream( httpConnection.getOutputStream() );
+                wr.writeBytes (presentation);
+                wr.flush();
+                wr.close();
+            } else {
+                httpConnection.setRequestMethod("GET");
+            }
             httpConnection.connect();
 
             int responseCode = httpConnection.getResponseCode();

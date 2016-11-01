@@ -231,6 +231,8 @@ meetings.switchState = function (state, arg) {
                 'waitmoderatorDefault': meetings.settings.config.addUpdateFormParameters.waitmoderatorDefault,
                 'multiplesessionsallowedEnabled': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
+                'preuploadpresentationEnabled' : meetings.settings.config.addUpdateFormParameters.preuploadpresentationEnabled,
+                'preuploadpresentationDefault': meetings.settings.config.addUpdateFormParameters.preuploadpresentationDefault,
                 'onesessionpergroupEnabled': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled,
                 'onesessionpergroupDefault': meetings.settings.config.addUpdateFormParameters.onesessionpergroupDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
@@ -255,6 +257,53 @@ meetings.switchState = function (state, arg) {
                 $('#startDateBox').hide();
                 $('.time-picker').hide();
             }
+        });
+
+        $("#preuploadPresentation").change(function () {
+            if (this.checked) {
+                $("#selectFile").show();
+                $("#selectFile").css("display", "inline"); 
+            } else {
+                $("#selectFile").hide();
+            }
+        });
+
+        //Show the presentation/file upload if meeting has one
+        if (meeting.presentation) {
+            var url = meeting.presentation;
+            $("#fileUrl").val(url);
+            $("#url").attr("href", url);
+            $("#url").text(url.substring(url.lastIndexOf("/") + 1));
+            $("#fileView").show();
+            $("#selectFile").attr("disabled", true);
+        }
+
+        $("#selectFile").change(function () {
+            meetings.utils.hideMessage();
+            if(!this.files[0])  return;
+
+            var acceptedTypes = ['ppt', 'pptx', 'pdf', 'jpeg', 'png', 'gif', 'jpg'];
+            var extension = $(this).val().split('.').pop();
+            if (acceptedTypes.indexOf(extension) == -1) {
+                meetings.utils.showMessage('File must be an image, presentation, or pdf', 'warning');
+                $(this).val('');
+                return;
+            } else if (this.files[0].size > 2097152) {
+                meetings.utils.showMessage('File size must be below 2 MB', 'warning');
+                $(this).val('');
+                return;
+            }
+            $("#selectFile").attr("disabled", true);
+            meetings.utils.doUpload(this);
+        });
+
+        $("#removeUpload").click(function () {
+            var resourceId = $("#fileUrl").val();
+            resourceId = resourceId.substring(resourceId.indexOf('/attachment'));
+            if (!isNew)
+                meetings.utils.removeUpload(resourceId, meeting.id);
+            else
+                meetings.utils.removeUpload(resourceId);
         });
 
         $('#endDate1').change(function (e) {
@@ -311,10 +360,17 @@ meetings.switchState = function (state, arg) {
             return false;
         });
 
+        $('#bbb_cancel').click(function (e) {
+            if (!meeting.presentation && $('fileUrl').val())
+                $('#removeUpload').click();
+            $('#bbb_home_link').click();
+        });
+
         // User warnings
         if (!meetings.allSiteMembersCanParticipate()) {
              meetings.utils.showMessage(bbb_err_not_everyone_can_participate);
         }
+
     } else if ('permissions' === state) {
     	$("#bbb_permissions_link").parent().addClass('current');
 

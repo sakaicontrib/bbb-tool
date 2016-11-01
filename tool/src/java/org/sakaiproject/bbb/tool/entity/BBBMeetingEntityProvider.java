@@ -26,8 +26,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.authz.api.Member;
@@ -37,9 +43,14 @@ import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.bbb.api.Participant;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -63,6 +74,15 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -71,6 +91,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
@@ -118,6 +141,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         this.serverConfigurationService = serverConfigurationService;
     }
 
+    private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
     // --- Outputable, Inputable
     // -----------------------------------------------------
     public String[] getHandledOutputFormats() {
@@ -224,6 +248,19 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
                 (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
         meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
+        
+        //preuploadPresentation flag
+        String preuploadPresentationStr = (String) params.get("preuploadPresentation");
+        boolean preuploadPresentation = (preuploadPresentationStr != null &&
+                (preuploadPresentationStr.toLowerCase().equals("on") || preuploadPresentationStr.toLowerCase().equals("true")));
+        meeting.setPreuploadPresentation(Boolean.valueOf(preuploadPresentation));
+
+        //preuploaded presentation
+        if( meeting.getPreuploadPresentation() ) {
+            String presentationUrl = (String) params.get("presentation");
+            meeting.setPresentation(presentationUrl);
+            m_contentHostingService.setPubView(presentationUrl.substring(presentationUrl.indexOf("/attachment")), false);
+        }
 
         // oneSessionPerGroup flag
         String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
@@ -343,6 +380,23 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
                     (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
             meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
+            
+            // update preuploadPresentation flag
+            String preuploadPresentationStr = (String) params.get("preuploadPresentation");
+            boolean preuploadPresentation = (preuploadPresentationStr != null &&
+                    (preuploadPresentationStr.toLowerCase().equals("on") || preuploadPresentationStr.toLowerCase().equals("true")));
+            meeting.setPreuploadPresentation(Boolean.valueOf(preuploadPresentation));
+
+            // update default presentation if preuploadPresentation flag is true
+            if( meeting.getPreuploadPresentation() ) {
+                String presentationUrl = (String) params.get("presentation");
+                if (presentationUrl != null && presentationUrl != "") {
+                    meeting.setPresentation(presentationUrl);
+                    m_contentHostingService.setPubView(presentationUrl.substring(presentationUrl.indexOf("/attachment")), false);
+                }
+            } else {
+                meeting.setPresentation(null);
+            }
 
             // update oneSessionPerGroup flag
             String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
@@ -379,7 +433,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             Long iCalAlarmMinutes = iCalAlarmMinutesStr != null? Long.valueOf(iCalAlarmMinutesStr): 0L;
 
             try {
-                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar, iCalAttached, iCalAlarmMinutes))
+                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar, iCalAttached, iCalAlarmMinutes, false))
                     throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
             } catch (BBBException e) {
                 throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
@@ -576,6 +630,15 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean multiplesessionsallowedDefault = Boolean.parseBoolean(meetingManager.getMultipleSessionsAllowedDefault());
         if (multiplesessionsallowedDefault != null) {
             map.put("multiplesessionsallowedDefault", multiplesessionsallowedDefault);
+        }
+        //UX settings for 'preupload presentation' box
+        Boolean preuploadpresentationEnabled = Boolean.parseBoolean(meetingManager.isPreuploadPresentationEnabled());
+        if (preuploadpresentationEnabled != null) {
+            map.put("preuploadpresentationEnabled", preuploadpresentationEnabled);
+        }
+        Boolean preuploadpresentationDefault = Boolean.parseBoolean(meetingManager.getPreuploadPresentationDefault());
+        if (preuploadpresentationDefault != null) {
+            map.put("preuploadpresentationDefault", preuploadpresentationDefault);
         }
         //UX settings for 'one session per group' box
         Boolean onesessionpergroupEnabled = Boolean.parseBoolean(meetingManager.isOneSessionPerGroupEnabled());
@@ -1113,6 +1176,104 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             logger.debug(response);
         }
         return response;
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_NEW)
+    public String doUpload(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("Uploading File");
+
+        String url = "";
+        FileItem file = (FileItem) params.get("file");
+
+        try {
+            String filename = Validator.getFileName(file.getName());
+            String contentType = file.getContentType();
+
+            InputStream fileContentStream = file.getInputStream();
+            InputStreamReader reader = new InputStreamReader(fileContentStream);
+
+            if (fileContentStream != null) {
+                String name = Validator.getFileName(filename);
+				String resourceId = Validator.escapeResourceName(name);
+
+                ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+
+                try {
+                    ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, "mercury", "Meetings", contentType, fileContentStream, props);
+                    m_contentHostingService.setPubView(attachment.getId(), true);
+
+                    Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+                    url = ref.getUrl();
+                } catch(IdInvalidException e) {
+                    logger.debug(e);
+                } catch(InconsistentException e) {
+                    logger.debug(e);
+                } catch(IdUsedException e) {
+                    logger.debug(e);
+                } catch(PermissionException e) {
+                    logger.debug(e);
+                } catch(OverQuotaException e) {
+                    logger.debug(e);
+                } catch(ServerOverloadException e) {
+                    logger.debug(e);
+                }
+            }
+        } catch(IOException e) {
+            logger.debug("Failed to upload file");
+            logger.debug(e);
+        }
+        return url;
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String removeUpload(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("Removing File");
+
+        String resourceId = (String) params.get("url");
+        String meetingId = (String) params.get("meetingId");
+
+        try {
+            m_contentHostingService.removeResource(resourceId);
+        } catch (PermissionException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        } catch (IdUnusedException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        } catch (TypeException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        } catch (InUseException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        }
+
+        if(meetingId != null && meetingId != ""){
+            try {
+                BBBMeeting meeting = meetingManager.getMeeting(meetingId);
+                if (meeting != null) {
+                    meeting.setPresentation(null);
+                    try {
+                        //Update meeting presentation value
+                        if (!meetingManager.updateMeeting(meeting, false, false, false, 0L, true))
+                            throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
+                    } catch (BBBException e) {
+                        throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+                    }
+                }
+            } catch (SecurityException se) {
+                logger.debug(se);
+                return Boolean.toString(false);
+            } catch (Exception e) {
+                logger.debug(e);
+                return Boolean.toString(false);
+            }
+        }
+        return Boolean.toString(true);
     }
 
     // --- Statisticable

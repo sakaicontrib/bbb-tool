@@ -299,12 +299,31 @@
         </td>
       </tr>
       {/if}
+      {if preuploadpresentationEnabled}
+      <tr>
+        <td class="bbb_lbl">Pre-upload Presentation:</td>
+        <td>
+            {var preuploadPresentation = isNew ? preuploadpresentationDefault : meeting.preuploadPresentation }
+            <input id="preuploadPresentation" name="preuploadPresentation" type="checkbox" {if preuploadPresentation}checked{/if}/>
+            <input type="file" id="selectFile" name="selectFile" style="{if !preuploadPresentation}display:none;{else}display:inline;{/if}"/>
+            <span id="bbb_addFile_ajaxInd"></span>
+            <input type="hidden" id="fileUrl" name="presentation" />
+            <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">    
+                <tr>
+                    <td><a href="#" id="url" target="_blank"/></td>
+                    <td><a href="javascript:;" id="removeUpload">Remove</a></td>
+                </tr>
+            </table>
+        </td>
+      </tr>
+      {/if}
       {if onesessionpergroupEnabled}
       <tr>
         <td class="bbb_lbl">${D}{bbb_info_onesessionpergroup}</td>
         <td>
             {var oneSessionPerGroupAllowed = isNew ? onesessionpergroupDefault : meeting.oneSessionPerGroup }
             <input id="oneSessionPerGroup" name="oneSessionPerGroup" type="checkbox" {if oneSessionPerGroupAllowed}checked{/if}/>
+        </td>
       </tr>
       {/if}
     </table>
@@ -393,7 +412,7 @@
     {if !isNew}<input id="meetingId" type="hidden" value="${D}{meeting.id}"/>{/if}
     <div class="act">
         <input id="bbb_save" type="button" class="active" value="${D}{bbb_save}"/>
-        <input id="bbb_cancel" type="button" value="${D}{bbb_cancel}" onclick="${D}('#bbb_home_link').click()"/>
+        <input id="bbb_cancel" type="button" value="${D}{bbb_cancel}"/>
         <span id="bbb_addUpdate_ajaxInd"></span>
     </div>
 </form>
