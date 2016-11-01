@@ -119,7 +119,7 @@
                 </div> 
                 {/if}
                 {if m.canEnd}
-        		{var end_meetingClass = (m.joinable && m.joinableMode == 'inprogress')? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
+        		{var end_meetingClass = (m.groupActive || (m.joinable && m.joinableMode == 'inprogress'))? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
                 <div id="end_meeting_${D}{m.id}" class="${D}{end_meetingClass}" >
                     &nbsp;|&nbsp;
                     <a href="javascript:;" onclick="return meetings.utils.endMeeting('${D}{escape(m.name)}','${D}{m.id}');" title="${D}{bbb_action_end_meeting_tooltip}">${D}{bbb_action_end_meeting}</a>

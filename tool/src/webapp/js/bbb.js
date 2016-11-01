@@ -716,13 +716,7 @@ meetings.setMeetingList = function () {
 };
 
 meetings.refreshMeetingList = function () {
-
-	// watch for permissions changes, check meeting dates
-    for(var i=0; i<meetings.currentMeetings.length; i++) {
-        if( meetings.currentMeetings[i].joinable ) {
-            meetings.utils.setMeetingInfo(meetings.currentMeetings[i]);
-        }
-    }
+    meetings.utils.getMeetings();
 };
 
 meetings.refreshRecordingList = function (meetingId, groupId) {

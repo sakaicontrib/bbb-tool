@@ -182,6 +182,28 @@ public class BBBAPIWrapper/* implements Runnable */{
         return api.isMeetingRunning(meetingID);
     }
 
+    public Map<String, Object> getMeetings()
+            throws BBBException {
+        if (logger.isDebugEnabled()) logger.debug("getMeetings()");
+
+        Map<String, Object> meetings = new HashMap<String, Object>();
+        if ( api != null) {
+            try{
+                meetings = api.getMeetings();
+            } catch ( BBBException e){
+                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || 
+                        BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
+                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
+                    meetings = responseError(e.getMessageKey(), e.getMessage() );
+                }
+            } catch ( Exception e){
+                meetings = responseError(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage() );
+            }
+        }
+
+        return meetings;
+    }
+
     public Map<String, Object> getMeetingInfo(String meetingID, String password)
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("getMeetingInfo()");

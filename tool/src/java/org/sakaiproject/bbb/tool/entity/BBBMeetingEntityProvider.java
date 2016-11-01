@@ -624,6 +624,16 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
     }
 
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getMeetings(Map<String, Object> params) {
+        if (logger.isDebugEnabled()) logger.debug("getMeetings");
+        try {
+            return new ActionReturn(meetingManager.getMeetings());
+        } catch (BBBException e) {
+            return new ActionReturn(new HashMap<String, String>());
+        }
+    }
+
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
     public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref, Map<String, Object> params) {
         if (logger.isDebugEnabled()) logger.debug("getMeetingInfo");
@@ -810,7 +820,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             } else {
                 meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
             }
-            logger.debug("****************************************************"+meeting.getName()+"****************************************************************");
+
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
             if (joinUrl == null) {
