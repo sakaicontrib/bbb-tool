@@ -61,6 +61,8 @@ public interface BBBMeetingManager {
     public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_ENABLED = "bbb.multiplesessionsallowed.enabled";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
+    public final static String CFG_PREUPLOADPRESENTATION_ENABLED = "bbb.preuploadpresentation.enabled";     //[true|false]
+    public final static String CFG_PREUPLOADPRESENTATION_DEFAULT = "bbb.preuploadpresentation.default";     //[true|false]
     public final static String CFG_ONESESSIONPERGROUP_ENABLED = "bbb.onesessionpergroup.enabled";               // [true|false]
     public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.onesessionpergroup.default";               // [true|false]
 
@@ -145,7 +147,7 @@ public interface BBBMeetingManager {
      * 
      * @param meeting
      */
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes, boolean meetingOnly)
             throws SecurityException, BBBException;
 
     /**
@@ -330,6 +332,10 @@ public interface BBBMeetingManager {
     public String isMultipleSessionsAllowedEnabled();
 
     public String getMultipleSessionsAllowedDefault();
+    
+    public String isPreuploadPresentationEnabled();
+    
+    public String getPreuploadPresentationDefault();
 
     public String isOneSessionPerGroupEnabled();
 

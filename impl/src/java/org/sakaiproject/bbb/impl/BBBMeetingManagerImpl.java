@@ -272,7 +272,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
     }
 
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
+    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes, boolean meetingOnly)
             throws SecurityException, BBBException {
         if (!getCanEdit(meeting.getSiteId(), meeting)) {
             throw new SecurityException("You are not allow to update this meeting");
@@ -280,19 +280,22 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // store locally, in DB
         if (storageManager.updateMeeting(meeting, true)) {
-            // send email notifications to participants
-            if (notifyParticipants) {
-                notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes, false);
-            }
+            //if meetingOnly is true, only update meeting properties
+            if (!meetingOnly) {
+                // send email notifications to participants
+                if (notifyParticipants) {
+                    notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes, false);
+                }
 
-            // add start date to Calendar
-            if (addToCalendar && meeting.getStartDate() != null) {
-                addEditCalendarEvent(meeting);
-            }
-            // or remove it, if 'add to calendar' was unselected
-            else if (meeting.getProps().getCalendarEventId() != null && !addToCalendar) {
-                removeCalendarEvent(meeting);
-                storageManager.updateMeeting(meeting, false);
+                // add start date to Calendar
+                if (addToCalendar && meeting.getStartDate() != null) {
+                    addEditCalendarEvent(meeting);
+                }
+                // or remove it, if 'add to calendar' was unselected
+                else if (meeting.getProps().getCalendarEventId() != null && !addToCalendar) {
+                    removeCalendarEvent(meeting);
+                    storageManager.updateMeeting(meeting, false);
+                }
             }
 
             // set meeting join url (for moderator, which is current user)
@@ -810,6 +813,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     public String getOneSessionPerGroupDefault(){
         return "" + bbbAPI.getOneSessionPerGroupDefault();
+    }
+
+    public String isPreuploadPresentationEnabled(){
+        return "" + bbbAPI.isPreuploadPresentationEnabled();
+    }
+
+    public String getPreuploadPresentationDefault(){
+        return "" + bbbAPI.getPreuploadPresentationDefault();
     }
 
     public String getMaxLengthForDescription(){
