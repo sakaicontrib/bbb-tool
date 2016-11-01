@@ -427,7 +427,7 @@ meetings.switchState = function (state, arg) {
             if (meeting) {
                 var groups;
                 if(meeting.oneSessionPerGroup){
-                    groups = meetings.utils.getUsersGroups(meeting);
+                    groups = meetings.utils.getGroups(meeting);
                     if (jQuery.isEmptyObject(groups)){
                         groups = undefined;
                     }

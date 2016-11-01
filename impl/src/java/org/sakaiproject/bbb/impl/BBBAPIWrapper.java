@@ -79,13 +79,13 @@ public class BBBAPIWrapper/* implements Runnable */{
     /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' chekbox (default to false) */
     private boolean bbbMultipleSessionsAllowedEnabled = false;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
-    private boolean bbbMultipleSessionsAllowedDefault = true;
-    /** BBB UX flag to activate/deactivate 'preupload presentation' chekbox (default to false) */
-    private boolean bbbPreuploadPresentationEnabled = false;
+    private boolean bbbMultipleSessionsAllowedDefault = false;
+    /** BBB UX flag to activate/deactivate 'preupload presentation' chekbox (default to true) */
+    private boolean bbbPreuploadPresentationEnabled = true;
     /** BBB default value for 'Preupload presentation' checkbox (default to false) */
     private boolean bbbPreuploadPresentationDefault = false;
     /** BBB default value for 'one session per group' checkbox (default to false) */
-    private boolean bbbOneSessionPerGroupEnabled = false;
+    private boolean bbbOneSessionPerGroupEnabled = true;
     /** BBB default value for 'one session per group' checkbox (default to false) */
     private boolean bbbOneSessionPerGroupDefault = false;
     

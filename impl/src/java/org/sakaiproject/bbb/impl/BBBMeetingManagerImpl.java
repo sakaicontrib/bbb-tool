@@ -410,7 +410,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         logEvent(EVENT_MEETING_JOIN, meeting);
     }
 
-    public boolean endMeeting(String meetingId, String groupId) 
+    public boolean endMeeting(String meetingId, String groupId, boolean endAll) 
     		throws SecurityException, BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
@@ -424,7 +424,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         } else {
             bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
 
-            if(meeting.getOneSessionPerGroup()){
+            if(meeting.getOneSessionPerGroup() && endAll){
                 //End all group sessions that could be running
                 Site site;
                 try {

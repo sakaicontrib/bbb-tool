@@ -707,11 +707,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
         String groupId = (String) params.get("groupId");
+        String endAll = (String) params.get("endAll");
         try {
             if (groupId != null)
-                return Boolean.toString(meetingManager.endMeeting(meetingID, groupId));
+                return Boolean.toString(meetingManager.endMeeting(meetingID, groupId, false));
+            else if (endAll != null)
+                return Boolean.toString(meetingManager.endMeeting(meetingID, "", true));
 
-            return Boolean.toString(meetingManager.endMeeting(meetingID, ""));
+            return Boolean.toString(meetingManager.endMeeting(meetingID, "", false));
         } catch (BBBException e) {
             String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
             throw new EntityException(e.getPrettyMessage(), ref, 400);
@@ -1032,9 +1035,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
     
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getUsersGroups(Map<String, Object> params) {
+    public ActionReturn getGroups(Map<String, Object> params) {
         if(logger.isDebugEnabled())
-            logger.debug("Getting User's Groups");
+            logger.debug("Getting Groups");
     
         String meetingID = (String) params.get("meetingID");
         if (meetingID == null) {
@@ -1058,7 +1061,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
 
         //Get user's group ids
-        List<String> groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
+        List<String> groupIds = new ArrayList<String>();
+        if (meetingManager.getCanEdit(meeting.getSiteId(), meeting)) {
+            for(Group g : site.getGroups())
+                groupIds.add(g.getId());
+        } else {
+            groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
+        }
 
         Map<String, Object> groups = new HashMap<String, Object>();
 

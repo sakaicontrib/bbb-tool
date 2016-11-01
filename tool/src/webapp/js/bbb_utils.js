@@ -293,10 +293,10 @@
         return meetingInfo;
     };
     
-    meetings.utils.getUsersGroups = function (meeting) {
+    meetings.utils.getGroups = function (meeting) {
         var groups;
         jQuery.ajax( {
-            url : "/direct/bbb-tool/getUsersGroups.json?meetingID=" + meeting.id,
+            url : "/direct/bbb-tool/getGroups.json?meetingID=" + meeting.id,
             dataType : "json",
             async : false,
             timeout : 10000,
@@ -496,8 +496,9 @@
 		if(!confirm(question)) return;
 
 	    var groupId = groupID ? "&groupId=" + groupID : "";
+        var endAllMeetings = endAll ? "&endAll=true" : "";
 		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + groupId,
+	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + groupId + endAllMeetings,
 			dataType:'text',
 			type:"GET",
 		   	success : function (result) {
@@ -692,9 +693,10 @@
         meetings.utils.hideMessage();
         if(linkSelector) {
             $(linkSelector).attr('href', url);
-            if( !multipleSessionsAllowed )
+            if( !multipleSessionsAllowed ) {
                 $('#meeting_joinlink_' + meetingId).hide();
-
+                $('#meetingStatus').hide();
+            }
             //After joining stop requesting periodic updates
             clearInterval(meetings.checkOneMeetingAvailabilityId);
             clearInterval(meetings.checkRecordingAvailabilityId);
@@ -720,6 +722,7 @@
 
     // Check ONE meetings availability and update meeting details page if appropriate
     meetings.utils.checkOneMeetingAvailability = function (meetingId, joining, groupId) {
+        $('#meetingStatus').show();
 
         if(typeof(joining)==='undefined') joining = false;
 
@@ -730,7 +733,7 @@
                     meetings.currentMeetings[i].joining = joining;
                     meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
                     meetings.updateMeetingInfo(meetings.currentMeetings[i]);
-                    $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+meetings.currentMeetings[i].name+"', '"+meetings.currentMeetings[i].id+"', "+undefined+", true);");
+                    $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+meetings.currentMeetings[i].name+"', '"+meetings.currentMeetings[i].id+"');");
                     return;
                 }
             }
