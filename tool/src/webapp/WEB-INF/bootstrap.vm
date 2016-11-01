@@ -163,7 +163,7 @@
     {for r in recordings}
    	  {if r.canEdit || r.published == 'true'}
         <tr class="recordingRow">
-            <td>
+            <td style="max-width: 0">
                 <span>${D}{r.name}</span>
                 <div class="itemAction" style="display: none; margin:0; padding:0;">
                     <small>
@@ -179,6 +179,21 @@
                         <a href="javascript:;" onclick="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${D}{bbb_action_delete_recording_tooltip}">${D}{bbb_action_delete_recording}</a>
                     {/if}
                     </small>
+                    <div>
+                        {for p in r.playback}
+                            {if p.preview}
+                                {if p.preview.image1}
+                                    <img src="${D}{p.preview.image1.url}" width="${D}{p.preview.image1.width}" height="${D}{p.preview.image1.height}" alt="${D}{p.preview.image1.title}">
+                                {/if}
+                                {if p.preview.image2}
+                                    <img src="${D}{p.preview.image2.url}" width="${D}{p.preview.image2.width}" height="${D}{p.preview.image2.height}" alt="${D}{p.preview.image2.title}">
+                                {/if}
+                                {if p.preview.image3}
+                                    <img src="${D}{p.preview.image3.url}" width="${D}{p.preview.image3.width}" height="${D}{p.preview.image3.height}" alt="${D}{p.preview.image3.title}">
+                                {/if}
+                            {/if}
+                        {/for}
+                    </div>
                 </div> 
             </td>
             <td>

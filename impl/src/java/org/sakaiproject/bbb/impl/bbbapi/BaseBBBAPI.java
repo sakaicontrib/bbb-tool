@@ -578,14 +578,28 @@ public class BaseBBBAPI implements BBBAPI {
     protected Map<String, Object> processNode(Node _node) {
         Map<String, Object> map = new HashMap<String, Object>();
         NodeList responseNodes = _node.getChildNodes();
+        int images = 1; //counter for images (i.e image1, image2, image3)
         for (int i = 0; i < responseNodes.getLength(); i++) {
             Node node = responseNodes.item(i);
             String nodeName = node.getNodeName().trim();
             if (node.getChildNodes().getLength() == 1
                     && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
                 String nodeValue = node.getTextContent();
-                map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
-            
+                if (nodeName == "image" && node.getAttributes() != null){
+                    Map<String, String> imageMap = new HashMap<String, String>();
+                    Node heightAttr = node.getAttributes().getNamedItem("height");
+                    Node widthAttr = node.getAttributes().getNamedItem("width");
+                    Node altAttr = node.getAttributes().getNamedItem("alt");
+
+                    imageMap.put("height", heightAttr.getNodeValue());
+                    imageMap.put("width", widthAttr.getNodeValue());
+                    imageMap.put("title", altAttr.getNodeValue());
+                    imageMap.put("url", nodeValue);
+                    map.put(nodeName + images, imageMap);
+                    images++;
+                } else {
+                    map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
+                }
             } else if (node.getChildNodes().getLength() == 0
                     && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE 
                     && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
@@ -600,7 +614,12 @@ public class BaseBBBAPI implements BBBAPI {
                     Node n = node.getChildNodes().item(c);
                     list.add(processNode(n));
                 }
-                map.put(nodeName, list);
+                if (nodeName == "preview"){
+                    Node n = node.getChildNodes().item(0);
+                    map.put(nodeName, processNode(n));
+                }else{
+                    map.put(nodeName, list);
+                }
             
             } else {
                 map.put(nodeName, processNode(node));
