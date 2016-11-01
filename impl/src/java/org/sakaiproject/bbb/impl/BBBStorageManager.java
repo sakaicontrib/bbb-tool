@@ -357,6 +357,7 @@ public class BBBStorageManager {
             meeting.setStartDate(meetingRS.getTimestamp("START_DATE"));
             meeting.setEndDate(meetingRS.getTimestamp("END_DATE"));
             meeting.setRecording(meetingRS.getBoolean("RECORDING"));
+            meeting.setRecordingReadyNotification(meetingRS.getBoolean("RECORDING_READY_NOTIFICATION"));
             meeting.setRecordingDuration(meetingRS.getLong("RECORDING_DURATION"));
             meeting.setRecordingDuration(meetingRS.getLong("RECORDING_DURATION"));
             meeting.setVoiceBridge(meetingRS.getInt("VOICE_BRIDGE"));

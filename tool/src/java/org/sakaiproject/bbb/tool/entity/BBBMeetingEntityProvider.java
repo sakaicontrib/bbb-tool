@@ -29,6 +29,7 @@ import java.util.Random;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.bbb.api.BBBException;
@@ -70,6 +71,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Claims;
 
 /**
  * BBBMeetingEntityProvider is the EntityProvider class that implements several
@@ -202,6 +206,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         boolean recording = (recordingStr != null && 
                 (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
         meeting.setRecording(recording ? Boolean.TRUE : Boolean.FALSE);
+        
+        // recordingReadyNotification flag
+        String recordingReadyNotificationStr = (String) params.get("recordingReadyNotification");
+        boolean recordingReadyNotification = (recordingReadyNotificationStr != null &&
+                (recordingReadyNotificationStr.toLowerCase().equals("on") || recordingReadyNotificationStr.toLowerCase().equals("true")));
+        meeting.setRecordingReadyNotification(recordingReadyNotification ? Boolean.TRUE : Boolean.FALSE);
 
         // waitForModerator flag
         String waitForModeratorStr = (String) params.get("waitForModerator");
@@ -295,6 +305,12 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             boolean recording = (recordingStr != null && 
                     (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
             meeting.setRecording(Boolean.valueOf(recording));
+            
+            // update recordingReadyNotification flag
+            String recordingReadyNotificationStr = (String) params.get("recordingReadyNotification");
+            boolean recordingReadyNotification = (recordingReadyNotificationStr != null &&
+                    (recordingReadyNotificationStr.toLowerCase().equals("on") || recordingReadyNotificationStr.toLowerCase().equals("true")));
+            meeting.setRecordingReadyNotification(Boolean.valueOf(recordingReadyNotification));
 
             // update recordingDuration
             String recordingDurationStr = (String) params.get("recordingDuration");
@@ -528,6 +544,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean recordingDefault = Boolean.parseBoolean(meetingManager.getRecordingDefault());
         if (recordingDefault != null) {
             map.put("recordingDefault", recordingDefault);
+        }
+        //UX settings for 'recording ready notification' checkbox
+        Boolean recordingReadyNotificationDefault = Boolean.parseBoolean(meetingManager.getRecordingReadyNotificationDefault());
+        if(recordingReadyNotificationDefault != null) {
+            map.put("recordingReadyNotificationDefault", recordingReadyNotificationDefault);
         }
         //UX settings for 'duration' box
         Boolean durationEnabled = Boolean.parseBoolean(meetingManager.isDurationEnabled());
@@ -1068,6 +1089,30 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             map.put("level", meetingManager.getNoticeLevel());
         }
         return new ActionReturn(map);
+    }
+    
+    @EntityCustomAction(viewKey = EntityView.VIEW_NEW)
+    public ActionReturn recordingReady(Map<String, Object> params) {
+        String bbbSaltString = serverConfigurationService.getString(BBBMeetingManager.CFG_SALT);
+        String bbbSalt = new String(Base64.encodeBase64(bbbSaltString.getBytes()));
+        Claims claims = Jwts.parser().setSigningKey(bbbSalt).parseClaimsJws(params.get("signed_parameters").toString()).getBody();
+        String meeting_id = claims.get("meeting_id").toString();
+        logger.debug("Meeting ID: " + meeting_id);
+
+        boolean notified = meetingManager.recordingReady(meeting_id);
+        logger.debug(notified);
+        
+        ActionReturn response = null;
+        if (notified) {
+            response = new ActionReturn("OK");
+            response.setResponseCode(200);
+            logger.debug(response);
+        } else {
+            response = new ActionReturn("Gone");
+            response.setResponseCode(410);
+            logger.debug(response);
+        }
+        return response;
     }
 
     // --- Statisticable

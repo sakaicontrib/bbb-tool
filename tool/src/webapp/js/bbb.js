@@ -224,6 +224,7 @@ meetings.switchState = function (state, arg) {
                 'siteId':       meetings.startupArgs.siteId,
                 'recordingEnabled': 	meetings.settings.config.addUpdateFormParameters.recordingEnabled,
                 'recordingDefault':     meetings.settings.config.addUpdateFormParameters.recordingDefault,
+                'recordingReadyNotificationDefault': meetings.settings.config.addUpdateFormParameters.recordingReadyNotificationDefault,
                 'durationEnabled':      meetings.settings.config.addUpdateFormParameters.durationEnabled,
                 'durationDefault':      meetings.settings.config.addUpdateFormParameters.durationDefault,
                 'waitmoderatorEnabled': meetings.settings.config.addUpdateFormParameters.waitmoderatorEnabled,
@@ -237,6 +238,15 @@ meetings.switchState = function (state, arg) {
 
         meetings.utils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
 
+        $('#recording').change(function (e) {
+            if($(this).prop('checked')) {
+                $('#recordingReady').show();
+            } else {
+                $('#recordingReady').hide();
+                $('#recordingReady').prop('checked', false);
+            }
+        });
+        
         $('#startDate1').change(function (e) {
 
             if ($(this).prop('checked')) {

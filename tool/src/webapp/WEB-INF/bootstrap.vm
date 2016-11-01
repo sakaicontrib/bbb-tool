@@ -265,6 +265,13 @@
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
+      <tr id="recordingReady" style="{if !recordingChecked}display:none;{/if}">
+        <td class="bbb_lbl">${D}{bbb_info_recordingReadyNotification}</td>
+        <td>
+            {var recordingReadyNotificationChecked = isNew ? recordingReadyNotificationDefault : meeting.recordingReadyNotification }
+            <input id="recordingReadyNotification" name="recordingReadyNotification" type="checkbox" {if recordingReadyNotificationChecked}checked{/if}/>
+        </td>
+      </tr>
       {/if}
       {if durationEnabled}
       <tr>

@@ -62,6 +62,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbRecordingEnabled = true;
     /** BBB default value for 'recording' checkbox (default to false) */
     private boolean bbbRecordingDefault = false;
+    /** BBB default value for 'recording ready notification' checkbox (default to false) */
+    private boolean bbbRecordingReadyNotificationDefault = false;
     /** BBB UX maximum length allowed for meeting description (default 2083) */
     private int bbbDescriptionMaxLength = 2048;
     /** BBB UX textBox type for meeting description (default fckeditor) */
@@ -138,6 +140,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
         bbbRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
         bbbRecordingDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_DEFAULT, bbbRecordingDefault);
+        bbbRecordingReadyNotificationDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_DEFAULT, bbbRecordingReadyNotificationDefault);
         bbbDescriptionMaxLength = (int) config.getInt(BBBMeetingManager.CFG_DESCRIPTIONMAXLENGTH, bbbDescriptionMaxLength);
         bbbDescriptionType = (String) config.getString(BBBMeetingManager.CFG_DESCRIPTIONTYPE, bbbDescriptionType);
         bbbDurationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_DURATION_ENABLED, bbbDurationEnabled);
@@ -364,6 +367,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public boolean getRecordingDefault(){
         return bbbRecordingDefault;
+    }
+    
+    public boolean getRecordingReadyNotificationDefault(){
+        return bbbRecordingReadyNotificationDefault;
     }
 
     public boolean isDurationEnabled(){

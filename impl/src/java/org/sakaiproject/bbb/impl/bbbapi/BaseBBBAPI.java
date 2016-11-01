@@ -197,6 +197,16 @@ public class BaseBBBAPI implements BBBAPI {
             if (duration.compareTo("0") > 0)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_duration_warning", new Object[] { duration });
 
+            String recordingReadyNotification = meeting.getRecordingReadyNotification() != null && meeting.getRecordingReadyNotification().booleanValue() ? "true" : "false";
+            if (recordingReadyNotification == "true" && recording == "true" && bbbUrl.contains("blindsidenetworks.com")){
+                query.append("&meta_bn-recording-ready-url=");
+                StringBuilder recordingReadyUrl = new StringBuilder(config.getServerUrl());
+                recordingReadyUrl.append("/direct");
+                recordingReadyUrl.append(BBBMeetingManager.TOOL_WEBAPP);
+                recordingReadyUrl.append("/recordingReady");
+                query.append(URLEncoder.encode(recordingReadyUrl.toString(), getParametersEncoding()));
+            }
+
             query.append("&welcome=");
             query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
 

@@ -253,7 +253,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.storeMeeting(meeting)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting, true, iCalAttached, iCalAlarmMinutes);
+                notifyParticipants(meeting, true, iCalAttached, iCalAlarmMinutes, false);
             }
 
             // add start date to Calendar
@@ -282,7 +282,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         if (storageManager.updateMeeting(meeting, true)) {
             // send email notifications to participants
             if (notifyParticipants) {
-                notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes);
+                notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes, false);
             }
 
             // add start date to Calendar
@@ -775,6 +775,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public String getRecordingDefault(){
         return "" + bbbAPI.getRecordingDefault();
     }
+    
+    public String getRecordingReadyNotificationDefault(){
+        return "" + bbbAPI.getRecordingReadyNotificationDefault();
+    }
 
     public String isDurationEnabled(){
         return "" + bbbAPI.isDurationEnabled();
@@ -857,6 +861,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         
         return null;
     }
+    
+    public boolean recordingReady(String meetingId) {
+        BBBMeeting meeting = storageManager.getMeeting(meetingId);
+        if (meeting == null) return false;
+        notifyParticipants(meeting, false, false, 0L, true);
+        return true;
+    }
 
     // -----------------------------------------------------------------------
     // --- BBB Private methods -----------------------------------------------
@@ -900,7 +911,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return null;
     }
 
-    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting, boolean iCalAttached, long iCalAlarmMinutes) {
+    private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting, boolean iCalAttached, long iCalAlarmMinutes, boolean recordingReady) {
         // Site title, url and directtool (universal) url for joining meeting
         Site site;
         try {
@@ -911,7 +922,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
         String siteTitle = site.getTitle();
         String directToolJoinUrl = getDirectToolJoinUrl(meeting);
-
         // Meeting participants
         Set<User> meetingUsers = new HashSet<User>();
         for (Participant p : meeting.getParticipants()) {
@@ -967,6 +977,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
             if (true == isNewMeeting) {
                 msgs = new ResourceLoader(userId, "EmailNotification");
+            } else if (true == recordingReady){
+                msgs = new ResourceLoader(userId, "EmailNotificationRecordingReady");
             } else {
                 msgs = new ResourceLoader(userId, "EmailNotificationUpdate");
             }
