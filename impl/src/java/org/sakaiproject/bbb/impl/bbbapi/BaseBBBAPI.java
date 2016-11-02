@@ -234,7 +234,8 @@ public class BaseBBBAPI implements BBBAPI {
         } catch (UnsupportedEncodingException e) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
-        m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), false);
+        if (meeting.getPresentation() != "" && meeting.getPresentation() != null)
+            m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), false);
         return meeting;
     }
 
