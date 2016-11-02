@@ -259,7 +259,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if( meeting.getPreuploadPresentation() ) {
             String presentationUrl = (String) params.get("presentation");
             meeting.setPresentation(presentationUrl);
-            m_contentHostingService.setPubView(presentationUrl.substring(presentationUrl.indexOf("/attachment")), false);
         }
 
         // oneSessionPerGroup flag
@@ -392,7 +391,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 String presentationUrl = (String) params.get("presentation");
                 if (presentationUrl != null && presentationUrl != "") {
                     meeting.setPresentation(presentationUrl);
-                    m_contentHostingService.setPubView(presentationUrl.substring(presentationUrl.indexOf("/attachment")), false);
                 }
             } else {
                 meeting.setPresentation(null);
@@ -1212,7 +1210,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
                 try {
                     ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, "mercury", "Meetings", contentType, fileContentStream, props);
-                    m_contentHostingService.setPubView(attachment.getId(), true);
 
                     Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
                     url = ref.getUrl();
