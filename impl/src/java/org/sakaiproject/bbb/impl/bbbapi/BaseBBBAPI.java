@@ -49,6 +49,8 @@ import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
@@ -107,6 +109,8 @@ public class BaseBBBAPI implements BBBAPI {
     protected ServerConfigurationService config;
 
     private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+
+    private SecurityService m_securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 
     protected Random randomGenerator = new Random(System.currentTimeMillis());
 
@@ -215,10 +219,12 @@ public class BaseBBBAPI implements BBBAPI {
 
             query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 
+            SecurityAdvisor sa = editResourceSecurityAdvisor();
             //preupload presentation
             String xml_presentation = "";
             if (meeting.getPreuploadPresentation()){
                 if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
+                    m_securityService.pushAdvisor(sa);
                     m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);
                     StringBuilder presentationUrl = new StringBuilder(config.getServerUrl());
                     presentationUrl.append(meeting.getPresentation());
@@ -238,6 +244,12 @@ public class BaseBBBAPI implements BBBAPI {
             m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), false);
         return meeting;
     }
+
+    private SecurityAdvisor editResourceSecurityAdvisor() {
+		return (userId, function, reference) -> {
+			return SecurityAdvisor.SecurityAdvice.ALLOWED;
+		};
+	}
 
     /** Check if meeting is running on BBB server. */
     public boolean isMeetingRunning(String meetingID) 

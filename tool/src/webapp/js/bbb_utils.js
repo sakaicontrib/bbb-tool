@@ -89,7 +89,7 @@
         var url;
 
         jQuery.ajax({
-            url : '/direct/bbb-tool/doUpload',
+            url : '/direct/bbb-tool/doUpload?siteId=' + meetings.startupArgs.siteId,
             data : fd,
             processData : false,
             contentType : false,

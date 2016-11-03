@@ -38,6 +38,8 @@ import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.bbb.api.BBBException;
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
@@ -142,6 +144,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+
+    private SecurityService m_securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
     // --- Outputable, Inputable
     // -----------------------------------------------------
     public String[] getHandledOutputFormats() {
@@ -1191,6 +1195,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             logger.debug("Uploading File");
 
         String url = "";
+        String siteId = (String) params.get("siteId");
         FileItem file = (FileItem) params.get("file");
 
         try {
@@ -1208,11 +1213,17 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
 
+                SecurityAdvisor sa = uploadFileSecurityAdvisor();
                 try {
-                    ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, "mercury", "Meetings", contentType, fileContentStream, props);
-
-                    Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-                    url = ref.getUrl();
+                    if (siteId != null) {
+                        m_securityService.pushAdvisor(sa);
+                        ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Meetings", contentType, fileContentStream, props);
+                        Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+                        url = ref.getUrl();
+                    } else {
+                        logger.debug("Upload failed; Site not found");
+                        return url;
+                    }
                 } catch(IdInvalidException e) {
                     logger.debug(e);
                 } catch(InconsistentException e) {
@@ -1234,6 +1245,23 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         return url;
     }
 
+    private SecurityAdvisor uploadFileSecurityAdvisor() {
+		return (userId, function, reference) -> {
+			//Needed to be able to add or modify their own
+			if (function.equals(m_contentHostingService.AUTH_RESOURCE_ADD) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)
+			) {
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			} else if (function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
+				logger.info(userId + " requested ability to write to any content on "+ reference+
+						" which we didn't expect, this should be investigated");
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvisor.SecurityAdvice.PASS;
+		};
+	}
+
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public String removeUpload(Map<String, Object> params) {
         if (logger.isDebugEnabled())
@@ -1242,7 +1270,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String resourceId = (String) params.get("url");
         String meetingId = (String) params.get("meetingId");
 
+        SecurityAdvisor sa = removeUploadSecurityAdvisor();
         try {
+            m_securityService.pushAdvisor(sa);
             m_contentHostingService.removeResource(resourceId);
         } catch (PermissionException e) {
             logger.debug(e);
@@ -1280,6 +1310,21 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             }
         }
         return Boolean.toString(true);
+    }
+
+    private SecurityAdvisor removeUploadSecurityAdvisor() {
+        return (userId, function, reference) -> {
+            if (function.equals(m_contentHostingService.AUTH_RESOURCE_REMOVE_OWN) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)
+			) {
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			} else if (function.equals(m_contentHostingService.AUTH_RESOURCE_REMOVE_ANY)) {
+				logger.info(userId + " requested ability to remove any content on "+ reference+
+						" which we didn't expect, this should be investigated");
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvisor.SecurityAdvice.PASS;
+        };
     }
 
     // --- Statisticable
