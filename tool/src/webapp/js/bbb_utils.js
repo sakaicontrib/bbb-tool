@@ -318,10 +318,12 @@
             //Clear attendees
             if( meetings.currentMeetings[i].attendees && meetings.currentMeetings[i].attendees.length > 0 )
                 delete meetings.currentMeetings[i].attendees;
+            if( meetings.currentMeetings[i].running )
+                delete meetings.currentMeetings[i].running;
             meetings.currentMeetings[i].attendees = new Array();
             meetings.currentMeetings[i].hasBeenForciblyEnded = "false";
-            meetings.currentMeetings[i].participantCount = null;
-            meetings.currentMeetings[i].moderatorCount = null;
+            meetings.currentMeetings[i].participantCount = 0;
+            meetings.currentMeetings[i].moderatorCount = 0;
             meetings.currentMeetings[i].unreachableServer = "false";
 
             //Extend the meetings that are present in the BBBMeetings array
@@ -329,6 +331,7 @@
                 if(BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {                    
                     meetings.currentMeetings[i].hasBeenForciblyEnded = BBBMeetings[j].hasBeenForciblyEnded;
                     meetings.currentMeetings[i].participantCount = BBBMeetings[j].participantCount;
+                    meetings.currentMeetings[i].running = BBBMeetings[j].running;
                 }
                 //Check if group session is active
                 else if ((BBBMeetings[j].meetingID).indexOf(meetings.currentMeetings[i].id) != -1 && BBBMeetings[j].participantCount != "0") {
@@ -348,7 +351,7 @@
                     meetings.currentMeetings[i].joinableMode = "available";
                     if ( meetings.currentMeetings[i].hasBeenForciblyEnded == "true" ) {
                         meetings.currentMeetings[i].joinableMode = "unavailable";
-                    } else if ( meetings.currentMeetings[i].participantCount >= 0) {
+                    } else if ( meetings.currentMeetings[i].running ) {
                         meetings.currentMeetings[i].joinableMode = "inprogress";
                     }
                 } else {
@@ -387,8 +390,8 @@
 			delete meeting.attendees;
 		meeting.attendees = new Array();
 		meeting.hasBeenForciblyEnded = "false";
-		meeting.participantCount = null;
-		meeting.moderatorCount = null;
+		meeting.participantCount = 0;
+		meeting.moderatorCount = 0;
 		meeting.unreachableServer = "false";
 
 		if ( meetingInfo != null && meetingInfo.returncode != null) {
@@ -397,11 +400,14 @@
 				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
+                meeting.running = meetingInfo.running;
 			} else if (meetingInfo.messageKey != 'notFound'){
 				//Different errors can be handled here
 				meeting.unreachableServer = "true";
 			}
-		}
+		} else {
+            delete meeting.running;
+        }
 	};
 
 	meetings.utils.setRecordingPermissionParams = function (recording) {
@@ -457,7 +463,7 @@
                 $('#meetingStatus').show();
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
-				} else if ( meeting.participantCount >= 0) {
+				} else if ( meeting.running ) {
 					meeting.joinableMode = "inprogress";
                     if (!meeting.canEnd && !meeting.multipleSessionsAllowed)
                         $('#meetingStatus').hide();

@@ -232,7 +232,6 @@ meetings.switchState = function (state, arg) {
                 'multiplesessionsallowedEnabled': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
                 'preuploadpresentationEnabled' : meetings.settings.config.addUpdateFormParameters.preuploadpresentationEnabled,
-                'preuploadpresentationDefault': meetings.settings.config.addUpdateFormParameters.preuploadpresentationDefault,
                 'onesessionpergroupEnabled': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled,
                 'onesessionpergroupDefault': meetings.settings.config.addUpdateFormParameters.onesessionpergroupDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
@@ -256,15 +255,6 @@ meetings.switchState = function (state, arg) {
             } else {
                 $('#startDateBox').hide();
                 $('.time-picker').hide();
-            }
-        });
-
-        $("#preuploadPresentation").change(function () {
-            if (this.checked) {
-                $("#selectFile").show();
-                $("#selectFile").css("display", "inline"); 
-            } else {
-                $("#selectFile").hide();
             }
         });
 

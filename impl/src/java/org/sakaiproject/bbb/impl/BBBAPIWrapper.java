@@ -80,10 +80,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbMultipleSessionsAllowedEnabled = false;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
     private boolean bbbMultipleSessionsAllowedDefault = false;
-    /** BBB UX flag to activate/deactivate 'preupload presentation' chekbox (default to true) */
+    /** BBB UX flag to activate/deactivate 'presentation' file input (default to true) */
     private boolean bbbPreuploadPresentationEnabled = true;
-    /** BBB default value for 'Preupload presentation' checkbox (default to false) */
-    private boolean bbbPreuploadPresentationDefault = false;
     /** BBB default value for 'one session per group' checkbox (default to false) */
     private boolean bbbOneSessionPerGroupEnabled = true;
     /** BBB default value for 'one session per group' checkbox (default to false) */
@@ -153,7 +151,6 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbMultipleSessionsAllowedEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_ENABLED, bbbMultipleSessionsAllowedEnabled);
         bbbMultipleSessionsAllowedDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_DEFAULT, bbbMultipleSessionsAllowedDefault);
         bbbPreuploadPresentationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentationEnabled);
-        bbbPreuploadPresentationDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_DEFAULT, bbbPreuploadPresentationDefault);
         bbbOneSessionPerGroupEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_ENABLED, bbbOneSessionPerGroupEnabled);
         bbbOneSessionPerGroupDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_DEFAULT, bbbOneSessionPerGroupDefault);
 
@@ -404,10 +401,6 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public boolean isPreuploadPresentationEnabled(){
         return bbbPreuploadPresentationEnabled;
-    }
-
-    public boolean getPreuploadPresentationDefault(){
-        return bbbPreuploadPresentationDefault;
     }
 
     public boolean isOneSessionPerGroupEnabled(){

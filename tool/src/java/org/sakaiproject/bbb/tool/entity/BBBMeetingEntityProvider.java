@@ -252,18 +252,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
                 (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
         meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
-        
-        //preuploadPresentation flag
-        String preuploadPresentationStr = (String) params.get("preuploadPresentation");
-        boolean preuploadPresentation = (preuploadPresentationStr != null &&
-                (preuploadPresentationStr.toLowerCase().equals("on") || preuploadPresentationStr.toLowerCase().equals("true")));
-        meeting.setPreuploadPresentation(Boolean.valueOf(preuploadPresentation));
 
         //preuploaded presentation
-        if( meeting.getPreuploadPresentation() ) {
-            String presentationUrl = (String) params.get("presentation");
-            meeting.setPresentation(presentationUrl);
-        }
+        String presentationUrl = (String) params.get("presentation");
+        meeting.setPresentation(presentationUrl);
 
         // oneSessionPerGroup flag
         String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
@@ -383,19 +375,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
                     (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
             meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
-            
-            // update preuploadPresentation flag
-            String preuploadPresentationStr = (String) params.get("preuploadPresentation");
-            boolean preuploadPresentation = (preuploadPresentationStr != null &&
-                    (preuploadPresentationStr.toLowerCase().equals("on") || preuploadPresentationStr.toLowerCase().equals("true")));
-            meeting.setPreuploadPresentation(Boolean.valueOf(preuploadPresentation));
 
             // update default presentation if preuploadPresentation flag is true
-            if( meeting.getPreuploadPresentation() ) {
-                String presentationUrl = (String) params.get("presentation");
-                if (presentationUrl != null && presentationUrl != "") {
-                    meeting.setPresentation(presentationUrl);
-                }
+            String presentationUrl = (String) params.get("presentation");
+            if (presentationUrl != null && presentationUrl != "") {
+                meeting.setPresentation(presentationUrl);
             } else {
                 meeting.setPresentation(null);
             }
@@ -637,10 +621,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean preuploadpresentationEnabled = Boolean.parseBoolean(meetingManager.isPreuploadPresentationEnabled());
         if (preuploadpresentationEnabled != null) {
             map.put("preuploadpresentationEnabled", preuploadpresentationEnabled);
-        }
-        Boolean preuploadpresentationDefault = Boolean.parseBoolean(meetingManager.getPreuploadPresentationDefault());
-        if (preuploadpresentationDefault != null) {
-            map.put("preuploadpresentationDefault", preuploadpresentationDefault);
         }
         //UX settings for 'one session per group' box
         Boolean onesessionpergroupEnabled = Boolean.parseBoolean(meetingManager.isOneSessionPerGroupEnabled());

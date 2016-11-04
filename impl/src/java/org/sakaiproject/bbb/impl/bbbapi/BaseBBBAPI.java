@@ -77,6 +77,7 @@ public class BaseBBBAPI implements BBBAPI {
     protected String bbbSalt = null;
     /** Auto close BBB meeting window on exit? */
     protected boolean bbbAutocloseMeetingWindow = true;
+    protected boolean bbbPreuploadPresentation = true;
 
     // API Server Path
     protected final static String API_SERVERPATH = "/api/";
@@ -129,6 +130,7 @@ public class BaseBBBAPI implements BBBAPI {
         config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
         bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
+        bbbPreuploadPresentation = config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentation);
     }
 
     public String getUrl() {
@@ -222,7 +224,7 @@ public class BaseBBBAPI implements BBBAPI {
             SecurityAdvisor sa = editResourceSecurityAdvisor();
             //preupload presentation
             String xml_presentation = "";
-            if (meeting.getPreuploadPresentation()){
+            if (bbbPreuploadPresentation) {
                 if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
                     m_securityService.pushAdvisor(sa);
                     m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);

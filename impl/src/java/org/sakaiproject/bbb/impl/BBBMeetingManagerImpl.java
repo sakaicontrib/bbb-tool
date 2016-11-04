@@ -819,10 +819,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isPreuploadPresentationEnabled();
     }
 
-    public String getPreuploadPresentationDefault(){
-        return "" + bbbAPI.getPreuploadPresentationDefault();
-    }
-
     public String getMaxLengthForDescription(){
         return "" + bbbAPI.getMaxLengthForDescription();
     }

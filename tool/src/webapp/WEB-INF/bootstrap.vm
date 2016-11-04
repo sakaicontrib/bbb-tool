@@ -303,9 +303,7 @@
       <tr>
         <td class="bbb_lbl">Pre-upload Presentation:</td>
         <td>
-            {var preuploadPresentation = isNew ? preuploadpresentationDefault : meeting.preuploadPresentation }
-            <input id="preuploadPresentation" name="preuploadPresentation" type="checkbox" {if preuploadPresentation}checked{/if}/>
-            <input type="file" id="selectFile" name="selectFile" style="{if !preuploadPresentation}display:none;{else}display:inline;{/if}"/>
+            <input type="file" id="selectFile" name="selectFile" style="display:inline;"/>
             <span id="bbb_addFile_ajaxInd"></span>
             <input type="hidden" id="fileUrl" name="presentation" />
             <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">    
