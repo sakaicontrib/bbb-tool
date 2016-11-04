@@ -586,9 +586,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             map.put("recordingDefault", recordingDefault);
         }
         //UX settings for 'recording ready notification' checkbox
-        Boolean recordingReadyNotificationDefault = Boolean.parseBoolean(meetingManager.getRecordingReadyNotificationDefault());
-        if(recordingReadyNotificationDefault != null) {
-            map.put("recordingReadyNotificationDefault", recordingReadyNotificationDefault);
+        Boolean recordingreadynotificationEnabled = Boolean.parseBoolean(meetingManager.isRecordingReadyNotificationEnabled());
+        if (recordingreadynotificationEnabled != null) {
+            map.put("recordingreadynotificationEnabled", recordingreadynotificationEnabled);
         }
         //UX settings for 'duration' box
         Boolean durationEnabled = Boolean.parseBoolean(meetingManager.isDurationEnabled());

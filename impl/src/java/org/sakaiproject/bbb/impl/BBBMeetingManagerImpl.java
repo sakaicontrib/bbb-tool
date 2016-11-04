@@ -778,9 +778,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public String getRecordingDefault(){
         return "" + bbbAPI.getRecordingDefault();
     }
-    
-    public String getRecordingReadyNotificationDefault(){
-        return "" + bbbAPI.getRecordingReadyNotificationDefault();
+
+    public String isRecordingReadyNotificationEnabled(){
+        return "" + bbbAPI.isRecordingReadyNotificationEnabled();
     }
 
     public String isDurationEnabled(){

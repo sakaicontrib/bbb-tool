@@ -62,8 +62,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbRecordingEnabled = true;
     /** BBB default value for 'recording' checkbox (default to false) */
     private boolean bbbRecordingDefault = false;
-    /** BBB default value for 'recording ready notification' checkbox (default to false) */
-    private boolean bbbRecordingReadyNotificationDefault = false;
+    /** BBB UX flag to activate/deactivate 'recording ready notifications' (default to false) */
+    private boolean bbbRecordingReadyNotificationEnabled = false;
     /** BBB UX maximum length allowed for meeting description (default 2083) */
     private int bbbDescriptionMaxLength = 2048;
     /** BBB UX textBox type for meeting description (default fckeditor) */
@@ -72,17 +72,17 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbDurationEnabled = false;
     /** BBB default value for 'duration' box (default 120 minutes) */
     private int bbbDurationDefault = 120;
-    /** BBB UX flag to activate/deactivate 'wait for moderator' chekbox (default to true) */
+    /** BBB UX flag to activate/deactivate 'wait for moderator' checkbox (default to true) */
     private boolean bbbWaitModeratorEnabled = true;
     /** BBB default value for 'wait for moderator' checkbox (default to true) */
     private boolean bbbWaitModeratorDefault = true;
-    /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' chekbox (default to false) */
+    /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' checkbox (default to false) */
     private boolean bbbMultipleSessionsAllowedEnabled = false;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
     private boolean bbbMultipleSessionsAllowedDefault = false;
     /** BBB UX flag to activate/deactivate 'presentation' file input (default to true) */
     private boolean bbbPreuploadPresentationEnabled = true;
-    /** BBB default value for 'one session per group' checkbox (default to false) */
+    /** BBB UX flag to activate/deactivate 'one session per group' checkbox (default to false) */
     private boolean bbbOneSessionPerGroupEnabled = true;
     /** BBB default value for 'one session per group' checkbox (default to false) */
     private boolean bbbOneSessionPerGroupDefault = false;
@@ -141,7 +141,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
         bbbRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
         bbbRecordingDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_DEFAULT, bbbRecordingDefault);
-        bbbRecordingReadyNotificationDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_DEFAULT, bbbRecordingReadyNotificationDefault);
+        bbbRecordingReadyNotificationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotificationEnabled);
         bbbDescriptionMaxLength = (int) config.getInt(BBBMeetingManager.CFG_DESCRIPTIONMAXLENGTH, bbbDescriptionMaxLength);
         bbbDescriptionType = (String) config.getString(BBBMeetingManager.CFG_DESCRIPTIONTYPE, bbbDescriptionType);
         bbbDurationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_DURATION_ENABLED, bbbDurationEnabled);
@@ -370,9 +370,9 @@ public class BBBAPIWrapper/* implements Runnable */{
     public boolean getRecordingDefault(){
         return bbbRecordingDefault;
     }
-    
-    public boolean getRecordingReadyNotificationDefault(){
-        return bbbRecordingReadyNotificationDefault;
+
+    public boolean isRecordingReadyNotificationEnabled(){
+        return bbbRecordingReadyNotificationEnabled;
     }
 
     public boolean isDurationEnabled(){
