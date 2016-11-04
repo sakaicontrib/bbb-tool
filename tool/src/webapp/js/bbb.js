@@ -444,11 +444,11 @@ meetings.switchState = function (state, arg) {
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
                             $("#meetingName").html(meeting.name + ' (' + $('#groupSession option:selected').text() + ')');
                             
-                            meetings.utils.checkOneMeetingAvailability(meeting.id, false, this.value);
+                            meetings.utils.checkOneMeetingAvailability(meeting.id, this.value);
                             meetings.utils.checkRecordingAvailability(meeting.id, this.value);
-                            $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', false, '"+this.value+"'); return false;");
+                            $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', '"+this.value+"'); return false;");
                             if (meetings.settings.config.autorefreshInterval.meetings > 0)
-                                meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', false, '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
+                                meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
                             return;
                         } else {
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");
