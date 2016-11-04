@@ -52,7 +52,7 @@ public interface BBBMeetingManager {
     public final static String CFG_RECORDING = "bbb.recording";                             // [true|false]
     public final static String CFG_RECORDING_ENABLED = "bbb.recording.enabled";             // [true|false]
     public final static String CFG_RECORDING_DEFAULT = "bbb.recording.default";             // [true|false]
-    public final static String CFG_RECORDINGREADYNOTIFICATION_DEFAULT = "bbb.recordingReadyNotification.default";           // [true|false]
+    public final static String CFG_RECORDINGREADYNOTIFICATION_ENABLED = "bbb.recordingreadynotification.enabled";           // [true|false]          // [true|false]
     public final static String CFG_DESCRIPTIONMAXLENGTH = "bbb.descriptionmaxlength";
     public final static String CFG_DESCRIPTIONTYPE = "bbb.descriptiontype";                 // [fckeditor|ckeditor|plaintext]
     public final static String CFG_DURATION_ENABLED = "bbb.duration.enabled";               // [true|false]
@@ -62,7 +62,6 @@ public interface BBBMeetingManager {
     public final static String CFG_MULTIPLESESSIONSALLOWED_ENABLED = "bbb.multiplesessionsallowed.enabled";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
     public final static String CFG_PREUPLOADPRESENTATION_ENABLED = "bbb.preuploadpresentation.enabled";     //[true|false]
-    public final static String CFG_PREUPLOADPRESENTATION_DEFAULT = "bbb.preuploadpresentation.default";     //[true|false]
     public final static String CFG_ONESESSIONPERGROUP_ENABLED = "bbb.onesessionpergroup.enabled";               // [true|false]
     public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.onesessionpergroup.default";               // [true|false]
 
@@ -318,8 +317,8 @@ public interface BBBMeetingManager {
     public String isRecordingEnabled();
 
     public String getRecordingDefault();
-    
-    public String getRecordingReadyNotificationDefault();
+
+    public String isRecordingReadyNotificationEnabled();
 
     public String isDurationEnabled();
 
@@ -334,8 +333,6 @@ public interface BBBMeetingManager {
     public String getMultipleSessionsAllowedDefault();
     
     public String isPreuploadPresentationEnabled();
-    
-    public String getPreuploadPresentationDefault();
 
     public String isOneSessionPerGroupEnabled();
 

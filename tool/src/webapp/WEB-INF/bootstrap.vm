@@ -265,13 +265,6 @@
             <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
         </td>
       </tr>
-      <tr id="recordingReady" style="{if !recordingChecked}display:none;{/if}">
-        <td class="bbb_lbl">${D}{bbb_info_recordingReadyNotification}</td>
-        <td>
-            {var recordingReadyNotificationChecked = isNew ? recordingReadyNotificationDefault : meeting.recordingReadyNotification }
-            <input id="recordingReadyNotification" name="recordingReadyNotification" type="checkbox" {if recordingReadyNotificationChecked}checked{/if}/>
-        </td>
-      </tr>
       {/if}
       {if durationEnabled}
       <tr>
@@ -303,9 +296,7 @@
       <tr>
         <td class="bbb_lbl">Pre-upload Presentation:</td>
         <td>
-            {var preuploadPresentation = isNew ? preuploadpresentationDefault : meeting.preuploadPresentation }
-            <input id="preuploadPresentation" name="preuploadPresentation" type="checkbox" {if preuploadPresentation}checked{/if}/>
-            <input type="file" id="selectFile" name="selectFile" style="{if !preuploadPresentation}display:none;{else}display:inline;{/if}"/>
+            <input type="file" id="selectFile" name="selectFile" style="display:inline;"/>
             <span id="bbb_addFile_ajaxInd"></span>
             <input type="hidden" id="fileUrl" name="presentation" />
             <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">    

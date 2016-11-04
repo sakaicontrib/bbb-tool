@@ -363,7 +363,6 @@ public class BBBStorageManager {
             meeting.setVoiceBridge(meetingRS.getInt("VOICE_BRIDGE"));
             meeting.setWaitForModerator(meetingRS.getBoolean("WAIT_FOR_MODERATOR"));
             meeting.setMultipleSessionsAllowed(meetingRS.getBoolean("MULTIPLE_SESSIONS_ALLOWED"));
-            meeting.setPreuploadPresentation(meetingRS.getBoolean("PREUPLOAD_PRESENTATION"));
             meeting.setPresentation(meetingRS.getString("PRESENTATION"));
             meeting.setOneSessionPerGroup(meetingRS.getBoolean("ONE_SESSION_PER_GROUP"));
             meeting.setProps(XmlUtil.convertXmlToProps(meetingRS.getString("PROPERTIES")));

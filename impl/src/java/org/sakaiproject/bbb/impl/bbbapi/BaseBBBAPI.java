@@ -77,6 +77,9 @@ public class BaseBBBAPI implements BBBAPI {
     protected String bbbSalt = null;
     /** Auto close BBB meeting window on exit? */
     protected boolean bbbAutocloseMeetingWindow = true;
+    /** Sakai property settings for features that don't have a checkbox */
+    protected boolean bbbPreuploadPresentation = true;
+    protected boolean bbbRecordingReadyNotification = false;
 
     // API Server Path
     protected final static String API_SERVERPATH = "/api/";
@@ -129,6 +132,8 @@ public class BaseBBBAPI implements BBBAPI {
         config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
         bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
+        bbbPreuploadPresentation = config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentation);
+        bbbRecordingReadyNotification = config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotification);
     }
 
     public String getUrl() {
@@ -204,8 +209,7 @@ public class BaseBBBAPI implements BBBAPI {
             if (duration.compareTo("0") > 0)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_duration_warning", new Object[] { duration });
 
-            String recordingReadyNotification = meeting.getRecordingReadyNotification() != null && meeting.getRecordingReadyNotification().booleanValue() ? "true" : "false";
-            if (recordingReadyNotification == "true" && recording == "true" && bbbUrl.contains("blindsidenetworks.com")){
+            if (recording == "true" && bbbRecordingReadyNotification) {
                 query.append("&meta_bn-recording-ready-url=");
                 StringBuilder recordingReadyUrl = new StringBuilder(config.getServerUrl());
                 recordingReadyUrl.append("/direct");
@@ -222,7 +226,7 @@ public class BaseBBBAPI implements BBBAPI {
             SecurityAdvisor sa = editResourceSecurityAdvisor();
             //preupload presentation
             String xml_presentation = "";
-            if (meeting.getPreuploadPresentation()){
+            if (bbbPreuploadPresentation) {
                 if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
                     m_securityService.pushAdvisor(sa);
                     m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);

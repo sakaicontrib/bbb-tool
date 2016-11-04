@@ -224,7 +224,7 @@ meetings.switchState = function (state, arg) {
                 'siteId':       meetings.startupArgs.siteId,
                 'recordingEnabled': 	meetings.settings.config.addUpdateFormParameters.recordingEnabled,
                 'recordingDefault':     meetings.settings.config.addUpdateFormParameters.recordingDefault,
-                'recordingReadyNotificationDefault': meetings.settings.config.addUpdateFormParameters.recordingReadyNotificationDefault,
+                'recordingreadynotificationEnabled': meetings.settings.config.addUpdateFormParameters.recordingreadynotificationEnabled,
                 'durationEnabled':      meetings.settings.config.addUpdateFormParameters.durationEnabled,
                 'durationDefault':      meetings.settings.config.addUpdateFormParameters.durationDefault,
                 'waitmoderatorEnabled': meetings.settings.config.addUpdateFormParameters.waitmoderatorEnabled,
@@ -232,7 +232,6 @@ meetings.switchState = function (state, arg) {
                 'multiplesessionsallowedEnabled': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
                 'preuploadpresentationEnabled' : meetings.settings.config.addUpdateFormParameters.preuploadpresentationEnabled,
-                'preuploadpresentationDefault': meetings.settings.config.addUpdateFormParameters.preuploadpresentationDefault,
                 'onesessionpergroupEnabled': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled,
                 'onesessionpergroupDefault': meetings.settings.config.addUpdateFormParameters.onesessionpergroupDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
@@ -240,15 +239,6 @@ meetings.switchState = function (state, arg) {
 
         meetings.utils.render('bbb_addUpdate_meeting_template', contextData, 'bbb_content');
 
-        $('#recording').change(function (e) {
-            if($(this).prop('checked')) {
-                $('#recordingReady').show();
-            } else {
-                $('#recordingReady').hide();
-                $('#recordingReady').prop('checked', false);
-            }
-        });
-        
         $('#startDate1').change(function (e) {
 
             if ($(this).prop('checked')) {
@@ -256,15 +246,6 @@ meetings.switchState = function (state, arg) {
             } else {
                 $('#startDateBox').hide();
                 $('.time-picker').hide();
-            }
-        });
-
-        $("#preuploadPresentation").change(function () {
-            if (this.checked) {
-                $("#selectFile").show();
-                $("#selectFile").css("display", "inline"); 
-            } else {
-                $("#selectFile").hide();
             }
         });
 
@@ -444,11 +425,11 @@ meetings.switchState = function (state, arg) {
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
                             $("#meetingName").html(meeting.name + ' (' + $('#groupSession option:selected').text() + ')');
                             
-                            meetings.utils.checkOneMeetingAvailability(meeting.id, false, this.value);
+                            meetings.utils.checkOneMeetingAvailability(meeting.id, this.value);
                             meetings.utils.checkRecordingAvailability(meeting.id, this.value);
-                            $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', false, '"+this.value+"'); return false;");
+                            $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', '"+this.value+"'); return false;");
                             if (meetings.settings.config.autorefreshInterval.meetings > 0)
-                                meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', false, '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
+                                meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
                             return;
                         } else {
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");

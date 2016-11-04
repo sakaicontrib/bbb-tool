@@ -318,6 +318,8 @@
             //Clear attendees
             if( meetings.currentMeetings[i].attendees && meetings.currentMeetings[i].attendees.length > 0 )
                 delete meetings.currentMeetings[i].attendees;
+            if( meetings.currentMeetings[i].running )
+                delete meetings.currentMeetings[i].running;
             meetings.currentMeetings[i].attendees = new Array();
             meetings.currentMeetings[i].hasBeenForciblyEnded = "false";
             meetings.currentMeetings[i].participantCount = 0;
@@ -329,6 +331,7 @@
                 if(BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {                    
                     meetings.currentMeetings[i].hasBeenForciblyEnded = BBBMeetings[j].hasBeenForciblyEnded;
                     meetings.currentMeetings[i].participantCount = BBBMeetings[j].participantCount;
+                    meetings.currentMeetings[i].running = BBBMeetings[j].running;
                 }
                 //Check if group session is active
                 else if ((BBBMeetings[j].meetingID).indexOf(meetings.currentMeetings[i].id) != -1 && BBBMeetings[j].participantCount != "0") {
@@ -348,7 +351,7 @@
                     meetings.currentMeetings[i].joinableMode = "available";
                     if ( meetings.currentMeetings[i].hasBeenForciblyEnded == "true" ) {
                         meetings.currentMeetings[i].joinableMode = "unavailable";
-                    } else if ( meetings.currentMeetings[i].participantCount > 0) {
+                    } else if ( meetings.currentMeetings[i].running ) {
                         meetings.currentMeetings[i].joinableMode = "inprogress";
                     }
                 } else {
@@ -397,11 +400,14 @@
 				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
+                meeting.running = meetingInfo.running;
 			} else if (meetingInfo.messageKey != 'notFound'){
 				//Different errors can be handled here
 				meeting.unreachableServer = "true";
 			}
-		}
+		} else {
+            delete meeting.running;
+        }
 	};
 
 	meetings.utils.setRecordingPermissionParams = function (recording) {
@@ -454,10 +460,13 @@
 		        meeting.joinableMode = "";
 		    } else if( meeting.unreachableServer == "false" ){
 				meeting.joinableMode = "available";
+                $('#meetingStatus').show();
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
-				} else if ( meeting.attendees.length > 0) {
+				} else if ( meeting.running ) {
 					meeting.joinableMode = "inprogress";
+                    if (!meeting.canEnd && !meeting.multipleSessionsAllowed)
+                        $('#meetingStatus').hide();
 				}
 			} else {
 				meeting.joinableMode = "unreachable";
@@ -502,7 +511,7 @@
 			dataType:'text',
 			type:"GET",
 		   	success : function (result) {
-                meetings.utils.checkOneMeetingAvailability(meetingID, false, groupID);
+                meetings.utils.checkOneMeetingAvailability(meetingID, groupID);
             },
 			error : function (xmlHttpRequest,status,error) {
                 var msg = bbb_err_end_meeting(name);
@@ -704,7 +713,7 @@
             //After joining execute requesting updates only once
             var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0? meetings.settings.config.autorefreshInterval.meetings: 15000;
             var groupID = groupId ? ", '" + groupId + "'" : "";
-            meetings.updateMeetingOnceTimeoutId = setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true" + groupID + ")", onceAutorefreshInterval);
+            meetings.updateMeetingOnceTimeoutId = setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + groupID + ")", onceAutorefreshInterval);
         }
         return true;
     };
@@ -721,16 +730,12 @@
     };
 
     // Check ONE meetings availability and update meeting details page if appropriate
-    meetings.utils.checkOneMeetingAvailability = function (meetingId, joining, groupId) {
-        $('#meetingStatus').show();
-
-        if(typeof(joining)==='undefined') joining = false;
+    meetings.utils.checkOneMeetingAvailability = function (meetingId, groupId) {
 
         if(typeof(groupId)==='undefined'){
             for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
                 if( meetings.currentMeetings[i].id == meetingId ) {
                     meetings.utils.setMeetingInfo(meetings.currentMeetings[i], false);
-                    meetings.currentMeetings[i].joining = joining;
                     meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
                     meetings.updateMeetingInfo(meetings.currentMeetings[i]);
                     $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+meetings.currentMeetings[i].name+"', '"+meetings.currentMeetings[i].id+"');");
@@ -767,7 +772,7 @@
                 if( meeting.multipleSessionsAllowed ) {
                     $('#meeting_joinlink_'+meeting.id).fadeIn();
                 } else {
-                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) && !meeting.joining ) {
+                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
                         $('#meeting_joinlink_'+meeting.id).fadeIn();
                     } else {
                         $('#meeting_joinlink_'+meeting.id).fadeOut();
@@ -797,7 +802,7 @@
                 if( meeting.multipleSessionsAllowed ) {
                     $('#meeting_joinlink_'+meeting.id).fadeIn();
                 } else {
-                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) && !meeting.joining ) {
+                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
                         $('#meeting_joinlink_'+meeting.id).fadeIn();
                     } else {
                         $('#meeting_joinlink_'+meeting.id).hide();
