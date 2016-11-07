@@ -153,6 +153,7 @@
     <thead>
         <tr>
             <th class="bbb_recName">${D}{bbb_th_recordingname}</th>
+            <th class="bbb_recPreview">${D}{bbb_th_recordingpreview}</th>
             <th class="bbb_recStatus">${D}{bbb_th_status}</th>
             <th class="bbb_recStartDate">${D}{bbb_th_recordingdate}</th>
             <th class="bbb_recLinks">${D}{bbb_th_recordings}</th>
@@ -163,7 +164,7 @@
     {for r in recordings}
    	  {if r.canEdit || r.published == 'true'}
         <tr class="recordingRow">
-            <td style="max-width: 0">
+            <td>
                 <span>${D}{r.name}</span>
                 <div class="itemAction" style="display: none; margin:0; padding:0;">
                     <small>
@@ -179,23 +180,24 @@
                         <a href="javascript:;" onclick="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${D}{bbb_action_delete_recording_tooltip}">${D}{bbb_action_delete_recording}</a>
                     {/if}
                     </small>
-                    <div>
-                        {for p in r.playback}
-                            {if p.preview}
-                                {if p.preview.image1}
-                                    <img src="${D}{p.preview.image1.url}" width="${D}{p.preview.image1.width}" height="${D}{p.preview.image1.height}" alt="${D}{p.preview.image1.title}">
-                                {/if}
-                                {if p.preview.image2}
-                                    <img src="${D}{p.preview.image2.url}" width="${D}{p.preview.image2.width}" height="${D}{p.preview.image2.height}" alt="${D}{p.preview.image2.title}">
-                                {/if}
-                                {if p.preview.image3}
-                                    <img src="${D}{p.preview.image3.url}" width="${D}{p.preview.image3.width}" height="${D}{p.preview.image3.height}" alt="${D}{p.preview.image3.title}">
-                                {/if}
-                            {/if}
-                        {/for}
-                    </div>
                 </div> 
             </td>
+            <td>
+                <div class="bbb_preview_images">
+                    {for p in r.playback}
+                        {if p.preview}
+                            {if p.preview.image1}
+                                <img src="${D}{p.preview.image1.url}" width="44px" height="34px" alt="${D}{p.preview.image1.title}">
+                            {/if}
+                            {if p.preview.image2}
+                                <img src="${D}{p.preview.image2.url}" width="44px" height="34px" alt="${D}{p.preview.image2.title}">
+                            {/if}
+                            {if p.preview.image3}
+                                <img src="${D}{p.preview.image3.url}" width="44px" height="34px" alt="${D}{p.preview.image3.title}">
+                            {/if}
+                        {/if}
+                    {/for}
+                </div>
             <td>
         	  {if r.published == 'true'}
         		${D}{bbb_recording_status_shown}

@@ -1151,20 +1151,16 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String bbbSalt = new String(Base64.encodeBase64(bbbSaltString.getBytes()));
         Claims claims = Jwts.parser().setSigningKey(bbbSalt).parseClaimsJws(params.get("signed_parameters").toString()).getBody();
         String meeting_id = claims.get("meeting_id").toString();
-        logger.debug("Meeting ID: " + meeting_id);
 
         boolean notified = meetingManager.recordingReady(meeting_id);
-        logger.debug(notified);
         
         ActionReturn response = null;
         if (notified) {
             response = new ActionReturn("OK");
             response.setResponseCode(200);
-            logger.debug(response);
         } else {
             response = new ActionReturn("Gone");
             response.setResponseCode(410);
-            logger.debug(response);
         }
         return response;
     }
