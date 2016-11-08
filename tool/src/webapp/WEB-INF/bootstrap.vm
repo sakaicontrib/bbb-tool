@@ -142,6 +142,7 @@
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
       </tr>
     </tbody>
 </table>
@@ -238,6 +239,8 @@
       {/if}
     {/for}
         <tr>
+            <td></td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>

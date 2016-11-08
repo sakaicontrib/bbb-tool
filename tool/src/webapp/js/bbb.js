@@ -416,6 +416,10 @@ meetings.switchState = function (state, arg) {
                         , {'meeting' : meeting, 'timezoneoffset': meetings.startupArgs.timezoneoffset, 'groups' : groups}
                         , 'bbb_content');
 
+                //sort group drop-down
+                if($('#groupSession'))
+                    meetings.sortDropDown('#groupSession');
+
                 if(meeting.oneSessionPerGroup){
                     $("#groupSession").change(function() {
                         //clear timeout if group sessions is changed so the meeting info page isn't updated with wrong meeting
@@ -828,4 +832,12 @@ meetings.refreshRecordingList = function (meetingId, groupId) {
 	    	meetings.utils.showMessage("Unable to get response from the BigBlueButton server", 'warning');
 		}
 	}
+};
+
+meetings.sortDropDown = function (dropDownId) {
+    var defaultGroup = $(dropDownId + ' option:first');
+    var groupNames = $(dropDownId + ' option:not(:first)').sort(function(a, b){
+        return a.text.toUpperCase() == b.text.toUpperCase() ? 0 : a.text.toUpperCase().localeCompare(b.text.toUpperCase());
+    });
+    $(dropDownId).html(groupNames).prepend(defaultGroup);
 };
