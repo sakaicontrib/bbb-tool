@@ -234,12 +234,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         boolean recording = (recordingStr != null && 
                 (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
         meeting.setRecording(recording ? Boolean.TRUE : Boolean.FALSE);
-        
-        // recordingReadyNotification flag
-        String recordingReadyNotificationStr = (String) params.get("recordingReadyNotification");
-        boolean recordingReadyNotification = (recordingReadyNotificationStr != null &&
-                (recordingReadyNotificationStr.toLowerCase().equals("on") || recordingReadyNotificationStr.toLowerCase().equals("true")));
-        meeting.setRecordingReadyNotification(recordingReadyNotification ? Boolean.TRUE : Boolean.FALSE);
 
         // waitForModerator flag
         String waitForModeratorStr = (String) params.get("waitForModerator");
@@ -337,12 +331,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             boolean recording = (recordingStr != null && 
                     (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
             meeting.setRecording(Boolean.valueOf(recording));
-            
-            // update recordingReadyNotification flag
-            String recordingReadyNotificationStr = (String) params.get("recordingReadyNotification");
-            boolean recordingReadyNotification = (recordingReadyNotificationStr != null &&
-                    (recordingReadyNotificationStr.toLowerCase().equals("on") || recordingReadyNotificationStr.toLowerCase().equals("true")));
-            meeting.setRecordingReadyNotification(Boolean.valueOf(recordingReadyNotification));
 
             // update recordingDuration
             String recordingDurationStr = (String) params.get("recordingDuration");
@@ -584,11 +572,6 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean recordingDefault = Boolean.parseBoolean(meetingManager.getRecordingDefault());
         if (recordingDefault != null) {
             map.put("recordingDefault", recordingDefault);
-        }
-        //UX settings for 'recording ready notification' checkbox
-        Boolean recordingreadynotificationEnabled = Boolean.parseBoolean(meetingManager.isRecordingReadyNotificationEnabled());
-        if (recordingreadynotificationEnabled != null) {
-            map.put("recordingreadynotificationEnabled", recordingreadynotificationEnabled);
         }
         //UX settings for 'duration' box
         Boolean durationEnabled = Boolean.parseBoolean(meetingManager.isDurationEnabled());

@@ -182,19 +182,27 @@
                     </small>
                 </div> 
             </td>
-            <td>
+            <td class="bbb_thumbnails">
                 <div class="bbb_preview_images">
                     {for p in r.playback}
-                        {if p.preview}
+                        {if p.preview && r.published == 'true'}
                             {if p.preview.image1}
-                                <img src="${D}{p.preview.image1.url}" width="44px" height="34px" alt="${D}{p.preview.image1.title}">
+                            <a href="${D}{p.preview.image1.url}" class="preview" target="_blank">
+                                <img src="${D}{p.preview.image1.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image1.title}">
+                            </a>
                             {/if}
                             {if p.preview.image2}
-                                <img src="${D}{p.preview.image2.url}" width="44px" height="34px" alt="${D}{p.preview.image2.title}">
+                            <a href="${D}{p.preview.image2.url}" class="preview" target="_blank">
+                                <img src="${D}{p.preview.image2.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image2.title}">
+                            </a>
                             {/if}
                             {if p.preview.image3}
-                                <img src="${D}{p.preview.image3.url}" width="44px" height="34px" alt="${D}{p.preview.image3.title}">
+                            <a href="${D}{p.preview.image3.url}" class="preview" target="_blank">    
+                                <img src="${D}{p.preview.image3.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image3.title}">
+                            </a>
                             {/if}
+                        {else if p.preview}
+                            ${D}{bbb_recording_thumbnails_hidden}
                         {/if}
                     {/for}
                 </div>

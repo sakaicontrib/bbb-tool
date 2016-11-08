@@ -32,6 +32,27 @@
     display: inline-block;
 }
 
+a[href].preview {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.thumbnails {
+    border: 2px solid black;
+    border-radius: 2px;
+}
+
+#previewImage {
+    border-radius: 7px;
+    padding: 5px 5px;
+    background: black;
+}
+
+#preview{
+	position: absolute;
+	display: none;
+}
+
 /** -------------------------------------------- */
 /** --- Meeting List --------------------------- */
 /** -------------------------------------------- */
@@ -82,6 +103,12 @@ th.bbb_recStartDate {
 }
 th.bbb_recLength {
     width: 60px; max-width:60px;
+    text-align: center;
+}
+th.bbb_recPreview {
+    width: 200px; max-width:200px;
+}
+td.bbb_thumbnails {
     text-align: center;
 }
 div.bbb_end_meeting_hidden {
