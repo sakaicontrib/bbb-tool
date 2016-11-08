@@ -341,7 +341,7 @@ meetings.switchState = function (state, arg) {
         });
 
         $('#bbb_cancel').click(function (e) {
-            if (!meeting.presentation && $('fileUrl').val())
+            if (!meeting.presentation && $('#fileUrl').val())
                 $('#removeUpload').click();
             $('#bbb_home_link').click();
         });
