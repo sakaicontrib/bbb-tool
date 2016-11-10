@@ -1218,7 +1218,7 @@
             if( typeof CKEDITOR != "undefined" ) {
                 var editor = CKEDITOR.instances[textAreaId];
                 if ( editor != null ) {
-                    editor.remove();
+                    CKEDITOR.remove(editor);
                 }
             }
             //Launch the editor

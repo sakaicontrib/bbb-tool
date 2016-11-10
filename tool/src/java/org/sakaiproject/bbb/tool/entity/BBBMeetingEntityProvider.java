@@ -780,32 +780,30 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);
             }
 
+            // log meeting join event
+            meetingManager.logMeetingJoin(meetingId);
+
+            //Build the corresponding page for joining
+            String html;
+            //If the user is not a moderator and WaitForModerator is enabled, do not create the meeting
+            if( meeting.getWaitForModerator() ){
+                Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
+                if( !(Participant.MODERATOR).equals(p.getRole())) {
+                    Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(meetingId);
+                    if( meetingInfo == null || meetingInfo.isEmpty() || Integer.parseInt((String)meetingInfo.get("moderatorCount")) <= 0 ) {
+                        html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR);
+                        return html;
+                    }
+                }
+            }
+            //Else, if the user is a moderator / WaitForModerator is not enabled, create the meeting
             try {
                 meetingManager.checkJoinMeetingPreConditions(meeting);
             } catch (BBBException e) {
                 throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
             }
 
-            // log meeting join event
-            meetingManager.logMeetingJoin(meetingId);
-
-            //Build the corresponding page for joining
-            String html;
-            if( meeting.getWaitForModerator() ){
-                Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
-                if( Participant.MODERATOR.equals(p.getRole())) {
-                    html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
-                } else {
-                    Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(meetingId);
-                    if( meetingInfo != null && Integer.parseInt((String)meetingInfo.get("moderatorCount")) > 0 ) {
-                        html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
-                    } else {
-                        html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR);
-                    }
-                }
-            } else {
-                html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
-            }
+            html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
             return html;
 
         } catch (Exception e) {
@@ -852,6 +850,8 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "                cache: false,\n" +
                    "                success : function(data) {\n" +
                    "                    meetingInfo = data;\n" +
+                   "                    if (JSON.stringify(meetingInfo) === JSON.stringify({}))\n" +
+                   "                        meetingInfo.moderatorCount = 0;\n" +
                    "                },\n" +
                    "                error : function(xmlHttpRequest, status, error) {\n" +
                    "                    return null;\n" +
@@ -861,7 +861,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "                        setTimeout(worker, 5000);\n" +
                    "                    } else {\n" +
                    "                        if (typeof window.opener != 'undefined') {\n" +
-                   "                           window.opener.waitForModeratorRefresh('" + meetingId + "');\n" +
+                   "                           window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true)\", 15000 );\n" +
                    "                        }\n" +
                    "                        window.location.reload();\n" +
                    "                    }\n" +
@@ -880,7 +880,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         } else {
             return commonHtmlHeader +
                    "    <script type='text/javascript' language='JavaScript'>\n" +
-                   "        window.opener.waitForModeratorRefresh('" + meetingId + "');\n" +
+                   "        window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true)\", 15000 );\n" +
                    "    </script>\n" +
                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
                    "  </head>\n" +
