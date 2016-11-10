@@ -307,7 +307,7 @@
       {/if}
       {if preuploadpresentationEnabled}
       <tr>
-        <td class="bbb_lbl">Pre-upload Presentation:</td>
+        <td class="bbb_lbl">${D}{bbb_info_preuploadpresentation}</td>
         <td>
             <input type="file" id="selectFile" name="selectFile" style="display:inline;"/>
             <span id="bbb_addFile_ajaxInd"></span>
@@ -315,7 +315,7 @@
             <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">    
                 <tr>
                     <td><a href="#" id="url" target="_blank"/></td>
-                    <td><a href="javascript:;" id="removeUpload">Remove</a></td>
+                    <td><a href="javascript:;" id="removeUpload">${D}{bbb_info_remove}</a></td>
                 </tr>
             </table>
         </td>
@@ -477,7 +477,7 @@
         <td><h5>${D}{bbb_meetinginfo_group}</h5></td>
         <td>
             <select id="groupSession">
-                <option selected value="Default">Default (No Group)</option>
+                <option selected value="Default">${D}{bbb_meetinginfo_defaultGroup}</option>
             {for group in groups}
                 <option value="${D}{group.groupId}">${D}{group.groupTitle}</option>
             {/for}
