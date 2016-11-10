@@ -220,7 +220,7 @@
               	{var recType = bbb_recording_type[p.type] === undefined ? p.type : bbb_recording_type[p.type]}
               	{var viewRecType = bbb_recording_view_tooltip[p.type] === undefined ? p.type : bbb_recording_view_tooltip[p.type]}
                 {if r.published == 'true'}
-                    <a href="${D}{p.url}" title="${D}{viewRecType}" target="_blank">${D}{recType}</a>&nbsp;
+                    <a href="${D}{p.url}" title="${D}{viewRecType}" target="_blank"><button><i class="fa fa-play-circle-o"></i>&nbsp;${D}{recType}</button></a>&nbsp;
                 {else}
                     ${D}{recType}&nbsp;
                 {/if}
