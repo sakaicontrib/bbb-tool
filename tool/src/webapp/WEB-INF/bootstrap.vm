@@ -222,7 +222,7 @@
                 {if r.published == 'true'}
                     <a href="${D}{p.url}" title="${D}{viewRecType}" target="_blank"><button><i class="fa fa-play-circle-o"></i>&nbsp;${D}{recType}</button></a>&nbsp;
                 {else}
-                    ${D}{recType}&nbsp;
+                    <a href="#"><button disabled><i class="fa fa-play-circle-o"></i>&nbsp;${D}{recType}</button></a>&nbsp;
                 {/if}
               {/for}
             </td>
