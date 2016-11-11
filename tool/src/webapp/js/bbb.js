@@ -164,11 +164,9 @@ meetings.switchState = function (state, arg) {
             // auto hide actions
             jQuery('.meetingRow')
                 .bind('mouseenter', function() {
-                    jQuery(this).find('div.itemAction').show();
                     jQuery(this).addClass('bbb_even_row');
                 })
                 .bind('mouseleave', function() {
-                    jQuery(this).find('div.itemAction').hide();
                     jQuery(this).removeClass('bbb_even_row');
                 }
             );
@@ -499,11 +497,9 @@ meetings.switchState = function (state, arg) {
             // auto hide actions
             jQuery('.recordingRow')
                 .bind('mouseenter', function() {
-                    jQuery(this).find('div.itemAction').show();
                     jQuery(this).addClass('bbb_even_row');
                 })
                 .bind('mouseleave', function() {
-                    jQuery(this).find('div.itemAction').hide();
                     jQuery(this).removeClass('bbb_even_row');
                 }
             );
@@ -561,11 +557,9 @@ meetings.switchState = function (state, arg) {
                 // auto hide actions
                 jQuery('.recordingRow')
                     .bind('mouseenter', function() {
-                        jQuery(this).find('div.itemAction').show();
                         jQuery(this).addClass('bbb_even_row');
                     })
                     .bind('mouseleave', function() {
-                        jQuery(this).find('div.itemAction').hide();
                         jQuery(this).removeClass('bbb_even_row');
                     }
                 );

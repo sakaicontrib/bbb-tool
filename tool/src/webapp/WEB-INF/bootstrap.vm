@@ -100,12 +100,12 @@
       <tr class="meetingRow">
         <td>
           {if m.joinable}
-              <a href="javascript:;" onclick="return meetings.switchState('meetingInfo',{'meetingId':'${D}{m.id}'})" title="${D}{bbb_meeting_details_tooltip}">${D}{m.name}</a>
+              <a href="javascript:;" onclick="return meetings.switchState('meetingInfo',{'meetingId':'${D}{m.id}'})" title="${D}{bbb_meeting_details_tooltip}"><strong>${D}{m.name}</strong></a>
           {else}
               <span>${D}{m.name}</span>
           {/if}
           
-              <div class="itemAction" style="display: none; margin:0; padding:0;">
+              <div class="itemAction" style="margin:0; padding:0;">
               <small>
                 {if m.canEdit}
                 <div id="edit_meeting" style="display: inline; margin:0; padding:0;">
@@ -167,7 +167,7 @@
         <tr class="recordingRow">
             <td>
                 <span>${D}{r.name}</span>
-                <div class="itemAction" style="display: none; margin:0; padding:0;">
+                <div class="itemAction" style="margin:0; padding:0;">
                     <small>
                     {if r.canEdit}
                 	  {if r.published == 'true'}
@@ -220,9 +220,9 @@
               	{var recType = bbb_recording_type[p.type] === undefined ? p.type : bbb_recording_type[p.type]}
               	{var viewRecType = bbb_recording_view_tooltip[p.type] === undefined ? p.type : bbb_recording_view_tooltip[p.type]}
                 {if r.published == 'true'}
-                    <a href="${D}{p.url}" title="${D}{viewRecType}" target="_blank"><button><i class="fa fa-play-circle-o"></i>&nbsp;${D}{recType}</button></a>&nbsp;
+                    <a href="${D}{p.url}" title="${D}{viewRecType}" target="_blank">${D}{recType}</a>&nbsp;
                 {else}
-                    <a href="#"><button disabled><i class="fa fa-play-circle-o"></i>&nbsp;${D}{recType}</button></a>&nbsp;
+                    ${D}{recType}&nbsp;
                 {/if}
               {/for}
             </td>

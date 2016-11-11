@@ -106,10 +106,7 @@ th.bbb_recLength {
     text-align: center;
 }
 th.bbb_recPreview {
-    width: 200px; max-width:200px;
-}
-td.bbb_thumbnails {
-    text-align: center;
+    width: 180px; max-width:180px;
 }
 div.bbb_end_meeting_hidden {
 	display: none; 
