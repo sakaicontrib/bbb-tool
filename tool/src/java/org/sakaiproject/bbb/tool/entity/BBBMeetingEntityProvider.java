@@ -369,7 +369,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if (presentationUrl != null && presentationUrl != "") {
                 meeting.setPresentation(presentationUrl);
             } else {
-                meeting.setPresentation(null);
+                meeting.setPresentation("");
             }
 
             // update oneSessionPerGroup flag
@@ -1251,7 +1251,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             try {
                 BBBMeeting meeting = meetingManager.getMeeting(meetingId);
                 if (meeting != null) {
-                    meeting.setPresentation(null);
+                    meeting.setPresentation("");
                     try {
                         //Update meeting presentation value
                         if (!meetingManager.updateMeeting(meeting, false, false, false, 0L, true))

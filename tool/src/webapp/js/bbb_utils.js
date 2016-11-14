@@ -441,12 +441,12 @@
         
         // specific meeting permissions
         if(meetings.currentUser.id === meeting.ownerId) {
-            meeting.canEdit = meetings.userPerms.bbbEditOwn | meetings.userPerms.bbbEditAny;
-            meeting.canEnd = meetings.userPerms.bbbEditOwn | meetings.userPerms.bbbEditAny;
-            meeting.canDelete = meetings.userPerms.bbbDeleteOwn | meetings.userPerms.bbbDeleteAny;
+            meeting.canEdit = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
+            meeting.canEnd = (meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny) && (meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny);
+            meeting.canDelete = meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny;
         }else{
             meeting.canEdit = meetings.userPerms.bbbEditAny;
-            meeting.canEnd = meetings.userPerms.bbbEditAny;
+            meeting.canEnd = meetings.userPerms.bbbEditAny && meetings.userPerms.bbbDeleteAny;
             meeting.canDelete = meetings.userPerms.bbbDeleteAny;
         }
 	};
@@ -463,6 +463,7 @@
                 $('#meetingStatus').show();
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
+                    $('#meetingStatus').hide();
 				} else if ( meeting.running ) {
 					meeting.joinableMode = "inprogress";
                     if (!meeting.canEnd && !meeting.multipleSessionsAllowed)
