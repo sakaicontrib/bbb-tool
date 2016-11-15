@@ -898,9 +898,18 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if( meeting.getWaitForModerator() ){
                 Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
                 if( !(Participant.MODERATOR).equals(p.getRole())) {
-                    Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(meetingId, "");
+                    Map<String, Object> meetingInfo = null;
+                    if(groupId != null && meeting.getOneSessionPerGroup())
+                        meetingInfo = meetingManager.getMeetingInfo(meetingId, groupId);
+                    else
+                        meetingInfo = meetingManager.getMeetingInfo(meetingId, "");
+
                     if( meetingInfo == null || meetingInfo.isEmpty() || Integer.parseInt((String)meetingInfo.get("moderatorCount")) <= 0 ) {
-                        html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR);
+                        //check for group session
+                        if (groupId != null && meeting.getOneSessionPerGroup())
+                            html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR, groupId);
+                        else
+                            html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR, "");
                         return html;
                     }
                 }
@@ -912,7 +921,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
             }
 
-            html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
+            //check for group session
+            if (groupId != null && meeting.getOneSessionPerGroup())
+                html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR, groupId);
+            else
+                html = getHtmlForJoining(joinUrl, meetingId);
             return html;
 
         } catch (Exception e) {
@@ -922,10 +935,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     private String getHtmlForJoining(String joinUrl, String meetingId){
-        return getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
+        return getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR, "");
     }
 
-    private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator){
+    private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator, String groupId){
         ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
         Locale locale = (new ResourceLoader()).getLocale();
         toolMessages.setContextLocale(locale);
@@ -953,7 +966,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "            // Disable caching of AJAX responses\n" +
                    "            // Validates if a moderator has joined\n" +
                    "            jQuery.ajax( {\n" +
-                   "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json',\n" +
+                   "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + (groupId.equals("") ? "" : "?groupId=" + groupId) + "',\n" +
                    "                dataType : 'json',\n" +
                    "                async : false,\n" +
                    "                cache: false,\n" +
@@ -970,7 +983,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "                        setTimeout(worker, 5000);\n" +
                    "                    } else {\n" +
                    "                        if (typeof window.opener != 'undefined') {\n" +
-                   "                           window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "')\", 15000 );\n" +
+                   "                           window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
                    "                        }\n" +
                    "                        window.location.reload();\n" +
                    "                    }\n" +
@@ -989,7 +1002,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         } else {
             return commonHtmlHeader +
                    "    <script type='text/javascript' language='JavaScript'>\n" +
-                   "        window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "')\", 15000 );\n" +
+                   "        //window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
                    "    </script>\n" +
                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
                    "  </head>\n" +
