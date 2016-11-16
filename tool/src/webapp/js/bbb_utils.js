@@ -466,7 +466,7 @@
                     $('#meetingStatus').hide();
 				} else if ( meeting.running ) {
 					meeting.joinableMode = "inprogress";
-                    if (!meeting.canEnd && !meeting.multipleSessionsAllowed)
+                    if (!meeting.canEnd && !meeting.multipleSessionsAllowed && meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting))
                         $('#meetingStatus').hide();
 				}
 			} else {
