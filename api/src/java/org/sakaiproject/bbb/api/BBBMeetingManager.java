@@ -257,6 +257,11 @@ public interface BBBMeetingManager {
     public boolean getCanParticipate(String siteId);
 
     /**
+     * Returns true if the current user can view recordings in the supplied site
+     */
+    public boolean getCanView(String siteId);
+
+    /**
      * Checks tool permissions in site, apply defaults if no perms set and
      * defaults set on sakai.properties.
      */

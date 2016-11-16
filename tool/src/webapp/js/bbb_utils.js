@@ -665,7 +665,7 @@
         		response = data;
             },
             error : function (xmlHttpRequest,status,error) {
-            	meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            	meetings.utils.handleError(bbb_err_get_recording, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
         return response;
