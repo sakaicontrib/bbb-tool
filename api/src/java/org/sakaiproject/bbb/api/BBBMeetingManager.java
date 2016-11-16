@@ -318,8 +318,6 @@ public interface BBBMeetingManager {
 
     public String getRecordingDefault();
 
-    public String isRecordingReadyNotificationEnabled();
-
     public String isDurationEnabled();
 
     public String getDurationDefault();

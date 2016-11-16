@@ -100,12 +100,12 @@
       <tr class="meetingRow">
         <td>
           {if m.joinable}
-              <a href="javascript:;" onclick="return meetings.switchState('meetingInfo',{'meetingId':'${D}{m.id}'})" title="${D}{bbb_meeting_details_tooltip}">${D}{m.name}</a>
+              <a href="javascript:;" onclick="return meetings.switchState('meetingInfo',{'meetingId':'${D}{m.id}'})" title="${D}{bbb_meeting_details_tooltip}"><strong>${D}{m.name}</strong></a>
           {else}
               <span>${D}{m.name}</span>
           {/if}
           
-              <div class="itemAction" style="display: none; margin:0; padding:0;">
+              <div class="itemAction" style="margin:0; padding:0;">
               <small>
                 {if m.canEdit}
                 <div id="edit_meeting" style="display: inline; margin:0; padding:0;">
@@ -142,6 +142,7 @@
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
       </tr>
     </tbody>
 </table>
@@ -153,6 +154,7 @@
     <thead>
         <tr>
             <th class="bbb_recName">${D}{bbb_th_recordingname}</th>
+            <th class="bbb_recPreview">${D}{bbb_th_recordingpreview}</th>
             <th class="bbb_recStatus">${D}{bbb_th_status}</th>
             <th class="bbb_recStartDate">${D}{bbb_th_recordingdate}</th>
             <th class="bbb_recLinks">${D}{bbb_th_recordings}</th>
@@ -163,9 +165,9 @@
     {for r in recordings}
    	  {if r.canEdit || r.published == 'true'}
         <tr class="recordingRow">
-            <td style="max-width: 0">
+            <td>
                 <span>${D}{r.name}</span>
-                <div class="itemAction" style="display: none; margin:0; padding:0;">
+                <div class="itemAction" style="margin:0; padding:0;">
                     <small>
                     {if r.canEdit}
                 	  {if r.published == 'true'}
@@ -179,23 +181,32 @@
                         <a href="javascript:;" onclick="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${D}{bbb_action_delete_recording_tooltip}">${D}{bbb_action_delete_recording}</a>
                     {/if}
                     </small>
-                    <div>
-                        {for p in r.playback}
-                            {if p.preview}
-                                {if p.preview.image1}
-                                    <img src="${D}{p.preview.image1.url}" width="${D}{p.preview.image1.width}" height="${D}{p.preview.image1.height}" alt="${D}{p.preview.image1.title}">
-                                {/if}
-                                {if p.preview.image2}
-                                    <img src="${D}{p.preview.image2.url}" width="${D}{p.preview.image2.width}" height="${D}{p.preview.image2.height}" alt="${D}{p.preview.image2.title}">
-                                {/if}
-                                {if p.preview.image3}
-                                    <img src="${D}{p.preview.image3.url}" width="${D}{p.preview.image3.width}" height="${D}{p.preview.image3.height}" alt="${D}{p.preview.image3.title}">
-                                {/if}
-                            {/if}
-                        {/for}
-                    </div>
                 </div> 
             </td>
+            <td class="bbb_thumbnails">
+                <div class="bbb_preview_images">
+                    {for p in r.playback}
+                        {if p.preview && r.published == 'true'}
+                            {if p.preview.image1}
+                            <a href="${D}{p.preview.image1.url}" class="preview" target="_blank">
+                                <img src="${D}{p.preview.image1.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image1.title}">
+                            </a>
+                            {/if}
+                            {if p.preview.image2}
+                            <a href="${D}{p.preview.image2.url}" class="preview" target="_blank">
+                                <img src="${D}{p.preview.image2.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image2.title}">
+                            </a>
+                            {/if}
+                            {if p.preview.image3}
+                            <a href="${D}{p.preview.image3.url}" class="preview" target="_blank">    
+                                <img src="${D}{p.preview.image3.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image3.title}">
+                            </a>
+                            {/if}
+                        {else if p.preview}
+                            ${D}{bbb_recording_thumbnails_hidden}
+                        {/if}
+                    {/for}
+                </div>
             <td>
         	  {if r.published == 'true'}
         		${D}{bbb_recording_status_shown}
@@ -228,6 +239,8 @@
       {/if}
     {/for}
         <tr>
+            <td></td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -294,7 +307,7 @@
       {/if}
       {if preuploadpresentationEnabled}
       <tr>
-        <td class="bbb_lbl">Pre-upload Presentation:</td>
+        <td class="bbb_lbl">${D}{bbb_info_preuploadpresentation}</td>
         <td>
             <input type="file" id="selectFile" name="selectFile" style="display:inline;"/>
             <span id="bbb_addFile_ajaxInd"></span>
@@ -302,7 +315,7 @@
             <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">    
                 <tr>
                     <td><a href="#" id="url" target="_blank"/></td>
-                    <td><a href="javascript:;" id="removeUpload">Remove</a></td>
+                    <td><a href="javascript:;" id="removeUpload">${D}{bbb_info_remove}</a></td>
                 </tr>
             </table>
         </td>
@@ -464,7 +477,7 @@
         <td><h5>${D}{bbb_meetinginfo_group}</h5></td>
         <td>
             <select id="groupSession">
-                <option selected value="Default">Default (No Group)</option>
+                <option selected value="Default">${D}{bbb_meetinginfo_defaultGroup}</option>
             {for group in groups}
                 <option value="${D}{group.groupId}">${D}{group.groupTitle}</option>
             {/for}

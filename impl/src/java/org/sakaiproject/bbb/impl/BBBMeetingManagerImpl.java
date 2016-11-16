@@ -779,10 +779,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.getRecordingDefault();
     }
 
-    public String isRecordingReadyNotificationEnabled(){
-        return "" + bbbAPI.isRecordingReadyNotificationEnabled();
-    }
-
     public String isDurationEnabled(){
         return "" + bbbAPI.isDurationEnabled();
     }
@@ -870,7 +866,30 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
     
     public boolean recordingReady(String meetingId) {
-        BBBMeeting meeting = storageManager.getMeeting(meetingId);
+        String meetingID = null;
+        String groupID = null;
+        if (meetingId.contains("[")) {
+            meetingID = meetingId.substring(0, meetingId.indexOf("["));
+            groupID = meetingId.substring(meetingId.indexOf("[") + 1, meetingId.indexOf("]"));
+        }
+
+        BBBMeeting meeting = null;
+        if (meetingID != null && groupID != null) {
+            meeting = storageManager.getMeeting(meetingID);
+
+            Site site;
+            try {
+                site = siteService.getSite(meeting.getSiteId());
+            } catch (IdUnusedException e) {
+                logger.error("Unable to send recording ready notifications for meeting '" + meeting.getName() + "'.", e);
+                return false;
+            }
+            Group group = site.getGroup(groupID);
+            meeting.setName(meeting.getName() + " (" + group.getTitle() + ")");
+        } else {
+            meeting = storageManager.getMeeting(meetingId);
+        }
+
         if (meeting == null) return false;
         notifyParticipants(meeting, false, false, 0L, true);
         return true;
