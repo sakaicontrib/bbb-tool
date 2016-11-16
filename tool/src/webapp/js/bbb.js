@@ -67,7 +67,7 @@ meetings.browserTimezoneOffset = 0;
 
     $('#bbb_recordings_link').click(function (e) {
         return meetings.switchState('recordings');
-    }).show();
+    });
     
     var settingsCallback = function () {
 
@@ -109,20 +109,27 @@ meetings.switchState = function (state, arg) {
     
     if ('currentMeetings' === state) {
     	$("#bbb_home_link").parent().addClass('current');
-        $('#bbb_recordings_link').parent().parent().show();
-        
-        // show permissions links only if site maintainer
-        if (meetings.userPerms.bbbAdmin) {
-            $('#bbb_permissions_link').parent().parent().show();
-        } else {
-            $('#bbb_permissions_link').parent().parent().hide();
-        }
-        
+
         // show recordings links only if site maintainer or if has specific view permission
         if (!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) {
             $('#bbb_recordings_link').parent().parent().hide();
+            $('#bbb_recordings_link').unbind('click');
         } else {
             $('#bbb_recordings_link').parent().parent().show();
+            $('#bbb_recordings_link').click(function (e) {
+                return meetings.switchState('recordings');
+            }).show();
+        }
+
+        // show permissions links only if site maintainer
+        if (meetings.userPerms.bbbAdmin) {
+            $('#bbb_permissions_link').parent().parent().show();
+            $('#bbb_permissions_link').click(function (e) {
+                return meetings.switchState('permissions');
+            });
+        } else {
+            $('#bbb_permissions_link').parent().parent().hide();
+            $('#bbb_permissions_link').unbind('click');
         }
 
         if (meetings.userPerms.bbbDeleteAny) {
