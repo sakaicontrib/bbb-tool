@@ -513,11 +513,12 @@ meetings.switchState = function (state, arg) {
 
             // Add parser for customized date format
             $.tablesorter.addParser({
-                id: "bbbDateTimeFormat",
+                id: "bbbRecDateTimeFormat",
                 is: function(s) {
                     return false; 
                 },
                 format: function(s,table) {
+                    s = s.replace(/[a-zA-Z].*/g,'');
                     return $.tablesorter.formatFloat(new Date(s).getTime());
                 },
                 type: "numeric"
@@ -528,7 +529,7 @@ meetings.switchState = function (state, arg) {
                 cssHeader:'bbb_sortable_table_header',
                 cssAsc:'bbb_sortable_table_header_sortup',
                 cssDesc:'bbb_sortable_table_header_sortdown',
-                headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: false}, 4: { sorter: false} },
+                headers: { 1: { sorter: false}, 3: { sorter: 'bbbRecDateTimeFormat'}, 4: { sorter: false} },
                 // Sort DESC status:
                 //sortList: (bbbCurrentMeetings.length > 0) ? [[2,1]] : []
                 sortList: (meetings.currentRecordings.length > 0) ? [[0,0]] : []
@@ -592,11 +593,12 @@ meetings.switchState = function (state, arg) {
 
                 // Add parser for customized date format
                 $.tablesorter.addParser({
-                    id: "bbbDateTimeFormat",
+                    id: "bbbRecDateTimeFormat",
                     is: function(s) {
                         return false; 
                     },
                     format: function(s,table) {
+                        s = s.replace(/[a-zA-Z].*/g,'');
                         return $.tablesorter.formatFloat(new Date(s).getTime());
                     },
                     type: "numeric"
@@ -607,7 +609,7 @@ meetings.switchState = function (state, arg) {
                     cssHeader:'bbb_sortable_table_header',
                     cssAsc:'bbb_sortable_table_header_sortup',
                     cssDesc:'bbb_sortable_table_header_sortdown',
-                    headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: false}, 4: { sorter: false} },
+                    headers: { 1: { sorter: false}, 3: { sorter: 'bbbRecDateTimeFormat'}, 4: { sorter: false} },
                     // Sort DESC status:
                     //sortList: (bbbCurrentMeetings.length > 0) ? [[2,1]] : []
                     sortList: (meetings.currentRecordings.length > 0) ? [[0,0]] : []

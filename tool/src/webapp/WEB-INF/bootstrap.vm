@@ -207,6 +207,7 @@
                         {/if}
                     {/for}
                 </div>
+            </td>
             <td>
         	  {if r.published == 'true'}
         		${D}{bbb_recording_status_shown}
