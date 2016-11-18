@@ -118,6 +118,14 @@ div.bbb_end_meeting_shown {
 	margin:0; 
 	padding:0; 
 }
+.search {
+    position: absolute;
+    right: 0;
+    top: 4px;
+    margin-right: 0;
+    padding: 2px 3px;
+    width: 200px;
+}
 
 /** -------------------------------------------- */
 /** --- Create/Update Meeting ------------------ */

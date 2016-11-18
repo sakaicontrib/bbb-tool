@@ -83,7 +83,7 @@
 
 <div id="bbb_rooms_template" style="display:none"><!--
 <input type="button" id="bbb_create_meeting_link" title="${D}{bbb_create_meeting_tooltip}" value="${D}{bbb_create_meeting_label}" />
-
+<input type="text" class="search" placeholder="Search">
 <table id="bbb_meeting_table" class="listHier">
     <thead>
         <tr>
@@ -150,6 +150,14 @@
 </div>
 
 <div id="bbb_recordings_template" style="display:none"><!--
+{if stateFunction == "recordings_meeting"}
+    <span>
+        <button onclick="return meetings.switchState('meetingInfo', {'meetingId': '${D}{meetingId}'})" title="${D}{bbb_back_button_tooltip}"><i class="fa fa-arrow-left"></i>&nbsp;${D}{bbb_back_button}</button>
+    </span>
+{else}
+    <button onclick="meetings.switchState('recordings')" title="${D}{bbb_refresh}"><i class="fa fa-refresh"></i>&nbsp;${D}{bbb_refresh}</button>
+{/if}
+    <input type="text" class="search" id="recSearch" placeholder=${bbb_search}>
 <table id="bbb_recording_table" class="listHier">
     <thead>
         <tr>
@@ -546,7 +554,7 @@
         <td>
             <span id="bbb_meeting_info_participants_count"></span>
             <a id="updateMeetingInfo" href="javascript:;" onclick="meetings.utils.checkOneMeetingAvailability('${D}{meeting.id}'); return false;" title="${D}{bbb_meetinginfo_updateinfo_tooltip}">
-                <i class="fa fa-refresh" title="Refresh"></i>
+                <i class="fa fa-refresh" title="${D}{bbb_refresh}"></i>
             </a>
         </td>
       </tr>
