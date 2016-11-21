@@ -83,7 +83,7 @@
 
 <div id="bbb_rooms_template" style="display:none"><!--
 <input type="button" id="bbb_create_meeting_link" title="${D}{bbb_create_meeting_tooltip}" value="${D}{bbb_create_meeting_label}" />
-<input type="text" class="search" placeholder="Search">
+<input type="text" class="search" placeholder="${D}{bbb_search}">
 <table id="bbb_meeting_table" class="listHier">
     <thead>
         <tr>
