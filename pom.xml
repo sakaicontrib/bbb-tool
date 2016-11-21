@@ -44,7 +44,6 @@
             <organization>Universidade Fernando Pessoa</organization>
             <organizationUrl>http://www.ufp.pt</organizationUrl>
             <roles>
-                <role>Project Manager</role>
                 <role>Developer</role>
             </roles>
             <timezone>0</timezone>
@@ -56,6 +55,16 @@
             <organizationUrl>http://blindsidenetworks.com</organizationUrl>
             <roles>
                 <role>Project Manager</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <name>Hassaan Hafeez</name>
+            <email>hassaanhafeez@hotmail.com</email>
+            <organization>Blindside Networks Inc</organization>
+            <organizationUrl>http://blindsidenetworks.com</organizationUrl>
+            <roles>
                 <role>Developer</role>
             </roles>
             <timezone>-5</timezone>
