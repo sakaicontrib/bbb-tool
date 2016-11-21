@@ -5,15 +5,15 @@ BigBlueButton is an open source web conferencing system that enables universitie
 These instructions describe how to install the BigBlueButton Meeting Tool for Sakai 11.
 
 With this plugin you can
-    -   Control meetings - create/edit/update/delete BBB meetings from Sakai.
-    -   Meeting access - define meeting access by selecting all users, groups, roles or individual users in site.
-    -   Tool access - define who can do what on the Sakai tool.
-    -   Scheduling - optionally, define meeting start dates and/or end dates and add it to site Calendar.
-    -   Notification - optionally, send an email notification to meeting participants.
-    -   Simplicity - the user interface is designed to be simple.
-    -   Fast - the Ajax driven interface (Javascript + JSON + Trimpath templates) provides good end-user experience and low server load.
-    -   RESTful - full RESTful support via EntityBroker.
-    -   Statistics - the tool logs information automatically processed by the Site Stats tool.
+    -   Control meetings: create/edit/update/delete BBB meetings from Sakai.
+    -   Meeting access: define meeting access by selecting all users, groups, roles or individual users in site.
+    -   Tool access: define who can do what on the Sakai tool.
+    -   Scheduling: optionally, define meeting start dates and/or end dates and add it to site Calendar.
+    -   Notification: optionally, send an email notification to meeting participants.
+    -   Simplicity: the user interface is designed to be simple.
+    -   Fast: the Ajax driven interface (Javascript + JSON + Trimpath templates) provides good end-user experience and low server load.
+    -   RESTful: full RESTful support via EntityBroker.
+    -   Statistics: the tool logs information automatically processed by the Site Stats tool.
 
 Prerequisites
 =============
