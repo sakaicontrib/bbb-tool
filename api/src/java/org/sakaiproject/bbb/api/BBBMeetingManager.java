@@ -61,7 +61,7 @@ public interface BBBMeetingManager {
     public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_ENABLED = "bbb.multiplesessionsallowed.enabled";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
-    public final static String CFG_PREUPLOADPRESENTATION_ENABLED = "bbb.preuploadpresentation.enabled";     //[true|false]
+    public final static String CFG_PREUPLOADPRESENTATION_ENABLED = "bbb.preuploadpresentation.enabled";     // [true|false]
     public final static String CFG_ONESESSIONPERGROUP_ENABLED = "bbb.onesessionpergroup.enabled";               // [true|false]
     public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.onesessionpergroup.default";               // [true|false]
 
@@ -255,6 +255,11 @@ public interface BBBMeetingManager {
      * supplied site.
      */
     public boolean getCanParticipate(String siteId);
+
+    /**
+     * Returns true if the current user can view recordings in the supplied site
+     */
+    public boolean getCanView(String siteId);
 
     /**
      * Checks tool permissions in site, apply defaults if no perms set and

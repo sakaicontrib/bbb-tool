@@ -67,7 +67,7 @@ meetings.browserTimezoneOffset = 0;
 
     $('#bbb_recordings_link').click(function (e) {
         return meetings.switchState('recordings');
-    }).show();
+    });
     
     var settingsCallback = function () {
 
@@ -109,20 +109,27 @@ meetings.switchState = function (state, arg) {
     
     if ('currentMeetings' === state) {
     	$("#bbb_home_link").parent().addClass('current');
-        $('#bbb_recordings_link').parent().parent().show();
-        
-        // show permissions links only if site maintainer
-        if (meetings.userPerms.bbbAdmin) {
-            $('#bbb_permissions_link').parent().parent().show();
-        } else {
-            $('#bbb_permissions_link').parent().parent().hide();
-        }
-        
+
         // show recordings links only if site maintainer or if has specific view permission
+        $('#bbb_recordings_link').unbind('click');
         if (!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) {
             $('#bbb_recordings_link').parent().parent().hide();
         } else {
             $('#bbb_recordings_link').parent().parent().show();
+            $('#bbb_recordings_link').click(function (e) {
+                return meetings.switchState('recordings');
+            }).show();
+        }
+
+        // show permissions links only if site maintainer
+        $('#bbb_permissions_link').unbind('click');
+        if (meetings.userPerms.bbbAdmin) {
+            $('#bbb_permissions_link').parent().parent().show();
+            $('#bbb_permissions_link').click(function (e) {
+                return meetings.switchState('permissions');
+            });
+        } else {
+            $('#bbb_permissions_link').parent().parent().hide();
         }
 
         if (meetings.userPerms.bbbDeleteAny) {
@@ -152,6 +159,16 @@ meetings.switchState = function (state, arg) {
 
             $('#bbb_create_meeting_link').bind('click',function(e) {
                 return meetings.switchState('addUpdateMeeting');
+            });
+
+            var $rows = $('#bbb_meeting_table tbody tr');
+            $('.search').keyup(function() {
+                var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+                
+                $rows.show().filter(function() {
+                    var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                    return !~text.indexOf(val);
+                }).hide();
             });
 
             // show links if user has appropriate permissions
@@ -475,6 +492,16 @@ meetings.switchState = function (state, arg) {
 
             meetings.utils.render('bbb_recordings_template',{'recordings':meetings.currentRecordings,'stateFunction':'recordings'},'bbb_content');
 
+            var $rows = $('#bbb_recording_table tbody tr');
+            $('.search').keyup(function() {
+                var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+                
+                $rows.show().filter(function() {
+                    var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                    return !~text.indexOf(val);
+                }).hide();
+            });
+
             if ($('a.preview')) {
                 var xOffset = 5;
                 var yOffset = 15;
@@ -506,11 +533,13 @@ meetings.switchState = function (state, arg) {
 
             // Add parser for customized date format
             $.tablesorter.addParser({
-                id: "bbbDateTimeFormat",
+                id: "bbbRecDateTimeFormat",
                 is: function(s) {
                     return false; 
                 },
                 format: function(s,table) {
+                    s = s.replace(/[a-zA-Z].*/g,'');
+                    s = s.trim();
                     return $.tablesorter.formatFloat(new Date(s).getTime());
                 },
                 type: "numeric"
@@ -521,7 +550,7 @@ meetings.switchState = function (state, arg) {
                 cssHeader:'bbb_sortable_table_header',
                 cssAsc:'bbb_sortable_table_header_sortup',
                 cssDesc:'bbb_sortable_table_header_sortdown',
-                headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: false}, 4: { sorter: false} },
+                headers: { 1: { sorter: false}, 3: { sorter: 'bbbRecDateTimeFormat'}, 4: { sorter: false} },
                 // Sort DESC status:
                 //sortList: (bbbCurrentMeetings.length > 0) ? [[2,1]] : []
                 sortList: (meetings.currentRecordings.length > 0) ? [[0,0]] : []
@@ -539,8 +568,6 @@ meetings.switchState = function (state, arg) {
             $('#bbb_content').empty();
         }
     } else if ('recordings_meeting' === state) {
-        $("#bbb_recordings_link").parent().addClass('current inactive');
-
         if (arg && arg.meetingId) {
             if (meetings.userPerms.bbbViewMeetingList) {
                 // Get meeting list
@@ -552,7 +579,7 @@ meetings.switchState = function (state, arg) {
                     meetings.utils.setRecordingPermissionParams(meetings.currentRecordings[i]);
                 }
 
-                meetings.utils.render('bbb_recordings_template',{'recordings':meetings.currentRecordings, 'stateFunction':'recordings_meeting'},'bbb_content');
+                meetings.utils.render('bbb_recordings_template',{'recordings':meetings.currentRecordings, 'stateFunction':'recordings_meeting', 'meetingId':arg.meetingId},'bbb_content');
 
                 if ($('a.preview')) {
                     var xOffset = 5;
@@ -585,11 +612,13 @@ meetings.switchState = function (state, arg) {
 
                 // Add parser for customized date format
                 $.tablesorter.addParser({
-                    id: "bbbDateTimeFormat",
+                    id: "bbbRecDateTimeFormat",
                     is: function(s) {
                         return false; 
                     },
                     format: function(s,table) {
+                        s = s.replace(/[a-zA-Z].*/g,'');
+                        s = s.trim();
                         return $.tablesorter.formatFloat(new Date(s).getTime());
                     },
                     type: "numeric"
@@ -600,7 +629,7 @@ meetings.switchState = function (state, arg) {
                     cssHeader:'bbb_sortable_table_header',
                     cssAsc:'bbb_sortable_table_header_sortup',
                     cssDesc:'bbb_sortable_table_header_sortdown',
-                    headers: { 2: { sorter: 'bbbDateTimeFormat'}, 3: { sorter: false}, 4: { sorter: false} },
+                    headers: { 1: { sorter: false}, 3: { sorter: 'bbbRecDateTimeFormat'}, 4: { sorter: false} },
                     // Sort DESC status:
                     //sortList: (bbbCurrentMeetings.length > 0) ? [[2,1]] : []
                     sortList: (meetings.currentRecordings.length > 0) ? [[0,0]] : []
