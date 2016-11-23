@@ -266,13 +266,11 @@
         recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
         
         if(meetings.currentUser.id === recording.ownerId) {
-            recording.canEdit = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
-            recording.canEnd = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
-            recording.canDelete = meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny;
+            recording.canEdit = meetings.userPerms.bbbRecordingEditOwn || meetings.userPerms.bbbRecordingEditAny;
+            recording.canDelete = meetings.userPerms.bbbRecordingDeleteOwn || meetings.userPerms.bbbRecordingDeleteAny;
         }else{
-        	recording.canEdit = meetings.userPerms.bbbEditAny;
-        	recording.canEnd = meetings.userPerms.bbbEditAny;
-        	recording.canDelete = meetings.userPerms.bbbDeleteAny;
+        	recording.canEdit = meetings.userPerms.bbbRecordingEditAny;
+        	recording.canDelete = meetings.userPerms.bbbRecordingDeleteAny;
         }
 	};
 	
@@ -1220,7 +1218,7 @@
             if( typeof CKEDITOR != "undefined" ) {
                 var editor = CKEDITOR.instances[textAreaId];
                 if ( editor != null ) {
-                    editor.remove();
+                    CKEDITOR.remove(editor);
                 }
             }
             //Launch the editor
