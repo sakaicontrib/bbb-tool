@@ -94,6 +94,7 @@ public class BaseBBBAPI implements BBBAPI {
     protected final static String APICALL_VERSION = "";
     protected final static String APICALL_GETRECORDINGS = "getRecordings";
     protected final static String APICALL_PUBLISHRECORDINGS = "publishRecordings";
+    protected final static String APICALL_PROTECTRECORDINGS = "protectRecordings";
     protected final static String APICALL_DELETERECORDINGS = "deleteRecordings";
 
     // API Response Codes
@@ -409,6 +410,26 @@ public class BaseBBBAPI implements BBBAPI {
             throw e;
         }
         
+        return true;
+    }
+
+    /** Protect/Unprotect a recording on BBB server */
+    public boolean protectRecordings(String meetingID, String recordID, String protect)
+            throws BBBException {
+        StringBuilder query = new StringBuilder();
+        query.append("recordID=");
+        query.append(recordID);
+        query.append("&protect=");
+        query.append(protect);
+        query.append(getCheckSumParameterForQuery(APICALL_PROTECTRECORDINGS, query.toString()));
+
+        try {
+            doAPICall(APICALL_PROTECTRECORDINGS, query.toString());
+
+        } catch (BBBException e) {
+            throw e;
+        }
+
         return true;
     }
 

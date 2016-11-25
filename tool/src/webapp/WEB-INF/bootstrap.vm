@@ -188,6 +188,17 @@
                         &nbsp;|&nbsp;
                         <a href="javascript:;" onclick="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${D}{bbb_action_delete_recording_tooltip}">${D}{bbb_action_delete_recording}</a>
                     {/if}
+                    {if r.canDelete}
+                      {if r.protected}
+                        {if r.protected == 'true'}
+                          &nbsp;|&nbsp;
+                          <a href="javascript:;" onclick="return meetings.utils.protectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{bbb_action_protect_tooltip}">${D}{bbb_action_protect}</a>
+                        {else if r.protected == 'false'}
+                          &nbsp;|&nbsp;
+                          <a href="javascript:;" onclick="return meetings.utils.unprotectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{bbb_action_unprotect_tooltip}">${D}{bbb_action_unprotect}</a>
+                        {/if}
+                      {/if}
+                    {/if}
                     </small>
                 </div> 
             </td>

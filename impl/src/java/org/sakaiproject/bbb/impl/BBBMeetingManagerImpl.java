@@ -482,6 +482,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return bbbAPI.publishRecordings(meetingID, recordID, publish);
     }
 
+    public boolean protectRecordings(String meetingID, String recordID, String protect)
+            throws SecurityException, BBBException {
+        // protect or unprotect the recording
+        return bbbAPI.protectRecordings(meetingID, recordID, protect);    
+    }
+
     public void checkJoinMeetingPreConditions(BBBMeeting meeting)
             throws BBBException {
         // check if meeting is within dates
