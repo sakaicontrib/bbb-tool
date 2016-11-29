@@ -335,10 +335,17 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
 
-        if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
-            return bbbAPI.getRecordings(meeting.getId() + "[" + groupId + "]");
+        if( meeting.getRecording() ) {
+            if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
+                return bbbAPI.getRecordings(meeting.getId() + "[" + groupId + "]");
 
-        return bbbAPI.getRecordings(meeting.getId());
+            return bbbAPI.getRecordings(meeting.getId());
+        } else {
+            //Mimic empty recordings object
+            Map<String, Object> recordings = new HashMap<String, Object>();
+            recordings.put("recordings", "");
+            return recordings;
+        }
     }
 
     public Map<String, Object> getSiteRecordings(String siteId) 

@@ -575,7 +575,8 @@
             </a>
         </td>
       </tr>
-      <tr id="meeting_recordings" {if !meetings.userPerms.bbbRecordingView}style="display:none;"{/if}>
+      {var hideRecordings = !meetings.userPerms.bbbRecordingView || !meetings.settings.config.addUpdateFormParameters.recordingEnabled || !meeting.recording}
+      <tr id="meeting_recordings" {if hideRecordings}style="display:none;"{/if}>
         <td><h5>${D}{bbb_info_recordings}</h5></td>
         <td id="recording_link_${D}{meeting.id}">
         </td>

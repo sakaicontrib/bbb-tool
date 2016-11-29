@@ -925,7 +925,13 @@
             meetings.utils.showMessage(bbb_err_get_recording, 'warning');
         } else {
         	meetings.utils.hideMessage();
-            if (!meetings.userPerms.bbbRecordingView) {
+            var meetingRecordingEnabled = true;
+            for(var i=0; i<meetings.currentMeetings.length; i++){
+                if (meetings.currentMeetings[i].id === meetingId) {
+                    meetingRecordingEnabled = meetings.currentMeetings[i].recording;
+                }
+            }
+            if (!meetings.userPerms.bbbRecordingView || !meetings.settings.config.addUpdateFormParameters.recordingEnabled || !meetingRecordingEnabled) {
                 $('#meeting_recordings').hide();
             } else {
                 $('#meeting_recordings').show();
