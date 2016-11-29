@@ -466,7 +466,7 @@
                     $('#meetingStatus').hide();
 				} else if ( meeting.running ) {
 					meeting.joinableMode = "inprogress";
-                    if (!meeting.canEnd && !meeting.multipleSessionsAllowed && meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting))
+                    if (!meeting.canEnd && (!meeting.multipleSessionsAllowed || !meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) && meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting))
                         $('#meetingStatus').hide();
 				}
 			} else {
@@ -770,13 +770,13 @@
 
         if(meeting.joinable) {
             if ( meeting.joinableMode === "available" ){
-                if( meeting.multipleSessionsAllowed ) {
-                    $('#meeting_joinlink_'+meeting.id).fadeIn();
+                if( meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled ) {
+                    $('#meeting_joinlink_'+meeting.id).show();
                 } else {
                     if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
-                        $('#meeting_joinlink_'+meeting.id).fadeIn();
+                        $('#meeting_joinlink_'+meeting.id).show();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).fadeOut();
+                        $('#meeting_joinlink_'+meeting.id).hide();
                     }
                 }
                 // Update the actionbar on the list
@@ -800,11 +800,11 @@
                     .text(bbb_status_joinable_available);
             } else if ( meeting.joinableMode === "inprogress" ){
                 var end_meetingTextIntermediate = "&nbsp;|&nbsp;&nbsp;<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>&nbsp;<span><i class=\"fa fa-stop\"></i></span>";
-                if( meeting.multipleSessionsAllowed ) {
-                    $('#meeting_joinlink_'+meeting.id).fadeIn();
+                if( meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled ) {
+                    $('#meeting_joinlink_'+meeting.id).show();
                 } else {
                     if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
-                        $('#meeting_joinlink_'+meeting.id).fadeIn();
+                        $('#meeting_joinlink_'+meeting.id).show();
                     } else {
                         $('#meeting_joinlink_'+meeting.id).hide();
                         end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>&nbsp;<span><i class=\"fa fa-stop\"></i></span>";

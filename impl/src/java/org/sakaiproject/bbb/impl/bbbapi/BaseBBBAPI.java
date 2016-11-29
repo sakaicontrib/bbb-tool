@@ -80,6 +80,8 @@ public class BaseBBBAPI implements BBBAPI {
     /** Sakai property settings for features that don't have a checkbox */
     protected boolean bbbPreuploadPresentation = true;
     protected boolean bbbRecordingReadyNotification = false;
+    /** Sakai property settings for features disabled after meeting created */
+    protected boolean bbbRecordingEnabled = true;
 
     // API Server Path
     protected final static String API_SERVERPATH = "/api/";
@@ -134,6 +136,7 @@ public class BaseBBBAPI implements BBBAPI {
         bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
         bbbPreuploadPresentation = config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentation);
         bbbRecordingReadyNotification = config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotification);
+        bbbRecordingEnabled = config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
     }
 
     public String getUrl() {
@@ -176,7 +179,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             // BSN: Parameters required for playback recording
             query.append("&record=");
-            String recording = meeting.getRecording() != null && meeting.getRecording().booleanValue() ? "true" : "false";
+            String recording = meeting.getRecording() != null && meeting.getRecording().booleanValue() && bbbRecordingEnabled ? "true" : "false";
             query.append(recording);
 
             query.append("&duration=");

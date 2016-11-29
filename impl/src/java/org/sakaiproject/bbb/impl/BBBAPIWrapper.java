@@ -56,10 +56,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     private long bbbAutorefreshMeetings = 0;
     /** BBB API auto refresh interval for recordings(default to 0 sec means it is not activated) */
     private long bbbAutorefreshRecordings = 0;
-    /** BBB API getSiteRecordings active flag (default to true) */
-    private boolean bbbGetSiteRecordings = true;
-    /** BBB UX flag to activate/deactivate recording parameters in the client (default to true) */
+    /** BBB UX flag to activate/deactivate recording feature for meetings (default to true) */
     private boolean bbbRecordingEnabled = true;
+    /** BBB UX flag to activate/deactivate recording recording checkbox (default to true) */
+    private boolean bbbRecordingEditable = true;
     /** BBB default value for 'recording' checkbox (default to false) */
     private boolean bbbRecordingDefault = false;
     /** BBB UX flag to activate/deactivate 'recording ready notifications' (default to false) */
@@ -72,18 +72,24 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbDurationEnabled = false;
     /** BBB default value for 'duration' box (default 120 minutes) */
     private int bbbDurationDefault = 120;
-    /** BBB UX flag to activate/deactivate 'wait for moderator' checkbox (default to true) */
+    /** BBB UX flag to activate/deactivate 'wait for moderator' feature for meetings (default to true) */
     private boolean bbbWaitModeratorEnabled = true;
+    /** BBB UX flag to activate/deactivate 'wait for moderator' checkbox (default to true) */
+    private boolean bbbWaitModeratorEditable = true;
     /** BBB default value for 'wait for moderator' checkbox (default to true) */
     private boolean bbbWaitModeratorDefault = true;
-    /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' checkbox (default to false) */
+    /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' feature for meetings (default to false) */
     private boolean bbbMultipleSessionsAllowedEnabled = false;
+    /** BBB UX flag to activate/deactivate 'Users can open multiple sessions' checkbox (default to true) */
+    private boolean bbbMultipleSessionsAllowedEditable = true;
     /** BBB default value for 'Users can open multiple sessions' checkbox (default to false) */
     private boolean bbbMultipleSessionsAllowedDefault = false;
     /** BBB UX flag to activate/deactivate 'presentation' file input (default to true) */
     private boolean bbbPreuploadPresentationEnabled = true;
-    /** BBB UX flag to activate/deactivate 'one session per group' checkbox (default to false) */
+    /** BBB UX flag to activate/deactivate 'one session per group' feature for meetings (default to false) */
     private boolean bbbOneSessionPerGroupEnabled = true;
+    /** BBB UX flag to activate/deactivate 'one session per group' checkbox (default to true) */
+    private boolean bbbOneSessionPerGroupEditable = true;
     /** BBB default value for 'one session per group' checkbox (default to false) */
     private boolean bbbOneSessionPerGroupDefault = false;
     
@@ -138,8 +144,8 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
-        bbbGetSiteRecordings = (boolean) config.getBoolean(BBBMeetingManager.CFG_GETSITERECORDINGS, bbbGetSiteRecordings);
         bbbRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
+        bbbRecordingEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_EDITABLE, bbbRecordingEditable);
         bbbRecordingDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_DEFAULT, bbbRecordingDefault);
         bbbRecordingReadyNotificationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotificationEnabled);
         bbbDescriptionMaxLength = (int) config.getInt(BBBMeetingManager.CFG_DESCRIPTIONMAXLENGTH, bbbDescriptionMaxLength);
@@ -147,11 +153,14 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbDurationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_DURATION_ENABLED, bbbDurationEnabled);
         bbbDurationDefault = (int) config.getInt(BBBMeetingManager.CFG_DURATION_DEFAULT, bbbDurationDefault);
         bbbWaitModeratorEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_ENABLED, bbbWaitModeratorEnabled);
+        bbbWaitModeratorEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_EDITABLE, bbbWaitModeratorEditable);
         bbbWaitModeratorDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_WAITMODERATOR_DEFAULT, bbbWaitModeratorDefault);
         bbbMultipleSessionsAllowedEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_ENABLED, bbbMultipleSessionsAllowedEnabled);
+        bbbMultipleSessionsAllowedEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_EDITABLE, bbbMultipleSessionsAllowedEditable);
         bbbMultipleSessionsAllowedDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_DEFAULT, bbbMultipleSessionsAllowedDefault);
         bbbPreuploadPresentationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentationEnabled);
         bbbOneSessionPerGroupEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_ENABLED, bbbOneSessionPerGroupEnabled);
+        bbbOneSessionPerGroupEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_EDITABLE, bbbOneSessionPerGroupEditable);
         bbbOneSessionPerGroupDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_DEFAULT, bbbOneSessionPerGroupDefault);
 
     }
@@ -367,6 +376,10 @@ public class BBBAPIWrapper/* implements Runnable */{
         return bbbRecordingEnabled;
     }
 
+    public boolean isRecordingEditable(){
+        return bbbRecordingEditable;
+    }
+
     public boolean getRecordingDefault(){
         return bbbRecordingDefault;
     }
@@ -387,12 +400,20 @@ public class BBBAPIWrapper/* implements Runnable */{
         return bbbWaitModeratorEnabled;
     }
 
+    public boolean isWaitModeratorEditable(){
+        return bbbWaitModeratorEditable;
+    }
+
     public boolean getWaitModeratorDefault(){
         return bbbWaitModeratorDefault;
     }
 
     public boolean isMultipleSessionsAllowedEnabled(){
         return bbbMultipleSessionsAllowedEnabled;
+    }
+
+    public boolean isMultipleSessionsAllowedEditable(){
+        return bbbMultipleSessionsAllowedEditable;
     }
 
     public boolean getMultipleSessionsAllowedDefault(){
@@ -405,6 +426,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public boolean isOneSessionPerGroupEnabled(){
         return bbbOneSessionPerGroupEnabled;
+    }
+
+    public boolean isOneSessionPerGroupEditable(){
+        return bbbOneSessionPerGroupEditable;
     }
 
     public boolean getOneSessionPerGroupDefault(){

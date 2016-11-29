@@ -352,20 +352,22 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         String meetingIDs = "";
 
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
-        if( meetings.size() > 0 ) {
+        if( meetings.size() > 0 && bbbAPI.isRecordingEnabled() ) {
             for (BBBMeeting meeting : meetings) {
-                if( !meetingIDs.equals("") )
-                    meetingIDs += ",";
-                meetingIDs += meeting.getId();
-                if( meeting.getOneSessionPerGroup() ){
-                    Site site;
-                    try {
-                        site = siteService.getSite(siteId);
-                        Collection<Group> userGroups = site.getGroups();
-                        for (Group g : userGroups)
-                            meetingIDs += "," + meeting.getId() + "[" + g.getId() + "]";
-                    } catch (IdUnusedException e) {
-                        logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
+                if( meeting.getRecording() ) {
+                    if( !meetingIDs.equals("") )
+                        meetingIDs += ",";
+                    meetingIDs += meeting.getId();
+                    if( meeting.getOneSessionPerGroup() ){
+                        Site site;
+                        try {
+                            site = siteService.getSite(siteId);
+                            Collection<Group> userGroups = site.getGroups();
+                            for (Group g : userGroups)
+                                meetingIDs += "," + meeting.getId() + "[" + g.getId() + "]";
+                        } catch (IdUnusedException e) {
+                            logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
+                        }
                     }
                 }
             }
@@ -779,6 +781,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isRecordingEnabled();
     }
     
+    public String isRecordingEditable(){
+        return "" + bbbAPI.isRecordingEditable();
+    }
+    
     public String getRecordingDefault(){
         return "" + bbbAPI.getRecordingDefault();
     }
@@ -795,6 +801,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isWaitModeratorEnabled();
     }
 
+    public String isWaitModeratorEditable(){
+        return "" + bbbAPI.isWaitModeratorEditable();
+    }
+
     public String getWaitModeratorDefault(){
         return "" + bbbAPI.getWaitModeratorDefault();
     }
@@ -803,12 +813,20 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isMultipleSessionsAllowedEnabled();
     }
 
+    public String isMultipleSessionsAllowedEditable(){
+        return "" + bbbAPI.isMultipleSessionsAllowedEditable();
+    }
+
     public String getMultipleSessionsAllowedDefault(){
         return "" + bbbAPI.getMultipleSessionsAllowedDefault();
     }
     
     public String isOneSessionPerGroupEnabled(){
         return "" + bbbAPI.isOneSessionPerGroupEnabled();
+    }
+
+    public String isOneSessionPerGroupEditable(){
+        return "" + bbbAPI.isOneSessionPerGroupEditable();
     }
 
     public String getOneSessionPerGroupDefault(){

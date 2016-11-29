@@ -63,11 +63,11 @@ meetings.browserTimezoneOffset = 0;
 
     $('#bbb_permissions_link').click(function (e) {
         return meetings.switchState('permissions');
-    });
+    }).hide();
 
     $('#bbb_recordings_link').click(function (e) {
         return meetings.switchState('recordings');
-    });
+    }).hide()
     
     var settingsCallback = function () {
 
@@ -112,7 +112,7 @@ meetings.switchState = function (state, arg) {
 
         // show recordings links only if site maintainer or if has specific view permission
         $('#bbb_recordings_link').unbind('click');
-        if (!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) {
+        if ((!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) || !meetings.settings.config.addUpdateFormParameters.recordingEnabled) {
             $('#bbb_recordings_link').parent().parent().hide();
         } else {
             $('#bbb_recordings_link').parent().parent().show();
@@ -127,7 +127,7 @@ meetings.switchState = function (state, arg) {
             $('#bbb_permissions_link').parent().parent().show();
             $('#bbb_permissions_link').click(function (e) {
                 return meetings.switchState('permissions');
-            });
+            }).show();
         } else {
             $('#bbb_permissions_link').parent().parent().hide();
         }
@@ -238,15 +238,19 @@ meetings.switchState = function (state, arg) {
                 'selOptions':   meetings.utils.getUserSelectionOptions(),
                 'siteId':       meetings.startupArgs.siteId,
                 'recordingEnabled': 	meetings.settings.config.addUpdateFormParameters.recordingEnabled,
+                'recordingEditable':    meetings.settings.config.addUpdateFormParameters.recordingEditable,
                 'recordingDefault':     meetings.settings.config.addUpdateFormParameters.recordingDefault,
                 'durationEnabled':      meetings.settings.config.addUpdateFormParameters.durationEnabled,
                 'durationDefault':      meetings.settings.config.addUpdateFormParameters.durationDefault,
                 'waitmoderatorEnabled': meetings.settings.config.addUpdateFormParameters.waitmoderatorEnabled,
+                'waitmoderatorEditable': meetings.settings.config.addUpdateFormParameters.waitmoderatorEditable,
                 'waitmoderatorDefault': meetings.settings.config.addUpdateFormParameters.waitmoderatorDefault,
                 'multiplesessionsallowedEnabled': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled,
+                'multiplesessionsallowedEditable': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEditable,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
                 'preuploadpresentationEnabled' : meetings.settings.config.addUpdateFormParameters.preuploadpresentationEnabled,
                 'onesessionpergroupEnabled': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled,
+                'onesessionpergroupEditable': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEditable,
                 'onesessionpergroupDefault': meetings.settings.config.addUpdateFormParameters.onesessionpergroupDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
@@ -421,7 +425,7 @@ meetings.switchState = function (state, arg) {
 
             if (meeting) {
                 var groups;
-                if(meeting.oneSessionPerGroup){
+                if(meeting.oneSessionPerGroup && meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled){
                     groups = meetings.utils.getGroups(meeting);
                     if (jQuery.isEmptyObject(groups)){
                         groups = undefined;
@@ -439,8 +443,9 @@ meetings.switchState = function (state, arg) {
                     $("#groupSession").change(function() {
                         //clear timeout if group sessions is changed so the meeting info page isn't updated with wrong meeting
                         clearTimeout(meetings.updateMeetingOnceTimeoutId);
+                        var multiplesessions = meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled;
                         if(this.value != "Default"){
-                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
+                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+multiplesessions+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
                             $("#meetingName").html(meeting.name + ' (' + $('#groupSession option:selected').text() + ')');
                             
                             meetings.utils.checkOneMeetingAvailability(meeting.id, this.value);
@@ -450,7 +455,7 @@ meetings.switchState = function (state, arg) {
                                 meetings.checkOneMeetingAvailabilityId = setInterval(   "meetings.utils.checkOneMeetingAvailability('" + meeting.id + "', '" + this.value + "')", meetings.settings.config.autorefreshInterval.meetings);
                             return;
                         } else {
-                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+meeting.multipleSessionsAllowed+");");
+                            $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+multiplesessions+");");
                             $("#meetingName").html(meeting.name);
 
                             meetings.utils.checkOneMeetingAvailability(meeting.id);
@@ -823,7 +828,7 @@ meetings.updateMeetingInfo = function (meeting) {
 			});
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
-                if (!meeting.multipleSessionsAllowed && meetings.currentUser.id === meetingInfo.attendees[p].userID) {
+                if ((!meeting.multipleSessionsAllowed || !meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) && meetings.currentUser.id === meetingInfo.attendees[p].userID) {
 					$('#meeting_joinlink_' + meeting.id).hide();
 				}
           	}
