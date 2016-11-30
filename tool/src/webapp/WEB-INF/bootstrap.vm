@@ -280,13 +280,17 @@
         </td>
       </tr>
       {if recordingEnabled}
-      <tr>
-        <td class="bbb_lbl">${D}{bbb_info_recording}</td>
-        <td>
-            {var recordingChecked = isNew ? recordingDefault : meeting.recording }
-            <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
-        </td>
-      </tr>
+          {var recordingChecked = isNew ? recordingDefault : meeting.recording }
+          {if recordingEditable}
+          <tr>
+            <td class="bbb_lbl">${D}{bbb_info_recording}</td>
+            <td>
+                <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="recording" name="recording" type="hidden" {if recordingEditable}value="${D}{recordingChecked}"{/if}/>
+          {/if}
       {/if}
       {if durationEnabled}
       <tr>
@@ -297,22 +301,30 @@
       </tr>
       {/if}
       {if waitmoderatorEnabled}
-      <tr>
-        <td class="bbb_lbl">${D}{bbb_info_waitformoderator}</td>
-        <td>
-            {var waitForModerator = isNew ? waitmoderatorDefault : meeting.waitForModerator }
-            <input id="waitForModerator" name="waitForModerator" type="checkbox" {if waitForModerator}checked{/if}/>
-        </td>
-      </tr>
+          {var waitForModerator = isNew ? waitmoderatorDefault : meeting.waitForModerator }
+          {if waitmoderatorEditable}
+          <tr>
+            <td class="bbb_lbl">${D}{bbb_info_waitformoderator}</td>
+            <td>
+                <input id="waitForModerator" name="waitForModerator" type="checkbox" {if waitForModerator}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="waitForModerator" name="waitForModerator" type="hidden" {if waitmoderatorEditable}value="${D}{waitForModerator}"{/if}/>
+          {/if}
       {/if}
       {if multiplesessionsallowedEnabled}
-      <tr>
-        <td class="bbb_lbl">${D}{bbb_info_multiplesessionsallowed}</td>
-        <td>
-            {var multipleSessionsAllowed = isNew ? multiplesessionsallowedDefault : meeting.multipleSessionsAllowed }
-            <input id="multipleSessionsAllowed" name="multipleSessionsAllowed" type="checkbox" {if multipleSessionsAllowed}checked{/if}/>
-        </td>
-      </tr>
+      {var multipleSessionsAllowed = isNew ? multiplesessionsallowedDefault : meeting.multipleSessionsAllowed }
+          {if multiplesessionsallowedEditable}
+          <tr>
+            <td class="bbb_lbl">${D}{bbb_info_multiplesessionsallowed}</td>
+            <td>
+                <input id="multipleSessionsAllowed" name="multipleSessionsAllowed" type="checkbox" {if multipleSessionsAllowed}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="multipleSessionsAllowed" name="mulitpleSessionsAllowed" type="hidden" {if multipleSessionsAllowed}value="${D}{multipleSessionsAllowed}"{/if}/>
+          {/if}
       {/if}
       {if preuploadpresentationEnabled}
       <tr>
@@ -331,13 +343,17 @@
       </tr>
       {/if}
       {if onesessionpergroupEnabled}
-      <tr>
-        <td class="bbb_lbl">${D}{bbb_info_onesessionpergroup}</td>
-        <td>
-            {var oneSessionPerGroupAllowed = isNew ? onesessionpergroupDefault : meeting.oneSessionPerGroup }
-            <input id="oneSessionPerGroup" name="oneSessionPerGroup" type="checkbox" {if oneSessionPerGroupAllowed}checked{/if}/>
-        </td>
-      </tr>
+          {var oneSessionPerGroup = isNew ? onesessionpergroupDefault : meeting.oneSessionPerGroup }
+          {if onesessionpergroupEditable}
+          <tr>
+            <td class="bbb_lbl">${D}{bbb_info_onesessionpergroup}</td>
+            <td>
+                <input id="oneSessionPerGroup" name="oneSessionPerGroup" type="checkbox" {if oneSessionPerGroup}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="oneSessionPerGroup" name="oneSessionPerGroup" type="hidden" {if oneSessionPerGroup}value="${D}{oneSessionPerGroup}"{/if}/>
+          {/if}
       {/if}
     </table>
     
@@ -534,7 +550,8 @@
             <span id="meetingStatus">
                 (
                 <span id="meeting_joinlink_${D}{meeting.id}" style="${D}{displayLink}">
-                        <a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return meetings.utils.joinMeeting('${D}{meeting.id}', '#joinMeetingLink', ${D}{meeting.multipleSessionsAllowed});" title="${D}{bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${D}{bbb_meetinginfo_link}</a>
+                        {var multiplesessions = meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled}
+                        <a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return meetings.utils.joinMeeting('${D}{meeting.id}', '#joinMeetingLink', ${D}{multiplesessions});" title="${D}{bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${D}{bbb_meetinginfo_link}</a>
                         <i class="fa fa-sign-in"></i>
                 </span>
                 {if meeting.canEnd}
@@ -558,7 +575,8 @@
             </a>
         </td>
       </tr>
-      <tr id="meeting_recordings" {if !meetings.userPerms.bbbRecordingView}style="display:none;"{/if}>
+      {var hideRecordings = !meetings.userPerms.bbbRecordingView || !meetings.settings.config.addUpdateFormParameters.recordingEnabled || !meeting.recording}
+      <tr id="meeting_recordings" {if hideRecordings}style="display:none;"{/if}>
         <td><h5>${D}{bbb_info_recordings}</h5></td>
         <td id="recording_link_${D}{meeting.id}">
         </td>

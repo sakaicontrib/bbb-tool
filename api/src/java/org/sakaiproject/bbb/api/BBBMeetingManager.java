@@ -48,22 +48,24 @@ public interface BBBMeetingManager {
     public final static String CFG_DEFAULT_OWNER = "bbb.default.participants.owner";
     public final static String CFG_AUTOREFRESHMEETINGS = "bbb.autorefresh.meetings";
     public final static String CFG_AUTOREFRESHRECORDINGS = "bbb.autorefresh.recordings";
-    public final static String CFG_GETSITERECORDINGS = "bbb.getsiterecordings";
-    public final static String CFG_RECORDING = "bbb.recording";                             // [true|false]
     public final static String CFG_RECORDING_ENABLED = "bbb.recording.enabled";             // [true|false]
+    public final static String CFG_RECORDING_EDITABLE = "bbb.recording.editable";           // [true|false]
     public final static String CFG_RECORDING_DEFAULT = "bbb.recording.default";             // [true|false]
-    public final static String CFG_RECORDINGREADYNOTIFICATION_ENABLED = "bbb.recordingreadynotification.enabled";           // [true|false]          // [true|false]
+    public final static String CFG_RECORDINGREADYNOTIFICATION_ENABLED = "bbb.recordingready.enabled";           // [true|false]
     public final static String CFG_DESCRIPTIONMAXLENGTH = "bbb.descriptionmaxlength";
     public final static String CFG_DESCRIPTIONTYPE = "bbb.descriptiontype";                 // [fckeditor|ckeditor|plaintext]
     public final static String CFG_DURATION_ENABLED = "bbb.duration.enabled";               // [true|false]
     public final static String CFG_DURATION_DEFAULT = "bbb.duration.default";
     public final static String CFG_WAITMODERATOR_ENABLED = "bbb.waitmoderator.enabled";     // [true|false]
+    public final static String CFG_WAITMODERATOR_EDITABLE = "bbb.waitmoderator.editable";   // [true|false]
     public final static String CFG_WAITMODERATOR_DEFAULT = "bbb.waitmoderator.default";     // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_ENABLED = "bbb.multiplesessionsallowed.enabled";     // [true|false]
+    public final static String CFG_MULTIPLESESSIONSALLOWED_EDITABLE = "bbb.multiplesessionsallowed.editable";   // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
     public final static String CFG_PREUPLOADPRESENTATION_ENABLED = "bbb.preuploadpresentation.enabled";     // [true|false]
-    public final static String CFG_ONESESSIONPERGROUP_ENABLED = "bbb.onesessionpergroup.enabled";               // [true|false]
-    public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.onesessionpergroup.default";               // [true|false]
+    public final static String CFG_ONESESSIONPERGROUP_ENABLED = "bbb.groups.enabled";               // [true|false]
+    public final static String CFG_ONESESSIONPERGROUP_EDITABLE = "bbb.groups.editable";             // [true|false]
+    public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.groups.default";               // [true|false]
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -321,6 +323,8 @@ public interface BBBMeetingManager {
 
     public String isRecordingEnabled();
 
+    public String isRecordingEditable();
+
     public String getRecordingDefault();
 
     public String isDurationEnabled();
@@ -329,15 +333,21 @@ public interface BBBMeetingManager {
 
     public String isWaitModeratorEnabled();
 
+    public String isWaitModeratorEditable();
+
     public String getWaitModeratorDefault();
 
     public String isMultipleSessionsAllowedEnabled();
+
+    public String isMultipleSessionsAllowedEditable();
 
     public String getMultipleSessionsAllowedDefault();
     
     public String isPreuploadPresentationEnabled();
 
     public String isOneSessionPerGroupEnabled();
+
+    public String isOneSessionPerGroupEditable();
 
     public String getOneSessionPerGroupDefault();
 

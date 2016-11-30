@@ -569,6 +569,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (recordingEnabled != null) {
             map.put("recordingEnabled", recordingEnabled);
         }
+        Boolean recordingEditable = Boolean.parseBoolean(meetingManager.isRecordingEditable());
+        if (recordingEditable != null) {
+            map.put("recordingEditable", recordingEditable);
+        }
         Boolean recordingDefault = Boolean.parseBoolean(meetingManager.getRecordingDefault());
         if (recordingDefault != null) {
             map.put("recordingDefault", recordingDefault);
@@ -587,6 +591,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (waitmoderatorEnabled != null) {
             map.put("waitmoderatorEnabled", waitmoderatorEnabled);
         }
+        Boolean waitmoderatorEditable = Boolean.parseBoolean(meetingManager.isWaitModeratorEditable());
+        if (waitmoderatorEditable != null) {
+            map.put("waitmoderatorEditable", waitmoderatorEditable);
+        }
         Boolean waitmoderatorDefault = Boolean.parseBoolean(meetingManager.getWaitModeratorDefault());
         if (waitmoderatorDefault != null) {
             map.put("waitmoderatorDefault", waitmoderatorDefault);
@@ -595,6 +603,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         Boolean multiplesessionsallowedEnabled = Boolean.parseBoolean(meetingManager.isMultipleSessionsAllowedEnabled());
         if (multiplesessionsallowedEnabled != null) {
             map.put("multiplesessionsallowedEnabled", multiplesessionsallowedEnabled);
+        }
+        Boolean multiplesessionsallowedEditable = Boolean.parseBoolean(meetingManager.isMultipleSessionsAllowedEditable());
+        if (multiplesessionsallowedEditable != null) {
+            map.put("multiplesessionsallowedEditable", multiplesessionsallowedEditable);
         }
         Boolean multiplesessionsallowedDefault = Boolean.parseBoolean(meetingManager.getMultipleSessionsAllowedDefault());
         if (multiplesessionsallowedDefault != null) {
@@ -610,9 +622,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (onesessionpergroupEnabled != null) {
             map.put("onesessionpergroupEnabled", onesessionpergroupEnabled);
         }
+        Boolean onesessionpergroupEditable = Boolean.parseBoolean(meetingManager.isOneSessionPerGroupEditable());
+        if (onesessionpergroupEditable != null) {
+            map.put("onesessionpergroupEditable", onesessionpergroupEditable);
+        }
         Boolean onesessionpergroupDefault = Boolean.parseBoolean(meetingManager.getOneSessionPerGroupDefault());
         if (onesessionpergroupDefault != null) {
-            map.put("onesessionpergroupdefault", onesessionpergroupDefault);
+            map.put("onesessionpergroupDefault", onesessionpergroupDefault);
         }
         //UX settings for 'description' box
         String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
@@ -898,8 +914,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
             //Build the corresponding page for joining
             //If the user is not a moderator and WaitForModerator is enabled, do not create the meeting
+            Boolean waitmoderatorEnabled = Boolean.parseBoolean(meetingManager.isWaitModeratorEnabled());
+            if (waitmoderatorEnabled == null)
+                waitmoderatorEnabled = true;
             String html;
-            if( meeting.getWaitForModerator() ){
+            if( waitmoderatorEnabled && meeting.getWaitForModerator() ){
                 Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
                 if( !(Participant.MODERATOR).equals(p.getRole())) {
                     Map<String, Object> meetingInfo = null;
