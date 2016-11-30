@@ -325,7 +325,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
         
-        if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
+        if(meeting.getGroupSessions() && groupId != "" && groupId != null)
             return bbbAPI.getMeetingInfo(meeting.getId() + "[" + groupId + "]", meeting.getModeratorPassword());
 
         return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
@@ -336,7 +336,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
 
         if( meeting.getRecording() ) {
-            if(meeting.getOneSessionPerGroup() && groupId != "" && groupId != null)
+            if(meeting.getGroupSessions() && groupId != "" && groupId != null)
                 return bbbAPI.getRecordings(meeting.getId() + "[" + groupId + "]");
 
             return bbbAPI.getRecordings(meeting.getId());
@@ -365,7 +365,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     if( !meetingIDs.equals("") )
                         meetingIDs += ",";
                     meetingIDs += meeting.getId();
-                    if( meeting.getOneSessionPerGroup() ){
+                    if( meeting.getGroupSessions() ){
                         Site site;
                         try {
                             site = siteService.getSite(siteId);
@@ -428,12 +428,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // end meeting on server, if running
-        if (meeting.getOneSessionPerGroup() && groupId != "" && groupId != null) {
+        if (meeting.getGroupSessions() && groupId != "" && groupId != null) {
             bbbAPI.endMeeting(meetingId + "[" + groupId + "]", meeting.getModeratorPassword());
         } else {
             bbbAPI.endMeeting(meetingId, meeting.getModeratorPassword());
 
-            if(meeting.getOneSessionPerGroup() && endAll){
+            if(meeting.getGroupSessions() && endAll){
                 //End all group sessions that could be running
                 Site site;
                 try {
@@ -828,16 +828,16 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.getMultipleSessionsAllowedDefault();
     }
     
-    public String isOneSessionPerGroupEnabled(){
-        return "" + bbbAPI.isOneSessionPerGroupEnabled();
+    public String isGroupSessionsEnabled(){
+        return "" + bbbAPI.isGroupSessionsEnabled();
     }
 
-    public String isOneSessionPerGroupEditable(){
-        return "" + bbbAPI.isOneSessionPerGroupEditable();
+    public String isGroupSessionsEditable(){
+        return "" + bbbAPI.isGroupSessionsEditable();
     }
 
-    public String getOneSessionPerGroupDefault(){
-        return "" + bbbAPI.getOneSessionPerGroupDefault();
+    public String getGroupSessionsDefault(){
+        return "" + bbbAPI.getGroupSessionsDefault();
     }
 
     public String isPreuploadPresentationEnabled(){

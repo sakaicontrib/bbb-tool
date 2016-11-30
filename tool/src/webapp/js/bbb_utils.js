@@ -372,7 +372,7 @@
                 var end_meetingText = "";
                 if( meetings.currentMeetings[i].groupActive || (meetings.currentMeetings[i].joinable && meetings.currentMeetings[i].joinableMode == 'inprogress') ){
                     end_meetingClass = "bbb_end_meeting_shown";
-                    if(meetings.currentMeetings[i].oneSessionPerGroup){
+                    if(meetings.currentMeetings[i].groupSessions){
                         end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                     } else {
                         end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
@@ -484,7 +484,7 @@
             var end_meetingText = "";
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
                 end_meetingClass = "bbb_end_meeting_shown";
-                if(meeting.oneSessionPerGroup){
+                if(meeting.groupSessions){
                     end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                 } else {
                     end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
