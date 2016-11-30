@@ -86,12 +86,12 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbMultipleSessionsAllowedDefault = false;
     /** BBB UX flag to activate/deactivate 'presentation' file input (default to true) */
     private boolean bbbPreuploadPresentationEnabled = true;
-    /** BBB UX flag to activate/deactivate 'one session per group' feature for meetings (default to false) */
-    private boolean bbbOneSessionPerGroupEnabled = true;
-    /** BBB UX flag to activate/deactivate 'one session per group' checkbox (default to true) */
-    private boolean bbbOneSessionPerGroupEditable = true;
-    /** BBB default value for 'one session per group' checkbox (default to false) */
-    private boolean bbbOneSessionPerGroupDefault = false;
+    /** BBB UX flag to activate/deactivate 'group sessions' feature for meetings (default to false) */
+    private boolean bbbGroupSessionsEnabled = true;
+    /** BBB UX flag to activate/deactivate 'group sessions' checkbox (default to true) */
+    private boolean bbbGroupSessionsEditable = true;
+    /** BBB default value for 'group sessions' checkbox (default to false) */
+    private boolean bbbGroupSessionsDefault = false;
     
     /** BBB API */
     private BBBAPI api = null;
@@ -159,9 +159,9 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbMultipleSessionsAllowedEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_EDITABLE, bbbMultipleSessionsAllowedEditable);
         bbbMultipleSessionsAllowedDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_MULTIPLESESSIONSALLOWED_DEFAULT, bbbMultipleSessionsAllowedDefault);
         bbbPreuploadPresentationEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentationEnabled);
-        bbbOneSessionPerGroupEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_ENABLED, bbbOneSessionPerGroupEnabled);
-        bbbOneSessionPerGroupEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_EDITABLE, bbbOneSessionPerGroupEditable);
-        bbbOneSessionPerGroupDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_ONESESSIONPERGROUP_DEFAULT, bbbOneSessionPerGroupDefault);
+        bbbGroupSessionsEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_ENABLED, bbbGroupSessionsEnabled);
+        bbbGroupSessionsEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_EDITABLE, bbbGroupSessionsEditable);
+        bbbGroupSessionsDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_DEFAULT, bbbGroupSessionsDefault);
 
     }
 
@@ -424,16 +424,16 @@ public class BBBAPIWrapper/* implements Runnable */{
         return bbbPreuploadPresentationEnabled;
     }
 
-    public boolean isOneSessionPerGroupEnabled(){
-        return bbbOneSessionPerGroupEnabled;
+    public boolean isGroupSessionsEnabled(){
+        return bbbGroupSessionsEnabled;
     }
 
-    public boolean isOneSessionPerGroupEditable(){
-        return bbbOneSessionPerGroupEditable;
+    public boolean isGroupSessionsEditable(){
+        return bbbGroupSessionsEditable;
     }
 
-    public boolean getOneSessionPerGroupDefault(){
-        return bbbOneSessionPerGroupDefault;
+    public boolean getGroupSessionsDefault(){
+        return bbbGroupSessionsDefault;
     }
 
     public int getMaxLengthForDescription(){

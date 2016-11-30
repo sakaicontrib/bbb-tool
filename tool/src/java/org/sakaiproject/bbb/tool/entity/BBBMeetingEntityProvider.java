@@ -251,11 +251,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String presentationUrl = (String) params.get("presentation");
         meeting.setPresentation(presentationUrl);
 
-        // oneSessionPerGroup flag
-        String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
-        boolean oneSessionPerGroup = (oneSessionPerGroupStr != null &&
-                (oneSessionPerGroupStr.toLowerCase().equals("on") || oneSessionPerGroupStr.toLowerCase().equals("true")));
-        meeting.setOneSessionPerGroup(Boolean.valueOf(oneSessionPerGroup));
+        // groupSessions flag
+        String groupSessionsStr = (String) params.get("groupSessions");
+        boolean groupSessions = (groupSessionsStr != null &&
+                (groupSessionsStr.toLowerCase().equals("on") || groupSessionsStr.toLowerCase().equals("true")));
+        meeting.setGroupSessions(Boolean.valueOf(groupSessions));
 
         // participants
         String meetingOwnerId = meeting.getOwnerId();
@@ -372,11 +372,11 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 meeting.setPresentation("");
             }
 
-            // update oneSessionPerGroup flag
-            String oneSessionPerGroupStr = (String) params.get("oneSessionPerGroup");
-            boolean oneSessionPerGroup = (oneSessionPerGroupStr != null &&
-                    (oneSessionPerGroupStr.toLowerCase().equals("on") || oneSessionPerGroupStr.toLowerCase().equals("true")));
-            meeting.setOneSessionPerGroup(Boolean.valueOf(oneSessionPerGroup));
+            // update groupSessions flag
+            String groupSessionsStr = (String) params.get("groupSessions");
+            boolean groupSessions = (groupSessionsStr != null &&
+                    (groupSessionsStr.toLowerCase().equals("on") || groupSessionsStr.toLowerCase().equals("true")));
+            meeting.setGroupSessions(Boolean.valueOf(groupSessions));
 
             // update dates
             if (params.get("startDate") != null)
@@ -617,18 +617,18 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (preuploadpresentationEnabled != null) {
             map.put("preuploadpresentationEnabled", preuploadpresentationEnabled);
         }
-        //UX settings for 'one session per group' box
-        Boolean onesessionpergroupEnabled = Boolean.parseBoolean(meetingManager.isOneSessionPerGroupEnabled());
-        if (onesessionpergroupEnabled != null) {
-            map.put("onesessionpergroupEnabled", onesessionpergroupEnabled);
+        //UX settings for 'group sessions' box
+        Boolean groupsessionsEnabled = Boolean.parseBoolean(meetingManager.isGroupSessionsEnabled());
+        if (groupsessionsEnabled != null) {
+            map.put("groupsessionsEnabled", groupsessionsEnabled);
         }
-        Boolean onesessionpergroupEditable = Boolean.parseBoolean(meetingManager.isOneSessionPerGroupEditable());
-        if (onesessionpergroupEditable != null) {
-            map.put("onesessionpergroupEditable", onesessionpergroupEditable);
+        Boolean groupsessionsEditable = Boolean.parseBoolean(meetingManager.isGroupSessionsEditable());
+        if (groupsessionsEditable != null) {
+            map.put("groupsessionsEditable", groupsessionsEditable);
         }
-        Boolean onesessionpergroupDefault = Boolean.parseBoolean(meetingManager.getOneSessionPerGroupDefault());
-        if (onesessionpergroupDefault != null) {
-            map.put("onesessionpergroupDefault", onesessionpergroupDefault);
+        Boolean groupsessionsDefault = Boolean.parseBoolean(meetingManager.getGroupSessionsDefault());
+        if (groupsessionsDefault != null) {
+            map.put("groupsessionsDefault", groupsessionsDefault);
         }
         //UX settings for 'description' box
         String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
@@ -886,9 +886,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
             
-            //One session per group
+            //group sessions
             String groupId = (String) params.get("groupId");
-            if (groupId != null && meeting.getOneSessionPerGroup()) {
+            if (groupId != null && meeting.getGroupSessions()) {
                 meeting.setId(meeting.getId() + "[" + groupId + "]");
             } else {
                 meeting.setId(meeting.getId());
@@ -922,14 +922,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
                 if( !(Participant.MODERATOR).equals(p.getRole())) {
                     Map<String, Object> meetingInfo = null;
-                    if(groupId != null && meeting.getOneSessionPerGroup())
+                    if(groupId != null && meeting.getGroupSessions())
                         meetingInfo = meetingManager.getMeetingInfo(meetingId, groupId);
                     else
                         meetingInfo = meetingManager.getMeetingInfo(meetingId, "");
 
                     if( meetingInfo == null || meetingInfo.isEmpty() || Integer.parseInt((String)meetingInfo.get("moderatorCount")) <= 0 ) {
                         //check for group session
-                        if (groupId != null && meeting.getOneSessionPerGroup())
+                        if (groupId != null && meeting.getGroupSessions())
                             html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR, groupId);
                         else
                             html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR, "");
@@ -945,7 +945,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             }
 
             //check for group session
-            if (groupId != null && meeting.getOneSessionPerGroup())
+            if (groupId != null && meeting.getGroupSessions())
                 html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR, groupId);
             else
                 html = getHtmlForJoining(joinUrl, meetingId);

@@ -50,7 +50,7 @@ public class BBBMeeting implements Entity {
 	private Boolean waitForModerator = null;
 	private Boolean multipleSessionsAllowed = null;
 	private String presentation = null;
-	private Boolean oneSessionPerGroup = null;
+	private Boolean groupSessions = null;
 	private Boolean deleted = null;
 	private Boolean recording = null;
 	private Long recordingDuration = null;

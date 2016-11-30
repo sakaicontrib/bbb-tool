@@ -63,9 +63,9 @@ public interface BBBMeetingManager {
     public final static String CFG_MULTIPLESESSIONSALLOWED_EDITABLE = "bbb.multiplesessionsallowed.editable";   // [true|false]
     public final static String CFG_MULTIPLESESSIONSALLOWED_DEFAULT = "bbb.multiplesessionsallowed.default";     // [true|false]
     public final static String CFG_PREUPLOADPRESENTATION_ENABLED = "bbb.preuploadpresentation.enabled";     // [true|false]
-    public final static String CFG_ONESESSIONPERGROUP_ENABLED = "bbb.groups.enabled";               // [true|false]
-    public final static String CFG_ONESESSIONPERGROUP_EDITABLE = "bbb.groups.editable";             // [true|false]
-    public final static String CFG_ONESESSIONPERGROUP_DEFAULT = "bbb.groups.default";               // [true|false]
+    public final static String CFG_GROUPSESSIONS_ENABLED = "bbb.groupsessions.enabled";               // [true|false]
+    public final static String CFG_GROUPSESSIONS_EDITABLE = "bbb.groupsessions.editable";             // [true|false]
+    public final static String CFG_GROUPSESSIONS_DEFAULT = "bbb.groupsessions.default";               // [true|false]
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -345,11 +345,11 @@ public interface BBBMeetingManager {
     
     public String isPreuploadPresentationEnabled();
 
-    public String isOneSessionPerGroupEnabled();
+    public String isGroupSessionsEnabled();
 
-    public String isOneSessionPerGroupEditable();
+    public String isGroupSessionsEditable();
 
-    public String getOneSessionPerGroupDefault();
+    public String getGroupSessionsDefault();
 
     public String getMaxLengthForDescription();
 

@@ -249,9 +249,9 @@ meetings.switchState = function (state, arg) {
                 'multiplesessionsallowedEditable': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEditable,
                 'multiplesessionsallowedDefault': meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedDefault,
                 'preuploadpresentationEnabled' : meetings.settings.config.addUpdateFormParameters.preuploadpresentationEnabled,
-                'onesessionpergroupEnabled': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled,
-                'onesessionpergroupEditable': meetings.settings.config.addUpdateFormParameters.onesessionpergroupEditable,
-                'onesessionpergroupDefault': meetings.settings.config.addUpdateFormParameters.onesessionpergroupDefault,
+                'groupsessionsEnabled': meetings.settings.config.addUpdateFormParameters.groupsessionsEnabled,
+                'groupsessionsEditable': meetings.settings.config.addUpdateFormParameters.groupsessionsEditable,
+                'groupsessionsDefault': meetings.settings.config.addUpdateFormParameters.groupsessionsDefault,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
 
@@ -425,7 +425,7 @@ meetings.switchState = function (state, arg) {
 
             if (meeting) {
                 var groups;
-                if(meeting.oneSessionPerGroup && meetings.settings.config.addUpdateFormParameters.onesessionpergroupEnabled){
+                if(meeting.groupSessions && meetings.settings.config.addUpdateFormParameters.groupsessionsEnabled){
                     groups = meetings.utils.getGroups(meeting);
                     if (jQuery.isEmptyObject(groups)){
                         groups = undefined;
@@ -439,7 +439,7 @@ meetings.switchState = function (state, arg) {
                 if($('#groupSession'))
                     meetings.sortDropDown('#groupSession');
 
-                if(meeting.oneSessionPerGroup){
+                if(meeting.groupSessions){
                     $("#groupSession").change(function() {
                         //clear timeout if group sessions is changed so the meeting info page isn't updated with wrong meeting
                         clearTimeout(meetings.updateMeetingOnceTimeoutId);

@@ -362,7 +362,7 @@ public class BBBStorageManager {
             meeting.setWaitForModerator(meetingRS.getBoolean("WAIT_FOR_MODERATOR"));
             meeting.setMultipleSessionsAllowed(meetingRS.getBoolean("MULTIPLE_SESSIONS_ALLOWED"));
             meeting.setPresentation(meetingRS.getString("PRESENTATION"));
-            meeting.setOneSessionPerGroup(meetingRS.getBoolean("ONE_SESSION_PER_GROUP"));
+            meeting.setGroupSessions(meetingRS.getBoolean("GROUP_SESSIONS"));
             meeting.setProps(XmlUtil.convertXmlToProps(meetingRS.getString("PROPERTIES")));
             meeting.setDeleted(meetingRS.getBoolean("DELETED"));
 
