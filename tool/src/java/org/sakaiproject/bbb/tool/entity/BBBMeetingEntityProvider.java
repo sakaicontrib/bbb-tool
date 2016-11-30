@@ -617,7 +617,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (preuploadpresentationEnabled != null) {
             map.put("preuploadpresentationEnabled", preuploadpresentationEnabled);
         }
-        //UX settings for 'one session per group' box
+        //UX settings for 'group sessions' box
         Boolean groupsessionsEnabled = Boolean.parseBoolean(meetingManager.isGroupSessionsEnabled());
         if (groupsessionsEnabled != null) {
             map.put("groupsessionsEnabled", groupsessionsEnabled);
@@ -886,7 +886,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
             
-            //One session per group
+            //group sessions
             String groupId = (String) params.get("groupId");
             if (groupId != null && meeting.getGroupSessions()) {
                 meeting.setId(meeting.getId() + "[" + groupId + "]");

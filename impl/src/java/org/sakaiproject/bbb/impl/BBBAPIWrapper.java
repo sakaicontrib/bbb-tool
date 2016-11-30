@@ -86,11 +86,11 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbMultipleSessionsAllowedDefault = false;
     /** BBB UX flag to activate/deactivate 'presentation' file input (default to true) */
     private boolean bbbPreuploadPresentationEnabled = true;
-    /** BBB UX flag to activate/deactivate 'one session per group' feature for meetings (default to false) */
+    /** BBB UX flag to activate/deactivate 'group sessions' feature for meetings (default to false) */
     private boolean bbbGroupSessionsEnabled = true;
-    /** BBB UX flag to activate/deactivate 'one session per group' checkbox (default to true) */
+    /** BBB UX flag to activate/deactivate 'group sessions' checkbox (default to true) */
     private boolean bbbGroupSessionsEditable = true;
-    /** BBB default value for 'one session per group' checkbox (default to false) */
+    /** BBB default value for 'group sessions' checkbox (default to false) */
     private boolean bbbGroupSessionsDefault = false;
     
     /** BBB API */
