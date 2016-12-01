@@ -44,7 +44,6 @@
             <organization>Universidade Fernando Pessoa</organization>
             <organizationUrl>http://www.ufp.pt</organizationUrl>
             <roles>
-                <role>Project Manager</role>
                 <role>Developer</role>
             </roles>
             <timezone>0</timezone>
@@ -60,13 +59,23 @@
             </roles>
             <timezone>-5</timezone>
         </developer>
+        <developer>
+            <name>Hassaan Hafeez</name>
+            <email>hassaanhafeez@hotmail.com</email>
+            <organization>Blindside Networks Inc</organization>
+            <organizationUrl>http://blindsidenetworks.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
     </developers>
 
     <properties>
         <!-- Build tracking  -->
         <maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
         <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
-        <buildSerial>2016040500</buildSerial>
+        <buildSerial>2016112000</buildSerial>
         <!-- Regular properties -->
         <!-- entitybroker.version can be set to any version from 1.3.9 to 1.3.20, 
         by default it has been set up to 1.3.19, the one used with Sakai 2.8.2 -->
