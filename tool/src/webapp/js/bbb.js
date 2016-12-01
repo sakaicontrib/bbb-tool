@@ -445,8 +445,6 @@ meetings.switchState = function (state, arg) {
             $('#bbb_content').empty();
         }
     } else if ('recordings_meeting' === state) {
-        $("#bbb_recordings_link").parent().addClass('current inactive');
-
         if (arg && arg.meetingId) {
             if (meetings.userPerms.bbbViewMeetingList) {
                 // Get meeting list
