@@ -423,8 +423,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     		throws SecurityException, BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingId);
 
-        if (!getCanDelete(meeting.getSiteId(), meeting)) {
-            throw new SecurityException("You are not allow to end this meeting");
+        if (!getCanEdit(meeting.getSiteId(), meeting)) {
+            throw new SecurityException("You are not allowed to end this meeting");
         }
 
         // end meeting on server, if running

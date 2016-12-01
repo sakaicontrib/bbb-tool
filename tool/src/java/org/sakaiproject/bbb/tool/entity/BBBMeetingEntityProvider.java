@@ -760,7 +760,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String siteId = (String) params.get("siteId");
 
         if(!meetingManager.getCanView(siteId)){
-            throw new SecurityException("You do not have permission to view recordings");
+            throw new SecurityException("You are not allowed to view recordings");
         }
 
         try {
@@ -1024,9 +1024,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    commonHtmlFooter;
         } else {
             return commonHtmlHeader +
-                   "    <script type='text/javascript' language='JavaScript'>\n" +
-                   "        //window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
-                   "    </script>\n" +
+                   //"    <script type='text/javascript' language='JavaScript'>\n" +
+                   //"        window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
+                   //"    </script>\n" +
                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
                    "  </head>\n" +
                    "  <body>\n" +

@@ -67,7 +67,7 @@ meetings.browserTimezoneOffset = 0;
 
     $('#bbb_recordings_link').click(function (e) {
         return meetings.switchState('recordings');
-    }).hide()
+    }).hide();
     
     var settingsCallback = function () {
 
@@ -109,7 +109,6 @@ meetings.switchState = function (state, arg) {
     
     if ('currentMeetings' === state) {
     	$("#bbb_home_link").parent().addClass('current');
-
         // show recordings links only if site maintainer or if has specific view permission
         $('#bbb_recordings_link').unbind('click');
         if ((!meetings.userPerms.bbbAdmin && !meetings.userPerms.bbbRecordingView) || !meetings.settings.config.addUpdateFormParameters.recordingEnabled) {
@@ -374,6 +373,7 @@ meetings.switchState = function (state, arg) {
     	$("#bbb_permissions_link").parent().addClass('current');
 
         meetings.utils.render('bbb_permissions_template', {'permissions': meetings.utils.getSitePermissions()}, 'bbb_content');
+
         if ($("table")) {
             $("table").each(function() {
                 var $this = $(this);
@@ -397,6 +397,7 @@ meetings.switchState = function (state, arg) {
             $('td:first-child').removeAttr('align');
             $('th:first').css('text-align', 'left');
         }
+
         $('#bbb_permissions_save_button').bind('click', function() {
            meetings.utils.setSitePermissions('.bbb_permission_checkbox', function() {
                // success callback

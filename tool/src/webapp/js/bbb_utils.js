@@ -1277,7 +1277,8 @@
             // This approach should be replaced as soon Sakai offers the way to customize the toolbar 
             // in the same call.
             sakai.editor.editors.launch = (function (targetId, config, w, h) {
-                var original = sakai.editor.editors.launch;
+                var original = sakai.editor.launch;
+
                 if( toolbarSet == 'BBB') {
                     return function (targetId, config, w, h) {
                         var folder = "";
