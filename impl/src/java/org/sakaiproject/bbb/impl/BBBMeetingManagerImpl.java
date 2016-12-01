@@ -568,6 +568,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return isUserAllowedInLocation(userDirectoryService.getCurrentUser().getId(), FN_PARTICIPATE, siteId);
     }
 
+    public boolean getCanView(String siteId) {
+        return isUserAllowedInLocation(userDirectoryService.getCurrentUser().getId(), FN_RECORDING_VIEW, siteId);
+    }
+
     public void checkPermissions(String siteId) {
         try {
             // get site roles & tool permisions

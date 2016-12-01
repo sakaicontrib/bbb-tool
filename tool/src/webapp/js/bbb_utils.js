@@ -710,16 +710,20 @@
 		if( recordings == null ){
             meetings.utils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-        	meetings.utils.hideMessage();	
-        	
-        	var htmlRecordings = "";
-        	if(recordings.length > 0)
-				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
-        	else
-            	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
-        		
-        	$('#recording_link_'+meetingId).html(htmlRecordings);
-		}
+            meetings.utils.hideMessage();
+            if (!meetings.userPerms.bbbRecordingView) {
+                $('#meeting_recordings').hide();
+            } else {
+                $('#meeting_recordings').show();
+                var htmlRecordings = "";
+            	if(recordings.length > 0)
+                    htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
+            	else
+                    htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
+            		
+            	$('#recording_link_'+meetingId).html(htmlRecordings);
+            }
+        }
     };
 
     // Get notice message to be displayed on the UI (first time access)
