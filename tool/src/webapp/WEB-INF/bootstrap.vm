@@ -470,7 +470,7 @@
             </a>
         </td>
       </tr>
-      <tr>
+      <tr id="meeting_recordings" {if !meetings.userPerms.bbbRecordingView}style="display:none;"{/if}>
         <td><h5>${D}{bbb_info_recordings}</h5></td>
         <td id="recording_link_${D}{meeting.id}">
         </td>

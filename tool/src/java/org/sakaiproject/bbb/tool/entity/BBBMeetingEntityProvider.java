@@ -648,6 +648,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
         String siteId = (String) params.get("siteId");
 
+        if(!meetingManager.getCanView(siteId)){
+            throw new SecurityException("You are not allowed to view recordings");
+        }
+
         try {
             Map<String, Object> recordingsResponse = meetingManager
                     .getSiteRecordings(siteId);
