@@ -256,13 +256,11 @@
         recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
         
         if(meetings.currentUser.id === recording.ownerId) {
-            recording.canEdit = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
-            recording.canEnd = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
-            recording.canDelete = meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny;
+            recording.canEdit = meetings.userPerms.bbbRecordingEditOwn || meetings.userPerms.bbbRecordingEditAny;
+            recording.canDelete = meetings.userPerms.bbbRecordingDeleteOwn || meetings.userPerms.bbbRecordingDeleteAny;
         }else{
-        	recording.canEdit = meetings.userPerms.bbbEditAny;
-        	recording.canEnd = meetings.userPerms.bbbEditAny;
-        	recording.canDelete = meetings.userPerms.bbbDeleteAny;
+        	recording.canEdit = meetings.userPerms.bbbRecordingEditAny;
+        	recording.canDelete = meetings.userPerms.bbbRecordingDeleteAny;
         }
 	};
 	
@@ -317,11 +315,11 @@
         $('#meeting_status_'+meeting.id).toggleClass(statusClass).html(statusText);
         // If meeting can be ended, update end action link in the view
         if( meeting.canEnd ){
-            var end_meetingClass = "end_meeting_hidden";
+            var end_meetingClass = "bbb_end_meeting_hidden";
             var end_meetingText = "";
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
-                end_meetingClass = "end_meeting_shown";
-                end_meetingText = "&nbsp;|&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                end_meetingClass = "bbb_end_meeting_shown";
+                end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
             }
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
         }
@@ -471,7 +469,7 @@
         		response = data;
             },
             error : function (xmlHttpRequest,status,error) {
-            	meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            	meetings.utils.handleError(bbb_err_get_recording, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
         return response;
@@ -576,7 +574,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_hidden');
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -603,7 +601,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_shown');
+                    .addClass('bbb_end_meeting_shown');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -622,7 +620,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_hidden');
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -645,7 +643,7 @@
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
-                    .addClass('end_meeting_hidden');
+                    .addClass('bbb_end_meeting_hidden');
                 }
                 // Update for list
                 $('#meeting_status_'+meeting.id)
@@ -703,14 +701,18 @@
             meetings.utils.showMessage(bbb_err_get_recording, 'warning');
         } else {
         	meetings.utils.hideMessage();	
-        	
-        	var htmlRecordings = "";
-        	if(recordings.length > 0)
-				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
-        	else
-            	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
-        		
-        	$('#recording_link_'+meetingId).html(htmlRecordings);
+        	if (!meetings.userPerms.bbbRecordingView) {
+                $('#meeting_recordings').hide();
+            } else {
+                $('#meeting_recordings').show();
+            	var htmlRecordings = "";
+            	if(recordings.length > 0)
+    				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
+            	else
+                	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
+            		
+            	$('#recording_link_'+meetingId).html(htmlRecordings);
+            }
 		}
     };
 
@@ -1043,7 +1045,7 @@
             // by the Basic template which are needed.
             // This approach should be replaced as soon Sakai offers the way to customize the toolbar 
             // in the same call.
-            sakai.editor.launch = (function (targetId, config, w, h) {
+            sakai.editor.editors.launch = (function (targetId, config, w, h) {
                 var original = sakai.editor.launch;
                 if( toolbarSet == 'BBB') {
                     return function (targetId, config, w, h) {
@@ -1202,7 +1204,7 @@
             if( typeof CKEDITOR != "undefined" ) {
                 var editor = CKEDITOR.instances[textAreaId];
                 if ( editor != null ) {
-                    editor.remove();
+                    editor.destroy();
                 }
             }
             //Launch the editor

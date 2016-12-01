@@ -142,6 +142,7 @@
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
       </tr>
     </tbody>
 </table>
@@ -213,6 +214,7 @@
       {/if}
     {/for}
         <tr>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -372,28 +374,38 @@
 
 <div id="bbb_permissions_template" style="display:none"><!--
 <p class="instruction">${D}{bbb_permissions_instr}</p>
-<table id="bbb_permissions_table" class="listHier lines tableList">
+<table id="bbb_permissions_table" class="listHier lines tableList" style="width: 500px">
     <thead>
         <tr class="listHier">
-            <th align="left">${D}{bbb_permissions_role}</th>
-            <th style="text-align:center;">${D}{bbb_permissions_create}</th>
-            <th style="text-align:center;">${D}{bbb_permissions_edit_own}</th>
-            <th style="text-align:center;">${D}{bbb_permissions_edit_any}</th>
-            <th style="text-align:center;">${D}{bbb_permissions_delete_own}</th>
-            <th style="text-align:center;">${D}{bbb_permissions_delete_any}</th>
-            <th style="text-align:center;">${D}{bbb_permissions_participate}</th>
+            <th>${D}{bbb_permissions_label}</th>
+            <th>${D}{bbb_permissions_create}</th>
+            <th>${D}{bbb_permissions_edit_own}</th>
+            <th>${D}{bbb_permissions_edit_any}</th>
+            <th>${D}{bbb_permissions_delete_own}</th>
+            <th>${D}{bbb_permissions_delete_any}</th>
+            <th>${D}{bbb_permissions_participate}</th>
+            <th>${D}{bbb_permissions_recordings_view}</th>
+            <th>${D}{bbb_permissions_recordings_edit_own}</th>
+            <th>${D}{bbb_permissions_recordings_edit_any}</th>
+            <th>${D}{bbb_permissions_recordings_delete_own}</th>
+            <th>${D}{bbb_permissions_recordings_delete_any}</th>
         </tr>
     </thead>
 <tbody>
 {for p in permissions}
 <tr>
-    <td align="left">${D}{p.role}</td>
-    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_create}checked="checked"{/if} id="${D}{p.role}:bbb.create"/></td>
-    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_edit_own}checked="checked"{/if} id="${D}{p.role}:bbb.edit.own"/></td>
-    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_edit_any}checked="checked"{/if} id="${D}{p.role}:bbb.edit.any"/></td>
-    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_delete_own}checked="checked"{/if} id="${D}{p.role}:bbb.delete.own"/></td>
-    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_delete_any}checked="checked"{/if} id="${D}{p.role}:bbb.delete.any"/></td>
-    <td align="center"><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_participate}checked="checked"{/if} id="${D}{p.role}:bbb.participate"/></td>
+    <td>${D}{p.role}</td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_create}checked="checked"{/if} id="${D}{p.role}:bbb.create"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_edit_own}checked="checked"{/if} id="${D}{p.role}:bbb.edit.own"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_edit_any}checked="checked"{/if} id="${D}{p.role}:bbb.edit.any"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_delete_own}checked="checked"{/if} id="${D}{p.role}:bbb.delete.own"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_delete_any}checked="checked"{/if} id="${D}{p.role}:bbb.delete.any"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_participate}checked="checked"{/if} id="${D}{p.role}:bbb.participate"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_view}checked="checked"{/if} id="${D}{p.role}:bbb.recording.view"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_edit_own}checked="checked"{/if} id="${D}{p.role}:bbb.recording.edit.own"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_edit_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.edit.any"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_delete_own}checked="checked"{/if} id="${D}{p.role}:bbb.recording.delete.own"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_delete_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.delete.any"/></td>
 </tr>
 {/for}
 </tbody>
@@ -461,7 +473,7 @@
             </a>
         </td>
       </tr>
-      <tr>
+      <tr id="meeting_recordings" {if !meetings.userPerms.bbbRecordingView}style="display:none;"{/if}>
         <td><h5>${D}{bbb_info_recordings}</h5></td>
         <td id="recording_link_${D}{meeting.id}">
         </td>
