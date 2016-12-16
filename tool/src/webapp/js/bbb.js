@@ -492,10 +492,19 @@ meetings.switchState = function (state, arg) {
         	meetings.refreshRecordingList();
 
         	// watch for permissions changes, check meeting dates
-            for(var i=0,j=meetings.currentRecordings.length;i<j;i++) {
+            for(var i=0;i<meetings.currentRecordings.length;i++) {
                 meetings.utils.setRecordingPermissionParams(meetings.currentRecordings[i]);
-            }
 
+                var images = [];
+                for(var j=0;j<meetings.currentRecordings[i].playback.length; j++){
+                    if (meetings.currentRecordings[i].playback[j].preview && meetings.currentRecordings[i].playback[j].preview.length > images.length){
+                        images = meetings.currentRecordings[i].playback[j].preview;
+                    }
+                }
+                if(images.length){
+                    meetings.currentRecordings[i].images = images;
+                }
+            }
             meetings.utils.render('bbb_recordings_template',{'recordings':meetings.currentRecordings,'stateFunction':'recordings'},'bbb_content');
 
             var $rows = $('#bbb_recording_table tbody tr');

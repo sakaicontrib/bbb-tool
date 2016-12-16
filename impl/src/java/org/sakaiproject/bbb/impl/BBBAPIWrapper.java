@@ -324,6 +324,21 @@ public class BBBAPIWrapper/* implements Runnable */{
         return publishRecordingsResponse;
     }
 
+    public boolean protectRecordings(String meetingID, String recordingID, String protect)
+            throws BBBException {
+        if (logger.isDebugEnabled()) logger.debug("protectRecordings()");
+
+        boolean protectRecordingsResponse = false;
+
+        if ( api != null ) {
+            protectRecordingsResponse = api.protectRecordings(meetingID, recordingID, protect);
+        } else {
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
+        }
+
+        return protectRecordingsResponse;
+    }
+
     public boolean deleteRecordings(String meetingID, String recordingID)
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("publishRecordings()");

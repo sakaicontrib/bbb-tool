@@ -219,6 +219,12 @@ public interface BBBMeetingManager {
             String publish) throws SecurityException, BBBException;
 
     /**
+     * Protect and unprotect recordings using the *_______________* api command
+     */
+    public boolean protectRecordings(String meetingID, String recordID,
+            String protect) throws SecurityException, BBBException;
+
+    /**
      * Check if meeting is ready to be joined.
      */
     public void checkJoinMeetingPreConditions(BBBMeeting meeting)
