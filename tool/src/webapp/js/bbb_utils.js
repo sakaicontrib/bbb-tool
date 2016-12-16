@@ -601,13 +601,44 @@
 					meetings.switchState('recordings_meeting',{'meetingId':meetingID});
 			},
 			error : function (xmlHttpRequest,status,error) {
-				if( action == 'PUBLISH' )
+				if( action == 'true' )
                 	var msg = bbb_err_publish_recording(recordID);
                 else
                 	var msg = bbb_err_unpublish_recording(recordID);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
 			}
 	  	});
+	};
+
+    meetings.utils.protectRecordings = function (meetingID, recordID, stateFunction) {
+        meetings.utils.updateRecordings(meetingID, recordID, "true", stateFunction);
+    };
+
+    meetings.utils.unprotectRecordings = function (meetingID, recordID, stateFunction) {
+        meetings.utils.updateRecordings(meetingID, recordID, "false", stateFunction);
+    }
+
+    // Protect the specified recording from the BigBlueButton server. 
+	meetings.utils.updateRecordings = function (meetingID, recordID, action, stateFunction) {
+
+        jQuery.ajax({
+            url : "/direct/bbb-tool/protectRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&protect=" + action,
+            dataType:'text',
+            type: "GET",
+            success : function (result) {
+                if(stateFunction == 'recordings')
+                    meetings.switchState('recordings');
+                else
+                    meetings.switchState('recordings_meeting',{'meetingID':meetingID});
+            },
+            error : function (xmlHttpRequest,status,error) {
+                if( action == 'true' )
+                    var msg = bbb_err_protect_recording(recordID);
+                else
+                    var msg = bbb_err_unprotect_recording(recordID);
+                meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
 	};
 
     //Get meetings from BBB server

@@ -188,32 +188,30 @@
                         &nbsp;|&nbsp;
                         <a href="javascript:;" onclick="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${D}{bbb_action_delete_recording_tooltip}">${D}{bbb_action_delete_recording}</a>
                     {/if}
+                    {if r.canDelete}
+                      {if r.protected}
+                        &nbsp;|&nbsp;
+                        {if r.protected == 'true'}
+                          <a href="javascript:;" onclick="return meetings.utils.unprotectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{bbb_action_unprotect_tooltip}">${D}{bbb_action_unprotect}</a>
+                        {else}
+                          <a href="javascript:;" onclick="return meetings.utils.protectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{bbb_action_protect_tooltip}">${D}{bbb_action_protect}</a>
+                        {/if}
+                      {/if}
+                    {/if}
                     </small>
                 </div> 
             </td>
             <td class="bbb_thumbnails">
                 <div class="bbb_preview_images">
-                    {for p in r.playback}
-                        {if p.preview && r.published == 'true'}
-                            {if p.preview.image1}
-                            <a href="${D}{p.preview.image1.url}" class="preview" target="_blank">
-                                <img src="${D}{p.preview.image1.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image1.title}">
-                            </a>
-                            {/if}
-                            {if p.preview.image2}
-                            <a href="${D}{p.preview.image2.url}" class="preview" target="_blank">
-                                <img src="${D}{p.preview.image2.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image2.title}">
-                            </a>
-                            {/if}
-                            {if p.preview.image3}
-                            <a href="${D}{p.preview.image3.url}" class="preview" target="_blank">    
-                                <img src="${D}{p.preview.image3.url}" class="thumbnails" width="44px" height="34px" alt="${D}{p.preview.image3.title}">
-                            </a>
-                            {/if}
-                        {else if p.preview}
-                            ${D}{bbb_recording_thumbnails_hidden}
-                        {/if}
-                    {/for}
+                    {if r.images && r.published == 'true'}
+                        {for image in r.images}
+                        <a href="${D}{image.url}" class="preview" target="_blank">
+                            <img src="${D}{image.url}" class="thumbnails" width="44px" height="34px" alt="${D}{image.title}">
+                        </a>
+                        {/for}
+                    {elseif r.images}
+                        ${D}{bbb_recording_thumbnails_hidden}
+                    {/if}
                 </div>
             </td>
             <td>

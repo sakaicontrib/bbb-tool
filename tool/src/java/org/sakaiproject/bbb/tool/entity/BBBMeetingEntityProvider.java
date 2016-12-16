@@ -804,6 +804,34 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String protectRecordings(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("protectRecordings");
+        String meetingID = (String) params.get("meetingID");
+        String recordID = (String) params.get("recordID");
+        String protect = (String) params.get("protect");
+        if (meetingID == null) {
+            throw new IllegalArgumentException("Missing required parameter [meetingID]");
+        }
+        if (recordID == null) {
+            throw new IllegalArgumentException("Missing required parameter [recordID]");
+        }
+        if (protect == null) {
+            throw new IllegalArgumentException("Missing required parameter [protect]");
+        }
+
+        try {
+            return Boolean.toString(meetingManager.protectRecordings(meetingID,
+                    recordID, protect));
+        } catch (BBBException e) {
+            String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
+                    + Entity.SEPARATOR + meetingID;
+            throw new EntityException(e.getPrettyMessage(), ref, 400);
+        }
+
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public String deleteRecordings(Map<String, Object> params) {
         if (logger.isDebugEnabled())
             logger.debug("deleteRecordings");
@@ -1038,7 +1066,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGroups(Map<String, Object> params) {
         if(logger.isDebugEnabled())
-            logger.debug("Getting Groups");
+            logger.debug("getGroups");
     
         String meetingID = (String) params.get("meetingID");
         if (meetingID == null) {
