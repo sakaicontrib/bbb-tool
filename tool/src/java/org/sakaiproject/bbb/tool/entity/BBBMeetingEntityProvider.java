@@ -809,7 +809,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             logger.debug("protectRecordings");
         String meetingID = (String) params.get("meetingID");
         String recordID = (String) params.get("recordID");
-        String publish = (String) params.get("protect");
+        String protect = (String) params.get("protect");
         if (meetingID == null) {
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
@@ -817,7 +817,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             throw new IllegalArgumentException("Missing required parameter [recordID]");
         }
         if (protect == null) {
-            throw new IllegalArgumentException("Missing required parameter [publish]");
+            throw new IllegalArgumentException("Missing required parameter [protect]");
         }
 
         try {
@@ -1066,7 +1066,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGroups(Map<String, Object> params) {
         if(logger.isDebugEnabled())
-            logger.debug("Getting Groups");
+            logger.debug("getGroups");
     
         String meetingID = (String) params.get("meetingID");
         if (meetingID == null) {

@@ -611,22 +611,22 @@
 	};
 
     meetings.utils.protectRecordings = function (meetingID, recordID, stateFunction) {
-        meetings.utils.setProtectRecordings(meetingID, recordID, "true", stateFunction);
+        meetings.utils.updateRecordings(meetingID, recordID, "true", stateFunction);
     };
 
     meetings.utils.unprotectRecordings = function (meetingID, recordID, stateFunction) {
-        meetings.utils.setProtectRecordings(meetingID, recordID, "false", stateFunction);
+        meetings.utils.updateRecordings(meetingID, recordID, "false", stateFunction);
     }
 
     // Protect the specified recording from the BigBlueButton server. 
-	meetings.utils.setProtectRecordings = function (meetingID, recordID, action, stateFunction) {
+	meetings.utils.updateRecordings = function (meetingID, recordID, action, stateFunction) {
 
         jQuery.ajax({
             url : "/direct/bbb-tool/protectRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&protect=" + action,
             dataType:'text',
             type: "GET",
             success : function (result) {
-                if(stateFunction == 'recordings');
+                if(stateFunction == 'recordings')
                     meetings.switchState('recordings');
                 else
                     meetings.switchState('recordings_meeting',{'meetingID':meetingID});

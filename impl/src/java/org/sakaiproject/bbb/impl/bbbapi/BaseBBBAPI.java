@@ -96,7 +96,7 @@ public class BaseBBBAPI implements BBBAPI {
     protected final static String APICALL_VERSION = "";
     protected final static String APICALL_GETRECORDINGS = "getRecordings";
     protected final static String APICALL_PUBLISHRECORDINGS = "publishRecordings";
-    protected final static String APICALL_PROTECTRECORDINGS = "protectRecordings";
+    protected final static String APICALL_PROTECTRECORDINGS = "updateRecordings";
     protected final static String APICALL_DELETERECORDINGS = "deleteRecordings";
 
     // API Response Codes
@@ -237,7 +237,6 @@ public class BaseBBBAPI implements BBBAPI {
                     StringBuilder presentationUrl = new StringBuilder(config.getServerUrl());
                     presentationUrl.append(meeting.getPresentation());
                     xml_presentation = "<modules> <module name=\"presentation\"> <document url=\""+presentationUrl+"\" /> </module> </modules>";
-                    logger.debug(xml_presentation);
                 }
             }
 
@@ -708,7 +707,7 @@ public class BaseBBBAPI implements BBBAPI {
                 }
                 if (nodeName == "preview"){
                     Node n = node.getChildNodes().item(0);
-                    map.put(nodeName, processNode(n));
+                    map.put(nodeName, new ArrayList<Object>(processNode(n).values()));
                 }else{
                     map.put(nodeName, list);
                 }
