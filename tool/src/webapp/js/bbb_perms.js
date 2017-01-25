@@ -39,7 +39,7 @@ function BBBPermissions(data) {
 			}else if('bbb.participate' === data[i]) {
 				this.bbbParticipate = true;
 				this.bbbViewMeetingList = true;
-            }else if('bbb.recording.view' === data[i]) {
+			}else if('bbb.recording.view' === data[i]) {
 				this.bbbRecordingView = true;
 			}else if('bbb.recording.edit.own' === data[i]) {
 				this.bbbRecordingEditOwn = true;
@@ -49,7 +49,7 @@ function BBBPermissions(data) {
 				this.bbbRecordingDeleteOwn = true;
 			}else if('bbb.recording.delete.any' === data[i]) {
 				this.bbbRecordingDeleteAny = true;
-            }
+			}
 			
 			// Sakai permissions
 			// Site Info:

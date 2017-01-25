@@ -81,6 +81,73 @@
         return list;
     };
 
+    //upload selected file
+    meetings.utils.doUpload = function(files) {
+        file = files.files[0];
+        var fd = new FormData();
+        fd.append('file', file);
+        var url;
+
+        jQuery.ajax({
+            url : '/direct/bbb-tool/doUpload?siteId=' + meetings.startupArgs.siteId,
+            data : fd,
+            processData : false,
+            contentType : false,
+            type : 'POST',
+            dataType : 'text',
+            beforeSend : function (xmlHttpRequest) {
+                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+                meetings.utils.showAjaxIndicator('#bbb_addFile_ajaxInd');
+            },
+            success : function (data) {
+                url = data;
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+                $("#fileUrl").val(url.substring(url.indexOf('/access')));
+                $("#url").attr("href", url);
+                $("#url").text(url.substring(url.lastIndexOf("/") + 1));
+                $("#fileView").show();
+            },
+            error : function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_do_upload, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+            }
+        });
+        return url;
+    };
+
+    //remove uploaded file
+    meetings.utils.removeUpload = function (url, meetingId) {
+        var response;
+        var meetingID = '';
+        if (typeof meetingId != undefined)
+            meetingID = '&meetingId=' + meetingId;
+        jQuery.ajax({
+            url : '/direct/bbb-tool/removeUpload?url=' + url + meetingID,
+            dataType : 'text',
+            beforeSend : function (xmlHttpRequest) {
+                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+                meetings.utils.showAjaxIndicator('#bbb_addFile_ajaxInd');
+            },
+            success : function (data) {
+                response = data;
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+                $("#fileUrl").val('');
+                $("#selectFile").val('');
+                $("#selectFile").attr("disabled", false);
+                $("#fileView").hide();
+            },
+            error : function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_remove_upload, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
+            }
+        });
+        return response;
+    }
+
 	// Create a json representation of the meeting and post it to new on the bbb-tool provider
 	meetings.utils.addUpdateMeeting = function () {
 
@@ -197,13 +264,14 @@
     };
 
     // Get meeting info from BBB server
-    meetings.utils.setMeetingInfo = function (meeting, asyncmode) {
+    meetings.utils.setMeetingInfo = function (meeting, asyncmode, groupId) {
 
         if(typeof(asyncmode)==='undefined') asyncmode = true;
 
         var meetingInfo = null;
+        var groupID = groupId ? "?groupId=" + groupId : "";
         jQuery.ajax( {
-            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json",
+            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json" + groupID,
             dataType : "json",
             async : asyncmode,
             timeout : 10000,
@@ -224,6 +292,96 @@
         });
         return meetingInfo;
     };
+    
+    meetings.utils.getGroups = function (meeting) {
+        var groups;
+        jQuery.ajax( {
+            url : "/direct/bbb-tool/getGroups.json?meetingID=" + meeting.id,
+            dataType : "json",
+            async : false,
+            timeout : 10000,
+            success : function (data) {
+                groups = data;
+            },
+            error : function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+                return null;
+            }
+        });
+        return groups;
+    };
+
+    meetings.utils.setMeetingsParams = function (meetingsInfo) {
+        BBBMeetings = meetingsInfo.meetings ? meetingsInfo.meetings : [];
+
+        for(var i=0; i<meetings.currentMeetings.length; i++){
+            //Clear attendees
+            if( meetings.currentMeetings[i].attendees && meetings.currentMeetings[i].attendees.length > 0 )
+                delete meetings.currentMeetings[i].attendees;
+            if( meetings.currentMeetings[i].running )
+                delete meetings.currentMeetings[i].running;
+            meetings.currentMeetings[i].attendees = new Array();
+            meetings.currentMeetings[i].hasBeenForciblyEnded = "false";
+            meetings.currentMeetings[i].participantCount = 0;
+            meetings.currentMeetings[i].moderatorCount = 0;
+            meetings.currentMeetings[i].unreachableServer = "false";
+
+            //Extend the meetings that are present in the BBBMeetings array
+            for(var j=0; j<BBBMeetings.length; j++) {
+                if(BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {                    
+                    meetings.currentMeetings[i].hasBeenForciblyEnded = BBBMeetings[j].hasBeenForciblyEnded;
+                    meetings.currentMeetings[i].participantCount = BBBMeetings[j].participantCount;
+                    meetings.currentMeetings[i].running = BBBMeetings[j].running;
+                }
+                //Check if group session is active
+                else if ((BBBMeetings[j].meetingID).indexOf(meetings.currentMeetings[i].id) != -1 && BBBMeetings[j].participantCount != "0") {
+                    meetings.currentMeetings[i].groupActive = true;
+                }
+            }
+
+            if (meetingsInfo.returncode != 'SUCCESS')
+                meetings.currentMeetings[i].unreachableServer = "true";
+
+            //if joinable set the joinableMode
+    		meetings.currentMeetings[i].joinableMode = "nojoinable";
+            if( meetings.currentMeetings[i].joinable ){
+                if( meetings.currentMeetings[i].unreachableServer == null ){
+                    meetings.currentMeetings[i].joinableMode = "";
+                } else if( meetings.currentMeetings[i].unreachableServer == "false" ){
+                    meetings.currentMeetings[i].joinableMode = "available";
+                    if ( meetings.currentMeetings[i].hasBeenForciblyEnded == "true" ) {
+                        meetings.currentMeetings[i].joinableMode = "unavailable";
+                    } else if ( meetings.currentMeetings[i].running ) {
+                        meetings.currentMeetings[i].joinableMode = "inprogress";
+                    }
+                } else {
+                    meetings.currentMeetings[i].joinableMode = "unreachable";
+                }
+            }
+
+            // Update status in the view
+            var statusClass = meetings.currentMeetings[i].joinable ? 'status_joinable_' + meetings.currentMeetings[i].joinableMode: (meetings.currentMeetings[i].notStarted ? 'status_notstarted' : 'status_finished')
+            var statusText = meetings.currentMeetings[i].joinable ? (meetings.currentMeetings[i].joinableMode == 'available'? bbb_status_joinable_available: meetings.currentMeetings[i].joinableMode == 'inprogress'? bbb_status_joinable_inprogress: meetings.currentMeetings[i].joinableMode == 'unavailable'? bbb_status_joinable_unavailable: meetings.currentMeetings[i].joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (meetings.currentMeetings[i].notStarted ? bbb_status_notstarted : bbb_status_finished);
+            //if status is 'available', but a group is active, set status to 'inprogress'
+            if(statusText === bbb_status_joinable_available && meetings.currentMeetings[i].groupActive)
+                statusText = bbb_status_joinable_inprogress;
+            $('#meeting_status_'+meetings.currentMeetings[i].id).toggleClass(statusClass).html(statusText);
+            // If meeting can be ended, update end action link in the view
+            if( meetings.currentMeetings[i].canEnd ){
+                var end_meetingClass = "bbb_end_meeting_hidden";
+                var end_meetingText = "";
+                if( meetings.currentMeetings[i].groupActive || (meetings.currentMeetings[i].joinable && meetings.currentMeetings[i].joinableMode == 'inprogress') ){
+                    end_meetingClass = "bbb_end_meeting_shown";
+                    if(meetings.currentMeetings[i].groupSessions){
+                        end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                    } else {
+                        end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                    }
+                }
+                $('#end_meeting_'+meetings.currentMeetings[i].id).toggleClass(end_meetingClass).html(end_meetingText);
+            }
+        }
+    }
 
 	meetings.utils.setMeetingInfoParams = function (meeting, meetingInfo) {
 
@@ -242,11 +400,14 @@
 				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
 				meeting.participantCount = meetingInfo.participantCount;
 				meeting.moderatorCount = meetingInfo.moderatorCount;
+                meeting.running = meetingInfo.running;
 			} else if (meetingInfo.messageKey != 'notFound'){
 				//Different errors can be handled here
 				meeting.unreachableServer = "true";
 			}
-		}
+		} else {
+            delete meeting.running;
+        }
 	};
 
 	meetings.utils.setRecordingPermissionParams = function (recording) {
@@ -280,12 +441,12 @@
         
         // specific meeting permissions
         if(meetings.currentUser.id === meeting.ownerId) {
-            meeting.canEdit = meetings.userPerms.bbbEditOwn | meetings.userPerms.bbbEditAny;
-            meeting.canEnd = meetings.userPerms.bbbEditOwn | meetings.userPerms.bbbEditAny;
-            meeting.canDelete = meetings.userPerms.bbbDeleteOwn | meetings.userPerms.bbbDeleteAny;
+            meeting.canEdit = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
+            meeting.canEnd = (meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny) && (meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny);
+            meeting.canDelete = meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny;
         }else{
             meeting.canEdit = meetings.userPerms.bbbEditAny;
-            meeting.canEnd = meetings.userPerms.bbbEditAny;
+            meeting.canEnd = meetings.userPerms.bbbEditAny && meetings.userPerms.bbbDeleteAny;
             meeting.canDelete = meetings.userPerms.bbbDeleteAny;
         }
 	};
@@ -299,10 +460,14 @@
 		        meeting.joinableMode = "";
 		    } else if( meeting.unreachableServer == "false" ){
 				meeting.joinableMode = "available";
+                $('#meetingStatus').show();
 				if ( meeting.hasBeenForciblyEnded == "true" ) {
 					meeting.joinableMode = "unavailable";
-				} else if ( meeting.attendees.length > 0 ) {
+                    $('#meetingStatus').hide();
+				} else if ( meeting.running ) {
 					meeting.joinableMode = "inprogress";
+                    if (!meeting.canEnd && (!meeting.multipleSessionsAllowed || !meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) && meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting))
+                        $('#meetingStatus').hide();
 				}
 			} else {
 				meeting.joinableMode = "unreachable";
@@ -319,7 +484,11 @@
             var end_meetingText = "";
             if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
                 end_meetingClass = "bbb_end_meeting_shown";
-                end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                if(meeting.groupSessions){
+                    end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                } else {
+                    end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                }
             }
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
         }
@@ -327,19 +496,24 @@
 	
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
-	meetings.utils.endMeeting = function (name, meetingID) {
-
-		var question = bbb_action_end_meeting_question(unescape(name));
-	
+	meetings.utils.endMeeting = function (name, meetingID, groupID, endAll) {
+        var question;
+        if(endAll){
+            question = bbb_action_end_all_meeting_question(unescape(name));
+        } else {
+		    question = bbb_action_end_meeting_question(unescape(name));
+        }
 		if(!confirm(question)) return;
-		
+
+	    var groupId = groupID ? "&groupId=" + groupID : "";
+        var endAllMeetings = endAll ? "&endAll=true" : "";
 		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID,
+	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + groupId + endAllMeetings,
 			dataType:'text',
 			type:"GET",
 		   	success : function (result) {
-				meetings.switchState('currentMeetings');
-			},
+                meetings.utils.checkOneMeetingAvailability(meetingID, groupID);
+            },
 			error : function (xmlHttpRequest,status,error) {
                 var msg = bbb_err_end_meeting(name);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -427,7 +601,7 @@
 					meetings.switchState('recordings_meeting',{'meetingId':meetingID});
 			},
 			error : function (xmlHttpRequest,status,error) {
-				if( action == 'PUBLISH' )
+				if( action == 'true' )
                 	var msg = bbb_err_publish_recording(recordID);
                 else
                 	var msg = bbb_err_unpublish_recording(recordID);
@@ -436,14 +610,67 @@
 	  	});
 	};
 
-    // Get meeting info from BBB server
-    meetings.utils.getMeetingInfo = function (meetingId) {  
+    meetings.utils.protectRecordings = function (meetingID, recordID, stateFunction) {
+        meetings.utils.updateRecordings(meetingID, recordID, "true", stateFunction);
+    };
 
-    	var meetingInfo = null;
+    meetings.utils.unprotectRecordings = function (meetingID, recordID, stateFunction) {
+        meetings.utils.updateRecordings(meetingID, recordID, "false", stateFunction);
+    }
+
+    // Protect the specified recording from the BigBlueButton server. 
+	meetings.utils.updateRecordings = function (meetingID, recordID, action, stateFunction) {
+
+        jQuery.ajax({
+            url : "/direct/bbb-tool/protectRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&protect=" + action,
+            dataType:'text',
+            type: "GET",
+            success : function (result) {
+                if(stateFunction == 'recordings')
+                    meetings.switchState('recordings');
+                else
+                    meetings.switchState('recordings_meeting',{'meetingID':meetingID});
+            },
+            error : function (xmlHttpRequest,status,error) {
+                if( action == 'true' )
+                    var msg = bbb_err_protect_recording(recordID);
+                else
+                    var msg = bbb_err_unprotect_recording(recordID);
+                meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
+	};
+
+    //Get meetings from BBB server
+    meetings.utils.getMeetings = function () {
+        var meetingsInfo;
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json",
+            url: "/direct/bbb-tool/getMeetings.json",
             dataType : "json",
-            async : true,
+            success : function (data) {
+            },
+            error : function (xmlHttpRequest,status,error) {
+                meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            },
+            complete : function (xmlHttpRequest,status) {
+                if( xmlHttpRequest.responseText == null )
+                    meetingsInfo = {};
+                else
+                    meetingsInfo = JSON.parse(xmlHttpRequest.responseText);
+                meetings.utils.setMeetingsParams(meetingsInfo);
+            }
+        });
+    }
+
+    // Get meeting info from BBB server
+    meetings.utils.getMeetingInfo = function (meetingId, groupId, asynch) {  
+        var groupID = groupId ? "?groupId=" + groupId : "";
+    	var meetingInfo = null;
+        if (typeof asynch == 'undefined') asynch = true;
+        jQuery.ajax( {
+            url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + groupID,
+            dataType : "json",
+            async : asynch,
             success : function (data) {
                 meetingInfo = data;
             },
@@ -476,13 +703,15 @@
     };
     
     // Get meeting recordings from BBB server
-    meetings.utils.getMeetingRecordingList = function (meetingId) {
+    meetings.utils.getMeetingRecordingList = function (meetingId, groupId) {
 
     	if (meetingId == null) meetingId = "";
-
+        
+        var groupID = groupId ? "?groupId=" + groupId : "";
+        
     	var response = Object();
         jQuery.ajax( {
-            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json",
+            url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json" + groupID,
             dataType : "json",
             async : false,
             success : function (data) {
@@ -496,23 +725,27 @@
     };
 
     // Log an event indicating user is joining meeting
-    meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed) {
+    meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed, groupId, groupTitle) {
 
         var nonce = new Date().getTime();
         var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
+        url += groupId ? "&groupId=" + groupId : "";
+        url += groupTitle ? "&groupTitle=" + groupTitle : "";
         meetings.utils.hideMessage();
         if(linkSelector) {
             $(linkSelector).attr('href', url);
-            if( !multipleSessionsAllowed )
+            if( !multipleSessionsAllowed ) {
                 $('#meeting_joinlink_' + meetingId).hide();
-
+                $('#meetingStatus').hide();
+            }
             //After joining stop requesting periodic updates
             clearInterval(meetings.checkOneMeetingAvailabilityId);
             clearInterval(meetings.checkRecordingAvailabilityId);
 
             //After joining execute requesting updates only once
             var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0? meetings.settings.config.autorefreshInterval.meetings: 15000;
-            setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true)", onceAutorefreshInterval);
+            var groupID = groupId ? ", '" + groupId + "'" : "";
+            meetings.updateMeetingOnceTimeoutId = setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + groupID + ")", onceAutorefreshInterval);
         }
         return true;
     };
@@ -529,18 +762,25 @@
     };
 
     // Check ONE meetings availability and update meeting details page if appropriate
-    meetings.utils.checkOneMeetingAvailability = function (meetingId, joining) {
+    meetings.utils.checkOneMeetingAvailability = function (meetingId, groupId) {
 
-        if(typeof(joining)==='undefined') joining = false;
-
-        for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
-            if( meetings.currentMeetings[i].id == meetingId ) {
-                meetings.utils.setMeetingInfo(meetings.currentMeetings[i], false);
-                meetings.currentMeetings[i].joining = joining;
-                meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
-                meetings.updateMeetingInfo(meetings.currentMeetings[i]);
-                return;
+        if(typeof(groupId)==='undefined'){
+            for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
+                if( meetings.currentMeetings[i].id == meetingId ) {
+                    meetings.utils.setMeetingInfo(meetings.currentMeetings[i], false);
+                    meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
+                    meetings.updateMeetingInfo(meetings.currentMeetings[i]);
+                    $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+meetings.currentMeetings[i].name+"', '"+meetings.currentMeetings[i].id+"');");
+                    return;
+                }
             }
+        } else {
+            var currentMeeting = meetings.utils.getMeeting(meetingId);
+            meetings.utils.setMeetingInfo(currentMeeting, false, groupId);
+            meetings.utils.checkMeetingAvailability(currentMeeting);
+            meetings.updateMeetingInfo(currentMeeting);
+            $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+currentMeeting.name+"','"+currentMeeting.id+"', '"+groupId+"');");
+            return;
         }
     };
 
@@ -561,18 +801,21 @@
 
         if(meeting.joinable) {
             if ( meeting.joinableMode === "available" ){
-                if( meeting.multipleSessionsAllowed ) {
-                    $('#meeting_joinlink_'+meeting.id).fadeIn();
+                if( meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled ) {
+                    $('#meeting_joinlink_'+meeting.id).show();
                 } else {
-                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) && !meeting.joining ) {
-                        $('#meeting_joinlink_'+meeting.id).fadeIn();
+                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
+                        $('#meeting_joinlink_'+meeting.id).show();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).fadeOut();
+                        $('#meeting_joinlink_'+meeting.id).hide();
                     }
                 }
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
                 }
@@ -587,19 +830,25 @@
                     .addClass('status_joinable_available')
                     .text(bbb_status_joinable_available);
             } else if ( meeting.joinableMode === "inprogress" ){
-                if( meeting.multipleSessionsAllowed ) {
-                    $('#meeting_joinlink_'+meeting.id).fadeIn();
+                var end_meetingTextIntermediate = "&nbsp;|&nbsp;&nbsp;<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>&nbsp;<span><i class=\"fa fa-stop\"></i></span>";
+                if( meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled ) {
+                    $('#meeting_joinlink_'+meeting.id).show();
                 } else {
-                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) && !meeting.joining ) {
-                        $('#meeting_joinlink_'+meeting.id).fadeIn();
+                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
+                        $('#meeting_joinlink_'+meeting.id).show();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).fadeOut();
+                        $('#meeting_joinlink_'+meeting.id).hide();
+                        end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>&nbsp;<span><i class=\"fa fa-stop\"></i></span>";
                     }
                 }
+                $('#end_meeting_intermediate_'+meeting.id).toggleClass("bbb_end_meeting_shown").html(end_meetingTextIntermediate);
 
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_shown');
+                    $('#end_meeting_intermediate_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_shown');
                 }
@@ -619,6 +868,9 @@
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
                 }
@@ -642,6 +894,9 @@
                 // Update the actionbar on the list
                 if ( meeting.canEnd ){ 
                     $('#end_meeting_'+meeting.id)
+                    .removeClass()
+                    .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
                 }
@@ -694,26 +949,33 @@
     	}
     };
     
-    meetings.utils.checkRecordingAvailability = function (meetingId) {
+    meetings.utils.checkRecordingAvailability = function (meetingId, groupId) {
 
-		var recordings = meetings.utils.getMeetingRecordingList(meetingId).recordings;
+		var recordings = meetings.utils.getMeetingRecordingList(meetingId, groupId).recordings;
 		if( recordings == null ){
             meetings.utils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-        	meetings.utils.hideMessage();	
-        	if (!meetings.userPerms.bbbRecordingView) {
+        	meetings.utils.hideMessage();
+            var meetingRecordingEnabled = true;
+            for(var i=0; i<meetings.currentMeetings.length; i++){
+                if (meetings.currentMeetings[i].id === meetingId) {
+                    meetingRecordingEnabled = meetings.currentMeetings[i].recording;
+                }
+            }
+            if (!meetings.userPerms.bbbRecordingView || !meetings.settings.config.addUpdateFormParameters.recordingEnabled || !meetingRecordingEnabled) {
                 $('#meeting_recordings').hide();
             } else {
                 $('#meeting_recordings').show();
-            	var htmlRecordings = "";
-            	if(recordings.length > 0)
-    				htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
-            	else
-                	htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
-            		
-            	$('#recording_link_'+meetingId).html(htmlRecordings);
+                var htmlRecordings = "";
+                var groupID = groupId ? "', 'groupId':'" + groupId : "";
+                if(recordings.length > 0)
+                    htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + groupID +'\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
+                else
+                    htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
+
+                $('#recording_link_'+meetingId).html(htmlRecordings);
             }
-		}
+        }
     };
 
     // Get notice message to be displayed on the UI (first time access)
@@ -990,7 +1252,7 @@
     meetings.utils.showAjaxIndicator = function (outputSelector) {
 
     	$(outputSelector).empty()
-            .html('<img src="images/ajaxload.gif" alt="..." class="bbb_imgIndicator"/>')
+            .html('<img src="/bbb-tool/images/ajaxload.gif" alt="..." class="bbb_imgIndicator"/>')
             .show();
     };
 
@@ -1047,6 +1309,7 @@
             // in the same call.
             sakai.editor.editors.launch = (function (targetId, config, w, h) {
                 var original = sakai.editor.launch;
+
                 if( toolbarSet == 'BBB') {
                     return function (targetId, config, w, h) {
                         var folder = "";

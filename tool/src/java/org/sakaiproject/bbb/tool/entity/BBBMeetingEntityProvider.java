@@ -26,19 +26,33 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.log4j.Logger;
+import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.bbb.api.BBBException;
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
 import org.sakaiproject.bbb.api.Participant;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -60,7 +74,17 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -69,6 +93,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Claims;
 
 /**
  * BBBMeetingEntityProvider is the EntityProvider class that implements several
@@ -113,6 +143,9 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         this.serverConfigurationService = serverConfigurationService;
     }
 
+    private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+
+    private SecurityService m_securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
     // --- Outputable, Inputable
     // -----------------------------------------------------
     public String[] getHandledOutputFormats() {
@@ -213,6 +246,16 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
                 (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
         meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
+
+        //preuploaded presentation
+        String presentationUrl = (String) params.get("presentation");
+        meeting.setPresentation(presentationUrl);
+
+        // groupSessions flag
+        String groupSessionsStr = (String) params.get("groupSessions");
+        boolean groupSessions = (groupSessionsStr != null &&
+                (groupSessionsStr.toLowerCase().equals("on") || groupSessionsStr.toLowerCase().equals("true")));
+        meeting.setGroupSessions(Boolean.valueOf(groupSessions));
 
         // participants
         String meetingOwnerId = meeting.getOwnerId();
@@ -321,6 +364,20 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                     (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
             meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
 
+            // update default presentation if preuploadPresentation flag is true
+            String presentationUrl = (String) params.get("presentation");
+            if (presentationUrl != null && presentationUrl != "") {
+                meeting.setPresentation(presentationUrl);
+            } else {
+                meeting.setPresentation("");
+            }
+
+            // update groupSessions flag
+            String groupSessionsStr = (String) params.get("groupSessions");
+            boolean groupSessions = (groupSessionsStr != null &&
+                    (groupSessionsStr.toLowerCase().equals("on") || groupSessionsStr.toLowerCase().equals("true")));
+            meeting.setGroupSessions(Boolean.valueOf(groupSessions));
+
             // update dates
             if (params.get("startDate") != null)
                 meeting.setStartDate(newMeeting.getStartDate());
@@ -350,7 +407,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             Long iCalAlarmMinutes = iCalAlarmMinutesStr != null? Long.valueOf(iCalAlarmMinutesStr): 0L;
 
             try {
-                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar, iCalAttached, iCalAlarmMinutes))
+                if (!meetingManager.updateMeeting(meeting, notifyParticipants, addToCalendar, iCalAttached, iCalAlarmMinutes, false))
                     throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
             } catch (BBBException e) {
                 throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
@@ -512,6 +569,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (recordingEnabled != null) {
             map.put("recordingEnabled", recordingEnabled);
         }
+        Boolean recordingEditable = Boolean.parseBoolean(meetingManager.isRecordingEditable());
+        if (recordingEditable != null) {
+            map.put("recordingEditable", recordingEditable);
+        }
         Boolean recordingDefault = Boolean.parseBoolean(meetingManager.getRecordingDefault());
         if (recordingDefault != null) {
             map.put("recordingDefault", recordingDefault);
@@ -530,6 +591,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (waitmoderatorEnabled != null) {
             map.put("waitmoderatorEnabled", waitmoderatorEnabled);
         }
+        Boolean waitmoderatorEditable = Boolean.parseBoolean(meetingManager.isWaitModeratorEditable());
+        if (waitmoderatorEditable != null) {
+            map.put("waitmoderatorEditable", waitmoderatorEditable);
+        }
         Boolean waitmoderatorDefault = Boolean.parseBoolean(meetingManager.getWaitModeratorDefault());
         if (waitmoderatorDefault != null) {
             map.put("waitmoderatorDefault", waitmoderatorDefault);
@@ -539,9 +604,31 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (multiplesessionsallowedEnabled != null) {
             map.put("multiplesessionsallowedEnabled", multiplesessionsallowedEnabled);
         }
+        Boolean multiplesessionsallowedEditable = Boolean.parseBoolean(meetingManager.isMultipleSessionsAllowedEditable());
+        if (multiplesessionsallowedEditable != null) {
+            map.put("multiplesessionsallowedEditable", multiplesessionsallowedEditable);
+        }
         Boolean multiplesessionsallowedDefault = Boolean.parseBoolean(meetingManager.getMultipleSessionsAllowedDefault());
         if (multiplesessionsallowedDefault != null) {
             map.put("multiplesessionsallowedDefault", multiplesessionsallowedDefault);
+        }
+        //UX settings for 'preupload presentation' box
+        Boolean preuploadpresentationEnabled = Boolean.parseBoolean(meetingManager.isPreuploadPresentationEnabled());
+        if (preuploadpresentationEnabled != null) {
+            map.put("preuploadpresentationEnabled", preuploadpresentationEnabled);
+        }
+        //UX settings for 'group sessions' box
+        Boolean groupsessionsEnabled = Boolean.parseBoolean(meetingManager.isGroupSessionsEnabled());
+        if (groupsessionsEnabled != null) {
+            map.put("groupsessionsEnabled", groupsessionsEnabled);
+        }
+        Boolean groupsessionsEditable = Boolean.parseBoolean(meetingManager.isGroupSessionsEditable());
+        if (groupsessionsEditable != null) {
+            map.put("groupsessionsEditable", groupsessionsEditable);
+        }
+        Boolean groupsessionsDefault = Boolean.parseBoolean(meetingManager.getGroupSessionsDefault());
+        if (groupsessionsDefault != null) {
+            map.put("groupsessionsDefault", groupsessionsDefault);
         }
         //UX settings for 'description' box
         String descriptionMaxLength = meetingManager.getMaxLengthForDescription();
@@ -600,40 +687,64 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (meetingID == null) {
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
-
+        String groupId = (String) params.get("groupId");
+        String endAll = (String) params.get("endAll");
         try {
-            return Boolean.toString(meetingManager.endMeeting(meetingID));
+            if (groupId != null)
+                return Boolean.toString(meetingManager.endMeeting(meetingID, groupId, false));
+            else if (endAll != null)
+                return Boolean.toString(meetingManager.endMeeting(meetingID, "", true));
+
+            return Boolean.toString(meetingManager.endMeeting(meetingID, "", false));
         } catch (BBBException e) {
             String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX + Entity.SEPARATOR + meetingID;
             throw new EntityException(e.getPrettyMessage(), ref, 400);
         }
     }
 
-    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref) {
-        if (logger.isDebugEnabled()) logger.debug("getMeetingInfo");
-        if (ref == null) {
-            throw new EntityNotFoundException("Meeting not found", null);
-        }
-
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getMeetings(Map<String, Object> params) {
+        if (logger.isDebugEnabled()) logger.debug("getMeetings");
         try {
-            return new ActionReturn(meetingManager.getMeetingInfo(ref.getId()));
+            return new ActionReturn(meetingManager.getMeetings());
         } catch (BBBException e) {
             return new ActionReturn(new HashMap<String, String>());
         }
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
-    public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref) {
+    public ActionReturn getMeetingInfo(OutputStream out, EntityView view, EntityReference ref, Map<String, Object> params) {
+        if (logger.isDebugEnabled()) logger.debug("getMeetingInfo");
+        if (ref == null) {
+            throw new EntityNotFoundException("Meeting not found", null);
+        }
+
+        String groupId = (String) params.get("groupId");
+        try {
+            if (groupId != null)
+                return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), groupId));
+
+            return new ActionReturn(meetingManager.getMeetingInfo(ref.getId(), ""));
+        } catch (BBBException e) {
+            return new ActionReturn(new HashMap<String, String>());
+        }
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_SHOW)
+    public ActionReturn getRecordings(OutputStream out, EntityView view, EntityReference ref, Map<String, Object> params) {
         if(logger.isDebugEnabled()) logger.debug("getRecordings");
 
         if (ref == null)
             throw new EntityNotFoundException("Meeting not found", null);
 
         try {
-            Map<String, Object> recordingsResponse = meetingManager
-                    .getRecordings(ref.getId());
-
+            Map<String, Object> recordingsResponse = null;
+            String groupId = (String) params.get("groupId");
+            if (groupId != null) {
+                recordingsResponse = meetingManager.getRecordings(ref.getId(), groupId);
+            } else {
+                recordingsResponse = meetingManager.getRecordings(ref.getId(), "");
+            }
             return new ActionReturn(recordingsResponse);
 
         } catch (BBBException e) {
@@ -684,6 +795,34 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         try {
             return Boolean.toString(meetingManager.publishRecordings(meetingID,
                     recordID, publish));
+        } catch (BBBException e) {
+            String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
+                    + Entity.SEPARATOR + meetingID;
+            throw new EntityException(e.getPrettyMessage(), ref, 400);
+        }
+
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String protectRecordings(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("protectRecordings");
+        String meetingID = (String) params.get("meetingID");
+        String recordID = (String) params.get("recordID");
+        String protect = (String) params.get("protect");
+        if (meetingID == null) {
+            throw new IllegalArgumentException("Missing required parameter [meetingID]");
+        }
+        if (recordID == null) {
+            throw new IllegalArgumentException("Missing required parameter [recordID]");
+        }
+        if (protect == null) {
+            throw new IllegalArgumentException("Missing required parameter [protect]");
+        }
+
+        try {
+            return Boolean.toString(meetingManager.protectRecordings(meetingID,
+                    recordID, protect));
         } catch (BBBException e) {
             String ref = Entity.SEPARATOR + BBBMeetingManager.ENTITY_PREFIX
                     + Entity.SEPARATOR + meetingID;
@@ -774,9 +913,23 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
+            
+            //group sessions
+            String groupId = (String) params.get("groupId");
+            if (groupId != null && meeting.getGroupSessions()) {
+                meeting.setId(meeting.getId() + "[" + groupId + "]");
+            } else {
+                meeting.setId(meeting.getId());
+            }
+
             //Unescape Meeting name
+            String groupTitle = (String) params.get("groupTitle");
             String nameStr = meeting.getName();
-            meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
+            if (groupTitle != null){
+                meeting.setName(StringEscapeUtils.unescapeHtml(nameStr) + " (" + groupTitle + ")");
+            } else {
+                meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
+            }
 
             String joinUrl = meetingManager.getJoinUrl(meeting);
 
@@ -788,26 +941,42 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             meetingManager.logMeetingJoin(meetingId);
 
             //Build the corresponding page for joining
-            String html;
             //If the user is not a moderator and WaitForModerator is enabled, do not create the meeting
-            if( meeting.getWaitForModerator() ){
+            Boolean waitmoderatorEnabled = Boolean.parseBoolean(meetingManager.isWaitModeratorEnabled());
+            if (waitmoderatorEnabled == null)
+                waitmoderatorEnabled = true;
+            String html;
+            if( waitmoderatorEnabled && meeting.getWaitForModerator() ){
                 Participant p = meetingManager.getParticipantFromMeeting(meeting, userDirectoryService.getCurrentUser().getId());
                 if( !(Participant.MODERATOR).equals(p.getRole())) {
-                    Map<String, Object> meetingInfo = meetingManager.getMeetingInfo(meetingId);
+                    Map<String, Object> meetingInfo = null;
+                    if(groupId != null && meeting.getGroupSessions())
+                        meetingInfo = meetingManager.getMeetingInfo(meetingId, groupId);
+                    else
+                        meetingInfo = meetingManager.getMeetingInfo(meetingId, "");
+
                     if( meetingInfo == null || meetingInfo.isEmpty() || Integer.parseInt((String)meetingInfo.get("moderatorCount")) <= 0 ) {
-                        html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR);
+                        //check for group session
+                        if (groupId != null && meeting.getGroupSessions())
+                            html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR, groupId);
+                        else
+                            html = getHtmlForJoining(joinUrl, meetingId, WAITFORMODERATOR, "");
                         return html;
                     }
                 }
             }
-            //Else, if the user is a moderator / WaitForModerator is not enabled, create the meeting
+            //Else if the user is a moderator / WaitForModerator is not enabled, create the meeting
             try {
                 meetingManager.checkJoinMeetingPreConditions(meeting);
             } catch (BBBException e) {
                 throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
             }
 
-            html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
+            //check for group session
+            if (groupId != null && meeting.getGroupSessions())
+                html = getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR, groupId);
+            else
+                html = getHtmlForJoining(joinUrl, meetingId);
             return html;
 
         } catch (Exception e) {
@@ -817,10 +986,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     private String getHtmlForJoining(String joinUrl, String meetingId){
-        return getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR);
+        return getHtmlForJoining(joinUrl, meetingId, NOTWAITFORMODERATOR, "");
     }
 
-    private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator){
+    private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator, String groupId){
         ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
         Locale locale = (new ResourceLoader()).getLocale();
         toolMessages.setContextLocale(locale);
@@ -848,7 +1017,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "            // Disable caching of AJAX responses\n" +
                    "            // Validates if a moderator has joined\n" +
                    "            jQuery.ajax( {\n" +
-                   "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json',\n" +
+                   "                url: '/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + (groupId.equals("") ? "" : "?groupId=" + groupId) + "',\n" +
                    "                dataType : 'json',\n" +
                    "                async : false,\n" +
                    "                cache: false,\n" +
@@ -865,7 +1034,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "                        setTimeout(worker, 5000);\n" +
                    "                    } else {\n" +
                    "                        if (typeof window.opener != 'undefined') {\n" +
-                   "                           window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true)\", 15000 );\n" +
+                   "                           window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
                    "                        }\n" +
                    "                        window.location.reload();\n" +
                    "                    }\n" +
@@ -883,15 +1052,64 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    commonHtmlFooter;
         } else {
             return commonHtmlHeader +
-                   "    <script type='text/javascript' language='JavaScript'>\n" +
-                   "        window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "', true)\", 15000 );\n" +
-                   "    </script>\n" +
+                   //"    <script type='text/javascript' language='JavaScript'>\n" +
+                   //"        window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
+                   //"    </script>\n" +
                    "    <meta http-equiv='refresh' content='0; url=" + joinUrl + "' />\n" +
                    "  </head>\n" +
                    "  <body>\n" +
                    "  </body>\n" +
                    commonHtmlFooter;
         }
+    }
+    
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getGroups(Map<String, Object> params) {
+        if(logger.isDebugEnabled())
+            logger.debug("getGroups");
+    
+        String meetingID = (String) params.get("meetingID");
+        if (meetingID == null) {
+            throw new IllegalArgumentException("Missing required parameter [meetingID]");
+        }
+        
+        //Get meeting
+        BBBMeeting meeting = null;
+        try {
+            meeting = meetingManager.getMeeting(meetingID);
+        } catch (Exception e) {
+            return null;
+        }
+
+        Site site;
+        try {
+            site = siteService.getSite(meeting.getSiteId());
+        } catch (IdUnusedException e) {
+            logger.error("Unable to get groups in '" + meeting.getName() + "'.", e);
+            return null;
+        }
+
+        //Get user's group ids
+        List<String> groupIds = new ArrayList<String>();
+        if (meetingManager.getCanEdit(meeting.getSiteId(), meeting)) {
+            for(Group g : site.getGroups())
+                groupIds.add(g.getId());
+        } else {
+            groupIds = meetingManager.getUserGroupIdsInSite(userDirectoryService.getCurrentUser().getId(), meeting.getSiteId());
+        }
+
+        Map<String, Object> groups = new HashMap<String, Object>();
+
+        for(int i = 0; i < groupIds.size(); i++){
+            Map<String, String> groupInfo = new HashMap<String, String>();
+            Group group = site.getGroup(groupIds.get(i));
+
+            groupInfo.put("groupId", groupIds.get(i));
+            groupInfo.put("groupTitle", group.getTitle());
+            groups.put("group" + i, groupInfo);
+        }
+
+        return new ActionReturn(groups);
     }
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
@@ -972,6 +1190,164 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             map.put("level", meetingManager.getNoticeLevel());
         }
         return new ActionReturn(map);
+    }
+    
+    @EntityCustomAction(viewKey = EntityView.VIEW_NEW)
+    public ActionReturn recordingReady(Map<String, Object> params) {
+        String bbbSaltString = serverConfigurationService.getString(BBBMeetingManager.CFG_SALT);
+        String bbbSalt = new String(Base64.encodeBase64(bbbSaltString.getBytes()));
+        Claims claims = Jwts.parser().setSigningKey(bbbSalt).parseClaimsJws(params.get("signed_parameters").toString()).getBody();
+        String meeting_id = claims.get("meeting_id").toString();
+
+        boolean notified = meetingManager.recordingReady(meeting_id);
+        
+        ActionReturn response = null;
+        if (notified) {
+            response = new ActionReturn("OK");
+            response.setResponseCode(200);
+        } else {
+            response = new ActionReturn("Gone");
+            response.setResponseCode(410);
+        }
+        return response;
+    }
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_NEW)
+    public String doUpload(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("Uploading File");
+
+        String url = "";
+        String siteId = (String) params.get("siteId");
+        FileItem file = (FileItem) params.get("file");
+
+        try {
+            String filename = Validator.getFileName(file.getName());
+            String contentType = file.getContentType();
+
+            InputStream fileContentStream = file.getInputStream();
+            InputStreamReader reader = new InputStreamReader(fileContentStream);
+
+            if (fileContentStream != null) {
+                String name = Validator.getFileName(filename);
+				String resourceId = Validator.escapeResourceName(name);
+
+                ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+
+                SecurityAdvisor sa = uploadFileSecurityAdvisor();
+                try {
+                    if (siteId != null) {
+                        m_securityService.pushAdvisor(sa);
+                        ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Meetings", contentType, fileContentStream, props);
+                        Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+                        url = ref.getUrl();
+                    } else {
+                        logger.debug("Upload failed; Site not found");
+                        return url;
+                    }
+                } catch(IdInvalidException e) {
+                    logger.debug(e);
+                } catch(InconsistentException e) {
+                    logger.debug(e);
+                } catch(IdUsedException e) {
+                    logger.debug(e);
+                } catch(PermissionException e) {
+                    logger.debug(e);
+                } catch(OverQuotaException e) {
+                    logger.debug(e);
+                } catch(ServerOverloadException e) {
+                    logger.debug(e);
+                }
+            }
+        } catch(IOException e) {
+            logger.debug("Failed to upload file");
+            logger.debug(e);
+        }
+        return url;
+    }
+
+    private SecurityAdvisor uploadFileSecurityAdvisor() {
+		return (userId, function, reference) -> {
+			//Needed to be able to add or modify their own
+			if (function.equals(m_contentHostingService.AUTH_RESOURCE_ADD) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)
+			) {
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			} else if (function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
+				logger.info(userId + " requested ability to write to any content on "+ reference+
+						" which we didn't expect, this should be investigated");
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvisor.SecurityAdvice.PASS;
+		};
+	}
+
+    @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
+    public String removeUpload(Map<String, Object> params) {
+        if (logger.isDebugEnabled())
+            logger.debug("Removing File");
+
+        String resourceId = (String) params.get("url");
+        String meetingId = (String) params.get("meetingId");
+
+        SecurityAdvisor sa = removeUploadSecurityAdvisor();
+        try {
+            m_securityService.pushAdvisor(sa);
+            m_contentHostingService.removeResource(resourceId);
+        } catch (PermissionException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        } catch (IdUnusedException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        } catch (TypeException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        } catch (InUseException e) {
+            logger.debug(e);
+            return Boolean.toString(false);
+        }
+
+        if(meetingId != null && meetingId != ""){
+            try {
+                BBBMeeting meeting = meetingManager.getMeeting(meetingId);
+                if (meeting != null) {
+                    meeting.setPresentation("");
+                    try {
+                        //Update meeting presentation value
+                        if (!meetingManager.updateMeeting(meeting, false, false, false, 0L, true))
+                            throw new EntityException("Unable to update meeting in DB", meeting.getReference(), 400);
+                    } catch (BBBException e) {
+                        throw new EntityException(e.getPrettyMessage(), meeting.getReference(), 400);
+                    }
+                }
+            } catch (SecurityException se) {
+                logger.debug(se);
+                return Boolean.toString(false);
+            } catch (Exception e) {
+                logger.debug(e);
+                return Boolean.toString(false);
+            }
+        }
+        return Boolean.toString(true);
+    }
+
+    private SecurityAdvisor removeUploadSecurityAdvisor() {
+        return (userId, function, reference) -> {
+            if (function.equals(m_contentHostingService.AUTH_RESOURCE_REMOVE_OWN) ||
+				function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)
+			) {
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			} else if (function.equals(m_contentHostingService.AUTH_RESOURCE_REMOVE_ANY)) {
+				logger.info(userId + " requested ability to remove any content on "+ reference+
+						" which we didn't expect, this should be investigated");
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvisor.SecurityAdvice.PASS;
+        };
     }
 
     // --- Statisticable
