@@ -36,11 +36,11 @@ import org.sakaiproject.bbb.impl.util.XmlUtil;
 
 /**
  * Default Database implementation for Sakai BigBlueButton persistence.
- * 
+ *
  * @author Adrian Fish, Nuno Fernandes
  */
 public class DefaultSqlGenerator implements SqlGenerator {
-	
+
     protected final Logger logger = Logger.getLogger(getClass());
 
     // DB Data Types
@@ -51,7 +51,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
     protected String MEDIUMTEXT = "MEDIUMTEXT";
     protected String BOOL = "BOOL";
     protected String INT = "INT";
-    
+
     protected String NODELETED = "0";
 
     public Map<String, String> getSetupStatements() {
@@ -71,7 +71,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
                 "VOICE_BRIDGE " + INT + ", " +
                 "WAIT_FOR_MODERATOR " + BOOL + ", " +
                 "MULTIPLE_SESSIONS_ALLOWED " + BOOL + ", " +
-                "PRESENTATION " + VARCHAR + "(255) NOT NULL, " +
+                "PRESENTATION " + VARCHAR + "(255), " +
                 "GROUP_SESSIONS " + BOOL + ", " +
                 "PROPERTIES " + TEXT + ", " +
                 "DELETED " + INT + " DEFAULT 0 NOT NULL," +
@@ -81,7 +81,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         	"MEETING_ID " + CHAR + "(36) NOT NULL, " +
         	"SELECTION_TYPE " + VARCHAR + "(99) NOT NULL, " +
         	"SELECTION_ID " + VARCHAR + "(99), " +
-        	"ROLE " + VARCHAR + "(32) NOT NULL," + 
+        	"ROLE " + VARCHAR + "(32) NOT NULL," +
         	"CONSTRAINT bbb_meeting_participant_pk PRIMARY KEY (MEETING_ID,SELECTION_TYPE,SELECTION_ID))");
 
         return statements;
@@ -91,36 +91,36 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return "SHOW TABLES like '" + table + "'";
     }
 
-    // 
+    //
     //Code for automatic updates to the database
-    //This is for updating from 1.0.6 to 1.0.7 however for next updates 
+    //This is for updating from 1.0.6 to 1.0.7 however for next updates
     //only add the table and the code that needs to be updated
     //                              JFederico
     public Map<String, String> getUpdateStatements() {
         Map<String, String> statements = new LinkedHashMap<String, String>();
 
-        statements.put("BBB_MEETING:HOST_URL:ADD", 
+        statements.put("BBB_MEETING:HOST_URL:ADD",
                 "ALTER TABLE BBB_MEETING ADD COLUMN HOST_URL " + VARCHAR + "(255) AFTER NAME;");
-        statements.put("BBB_MEETING:RECORDING:ADD", 
-                "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;"); 
-        statements.put("BBB_MEETING:RECORDING_DURATION:ADD", 
+        statements.put("BBB_MEETING:RECORDING:ADD",
+                "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING " + BOOL + " AFTER END_DATE;");
+        statements.put("BBB_MEETING:RECORDING_DURATION:ADD",
                 "ALTER TABLE BBB_MEETING ADD COLUMN RECORDING_DURATION " + INT + " AFTER RECORDING;");
-        statements.put("BBB_MEETING:DELETED:ADD", 
+        statements.put("BBB_MEETING:DELETED:ADD",
                 "ALTER TABLE BBB_MEETING ADD COLUMN DELETED " + INT + " DEFAULT 0 NOT NULL AFTER PROPERTIES;");
-        statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP", 
+        statements.put("BBB_MEETING_PARTICIPANT:DELETED:DROP",
                 "ALTER TABLE BBB_MEETING_PARTICIPANT DROP COLUMN DELETED;");
-        statements.put("BBB_MEETING:VOICE_BRIDGE:ADD", 
-                "ALTER TABLE BBB_MEETING ADD COLUMN VOICE_BRIDGE " + INT + " AFTER RECORDING_DURATION;"); 
-        statements.put("BBB_MEETING:WAIT_FOR_MODERATOR:ADD", 
-                "ALTER TABLE BBB_MEETING ADD COLUMN WAIT_FOR_MODERATOR " + BOOL + " AFTER VOICE_BRIDGE;"); 
-        statements.put("BBB_MEETING:MULTIPLE_SESSIONS_ALLOWED:ADD", 
-                "ALTER TABLE BBB_MEETING ADD COLUMN MULTIPLE_SESSIONS_ALLOWED " + BOOL + " AFTER WAIT_FOR_MODERATOR;"); 
+        statements.put("BBB_MEETING:VOICE_BRIDGE:ADD",
+                "ALTER TABLE BBB_MEETING ADD COLUMN VOICE_BRIDGE " + INT + " AFTER RECORDING_DURATION;");
+        statements.put("BBB_MEETING:WAIT_FOR_MODERATOR:ADD",
+                "ALTER TABLE BBB_MEETING ADD COLUMN WAIT_FOR_MODERATOR " + BOOL + " AFTER VOICE_BRIDGE;");
+        statements.put("BBB_MEETING:MULTIPLE_SESSIONS_ALLOWED:ADD",
+                "ALTER TABLE BBB_MEETING ADD COLUMN MULTIPLE_SESSIONS_ALLOWED " + BOOL + " AFTER WAIT_FOR_MODERATOR;");
         statements.put("BBB_MEETING:PRESENTATION:ADD",
                 "ALTER TABLE BBB_MEETING ADD COLUMN PRESENTATION " + VARCHAR + "(255) AFTER MULTIPLE_SESSIONS_ALLOWED;");
         statements.put("BBB_MEETING:GROUP_SESSIONS:ADD",
                 "ALTER TABLE BBB_MEETING ADD COLUMN GROUP_SESSIONS " + BOOL + " AFTER PRESENTATION;");
         statements.put("BBB_MEETING:HOST_URL:CHANGE",
-                "ALTER TABLE BBB_MEETING CHANGE COLUMN HOST_URL HOST_URL " + VARCHAR + "(255);"); 
+                "ALTER TABLE BBB_MEETING CHANGE COLUMN HOST_URL HOST_URL " + VARCHAR + "(255);");
 
         return statements;
     }
@@ -129,13 +129,13 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return "SHOW COLUMNS FROM " + tableName + " LIKE '" + columnName + "'";
     }
 
-    // 
+    //
     //Code for automatic updates to the database ends
     //
-    
-    public List<PreparedStatement> getStoreMeetingStatements(BBBMeeting meeting, Connection connection) 
+
+    public List<PreparedStatement> getStoreMeetingStatements(BBBMeeting meeting, Connection connection)
     		throws Exception {
-        
+
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection.prepareStatement("INSERT INTO BBB_MEETING " +
                 "(MEETING_ID, NAME, HOST_URL, SITE_ID, ATTENDEE_PW, MODERATOR_PW, OWNER_ID, START_DATE, END_DATE, RECORDING, RECORDING_DURATION, VOICE_BRIDGE, WAIT_FOR_MODERATOR, MULTIPLE_SESSIONS_ALLOWED, PRESENTATION, GROUP_SESSIONS, PROPERTIES, DELETED)" +
@@ -177,9 +177,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public List<PreparedStatement> getUpdateMeetingStatements(BBBMeeting meeting, Connection connection) 
+    public List<PreparedStatement> getUpdateMeetingStatements(BBBMeeting meeting, Connection connection)
     		throws Exception {
-        
+
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
         PreparedStatement meetingST = connection
                 .prepareStatement("UPDATE BBB_MEETING SET NAME=?, SITE_ID=?, HOST_URL = ?, ATTENDEE_PW=?, MODERATOR_PW=?, OWNER_ID=?, START_DATE=?, END_DATE=?, RECORDING=?, RECORDING_DURATION=?, VOICE_BRIDGE=?, WAIT_FOR_MODERATOR=?, MULTIPLE_SESSIONS_ALLOWED=?, PRESENTATION=?, GROUP_SESSIONS=?, PROPERTIES=? WHERE MEETING_ID=?");
@@ -206,9 +206,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public List<PreparedStatement> getUpdateMeetingParticipantsStatements(BBBMeeting meeting, Connection connection) 
+    public List<PreparedStatement> getUpdateMeetingParticipantsStatements(BBBMeeting meeting, Connection connection)
     		throws Exception {
-        
+
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
 
         PreparedStatement participantsST = connection.prepareStatement("DELETE FROM BBB_MEETING_PARTICIPANT WHERE MEETING_ID = ?");
@@ -267,7 +267,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statement;
     }
 
-    public List<PreparedStatement> getDeleteMeetingStatements(String meetingId, Connection connection) 
+    public List<PreparedStatement> getDeleteMeetingStatements(String meetingId, Connection connection)
     		throws Exception {
 
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
@@ -282,7 +282,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
         return statements;
     }
 
-    public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId, Connection connection) 
+    public List<PreparedStatement> getMarkMeetingAsDeletedStatements(String meetingId, Connection connection)
     		throws Exception {
 
         List<PreparedStatement> statements = new ArrayList<PreparedStatement>();
@@ -293,8 +293,8 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
         return statements;
     }
-    
-    
+
+
     public PreparedStatement getSelectMeetingHostStatement(String meetingID, Connection connection)
             throws Exception {
 
