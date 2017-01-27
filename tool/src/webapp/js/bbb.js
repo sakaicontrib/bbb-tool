@@ -18,8 +18,8 @@
 meetings.currentMeetings = [];
 meetings.currentRecordings = Array();
 meetings.checkOneMeetingAvailabilityId = null;
-meetings.checkAllMeetingAvailabilityId = null; 
-meetings.checkRecordingAvailabilityId = null; 
+meetings.checkAllMeetingAvailabilityId = null;
+meetings.checkRecordingAvailabilityId = null;
 meetings.refreshRecordingListId = null;
 meetings.errorLog = new Object();
 meetings.browserTimezoneOffset = 0;
@@ -35,9 +35,9 @@ meetings.browserTimezoneOffset = 0;
 
     // load I18N files
     jQuery.i18n.properties({
-        name:       'ToolMessages', 
-        path:       '/bbb-tool/bundle/', 
-        language:   arg.language, 
+        name:       'ToolMessages',
+        path:       '/bbb-tool/bundle/',
+        language:   arg.language,
         mode:       'vars'
     });
 
@@ -53,10 +53,10 @@ meetings.browserTimezoneOffset = 0;
             jQuery.getScript("lib/jquery.datepick.package-3.7.5/jquery.datepick-" + lang[0] + ".js");
         }
     }
-    
+
     // We need the toolbar in a template so we can swap in the translations
     meetings.utils.render('bbb_toolbar_template',{},'bbb_toolbar');
-    
+
     $('#bbb_home_link').click(function (e) {
         return meetings.switchState('currentMeetings');
     }).show();
@@ -68,7 +68,7 @@ meetings.browserTimezoneOffset = 0;
     $('#bbb_recordings_link').click(function (e) {
         return meetings.switchState('recordings');
     }).hide();
-    
+
     var settingsCallback = function () {
 
             meetings.currentUser = meetings.settings.currentUser;
@@ -84,7 +84,7 @@ meetings.browserTimezoneOffset = 0;
                 meetings.utils.showMessage(bbb_err_no_user, 'error');
                 jQuery('#bbb_container').empty();
             }
-            
+
             // If configured, show text notice (first time access)
             meetings.utils.addNotice();
         };
@@ -101,12 +101,12 @@ meetings.switchState = function (state, arg) {
 	if ( meetings.checkAllMeetingAvailabilityId != null ) clearInterval(meetings.checkAllMeetingAvailabilityId);
 	if ( meetings.checkRecordingAvailabilityId != null ) clearInterval(meetings.checkRecordingAvailabilityId);
 	if ( meetings.refreshRecordingListId != null ) clearInterval(meetings.refreshRecordingListId);
-	
+
     meetings.utils.hideMessage();
-    
+
     //Clean navbar button state
     $("#bbb_toolbar_items li>span").removeClass('current');
-    
+
     if ('currentMeetings' === state) {
     	$("#bbb_home_link").parent().addClass('current');
         // show recordings links only if site maintainer or if has specific view permission
@@ -132,11 +132,11 @@ meetings.switchState = function (state, arg) {
         }
 
         if (meetings.userPerms.bbbDeleteAny) {
-            $('#bbb_end_meetings_link').parent().parent().show();        
+            $('#bbb_end_meetings_link').parent().parent().show();
         } else {
-            $('#bbb_end_meetings_link').parent().parent().hide();         
+            $('#bbb_end_meetings_link').parent().parent().hide();
         }
-        
+
         // show meeting list
         if (meetings.userPerms.bbbViewMeetingList) {
             // Set meeting list
@@ -163,7 +163,7 @@ meetings.switchState = function (state, arg) {
             var $rows = $('#bbb_meeting_table tbody tr');
             $('.search').keyup(function() {
                 var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-                
+
                 $rows.show().filter(function() {
                     var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
                     return !~text.indexOf(val);
@@ -186,19 +186,19 @@ meetings.switchState = function (state, arg) {
                     jQuery(this).removeClass('bbb_even_row');
                 }
             );
-            
+
             // Add parser for customized date format
             $.tablesorter.addParser({
                 id: "bbbDateTimeFormat",
                 is: function(s) {
-                    return false; 
+                    return false;
                 },
                 format: function(s,table) {
                     return $.tablesorter.formatFloat(new Date(s).getTime());
                 },
                 type: "numeric"
             });
-            
+
             // add sorting capabilities
             $("#bbb_meeting_table").tablesorter({
                 cssHeader:'bbb_sortable_table_header',
@@ -228,7 +228,7 @@ meetings.switchState = function (state, arg) {
         $('#bbb_end_meetings_link').parent().parent().hide();
         $('#bbb_permissions_link').parent().parent().hide();
 
-        var isNew = !(arg && arg.meetingId); 
+        var isNew = !(arg && arg.meetingId);
         var meeting = isNew ? {} : meetings.utils.getMeeting(arg.meetingId);
         var contextData = {
                 'isNew':        isNew,
@@ -321,7 +321,7 @@ meetings.switchState = function (state, arg) {
         meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
 
         // Setup dates
-        var now = new Date(); 
+        var now = new Date();
         var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
         var now_local = new Date(parseInt(now_utc.getTime()) + parseInt(meetings.startupArgs.timezoneoffset));
         var now_local_plus_1 = new Date(parseInt(now_utc.getTime()) + parseInt(meetings.startupArgs.timezoneoffset) + 3600000);
@@ -341,7 +341,7 @@ meetings.switchState = function (state, arg) {
             dateFormat:         jQuery.datepick.W3C,
             defaultDate:        '+0',
             showDefault:        true,
-            showOn:             'both', 
+            showOn:             'both',
             buttonImageOnly:    true,
             buttonImage:        '/library/calendar/images/calendar/cal.gif'
         });
@@ -448,7 +448,7 @@ meetings.switchState = function (state, arg) {
                         if(this.value != "Default"){
                             $("#joinMeetingLink").attr("onclick", "return meetings.utils.joinMeeting('"+meeting.id+"', '#joinMeetingLink', "+multiplesessions+", '"+this.value+"', '"+$('#groupSession option:selected').text()+"');");
                             $("#meetingName").html(meeting.name + ' (' + $('#groupSession option:selected').text() + ')');
-                            
+
                             meetings.utils.checkOneMeetingAvailability(meeting.id, this.value);
                             meetings.utils.checkRecordingAvailability(meeting.id, this.value);
                             $("#updateMeetingInfo").attr("onclick", "meetings.utils.checkOneMeetingAvailability('"+meeting.id+"', '"+this.value+"'); return false;");
@@ -489,9 +489,9 @@ meetings.switchState = function (state, arg) {
         // show meeting list
         if (meetings.userPerms.bbbViewMeetingList) {
             // Get recording list
-        	meetings.refreshRecordingList();
+            meetings.refreshRecordingList();
 
-        	// watch for permissions changes, check meeting dates
+            // watch for permissions changes, check meeting dates
             for(var i=0;i<meetings.currentRecordings.length;i++) {
                 meetings.utils.setRecordingPermissionParams(meetings.currentRecordings[i]);
 
@@ -510,7 +510,7 @@ meetings.switchState = function (state, arg) {
             var $rows = $('#bbb_recording_table tbody tr');
             $('.search').keyup(function() {
                 var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-                
+
                 $rows.show().filter(function() {
                     var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
                     return !~text.indexOf(val);
@@ -550,7 +550,7 @@ meetings.switchState = function (state, arg) {
             $.tablesorter.addParser({
                 id: "bbbRecDateTimeFormat",
                 is: function(s) {
-                    return false; 
+                    return false;
                 },
                 format: function(s,table) {
                     s = s.replace(/[a-zA-Z].*/g,'');
@@ -589,11 +589,20 @@ meetings.switchState = function (state, arg) {
                 meetings.refreshRecordingList(arg.meetingId, arg.groupId);
 
                 // watch for permissions changes, check meeting dates
-                for(var i=0,j=meetings.currentRecordings.length;i<j;i++) {
+                for(var i=0;i<meetings.currentRecordings.length;i++) {
                     meetings.currentRecordings[i].ownerId = "";
                     meetings.utils.setRecordingPermissionParams(meetings.currentRecordings[i]);
-                }
 
+                    var images = [];
+                    for(var j=0;j<meetings.currentRecordings[i].playback.length; j++){
+                        if (meetings.currentRecordings[i].playback[j].preview && meetings.currentRecordings[i].playback[j].preview.length > images.length){
+                            images = meetings.currentRecordings[i].playback[j].preview;
+                        }
+                    }
+                    if(images.length){
+                        meetings.currentRecordings[i].images = images;
+                    }
+                }
                 meetings.utils.render('bbb_recordings_template',{'recordings':meetings.currentRecordings, 'stateFunction':'recordings_meeting', 'meetingId':arg.meetingId},'bbb_content');
 
                 if ($('a.preview')) {
@@ -629,7 +638,7 @@ meetings.switchState = function (state, arg) {
                 $.tablesorter.addParser({
                     id: "bbbRecDateTimeFormat",
                     is: function(s) {
-                        return false; 
+                        return false;
                     },
                     format: function(s,table) {
                         s = s.replace(/[a-zA-Z].*/g,'');
@@ -702,7 +711,7 @@ meetings.addParticipantSelectionToUI = function (meeting, isNew) {
             var selectionType = meeting.participants[i].selectionType;
             var selectionId = meeting.participants[i].selectionId;
             var role = meeting.participants[i].role;
-            
+
             if (selectionType == 'all') {
                 meetings.addParticipantRow('all', null, null, role == 'moderator');
 
@@ -711,14 +720,14 @@ meetings.addParticipantSelectionToUI = function (meeting, isNew) {
                 if (selectionType == 'user') opts = selOptions['users'];
                 if (selectionType == 'group') opts = selOptions['groups'];
                 if (selectionType == 'role') opts = selOptions['roles'];
-                
+
                 for(var n=0; n<opts.length; n++) {
                     if (opts[n]['id'] == selectionId) {
                     	meetings.addParticipantRow(selectionType, selectionId, opts[n]['title'], role == 'moderator');
                         break;
                     }
                 }
-            
+
             }
         }
     }
@@ -729,7 +738,7 @@ meetings.updateParticipantSelectionUI = function () {
     var selOptions = meetings.utils.getUserSelectionOptions();
     var selType = jQuery('#selType').val();
     jQuery('#selOption option').remove();
-    
+
     if (selType == 'user' || selType == 'group' || selType == 'role') {
         var opts = null;
         if (selType == 'user') opts = selOptions['users'];
@@ -778,7 +787,7 @@ meetings.addParticipantRow = function (_selType, _id, _title, _moderator) {
                     '<select name="'+ selectionId +'"><option value="attendee"'+ attendeeSelection +'>'+ bbb_role_atendee +'</option><option value="moderator"'+ moderatorSelection +'>'+ bbb_role_moderator +'</option></select>'+
                     '<input type="hidden" name="'+ selectionType +'" value="'+ _id +'"/>'+
                 '</td>'+
-            '</tr>');        
+            '</tr>');
         if (jQuery('table#selContainer tbody tr.'+trRowClass+':last').size() > 0)
             jQuery('table#selContainer tbody tr.'+trRowClass+':last').after(row);
         else
@@ -807,51 +816,53 @@ meetings.updateMeetingInfo = function (meeting) {
                 var attendees = '';
                 for(var p=0; p<meetingInfo.attendees.length; p++) {
                     if (meetingInfo.attendees[p].role == 'VIEWER') {
-                        if (attendees != '')
+                        if (attendees != '') {
                             attendees += ', ' + meetingInfo.attendees[p].fullName;
-                        else
+                        } else {
                             attendees = meetingInfo.attendees[p].fullName;
+                        }
                     }
-            	}            	   
-                attendeeText = '<a id="attendees" title="'+attendees+'" href="javascript:;" onclick="return false;">'+ attendeeText +'</a>';            	
+                }
+                attendeeText = '<a id="attendees" title="'+attendees+'" href="javascript:;" onclick="return false;">'+ attendeeText +'</a>';
             }
             if (moderatorCount > 0) {
                 var moderators = '';
                 for(var p=0; p<meetingInfo.attendees.length; p++) {
-                   if (meetingInfo.attendees[p].role == 'MODERATOR') {
-                       if (moderators != '')
-                           moderators += ', ' + meetingInfo.attendees[p].fullName;
-                       else
-                           moderators = meetingInfo.attendees[p].fullName;
-                   }
+                    if (meetingInfo.attendees[p].role == 'MODERATOR') {
+                        if (moderators != '') {
+                            moderators += ', ' + meetingInfo.attendees[p].fullName;
+                        } else {
+                            moderators = meetingInfo.attendees[p].fullName;
+                        }
+                    }
                 }
                 moderatorText = '<a id="moderators" title="'+moderators+'" href="javascript:;" onclick="return false;">'+ moderatorText +'</a>';
             }
             var countText = meetingInfo.participantCount > 0
-			                ? meetingInfo.participantCount + ' (' + attendeeText + ' + ' + moderatorText + ')'
-			                : '0';
+                      ? meetingInfo.participantCount + ' (' + attendeeText + ' + ' + moderatorText + ')'
+                      : '0';
             // update participant info & tooltip
-			jQuery('#bbb_meeting_info_participants_count').html(countText);
-			jQuery('#attendees, #moderators').tipTip({
-			     activation:'click', 
-			     keepAlive:'true'
-			});
+            jQuery('#bbb_meeting_info_participants_count').html(countText);
+            jQuery('#attendees, #moderators').tipTip({
+                 activation:'click',
+                 keepAlive:'true'
+            });
 
             for(var p=0; p<meetingInfo.attendees.length; p++) {
                 if ((!meeting.multipleSessionsAllowed || !meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) && meetings.currentUser.id === meetingInfo.attendees[p].userID) {
-					$('#meeting_joinlink_' + meeting.id).hide();
-				}
-          	}
-		} else if (meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1){
+                  $('#meeting_joinlink_' + meeting.id).hide();
+                }
+            }
+        } else if (meetingInfo.participantCount == null || parseInt(meetingInfo.participantCount) == -1) {
             jQuery('#bbb_meeting_info_participants_count_tr').hide();
             return;
-		} else {
-			jQuery('#bbb_meeting_info_participants_count').html('0');
-		}
-	    jQuery('#bbb_meeting_info_participants_count_tr').fadeIn();
-	} else {
-	    jQuery('#bbb_meeting_info_participants_count_tr').hide();
-	}
+        } else {
+            jQuery('#bbb_meeting_info_participants_count').html('0');
+        }
+        jQuery('#bbb_meeting_info_participants_count_tr').fadeIn();
+    } else {
+        jQuery('#bbb_meeting_info_participants_count_tr').hide();
+    }
 };
 
 meetings.setMeetingList = function () {
@@ -882,7 +893,7 @@ meetings.refreshRecordingList = function (meetingId, groupId) {
 	} else {
 		//Something went wrong
 		meetings.currentRecordings = new Array();
-		
+
 		if ( getRecordingResponse.messageKey != null ){
 	    	meetings.utils.showMessage(getRecordingResponse.messageKey + ":" + getRecordingResponse.message, 'warning');
 		} else {
