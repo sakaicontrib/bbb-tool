@@ -690,23 +690,23 @@ meetings.allSiteMembersCanParticipate = function () {
 meetings.addParticipantSelectionToUI = function (meeting, isNew) {
 
     var selOptions = meetings.utils.getUserSelectionOptions();
-	if (isNew) {
-		var defaults = selOptions['defaults'];
+    if (isNew) {
+        var defaults = selOptions['defaults'];
 
-        // meeting creator (default: as moderator)
-		var ownerDefault = defaults['bbb.default.participants.owner'];
-		if (ownerDefault != 'none') {
+        // meeting creator (default: as moderator
+        var ownerDefault = defaults['bbb.default.participants.owner'];
+        if (ownerDefault != 'none') {
             meetings.addParticipantRow('user', meetings.currentUser.id, meetings.currentUser.displayName +' ('+meetings.currentUser.displayId+')', ownerDefault == 'moderator');
-		}
+        }
 
         // all site participants (default: none)
-		var allUsersDefault = defaults['bbb.default.participants.all_users'];
+        var allUsersDefault = defaults['bbb.default.participants.all_users'];
         if (allUsersDefault != 'none') {
             meetings.addParticipantRow('all', null, null, allUsersDefault == 'moderator');
         }
 
     } else {
-    	// existing participants
+        // existing participants
         for(var i=0; i<meeting.participants.length; i++) {
             var selectionType = meeting.participants[i].selectionType;
             var selectionId = meeting.participants[i].selectionId;
@@ -714,7 +714,6 @@ meetings.addParticipantSelectionToUI = function (meeting, isNew) {
 
             if (selectionType == 'all') {
                 meetings.addParticipantRow('all', null, null, role == 'moderator');
-
             } else {
                 var opts = null;
                 if (selectionType == 'user') opts = selOptions['users'];
@@ -727,7 +726,6 @@ meetings.addParticipantSelectionToUI = function (meeting, isNew) {
                         break;
                     }
                 }
-
             }
         }
     }
@@ -773,7 +771,7 @@ meetings.addParticipantRow = function (_selType, _id, _title, _moderator) {
     var moderatorSelection = _moderator ? ' selected' : '';
     var attendeeSelection = _moderator ? '' : ' selected';
 
-    var trId = 'row-' + _selType + '-' + _id;
+    var trId = 'row-' + _selType + '-' + btoa(_id).slice(0, -2);
     var trRowClass = 'row-' + _selType;
     if (jQuery('#'+trId).length == 0) {
         var row = jQuery(
