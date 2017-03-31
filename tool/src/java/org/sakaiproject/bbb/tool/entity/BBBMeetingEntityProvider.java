@@ -103,7 +103,7 @@ import io.jsonwebtoken.Claims;
 /**
  * BBBMeetingEntityProvider is the EntityProvider class that implements several
  * EntityBroker capabilities.
- * 
+ *
  * @author Adrian Fish, Nuno Fernandes
  */
 public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
@@ -231,19 +231,19 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
         // recording flag
         String recordingStr = (String) params.get("recording");
-        boolean recording = (recordingStr != null && 
+        boolean recording = (recordingStr != null &&
                 (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
         meeting.setRecording(recording ? Boolean.TRUE : Boolean.FALSE);
 
         // waitForModerator flag
         String waitForModeratorStr = (String) params.get("waitForModerator");
-        boolean waitForModerator = (waitForModeratorStr != null && 
+        boolean waitForModerator = (waitForModeratorStr != null &&
                 (waitForModeratorStr.toLowerCase().equals("on") || waitForModeratorStr.toLowerCase().equals("true")));
         meeting.setWaitForModerator(Boolean.valueOf(waitForModerator));
 
         // multipleSessionsAllowed flag
         String multipleSessionsAllowedStr = (String) params.get("multipleSessionsAllowed");
-        boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
+        boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null &&
                 (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
         meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
 
@@ -328,7 +328,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
             // update recording flag
             String recordingStr = (String) params.get("recording");
-            boolean recording = (recordingStr != null && 
+            boolean recording = (recordingStr != null &&
                     (recordingStr.toLowerCase().equals("on") || recordingStr.toLowerCase().equals("true")));
             meeting.setRecording(Boolean.valueOf(recording));
 
@@ -354,13 +354,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
             // update waitForModerator flag
             String waitForModeratorStr = (String) params.get("waitForModerator");
-            boolean waitForModerator = (waitForModeratorStr != null && 
+            boolean waitForModerator = (waitForModeratorStr != null &&
                     (waitForModeratorStr.toLowerCase().equals("on") || waitForModeratorStr.toLowerCase().equals("true")));
             meeting.setWaitForModerator(Boolean.valueOf(waitForModerator));
 
             // update multipleSessionsAllowed flag
             String multipleSessionsAllowedStr = (String) params.get("multipleSessionsAllowed");
-            boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null && 
+            boolean multipleSessionsAllowed = (multipleSessionsAllowedStr != null &&
                     (multipleSessionsAllowedStr.toLowerCase().equals("on") || multipleSessionsAllowedStr.toLowerCase().equals("true")));
             meeting.setMultipleSessionsAllowed(Boolean.valueOf(multipleSessionsAllowed));
 
@@ -754,8 +754,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getSiteRecordings(Map<String, Object> params) {
-        if (logger.isDebugEnabled())
-            logger.debug("getSiteRecordings");
+        if (logger.isDebugEnabled()) logger.debug("getSiteRecordings");
 
         String siteId = (String) params.get("siteId");
 
@@ -764,8 +763,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
 
         try {
-            Map<String, Object> recordingsResponse = meetingManager
-                    .getSiteRecordings(siteId);
+            Map<String, Object> recordingsResponse = meetingManager.getSiteRecordings(siteId);
 
             return new ActionReturn(recordingsResponse);
 
@@ -913,7 +911,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             if (meeting == null) {
                 throw new EntityException("This meeting is no longer available.", null, 404);
             }
-            
+
             //group sessions
             String groupId = (String) params.get("groupId");
             if (groupId != null && meeting.getGroupSessions()) {
@@ -1062,17 +1060,17 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    commonHtmlFooter;
         }
     }
-    
+
     @EntityCustomAction(viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGroups(Map<String, Object> params) {
         if(logger.isDebugEnabled())
             logger.debug("getGroups");
-    
+
         String meetingID = (String) params.get("meetingID");
         if (meetingID == null) {
             throw new IllegalArgumentException("Missing required parameter [meetingID]");
         }
-        
+
         //Get meeting
         BBBMeeting meeting = null;
         try {
@@ -1191,7 +1189,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         }
         return new ActionReturn(map);
     }
-    
+
     @EntityCustomAction(viewKey = EntityView.VIEW_NEW)
     public ActionReturn recordingReady(Map<String, Object> params) {
         String bbbSaltString = serverConfigurationService.getString(BBBMeetingManager.CFG_SALT);
@@ -1200,7 +1198,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         String meeting_id = claims.get("meeting_id").toString();
 
         boolean notified = meetingManager.recordingReady(meeting_id);
-        
+
         ActionReturn response = null;
         if (notified) {
             response = new ActionReturn("OK");
