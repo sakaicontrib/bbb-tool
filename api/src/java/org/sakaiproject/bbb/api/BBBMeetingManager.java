@@ -66,6 +66,7 @@ public interface BBBMeetingManager {
     public final static String CFG_GROUPSESSIONS_ENABLED = "bbb.groupsessions.enabled";               // [true|false]
     public final static String CFG_GROUPSESSIONS_EDITABLE = "bbb.groupsessions.editable";             // [true|false]
     public final static String CFG_GROUPSESSIONS_DEFAULT = "bbb.groupsessions.default";               // [true|false]
+    public final static String CFG_ADMIN_RECORDING_ENABLED = "bbb.admin.recording.enabled";             // [true|false]
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -330,6 +331,10 @@ public interface BBBMeetingManager {
     public String isRecordingEnabled();
 
     public String isRecordingEditable();
+    
+    public String isAdminRecordingEnabled();
+    
+    public String isCurrentUserAdmin();
 
     public String getRecordingDefault();
 

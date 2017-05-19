@@ -92,6 +92,9 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbGroupSessionsEditable = true;
     /** BBB default value for 'group sessions' checkbox (default to false) */
     private boolean bbbGroupSessionsDefault = false;
+    /** BBB default value for adminRecordingEnabled property (default to false) */
+    private boolean bbbAdminRecordingEnabled = false;
+
     
     /** BBB API */
     private BBBAPI api = null;
@@ -162,6 +165,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbGroupSessionsEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_ENABLED, bbbGroupSessionsEnabled);
         bbbGroupSessionsEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_EDITABLE, bbbGroupSessionsEditable);
         bbbGroupSessionsDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_DEFAULT, bbbGroupSessionsDefault);
+        bbbAdminRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_ADMIN_RECORDING_ENABLED, bbbAdminRecordingEnabled);
 
     }
 
@@ -457,6 +461,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public String getTextBoxTypeForDescription(){
         return bbbDescriptionType;
+    }
+    
+    public boolean isAdminRecordingEnabled(){
+        return bbbAdminRecordingEnabled;
     }
 
     private Map<String, Object> responseError(String messageKey, String message){
