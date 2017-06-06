@@ -23,7 +23,7 @@ import org.sakaiproject.bbb.api.BBBException;
 
 /**
  * BBBMeetingManager is the API for managing BigBlueButton meetings.
- * 
+ *
  * @author Adrian Fish, Nuno Fernandes
  */
 public interface BBBMeetingManager {
@@ -107,7 +107,7 @@ public interface BBBMeetingManager {
     public static final String[] EVENT_KEYS = new String[] {
             EVENT_MEETING_CREATE, EVENT_MEETING_EDIT, EVENT_MEETING_END,
             EVENT_MEETING_JOIN };
-    
+
 
     public static final boolean INCLUDE_DELETED_MEETINGS = true;
     public static final boolean NOT_INCLUDE_DELETED_MEETINGS = false;
@@ -119,13 +119,13 @@ public interface BBBMeetingManager {
     /**
      * Get the meeting identified by the supplied meetingId
      */
-    public BBBMeeting getMeeting(String meetingId) 
+    public BBBMeeting getMeeting(String meetingId)
     		throws SecurityException, Exception;
 
     /**
      * Returns the meetings for the supplied site that the current Sakai user
      * can participate in.
-     * 
+     *
      * @param siteId
      *            The site to retrieve meetings for
      * @return A list of BBBMeeting objects
@@ -136,7 +136,7 @@ public interface BBBMeetingManager {
     /**
      * Creates a meeting using the passed in object. Populates the id, password
      * and token fields of <code>meeting</code> with the data returned from BBB.
-     * 
+     *
      * @param meeting
      */
     public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
@@ -145,7 +145,7 @@ public interface BBBMeetingManager {
     /**
      * Updates an existing meeting using the passed in object. Passwords and
      * token fields of <code>meeting</code> won't be changed.
-     * 
+     *
      * @param meeting
      */
     public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes, boolean meetingOnly)
@@ -155,7 +155,7 @@ public interface BBBMeetingManager {
      * Check the BigBlueButton server to see if the meeting is running (i.e.
      * there is someone in the meeting)
      */
-    public boolean isMeetingRunning(String meetingID) 
+    public boolean isMeetingRunning(String meetingID)
             throws BBBException;
 
     /**
@@ -179,15 +179,15 @@ public interface BBBMeetingManager {
     /**
      * Get ALL playback recordings from BBB server.
      */
-    public Map<String, Object> getAllRecordings() 
+    public Map<String, Object> getAllRecordings()
 			throws BBBException;
 
     /**
      * Get ALL playback recordings from BBB server for the current Site.
      */
-    public Map<String, Object> getSiteRecordings(String siteId) 
+    public Map<String, Object> getSiteRecordings(String siteId)
             throws SecurityException, Exception;
-    
+
     /**
      * Log an event indicating that the current user joined the specified
      * meeting
@@ -197,13 +197,13 @@ public interface BBBMeetingManager {
     /**
      * Currently clears up the Sakai records and endMeeting.
      */
-    public boolean deleteMeeting(String id) 
+    public boolean deleteMeeting(String id)
             throws SecurityException, BBBException;
 
     /**
      * Only executes endMeeting.
      */
-    public boolean endMeeting(String id, String groupId, boolean endAll) 
+    public boolean endMeeting(String id, String groupId, boolean endAll)
             throws SecurityException, BBBException;
 
     /**
@@ -293,7 +293,7 @@ public interface BBBMeetingManager {
      * Returns server version.
      */
     public Map<String, Object> getToolVersion();
-    
+
     /**
      * Returns the text notice (if any) to be displayed on the first time the
      * tool is accessed by an user.
@@ -309,7 +309,7 @@ public interface BBBMeetingManager {
     /**
      * Returns the url for joining to a meeting
      */
-    public String getJoinUrl(BBBMeeting meeting)
+    public String getJoinUrl(BBBMeeting meeting, User user)
             throws SecurityException, Exception;
 
     /**
@@ -348,7 +348,7 @@ public interface BBBMeetingManager {
     public String isMultipleSessionsAllowedEditable();
 
     public String getMultipleSessionsAllowedDefault();
-    
+
     public String isPreuploadPresentationEnabled();
 
     public String isGroupSessionsEnabled();
@@ -361,7 +361,7 @@ public interface BBBMeetingManager {
 
     public String getTextBoxTypeForDescription();
 
-    public boolean databaseStoreMeeting(BBBMeeting meeting); 
+    public boolean databaseStoreMeeting(BBBMeeting meeting);
 
     public boolean databaseDeleteMeeting(BBBMeeting meeting);
 

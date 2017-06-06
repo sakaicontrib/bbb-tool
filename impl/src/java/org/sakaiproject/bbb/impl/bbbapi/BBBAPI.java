@@ -29,10 +29,10 @@ public interface BBBAPI {
 
 	public boolean protectRecordings(String meetingID, String recordID, String protect) throws BBBException;
 
-	public String getJoinMeetingURL(String meetingID, User user, String password);
+	public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password);
 
 	public void makeSureMeetingExists(BBBMeeting meeting) throws BBBException;
-	
+
 	public Map<String, Object> getMeetings() throws BBBException;
-	
+
 }

@@ -36,7 +36,7 @@ import org.sakaiproject.user.api.User;
 /**
  * BBBAPIWrapper is the class responsible to interact with the BigBlueButton
  * API.
- * 
+ *
  * @author Nuno Fernandes
  */
 public class BBBAPIWrapper/* implements Runnable */{
@@ -92,7 +92,7 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbGroupSessionsEditable = true;
     /** BBB default value for 'group sessions' checkbox (default to false) */
     private boolean bbbGroupSessionsDefault = false;
-    
+
     /** BBB API */
     private BBBAPI api = null;
 
@@ -138,7 +138,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         //Clean Url
         bbbUrl = bbbUrlString.substring(bbbUrlString.length()-1, bbbUrlString.length()).equals("/")? bbbUrlString: bbbUrlString + "/";
         bbbSalt = bbbSaltString;
-        
+
         //api will always have a value, except when the url and salt were not configured
         api = new BaseBBBAPI(bbbUrl, bbbSalt);
 
@@ -175,10 +175,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     // -----------------------------------------------------------------------
     // --- BBB API wrapper methods -------------------------------------------
     // -----------------------------------------------------------------------
-    public BBBMeeting createMeeting(BBBMeeting meeting) 
+    public BBBMeeting createMeeting(BBBMeeting meeting)
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("createMeeting()");
-        
+
         // Synchronized to avoid clashes with the allocator task
         synchronized (api) {
             meeting.setHostUrl(api.getUrl());
@@ -186,7 +186,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         }
     }
 
-    public boolean isMeetingRunning(String meetingID) 
+    public boolean isMeetingRunning(String meetingID)
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("isMeetingRunning()");
 
@@ -205,7 +205,7 @@ public class BBBAPIWrapper/* implements Runnable */{
             try{
                 meetings = api.getMeetings();
             } catch ( BBBException e){
-                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || 
+                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) ||
                         BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
                         BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
                     meetings = responseError(e.getMessageKey(), e.getMessage() );
@@ -226,9 +226,9 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         if ( api != null  ) {
             try{
-                meetingInfoResponse = api.getMeetingInfo(meetingID, password); 
+                meetingInfoResponse = api.getMeetingInfo(meetingID, password);
             } catch ( BBBException e){
-                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) || 
+                if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) ||
                         BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
                         BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
                     meetingInfoResponse = responseError(e.getMessageKey(), e.getMessage() );
@@ -242,27 +242,27 @@ public class BBBAPIWrapper/* implements Runnable */{
         return meetingInfoResponse;
     }
 
-    public String getJoinMeetingURL(String meetingID, User user, String password)
+    public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password)
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("getJoinMeetingURL()");
 
         String joinMeetingURLResponse = "";
 
         if ( api != null ) {
-            joinMeetingURLResponse = api.getJoinMeetingURL(meetingID, user, password); 
+            joinMeetingURLResponse = api.getJoinMeetingURL(meetingID, userId, userDisplayName, password);
         } else {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
 
         return joinMeetingURLResponse;
     }
-    
+
     public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("getRecordings()");
 
         Map<String, Object> recordingsResponse = new HashMap<String, Object>();
-        
+
         if ( api != null ) {
             try{
                 recordingsResponse = api.getRecordings(meetingID);
@@ -286,7 +286,7 @@ public class BBBAPIWrapper/* implements Runnable */{
 
         return getRecordings(meetingIDs);
     }
-    
+
     public Map<String, Object> getAllRecordings()
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("getAllRecordings()");
@@ -305,11 +305,11 @@ public class BBBAPIWrapper/* implements Runnable */{
         } else {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-        
+
         return endMeetingResponse;
     }
 
-    public boolean publishRecordings(String meetingID, String recordingID, String publish) 
+    public boolean publishRecordings(String meetingID, String recordingID, String publish)
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("publishRecordings()");
 
@@ -350,11 +350,11 @@ public class BBBAPIWrapper/* implements Runnable */{
         } else {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-        
+
         return deleteRecordingsResponse;
     }
 
-    public void makeSureMeetingExists(BBBMeeting meeting) 
+    public void makeSureMeetingExists(BBBMeeting meeting)
     		throws BBBException {
         if ( api != null ) {
             api.makeSureMeetingExists(meeting);
@@ -386,7 +386,7 @@ public class BBBAPIWrapper/* implements Runnable */{
     public long getAutorefreshForRecordings() {
         return bbbAutorefreshRecordings;
     }
-    
+
     public boolean isRecordingEnabled(){
         return bbbRecordingEnabled;
     }
@@ -467,7 +467,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         map.put("messageKey", messageKey);
         map.put("message", message);
         return map;
-        
+
     }
-    
+
 }

@@ -352,7 +352,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** End/delete a meeting on BBB server */
-    public boolean endMeeting(String meetingID, String password) 
+    public boolean endMeeting(String meetingID, String password)
             throws BBBException {
 
         StringBuilder query = new StringBuilder();
@@ -436,19 +436,21 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Build the join meeting url based on user role */
-    public String getJoinMeetingURL(String meetingID, User user, String password) {
-        String userDisplayName, userId;
-        try {
-            userId = user.getId();
-            userDisplayName = user.getDisplayName();
-        } catch (Exception e) {
-            userId = null;
-            userDisplayName = "user";
-        }
+    public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password) {
         StringBuilder joinQuery = new StringBuilder();
         joinQuery.append("meetingID=");
         joinQuery.append(meetingID);
+        if (userId != null) {
+            try {
+                joinQuery.append("&userID=");
+                joinQuery.append(URLEncoder.encode(userId, getParametersEncoding()));
+            } catch (UnsupportedEncodingException e) {
+            }
+        }
         joinQuery.append("&fullName=");
+        if (userDisplayName == null) {
+            userDisplayName = "user";
+        }
         try {
             joinQuery.append(URLEncoder.encode(userDisplayName, getParametersEncoding()));
         } catch (UnsupportedEncodingException e) {
@@ -456,10 +458,6 @@ public class BaseBBBAPI implements BBBAPI {
         }
         joinQuery.append("&password=");
         joinQuery.append(password);
-        //if (userId != null) {
-        //    joinQuery.append("&userID=");
-        //    joinQuery.append(userId);
-        //}
         joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);
