@@ -907,6 +907,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
         // get join url
         try {
+            User user = userDirectoryService.getCurrentUser();
             String meetingId = ref.getId();
             BBBMeeting meeting = meetingManager.getMeeting(meetingId);
             if (meeting == null) {
@@ -930,7 +931,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                 meeting.setName(StringEscapeUtils.unescapeHtml(nameStr));
             }
 
-            String joinUrl = meetingManager.getJoinUrl(meeting);
+            String joinUrl = meetingManager.getJoinUrl(meeting, user);
 
             if (joinUrl == null) {
                 throw new EntityException("You are not allowed to join this meeting.", meeting.getReference(), 403);

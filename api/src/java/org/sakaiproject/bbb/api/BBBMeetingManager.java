@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.bbb.api.BBBException;
-
+import org.sakaiproject.user.api.User;
 /**
  * BBBMeetingManager is the API for managing BigBlueButton meetings.
  *
