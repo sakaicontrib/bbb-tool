@@ -299,8 +299,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
             // set meeting join url (for moderator, which is current user)
             User user = userDirectoryService.getCurrentUser();
-            String userId = user.getEid();
-            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(), userId, user.getDisplayName(), meeting.getModeratorPassword()));
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting, user, true);
+            meeting.setJoinUrl(joinURL);
 
             // log event
             logEvent(EVENT_MEETING_EDIT, meeting);
@@ -895,9 +895,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // Case #1: is participant
         if (getCanParticipate(meeting.getSiteId()) && p != null) {
             // build join url
-            boolean isModerator = Participant.MODERATOR.equals(p.getRole());
-            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
-            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), user.getEid(), user.getDisplayName(), password);
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting, user, Participant.MODERATOR.equals(p.getRole()));
             return joinURL;
         }
 

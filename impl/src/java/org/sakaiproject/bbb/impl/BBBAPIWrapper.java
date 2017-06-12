@@ -92,6 +92,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbGroupSessionsEditable = true;
     /** BBB default value for 'group sessions' checkbox (default to false) */
     private boolean bbbGroupSessionsDefault = false;
+    /** BBB flag to activate/deactivate 'recording status' feature for meetings (default to false) */
+    private boolean bbbRecordingStatsEnabled = false;
+    /** Sakai userid used for linking events with users when 'recording status' feature is enabled (default to eid) */
+    private String bbbRecordingStatsUserId = "eid";
 
     /** BBB API */
     private BBBAPI api = null;
@@ -162,7 +166,8 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbGroupSessionsEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_ENABLED, bbbGroupSessionsEnabled);
         bbbGroupSessionsEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_EDITABLE, bbbGroupSessionsEditable);
         bbbGroupSessionsDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_DEFAULT, bbbGroupSessionsDefault);
-
+        bbbRecordingStatsEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGSTATS_ENABLED, bbbRecordingStatsEnabled);
+        bbbRecordingStatsUserId = (String) config.getString(BBBMeetingManager.CFG_RECORDINGSTATS_USERID, bbbRecordingStatsUserId);
     }
 
     public void destroy() {
@@ -242,18 +247,23 @@ public class BBBAPIWrapper/* implements Runnable */{
         return meetingInfoResponse;
     }
 
-    public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password)
+    public String getJoinMeetingURL(BBBMeeting meeting, User user, boolean isModerator)
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("getJoinMeetingURL()");
 
-        String joinMeetingURLResponse = "";
-
-        if ( api != null ) {
-            joinMeetingURLResponse = api.getJoinMeetingURL(meetingID, userId, userDisplayName, password);
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
 
+        String meetingID = meeting.getId();
+        String userId = this.getUserId(user);
+        String userDisplayName = user.getDisplayName();
+        String password = meeting.getAttendeePassword();
+        if (isModerator) {
+            password = meeting.getModeratorPassword();
+        }
+
+        String joinMeetingURLResponse = api.getJoinMeetingURL(meetingID, userId, userDisplayName, password);
         return joinMeetingURLResponse;
     }
 
@@ -459,6 +469,14 @@ public class BBBAPIWrapper/* implements Runnable */{
         return bbbDescriptionType;
     }
 
+    public boolean isRecordingStatsEnabled(){
+        return bbbRecordingStatsEnabled;
+    }
+
+    public String getRecordingStatsUserId(){
+        return bbbRecordingStatsUserId;
+    }
+
     private Map<String, Object> responseError(String messageKey, String message){
         logger.debug("responseError: " + messageKey + ":" + message);
 
@@ -470,4 +488,15 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     }
 
+    private String getUserId(User user) {
+        boolean recordingstatsEnabled = isRecordingStatsEnabled();
+        if ( !recordingstatsEnabled ) {
+            return null;
+        }
+        String recordingstatsUserId = getRecordingStatsUserId();
+        if ( "eid".equals(recordingstatsUserId) ) {
+            return user.getEid();
+        }
+        return user.getId();
+    }
 }
