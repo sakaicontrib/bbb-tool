@@ -51,7 +51,8 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     /** BBB API version check interval (default to 5 min) */
     private long bbbVersionCheckInterval = 0;
-
+    /** BBB UX auto close meeting window on exit */
+    private boolean bbbAutocloseMeetingWindow = true;
     /** BBB API auto refresh interval for meetings (default to 0 sec means it is not activated) */
     private long bbbAutorefreshMeetings = 0;
     /** BBB API auto refresh interval for recordings(default to 0 sec means it is not activated) */
@@ -128,13 +129,13 @@ public class BBBAPIWrapper/* implements Runnable */{
         if (logger.isDebugEnabled()) logger.debug("init()");
 
         String bbbUrlString = config.getString(BBBMeetingManager.CFG_URL, DEFAULT_BBB_URL);
-        if (bbbUrlString == ""){
+        if (bbbUrlString == "") {
             logger.warn("No BigBlueButton server specified. The bbb.url property in sakai.properties must be set to a single url. There should be a corresponding shared secret value in the bbb.salt property.");
             return;
         }
 
         String bbbSaltString = config.getString(BBBMeetingManager.CFG_SALT, DEFAULT_BBB_SALT);
-        if (bbbSaltString == ""){
+        if (bbbSaltString == "") {
             logger.warn("BigBlueButton shared secret was not specified! Use 'bbb.salt = your_bbb_shared_secret' in sakai.properties.");
             return;
         }
@@ -146,6 +147,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         //api will always have a value, except when the url and salt were not configured
         api = new BaseBBBAPI(bbbUrl, bbbSalt);
 
+        bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
         bbbAutorefreshMeetings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHMEETINGS, (int) bbbAutorefreshMeetings);
         bbbAutorefreshRecordings = (long) config.getInt(BBBMeetingManager.CFG_AUTOREFRESHRECORDINGS, (int) bbbAutorefreshRecordings);
         bbbRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
@@ -187,7 +189,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         // Synchronized to avoid clashes with the allocator task
         synchronized (api) {
             meeting.setHostUrl(api.getUrl());
-            return api.createMeeting(meeting);
+            return api.createMeeting(meeting, this.autocloseMeetingWindow());
         }
     }
 
@@ -195,8 +197,9 @@ public class BBBAPIWrapper/* implements Runnable */{
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("isMeetingRunning()");
 
-        if ( api == null )
+        if ( api == null ) {
             return false;
+        }
 
         return api.isMeetingRunning(meetingID);
     }
@@ -209,13 +212,13 @@ public class BBBAPIWrapper/* implements Runnable */{
         if ( api != null) {
             try{
                 meetings = api.getMeetings();
-            } catch ( BBBException e){
+            } catch ( BBBException e) {
                 if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) ||
                         BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
-                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
+                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ) {
                     meetings = responseError(e.getMessageKey(), e.getMessage() );
                 }
-            } catch ( Exception e){
+            } catch ( Exception e) {
                 meetings = responseError(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage() );
             }
         }
@@ -232,13 +235,13 @@ public class BBBAPIWrapper/* implements Runnable */{
         if ( api != null  ) {
             try{
                 meetingInfoResponse = api.getMeetingInfo(meetingID, password);
-            } catch ( BBBException e){
+            } catch ( BBBException e) {
                 if( BBBException.MESSAGEKEY_UNREACHABLE.equals(e.getMessageKey()) ||
                         BBBException.MESSAGEKEY_HTTPERROR.equals(e.getMessageKey()) ||
-                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ){
+                        BBBException.MESSAGEKEY_INVALIDRESPONSE.equals(e.getMessageKey()) ) {
                     meetingInfoResponse = responseError(e.getMessageKey(), e.getMessage() );
                 }
-            } catch ( Exception e){
+            } catch ( Exception e) {
                 meetingInfoResponse = responseError(BBBException.MESSAGEKEY_UNREACHABLE, e.getMessage() );
             }
 
@@ -276,10 +279,10 @@ public class BBBAPIWrapper/* implements Runnable */{
         if ( api != null ) {
             try{
                 recordingsResponse = api.getRecordings(meetingID);
-            } catch ( BBBException e){
+            } catch ( BBBException e) {
                 recordingsResponse = responseError(e.getMessageKey(), e.getMessage() );
                 logger.debug("getRecordings.BBBException: message=" + e.getMessage());
-            } catch ( Exception e){
+            } catch ( Exception e) {
                 recordingsResponse = responseError(BBBException.MESSAGEKEY_GENERALERROR, e.getMessage() );
                 logger.debug("getRecordings.Exception: message=" + e.getMessage());
             }
@@ -308,14 +311,11 @@ public class BBBAPIWrapper/* implements Runnable */{
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("endMeeting()");
 
-        boolean endMeetingResponse = false;
-
-        if ( api != null ) {
-            endMeetingResponse = api.endMeeting(meetingID, password);
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
 
+        boolean endMeetingResponse = api.endMeeting(meetingID, password);
         return endMeetingResponse;
     }
 
@@ -323,14 +323,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     		throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("publishRecordings()");
 
-        boolean publishRecordingsResponse = false;
-
-        if ( api != null ) {
-            publishRecordingsResponse = api.publishRecordings(meetingID, recordingID, publish);
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-
+        boolean publishRecordingsResponse = api.publishRecordings(meetingID, recordingID, publish);
         return publishRecordingsResponse;
     }
 
@@ -338,14 +334,10 @@ public class BBBAPIWrapper/* implements Runnable */{
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("protectRecordings()");
 
-        boolean protectRecordingsResponse = false;
-
-        if ( api != null ) {
-            protectRecordingsResponse = api.protectRecordings(meetingID, recordingID, protect);
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-
+        boolean protectRecordingsResponse = api.protectRecordings(meetingID, recordingID, protect);
         return protectRecordingsResponse;
     }
 
@@ -353,24 +345,19 @@ public class BBBAPIWrapper/* implements Runnable */{
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("publishRecordings()");
 
-        boolean deleteRecordingsResponse = false;
-
-        if ( api != null ) {
-            deleteRecordingsResponse = api.deleteRecordings(meetingID, recordingID);
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-
+        boolean deleteRecordingsResponse = api.deleteRecordings(meetingID, recordingID);
         return deleteRecordingsResponse;
     }
 
     public void makeSureMeetingExists(BBBMeeting meeting)
     		throws BBBException {
-        if ( api != null ) {
-            api.makeSureMeetingExists(meeting);
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
+        api.makeSureMeetingExists(meeting, this.autocloseMeetingWindow());
     }
 
 
@@ -397,87 +384,91 @@ public class BBBAPIWrapper/* implements Runnable */{
         return bbbAutorefreshRecordings;
     }
 
-    public boolean isRecordingEnabled(){
+    public boolean autocloseMeetingWindow() {
+        return bbbAutocloseMeetingWindow;
+    }
+
+    public boolean isRecordingEnabled() {
         return bbbRecordingEnabled;
     }
 
-    public boolean isRecordingEditable(){
+    public boolean isRecordingEditable() {
         return bbbRecordingEditable;
     }
 
-    public boolean getRecordingDefault(){
+    public boolean getRecordingDefault() {
         return bbbRecordingDefault;
     }
 
-    public boolean isRecordingReadyNotificationEnabled(){
+    public boolean isRecordingReadyNotificationEnabled() {
         return bbbRecordingReadyNotificationEnabled;
     }
 
-    public boolean isDurationEnabled(){
+    public boolean isDurationEnabled() {
         return bbbDurationEnabled;
     }
 
-    public int getDurationDefault(){
+    public int getDurationDefault() {
         return bbbDurationDefault;
     }
 
-    public boolean isWaitModeratorEnabled(){
+    public boolean isWaitModeratorEnabled() {
         return bbbWaitModeratorEnabled;
     }
 
-    public boolean isWaitModeratorEditable(){
+    public boolean isWaitModeratorEditable() {
         return bbbWaitModeratorEditable;
     }
 
-    public boolean getWaitModeratorDefault(){
+    public boolean getWaitModeratorDefault() {
         return bbbWaitModeratorDefault;
     }
 
-    public boolean isMultipleSessionsAllowedEnabled(){
+    public boolean isMultipleSessionsAllowedEnabled() {
         return bbbMultipleSessionsAllowedEnabled;
     }
 
-    public boolean isMultipleSessionsAllowedEditable(){
+    public boolean isMultipleSessionsAllowedEditable() {
         return bbbMultipleSessionsAllowedEditable;
     }
 
-    public boolean getMultipleSessionsAllowedDefault(){
+    public boolean getMultipleSessionsAllowedDefault() {
         return bbbMultipleSessionsAllowedDefault;
     }
 
-    public boolean isPreuploadPresentationEnabled(){
+    public boolean isPreuploadPresentationEnabled() {
         return bbbPreuploadPresentationEnabled;
     }
 
-    public boolean isGroupSessionsEnabled(){
+    public boolean isGroupSessionsEnabled() {
         return bbbGroupSessionsEnabled;
     }
 
-    public boolean isGroupSessionsEditable(){
+    public boolean isGroupSessionsEditable() {
         return bbbGroupSessionsEditable;
     }
 
-    public boolean getGroupSessionsDefault(){
+    public boolean getGroupSessionsDefault() {
         return bbbGroupSessionsDefault;
     }
 
-    public int getMaxLengthForDescription(){
+    public int getMaxLengthForDescription() {
         return bbbDescriptionMaxLength;
     }
 
-    public String getTextBoxTypeForDescription(){
+    public String getTextBoxTypeForDescription() {
         return bbbDescriptionType;
     }
 
-    public boolean isRecordingStatsEnabled(){
+    public boolean isRecordingStatsEnabled() {
         return bbbRecordingStatsEnabled;
     }
 
-    public String getRecordingStatsUserId(){
+    public String getRecordingStatsUserId() {
         return bbbRecordingStatsUserId;
     }
 
-    private Map<String, Object> responseError(String messageKey, String message){
+    private Map<String, Object> responseError(String messageKey, String message) {
         logger.debug("responseError: " + messageKey + ":" + message);
 
         Map<String, Object> map = new HashMap<String, Object>();

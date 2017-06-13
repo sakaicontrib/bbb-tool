@@ -75,8 +75,6 @@ public class BaseBBBAPI implements BBBAPI {
     protected String bbbUrl = "http://127.0.0.1/bigbluebutton";
     /** BBB security salt */
     protected String bbbSalt = null;
-    /** Auto close BBB meeting window on exit? */
-    protected boolean bbbAutocloseMeetingWindow = true;
     /** Sakai property settings for features that don't have a checkbox */
     protected boolean bbbPreuploadPresentation = true;
     protected boolean bbbRecordingReadyNotification = false;
@@ -126,15 +124,15 @@ public class BaseBBBAPI implements BBBAPI {
     public BaseBBBAPI(String url, String salt) {
         this.bbbUrl = url;
 
-        if (bbbUrl.endsWith("/") && bbbUrl.length() > 0)
+        if (bbbUrl.endsWith("/") && bbbUrl.length() > 0) {
             bbbUrl = bbbUrl.substring(0, bbbUrl.length() - 1);
+        }
 
         this.bbbSalt = salt;
 
         // read BBB settings from sakai.properties
         config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
-        bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
         bbbPreuploadPresentation = config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentation);
         bbbRecordingReadyNotification = config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotification);
         bbbRecordingEnabled = config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
@@ -152,7 +150,7 @@ public class BaseBBBAPI implements BBBAPI {
     // --- BBB API implementation methods ------------------------------------
     // -----------------------------------------------------------------------
     /** Create a meeting on BBB server */
-    public BBBMeeting createMeeting(final BBBMeeting meeting)
+    public BBBMeeting createMeeting(final BBBMeeting meeting, boolean autoclose)
             throws BBBException {
 
         try {
@@ -170,7 +168,7 @@ public class BaseBBBAPI implements BBBAPI {
             query.append("&moderatorPW=");
             String moderatorPW = meeting.getModeratorPassword();
             query.append(moderatorPW);
-            if (bbbAutocloseMeetingWindow) {
+            if (autoclose) {
                 query.append("&logoutURL=");
                 StringBuilder logoutUrl = new StringBuilder(config.getServerUrl());
                 logoutUrl.append(BBBMeetingManager.TOOL_WEBAPP);
@@ -474,10 +472,10 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Make sure the meeting (still) exists on BBB server */
-    public void makeSureMeetingExists(BBBMeeting meeting)
+    public void makeSureMeetingExists(BBBMeeting meeting, boolean autoclose)
             throws BBBException {
         // (re)create meeting in BBB
-        createMeeting(meeting);
+        createMeeting(meeting, autoclose);
     }
 
     /** Get the BBB API version running on BBB server */
