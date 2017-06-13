@@ -75,11 +75,6 @@ public class BaseBBBAPI implements BBBAPI {
     protected String bbbUrl = "http://127.0.0.1/bigbluebutton";
     /** BBB security salt */
     protected String bbbSalt = null;
-    /** Sakai property settings for features that don't have a checkbox */
-    protected boolean bbbPreuploadPresentation = true;
-    protected boolean bbbRecordingReadyNotification = false;
-    /** Sakai property settings for features disabled after meeting created */
-    protected boolean bbbRecordingEnabled = true;
 
     // API Server Path
     protected final static String API_SERVERPATH = "/api/";
@@ -132,10 +127,6 @@ public class BaseBBBAPI implements BBBAPI {
 
         // read BBB settings from sakai.properties
         config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-
-        bbbPreuploadPresentation = config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentation);
-        bbbRecordingReadyNotification = config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotification);
-        bbbRecordingEnabled = config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
     }
 
     public String getUrl() {
@@ -150,7 +141,7 @@ public class BaseBBBAPI implements BBBAPI {
     // --- BBB API implementation methods ------------------------------------
     // -----------------------------------------------------------------------
     /** Create a meeting on BBB server */
-    public BBBMeeting createMeeting(final BBBMeeting meeting, boolean autoclose)
+    public BBBMeeting createMeeting(final BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
             throws BBBException {
 
         try {
@@ -177,10 +168,10 @@ public class BaseBBBAPI implements BBBAPI {
             }
 
             // BSN: Parameters required for playback recording
-            query.append("&record=");
-            String recording = meeting.getRecording() != null && meeting.getRecording().booleanValue() && bbbRecordingEnabled ? "true" : "false";
-            query.append(recording);
-
+            boolean recording = ( recordingenabled && meeting.getRecording() != null && meeting.getRecording().booleanValue() );
+            if ( recording ) {
+                query.append("&record=true");
+            }
             query.append("&duration=");
             String duration = meeting.getRecordingDuration() != null? meeting.getRecordingDuration().toString(): "0";
             query.append(duration);
@@ -206,12 +197,12 @@ public class BaseBBBAPI implements BBBAPI {
 
             welcomeMessage += "<br><br>" + toolMessages.getFormattedMessage("bbb_welcome_message_general_info", new Object[] {toolMessages.getString("bbb_welcome_message_external_link"), "%%DIALNUM%%", "%%CONFNUM%%"} );
 
-            if (recording == "true")
+            if (recording)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_recording_warning", new Object[] {} ) + "</b>";
             if (duration.compareTo("0") > 0)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_duration_warning", new Object[] { duration });
 
-            if (recording == "true" && bbbRecordingReadyNotification) {
+            if (recording && recordingreadynotification) {
                 query.append("&meta_bn-recording-ready-url=");
                 StringBuilder recordingReadyUrl = new StringBuilder(config.getServerUrl());
                 recordingReadyUrl.append("/direct");
@@ -228,7 +219,7 @@ public class BaseBBBAPI implements BBBAPI {
             SecurityAdvisor sa = editResourceSecurityAdvisor();
             //preupload presentation
             String xml_presentation = "";
-            if (bbbPreuploadPresentation) {
+            if (preuploadpresentation) {
                 if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
                     m_securityService.pushAdvisor(sa);
                     m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);
@@ -472,10 +463,10 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Make sure the meeting (still) exists on BBB server */
-    public void makeSureMeetingExists(BBBMeeting meeting, boolean autoclose)
+    public void makeSureMeetingExists(BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
             throws BBBException {
         // (re)create meeting in BBB
-        createMeeting(meeting, autoclose);
+        createMeeting(meeting, autoclose, recordingenabled, recordingreadynotification, preuploadpresentation);
     }
 
     /** Get the BBB API version running on BBB server */

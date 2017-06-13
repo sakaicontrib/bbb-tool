@@ -140,11 +140,11 @@ public class BBBAPIWrapper/* implements Runnable */{
             return;
         }
 
-        //Clean Url
+        // Clean Url.
         bbbUrl = bbbUrlString.substring(bbbUrlString.length()-1, bbbUrlString.length()).equals("/")? bbbUrlString: bbbUrlString + "/";
         bbbSalt = bbbSaltString;
 
-        //api will always have a value, except when the url and salt were not configured
+        // api will always have a value, except when the url and salt were not configured.
         api = new BaseBBBAPI(bbbUrl, bbbSalt);
 
         bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
@@ -189,7 +189,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         // Synchronized to avoid clashes with the allocator task
         synchronized (api) {
             meeting.setHostUrl(api.getUrl());
-            return api.createMeeting(meeting, this.autocloseMeetingWindow());
+            return api.createMeeting(meeting, autocloseMeetingWindow(), isRecordingEnabled(), isRecordingReadyNotificationEnabled(), isPreuploadPresentationEnabled());
         }
     }
 
@@ -357,7 +357,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-        api.makeSureMeetingExists(meeting, this.autocloseMeetingWindow());
+        api.makeSureMeetingExists(meeting, autocloseMeetingWindow(), isRecordingEnabled(), isRecordingReadyNotificationEnabled(), isPreuploadPresentationEnabled());
     }
 
 
