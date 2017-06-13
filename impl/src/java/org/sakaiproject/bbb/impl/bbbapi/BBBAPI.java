@@ -13,7 +13,8 @@ public interface BBBAPI {
 
 	public String getSalt();
 
-	public BBBMeeting createMeeting(BBBMeeting meeting) throws BBBException;
+	public BBBMeeting createMeeting(BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
+			throws BBBException;
 
 	public boolean isMeetingRunning(String meetingID) throws BBBException;
 
@@ -29,10 +30,11 @@ public interface BBBAPI {
 
 	public boolean protectRecordings(String meetingID, String recordID, String protect) throws BBBException;
 
-	public String getJoinMeetingURL(String meetingID, User user, String password);
+	public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password);
 
-	public void makeSureMeetingExists(BBBMeeting meeting) throws BBBException;
-	
+	public void makeSureMeetingExists(BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
+			throws BBBException;
+
 	public Map<String, Object> getMeetings() throws BBBException;
-	
+
 }

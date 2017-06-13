@@ -35,15 +35,15 @@ import org.sakaiproject.util.ResourceLoader;
  */
 class SakaiProxy
 {
-	private Logger 						logger = Logger.getLogger(SakaiProxy.class);
-	private static SakaiProxy			sakaiProxy;
+	private Logger logger = Logger.getLogger(SakaiProxy.class);
+	private static SakaiProxy sakaiProxy;
 
-	private BBBMeetingManager			bbbMeetingManager;
-	private UserDirectoryService 		userDirectoryService;
-	private SiteService 				siteService;
-	private ToolManager 				toolManager;
-	private ServerConfigurationService	serverConfigurationService;
-	
+	private BBBMeetingManager bbbMeetingManager;
+	private UserDirectoryService userDirectoryService;
+	private SiteService siteService;
+	private ToolManager toolManager;
+	private ServerConfigurationService serverConfigurationService;
+
 	// -----------------------------------------------------------------------
 	// --- Spring related methods --------------------------------------------
 	// -----------------------------------------------------------------------
@@ -70,21 +70,21 @@ class SakaiProxy
 	{
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	
+
 	public void init()
 	{
 		SakaiProxy.sakaiProxy = this;
 	}
-	
+
 	private SakaiProxy()
 	{}
-	
+
 	public static SakaiProxy getInstance()
 	{
 		return sakaiProxy;
 	}
-	
-	
+
+
 	// -----------------------------------------------------------------------
 	// --- Sakai related methods ---------------------------------------------
 	// -----------------------------------------------------------------------
@@ -110,7 +110,7 @@ class SakaiProxy
 			logger.warn("Current tool placement is null.");
 			return null;
 		}
-		
+
 		return placement.getContext();
 	}
 
@@ -122,7 +122,7 @@ class SakaiProxy
 			logger.warn("Current tool placement is null.");
 			return null;
 		}
-		
+
 		return placement.getId();
 	}
 
@@ -158,7 +158,7 @@ class SakaiProxy
 	    Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
 		return Long.parseLong( (String) serverTimeInUserTimezone.get("timestamp"));
 	}
-	
+
     public long getUserTimezoneOffset()
     {
         Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
@@ -170,10 +170,10 @@ class SakaiProxy
         Map<String, Object> serverTimeInUserTimezone = bbbMeetingManager.getServerTimeInUserTimezone();
         return (String) serverTimeInUserTimezone.get("timezone");
     }
-    
+
     public void checkPermissions()
 	{
 		bbbMeetingManager.checkPermissions(getCurrentSiteId());
 	}
-	
+
 }

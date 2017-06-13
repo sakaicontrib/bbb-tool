@@ -75,13 +75,6 @@ public class BaseBBBAPI implements BBBAPI {
     protected String bbbUrl = "http://127.0.0.1/bigbluebutton";
     /** BBB security salt */
     protected String bbbSalt = null;
-    /** Auto close BBB meeting window on exit? */
-    protected boolean bbbAutocloseMeetingWindow = true;
-    /** Sakai property settings for features that don't have a checkbox */
-    protected boolean bbbPreuploadPresentation = true;
-    protected boolean bbbRecordingReadyNotification = false;
-    /** Sakai property settings for features disabled after meeting created */
-    protected boolean bbbRecordingEnabled = true;
 
     // API Server Path
     protected final static String API_SERVERPATH = "/api/";
@@ -126,18 +119,14 @@ public class BaseBBBAPI implements BBBAPI {
     public BaseBBBAPI(String url, String salt) {
         this.bbbUrl = url;
 
-        if (bbbUrl.endsWith("/") && bbbUrl.length() > 0)
+        if (bbbUrl.endsWith("/") && bbbUrl.length() > 0) {
             bbbUrl = bbbUrl.substring(0, bbbUrl.length() - 1);
+        }
 
         this.bbbSalt = salt;
 
         // read BBB settings from sakai.properties
         config = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-
-        bbbAutocloseMeetingWindow = config.getBoolean(BBBMeetingManager.CFG_AUTOCLOSE_WIN, bbbAutocloseMeetingWindow);
-        bbbPreuploadPresentation = config.getBoolean(BBBMeetingManager.CFG_PREUPLOADPRESENTATION_ENABLED, bbbPreuploadPresentation);
-        bbbRecordingReadyNotification = config.getBoolean(BBBMeetingManager.CFG_RECORDINGREADYNOTIFICATION_ENABLED, bbbRecordingReadyNotification);
-        bbbRecordingEnabled = config.getBoolean(BBBMeetingManager.CFG_RECORDING_ENABLED, bbbRecordingEnabled);
     }
 
     public String getUrl() {
@@ -152,7 +141,7 @@ public class BaseBBBAPI implements BBBAPI {
     // --- BBB API implementation methods ------------------------------------
     // -----------------------------------------------------------------------
     /** Create a meeting on BBB server */
-    public BBBMeeting createMeeting(final BBBMeeting meeting)
+    public BBBMeeting createMeeting(final BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
             throws BBBException {
 
         try {
@@ -170,7 +159,7 @@ public class BaseBBBAPI implements BBBAPI {
             query.append("&moderatorPW=");
             String moderatorPW = meeting.getModeratorPassword();
             query.append(moderatorPW);
-            if (bbbAutocloseMeetingWindow) {
+            if (autoclose) {
                 query.append("&logoutURL=");
                 StringBuilder logoutUrl = new StringBuilder(config.getServerUrl());
                 logoutUrl.append(BBBMeetingManager.TOOL_WEBAPP);
@@ -179,10 +168,10 @@ public class BaseBBBAPI implements BBBAPI {
             }
 
             // BSN: Parameters required for playback recording
-            query.append("&record=");
-            String recording = meeting.getRecording() != null && meeting.getRecording().booleanValue() && bbbRecordingEnabled ? "true" : "false";
-            query.append(recording);
-
+            boolean recording = ( recordingenabled && meeting.getRecording() != null && meeting.getRecording().booleanValue() );
+            if ( recording ) {
+                query.append("&record=true");
+            }
             query.append("&duration=");
             String duration = meeting.getRecordingDuration() != null? meeting.getRecordingDuration().toString(): "0";
             query.append(duration);
@@ -208,12 +197,12 @@ public class BaseBBBAPI implements BBBAPI {
 
             welcomeMessage += "<br><br>" + toolMessages.getFormattedMessage("bbb_welcome_message_general_info", new Object[] {toolMessages.getString("bbb_welcome_message_external_link"), "%%DIALNUM%%", "%%CONFNUM%%"} );
 
-            if (recording == "true")
+            if (recording)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_recording_warning", new Object[] {} ) + "</b>";
             if (duration.compareTo("0") > 0)
                 welcomeMessage += "<br><br><b>" + toolMessages.getFormattedMessage("bbb_welcome_message_duration_warning", new Object[] { duration });
 
-            if (recording == "true" && bbbRecordingReadyNotification) {
+            if (recording && recordingreadynotification) {
                 query.append("&meta_bn-recording-ready-url=");
                 StringBuilder recordingReadyUrl = new StringBuilder(config.getServerUrl());
                 recordingReadyUrl.append("/direct");
@@ -230,7 +219,7 @@ public class BaseBBBAPI implements BBBAPI {
             SecurityAdvisor sa = editResourceSecurityAdvisor();
             //preupload presentation
             String xml_presentation = "";
-            if (bbbPreuploadPresentation) {
+            if (preuploadpresentation) {
                 if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
                     m_securityService.pushAdvisor(sa);
                     m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);
@@ -352,7 +341,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** End/delete a meeting on BBB server */
-    public boolean endMeeting(String meetingID, String password) 
+    public boolean endMeeting(String meetingID, String password)
             throws BBBException {
 
         StringBuilder query = new StringBuilder();
@@ -436,19 +425,21 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Build the join meeting url based on user role */
-    public String getJoinMeetingURL(String meetingID, User user, String password) {
-        String userDisplayName, userId;
-        try {
-            userId = user.getId();
-            userDisplayName = user.getDisplayName();
-        } catch (Exception e) {
-            userId = null;
-            userDisplayName = "user";
-        }
+    public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password) {
         StringBuilder joinQuery = new StringBuilder();
         joinQuery.append("meetingID=");
         joinQuery.append(meetingID);
+        if (userId != null) {
+            try {
+                joinQuery.append("&userID=");
+                joinQuery.append(URLEncoder.encode(userId, getParametersEncoding()));
+            } catch (UnsupportedEncodingException e) {
+            }
+        }
         joinQuery.append("&fullName=");
+        if (userDisplayName == null) {
+            userDisplayName = "user";
+        }
         try {
             joinQuery.append(URLEncoder.encode(userDisplayName, getParametersEncoding()));
         } catch (UnsupportedEncodingException e) {
@@ -456,10 +447,6 @@ public class BaseBBBAPI implements BBBAPI {
         }
         joinQuery.append("&password=");
         joinQuery.append(password);
-        //if (userId != null) {
-        //    joinQuery.append("&userID=");
-        //    joinQuery.append(userId);
-        //}
         joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);
@@ -476,10 +463,10 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     /** Make sure the meeting (still) exists on BBB server */
-    public void makeSureMeetingExists(BBBMeeting meeting)
+    public void makeSureMeetingExists(BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
             throws BBBException {
         // (re)create meeting in BBB
-        createMeeting(meeting);
+        createMeeting(meeting, autoclose, recordingenabled, recordingreadynotification, preuploadpresentation);
     }
 
     /** Get the BBB API version running on BBB server */

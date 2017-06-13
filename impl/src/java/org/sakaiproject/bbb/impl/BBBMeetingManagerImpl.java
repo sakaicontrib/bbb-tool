@@ -286,7 +286,6 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 if (notifyParticipants) {
                     notifyParticipants(meeting, false, iCalAttached, iCalAlarmMinutes, false);
                 }
-
                 // add start date to Calendar
                 if (addToCalendar && meeting.getStartDate() != null) {
                     addEditCalendarEvent(meeting);
@@ -299,7 +298,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
 
             // set meeting join url (for moderator, which is current user)
-            meeting.setJoinUrl(bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), meeting.getModeratorPassword()));
+            User user = userDirectoryService.getCurrentUser();
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting, user, true);
+            meeting.setJoinUrl(joinURL);
 
             // log event
             logEvent(EVENT_MEETING_EDIT, meeting);
@@ -885,7 +886,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return serverConfigurationService.getString(CFG_NOTICE_LEVEL, "info").trim().toLowerCase();
     }
 
-    public String getJoinUrl(BBBMeeting meeting)
+    public String getJoinUrl(BBBMeeting meeting, User user)
             throws SecurityException, Exception {
         if (meeting == null) return null;
 
@@ -894,9 +895,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // Case #1: is participant
         if (getCanParticipate(meeting.getSiteId()) && p != null) {
             // build join url
-            boolean isModerator = Participant.MODERATOR.equals(p.getRole());
-            String password = isModerator ? meeting.getModeratorPassword(): meeting.getAttendeePassword();
-            String joinURL = bbbAPI.getJoinMeetingURL(meeting.getId(), userDirectoryService.getCurrentUser(), password);
+            String joinURL = bbbAPI.getJoinMeetingURL(meeting, user, Participant.MODERATOR.equals(p.getRole()));
             return joinURL;
         }
 
