@@ -279,15 +279,25 @@
       </tr>
       {if recordingEnabled}
           {var recordingChecked = isNew ? recordingDefault : meeting.recording }
-          {if recordingEditable}
-          <tr>
-            <td class="bbb_lbl">${D}{bbb_info_recording}</td>
-            <td>
-                <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
-            </td>
-          </tr>
+          {if recordingEditable || (adminRecordingEnabled && currentUserAdmin)}
+	          <tr>
+	            <td class="bbb_lbl">${D}{bbb_info_recording}</td>
+	            <td>
+	                <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
+	            </td>
+	          </tr>
           {else}
-          <input id="recording" name="recording" type="hidden" {if recordingEditable}value="${D}{recordingChecked}"{/if}/>
+	          {if adminRecordingEnabled}
+			      <tr>
+			        <td class="bbb_lbl">${D}{bbb_info_recording}</td>
+			        <td>
+			            <input id="recording" name="recording" disabled="disabled" type="checkbox" {if recordingChecked}checked{/if}/>
+			            ${bbb_admin_info_recording}
+			        </td>
+			      </tr>
+			  {else}
+		          <input id="recording" name="recording" type="hidden" {if recordingEditable}value="${D}{recordingChecked}"{/if}/>
+	          {/if}
           {/if}
       {/if}
       {if durationEnabled}

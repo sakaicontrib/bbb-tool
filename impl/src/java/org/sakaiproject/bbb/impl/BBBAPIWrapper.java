@@ -97,6 +97,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbRecordingStatsEnabled = false;
     /** Sakai userid used for linking events with users when 'recording status' feature is enabled (default to eid) */
     private String bbbRecordingStatsUserId = "eid";
+    /** BBB default value for adminRecordingEnabled property (default to false) */
+    private boolean bbbAdminRecordingEnabled = false;
 
     /** BBB API */
     private BBBAPI api = null;
@@ -170,6 +172,7 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbGroupSessionsDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_DEFAULT, bbbGroupSessionsDefault);
         bbbRecordingStatsEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGSTATS_ENABLED, bbbRecordingStatsEnabled);
         bbbRecordingStatsUserId = (String) config.getString(BBBMeetingManager.CFG_RECORDINGSTATS_USERID, bbbRecordingStatsUserId);
+        bbbAdminRecordingEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_ADMIN_RECORDING_ENABLED, bbbAdminRecordingEnabled);
     }
 
     public void destroy() {
@@ -454,6 +457,10 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public int getMaxLengthForDescription() {
         return bbbDescriptionMaxLength;
+    }
+    
+    public boolean isAdminRecordingEnabled(){
+        return bbbAdminRecordingEnabled;
     }
 
     public String getTextBoxTypeForDescription() {

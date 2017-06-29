@@ -251,6 +251,8 @@ meetings.switchState = function (state, arg) {
                 'groupsessionsEnabled': meetings.settings.config.addUpdateFormParameters.groupsessionsEnabled,
                 'groupsessionsEditable': meetings.settings.config.addUpdateFormParameters.groupsessionsEditable,
                 'groupsessionsDefault': meetings.settings.config.addUpdateFormParameters.groupsessionsDefault,
+                'adminRecordingEnabled': meetings.settings.config.addUpdateFormParameters.adminRecordingEnabled,
+                'currentUserAdmin': meetings.settings.config.addUpdateFormParameters.currentUserAdmin,
                 'actionUrl':    isNew ? "/direct/bbb-tool/new" : "/direct/bbb-tool/"+meeting.id+"/edit"
         };
 

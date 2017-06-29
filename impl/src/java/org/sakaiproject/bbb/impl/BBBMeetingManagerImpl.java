@@ -802,6 +802,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return "" + bbbAPI.isRecordingEditable();
     }
 
+    public String isAdminRecordingEnabled(){
+        return "" + bbbAPI.isAdminRecordingEnabled();
+    }
+    
+    public String isCurrentUserAdmin(){
+        User currentUser = userDirectoryService.getCurrentUser();
+        return "" + ((currentUser.getEid().equals(userDirectoryService.ADMIN_EID)) || (currentUser.getType().equals(userDirectoryService.ADMIN_EID)));
+    }
+    
     public String getRecordingDefault(){
         return "" + bbbAPI.getRecordingDefault();
     }
