@@ -169,9 +169,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             // BSN: Parameters required for playback recording
             boolean recording = ( recordingenabled && meeting.getRecording() != null && meeting.getRecording().booleanValue() );
-            if ( recording ) {
-                query.append("&record=true");
-            }
+            query.append("&record=" + Boolean.toString(recording));
             query.append("&duration=");
             String duration = meeting.getRecordingDuration() != null? meeting.getRecordingDuration().toString(): "0";
             query.append(duration);
