@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,8 +142,8 @@ public class BaseBBBAPI implements BBBAPI {
     // --- BBB API implementation methods ------------------------------------
     // -----------------------------------------------------------------------
     /** Create a meeting on BBB server */
-    public BBBMeeting createMeeting(final BBBMeeting meeting, boolean autoclose, boolean recordingenabled, boolean recordingreadynotification, boolean preuploadpresentation)
-            throws BBBException {
+    public BBBMeeting createMeeting(final BBBMeeting meeting, boolean autoclose, boolean recordingenabled,
+            boolean recordingreadynotification, boolean preuploadpresentation) throws BBBException {
 
         try {
             // build query
@@ -178,17 +179,14 @@ public class BaseBBBAPI implements BBBAPI {
             for(Entry<String, String> entry : meeting.getMeta().entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-
                 query.append("&meta_" + key + "=");
                 query.append(URLEncoder.encode(value, getParametersEncoding()));
-
             }
             // BSN: Ends
 
             // Composed Welcome message
             ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
             String welcomeMessage = toolMessages.getFormattedMessage("bbb_welcome_message_opening", new Object[] { "<b>%%CONFNAME%%</b>" } );
-
             String welcomeDescription = meeting.getProps().getWelcomeMessage();
             if ( !"<br />".equals(welcomeDescription) )
                 welcomeMessage += "<br><br>" + welcomeDescription;
@@ -211,39 +209,41 @@ public class BaseBBBAPI implements BBBAPI {
 
             query.append("&welcome=");
             query.append(URLEncoder.encode(welcomeMessage, getParametersEncoding()));
-
             query.append(getCheckSumParameterForQuery(APICALL_CREATE, query.toString()));
 
             SecurityAdvisor sa = editResourceSecurityAdvisor();
-            //preupload presentation
+            // Preupload presentation.
             String xml_presentation = "";
-            if (preuploadpresentation) {
-                if (meeting.getPresentation() != "" && meeting.getPresentation() != null){
-                    m_securityService.pushAdvisor(sa);
-                    m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), true);
-                    StringBuilder presentationUrl = new StringBuilder(config.getServerUrl());
-                    presentationUrl.append(meeting.getPresentation());
-                    xml_presentation = "<modules> <module name=\"presentation\"> <document url=\""+presentationUrl+"\" /> </module> </modules>";
-                }
+            String presentation = "";
+            if (preuploadpresentation && meeting.getPresentation() != "" && meeting.getPresentation() != null) {
+                presentation = URLDecoder.decode(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), "UTF-8");
+                m_securityService.pushAdvisor(sa);
+                // Open access to resource used as preuploaded presentation.
+                m_contentHostingService.setPubView(presentation, true);
+                // Set XML body.
+                StringBuilder presentationUrl = new StringBuilder(config.getServerUrl());
+                presentationUrl.append(meeting.getPresentation());
+                xml_presentation = "<?xml version='1.0' encoding='UTF-8'?><modules><module name=\"presentation\"><document url=\"" + presentationUrl + "\" /></module></modules>";
             }
-
-            // do API call
+            // Do API call.
             Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString(), xml_presentation);
+            // Close access to resource used as preuploaded presentation.
+            if (presentation != "") {
+                m_contentHostingService.setPubView(presentation, false);
+            }
         } catch (BBBException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
-        if (meeting.getPresentation() != "" && meeting.getPresentation() != null)
-            m_contentHostingService.setPubView(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), false);
         return meeting;
     }
 
     private SecurityAdvisor editResourceSecurityAdvisor() {
-		return (userId, function, reference) -> {
-			return SecurityAdvisor.SecurityAdvice.ALLOWED;
-		};
-	}
+        return (userId, function, reference) -> {
+            return SecurityAdvisor.SecurityAdvice.ALLOWED;
+        };
+    }
 
     /** Check if meeting is running on BBB server. */
     public boolean isMeetingRunning(String meetingID)
