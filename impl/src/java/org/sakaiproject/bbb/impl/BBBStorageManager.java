@@ -40,7 +40,7 @@ import org.sakaiproject.db.api.SqlService;
 
 /**
  * BBBStorageManager is responsible for interacting with Sakai database.
- * 
+ *
  * @author Adrian Fish
  */
 public class BBBStorageManager {
@@ -130,7 +130,7 @@ public class BBBStorageManager {
                 }
 
                 connection.commit();
-                
+
                 //Code for database update starts here
                 statement = connection.createStatement();
 
@@ -143,9 +143,9 @@ public class BBBStorageManager {
 
                     String showColumn = sqlGenerator.getShowColumnStatement(updateElements[0],updateElements[1]);
                     ResultSet rs = statement.executeQuery(showColumn);
-                    
+
                     update = updateElements[2].equals("ADD")? !rs.next(): rs.next();
-                    
+
                     if ( update ){
                         // Update table
                         logger.info("Updating " + updateElements[0] + " in DB with " + updateStatement + ".");
@@ -153,7 +153,6 @@ public class BBBStorageManager {
                     } else {
                         // Table doesn't need to be updated
                         logger.info("Update " + updateStatement + " does not need to be applied in DB.");
-
                     }
                 }
 
@@ -176,7 +175,7 @@ public class BBBStorageManager {
             sqlService.returnConnection(connection);
         }
     }
-    
+
     private boolean tableShouldBeUpdated(String tableName){
         return true;
     }
@@ -389,11 +388,11 @@ public class BBBStorageManager {
 
         return meeting;
     }
-    
+
     public boolean deleteMeeting(String meetingId) {
         return deleteMeeting(meetingId, false);
     }
-    
+
     public boolean deleteMeeting(String meetingId, boolean fullDelete) {
         Connection connection = null;
         List<PreparedStatement> statements = null;
