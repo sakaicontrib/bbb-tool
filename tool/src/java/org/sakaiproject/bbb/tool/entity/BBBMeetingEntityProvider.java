@@ -638,6 +638,14 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
         if (descriptionType != null) {
             map.put("descriptionType", descriptionType);
         }
+        Boolean adminRecordingEnabled = Boolean.parseBoolean(meetingManager.isAdminRecordingEnabled());
+        if (adminRecordingEnabled != null) {
+            map.put("adminRecordingEnabled", adminRecordingEnabled);
+        }
+        Boolean currentUserAdmin = Boolean.parseBoolean(meetingManager.isCurrentUserAdmin());
+        if (currentUserAdmin != null) {
+            map.put("currentUserAdmin", currentUserAdmin);
+        }
         return map;
     }
 
