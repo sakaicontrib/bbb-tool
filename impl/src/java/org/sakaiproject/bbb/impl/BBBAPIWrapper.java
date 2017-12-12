@@ -293,20 +293,6 @@ public class BBBAPIWrapper/* implements Runnable */{
         return recordingsResponse;
     }
 
-    public Map<String, Object> getSiteRecordings(String meetingIDs)
-            throws BBBException {
-        if (logger.isDebugEnabled()) logger.debug("getSiteRecordings(): for meetingIDs=" + meetingIDs);
-
-        return getRecordings(meetingIDs);
-    }
-
-    public Map<String, Object> getAllRecordings()
-    		throws BBBException {
-        if (logger.isDebugEnabled()) logger.debug("getAllRecordings()");
-
-        return getRecordings("");
-    }
-
     public boolean endMeeting(String meetingID, String password)
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("endMeeting()");

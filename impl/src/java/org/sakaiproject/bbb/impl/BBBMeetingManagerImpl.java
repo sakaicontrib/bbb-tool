@@ -384,7 +384,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
 
             if ( !meetingIDs.equals("") ) {
-                Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
+                Map<String, Object> recordingsResponse = bbbAPI.getRecordings(meetingIDs);
 
                 String returncode = (String)recordingsResponse.get("returncode");
                 Object recordings = recordingsResponse.get("recordings");
@@ -414,8 +414,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public Map<String, Object> getAllRecordings()
-    		throws BBBException {
-    	return bbbAPI.getAllRecordings();
+        throws BBBException {
+        return bbbAPI.getRecordings("");
     }
 
     public void logMeetingJoin(String meetingId) {
