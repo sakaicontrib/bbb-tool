@@ -344,12 +344,26 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             return recordings;
         }
 
-        String meetingIDs = meeting.getId();
+        Map<String, String> ownerIDs = new HashMap<String, String>();
+        String ownerID =  meeting.getOwnerId();
+        ownerIDs.put(meetingID, ownerID);
+        String meetingIDs = meetingID;
         if (meeting.getGroupSessions() && groupId != null && groupId != "") {
-            meetingIDs += "[" + groupId + "]";
+            ownerIDs.put(meetingID + "[" + groupId + "]", ownerID);
+            meetingIDs += "," + meetingID + "[" + groupId + "]";
+
         }
         recordings = bbbAPI.getRecordings(meetingIDs);
         // Filter recordings
+        Object recordingList = recordings.get("recordings");
+        if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
+            for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
+                // Add meeting ownerId to the recording
+                recordingsFilterAddOwnerID(recordingItem, ownerIDs);
+                // Validate formats not allowed to be shown
+                recordingsFilterValidateFormats(recordingItem);
+            }
+        }
         return recordings;
     }
 
@@ -386,9 +400,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     Site site = siteService.getSite(siteId);
                     Collection<Group> userGroups = site.getGroups();
                     for (Group g : userGroups) {
-                        meetingID = meetingID + "[" + g.getId() + "]";
-                        ownerIDs.put(meetingID, ownerID);
-                        meetingIDs += "," + meetingID;
+                        ownerIDs.put(meetingID + "[" + g.getId() + "]", ownerID);
+                        meetingIDs += "," + meetingID + "[" + g.getId() + "]";
                     }
                 } catch (IdUnusedException e) {
                     logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
@@ -397,15 +410,32 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         Map<String, Object> recordings = bbbAPI.getRecordings(meetingIDs);
-        // Add meeting ownerId to the recording
+        // Filter recordings
         Object recordingList = recordings.get("recordings");
-        if ("SUCCESS".equals(recordings.get("returncode")) && recordings != null && recordingList.getClass().equals(java.util.ArrayList.class)) {
+        if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
             for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
-                recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+                // Add meeting ownerId to the recording
+                recordingsFilterAddOwnerID(recordingItem, ownerIDs);
+                // Validate formats not allowed to be shown
+                recordingsFilterValidateFormats(recordingItem);
             }
         }
-        // Filter recordings
         return recordings;
+    }
+
+    private void recordingsFilterAddOwnerID(Map<String, Object> recordingItem, Map<String, String> ownerIDs) {
+        recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+    }
+
+    private void recordingsFilterValidateFormats(Map<String, Object> recordingItem) {
+        User user = userDirectoryService.getCurrentUser();
+        List<Map<String, Object>> playback = (List<Map<String, Object>>)recordingItem.get("playback");
+        for (Iterator<Map<String, Object>> iterator = playback.iterator(); iterator.hasNext(); ) {
+            Map<String, Object> format = iterator.next();
+            if ("statistics".equals((String)format.get("type")) && !recordingItem.get("ownerId").equals(user.getId())) {
+                iterator.remove();
+            }
+        }
     }
 
     public Map<String, Object> getAllRecordings()
