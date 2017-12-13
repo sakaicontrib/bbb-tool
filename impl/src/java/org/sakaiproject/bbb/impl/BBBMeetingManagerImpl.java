@@ -336,86 +336,82 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
 
-        if( meeting.getRecording() ) {
-            if(meeting.getGroupSessions() && groupId != "" && groupId != null)
-                return bbbAPI.getRecordings(meeting.getId() + "[" + groupId + "]");
-
-            return bbbAPI.getRecordings(meeting.getId());
-        } else {
+        Map<String, Object> recordings;
+        if (!meeting.getRecording()) {
             //Mimic empty recordings object
-            Map<String, Object> recordings = new HashMap<String, Object>();
+            recordings = new HashMap<String, Object>();
             recordings.put("recordings", "");
             return recordings;
         }
+
+        String meetingIDs = meeting.getId();
+        if (meeting.getGroupSessions() && groupId != null && groupId != "") {
+            meetingIDs += "[" + groupId + "]";
+        }
+        recordings = bbbAPI.getRecordings(meetingIDs);
+        // Filter recordings
+        return recordings;
     }
 
     public Map<String, Object> getSiteRecordings(String siteId)
             throws SecurityException, Exception {
-
-        Map<String, Object> response = new HashMap<String, Object>();
-        //Set an empty List of recordings and a SUCCESS key as default response values
-        response.put("recordings", new ArrayList<Object>() );
-        response.put("returncode", "SUCCESS");
-        response.put("messageKey", "noRecordings");
-
-        String meetingIDs = "";
-
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
-        if ( meetings.size() > 0 && bbbAPI.isRecordingEnabled() ) {
-            for (BBBMeeting meeting : meetings) {
-                if ( meeting.getRecording() ) {
-                    if ( !meetingIDs.equals("") ) {
-                        meetingIDs += ",";
-                    }
-                    meetingIDs += meeting.getId();
-                    if ( meeting.getGroupSessions() ) {
-                        Site site;
-                        try {
-                            site = siteService.getSite(siteId);
-                            Collection<Group> userGroups = site.getGroups();
-                            for (Group g : userGroups) {
-                                meetingIDs += "," + meeting.getId() + "[" + g.getId() + "]";
-                            }
-                        } catch (IdUnusedException e) {
-                            logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
-                        }
-                    }
-                }
-            }
-
-            if ( !meetingIDs.equals("") ) {
-                Map<String, Object> recordingsResponse = bbbAPI.getRecordings(meetingIDs);
-
-                String returncode = (String)recordingsResponse.get("returncode");
-                Object recordings = recordingsResponse.get("recordings");
-
-                if ( "SUCCESS".equals(returncode) && recordings!= null && recordings.getClass().equals(java.util.ArrayList.class) ){
-                    List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
-                    for (Map<String,Object> recordingItem : recordingList) {
-                        recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
-                    }
-                    response = recordingsResponse;
-                }
-            }
+        if (meetings.size() == 0 || !bbbAPI.isRecordingEnabled()) {
+            // Set an empty List of recordings and a SUCCESS key as default response values.
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("recordings", new ArrayList<Object>());
+            response.put("returncode", "SUCCESS");
+            response.put("messageKey", "noRecordings");
+            return response;
         }
 
-        return response;
-    }
-
-    private String locateOwnerIdOnMeetingList(String meetingId, List<BBBMeeting> meetings){
-
+        Map<String, String> ownerIDs = new HashMap<String, String>();
+        String meetingID;
+        String ownerID;
+        String meetingIDs = "";
         for (BBBMeeting meeting : meetings) {
-            if( meetingId.equals(meeting.getId()) ){
-            	return meeting.getOwnerId();
+            if (!meeting.getRecording()) {
+                // Meeting is not set to be recorded
+                continue;
+            }
+            meetingID = meeting.getId();
+            ownerID = meeting.getOwnerId();
+            ownerIDs.put(meetingID, ownerID);
+            if (!meetingIDs.equals("")) {
+                meetingIDs += ",";
+            }
+            meetingIDs += meetingID;
+            if (meeting.getGroupSessions()) {
+                try {
+                    Site site = siteService.getSite(siteId);
+                    Collection<Group> userGroups = site.getGroups();
+                    for (Group g : userGroups) {
+                        meetingID = meetingID + "[" + g.getId() + "]";
+                        ownerIDs.put(meetingID, ownerID);
+                        meetingIDs += "," + meetingID;
+                    }
+                } catch (IdUnusedException e) {
+                    logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
+                }
             }
         }
-        return "";
 
+        Map<String, Object> recordings = bbbAPI.getRecordings(meetingIDs);
+        // Add meeting ownerId to the recording
+        Object recordingList = recordings.get("recordings");
+        if ("SUCCESS".equals(recordings.get("returncode")) && recordings != null && recordingList.getClass().equals(java.util.ArrayList.class)) {
+            for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
+                recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+            }
+        }
+        // Filter recordings
+        return recordings;
     }
 
     public Map<String, Object> getAllRecordings()
         throws BBBException {
-        return bbbAPI.getRecordings("");
+        Map<String, Object> recordings = bbbAPI.getRecordings("");
+        return recordings;
     }
 
     public void logMeetingJoin(String meetingId) {
