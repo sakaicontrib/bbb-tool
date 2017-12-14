@@ -749,9 +749,10 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             throw new EntityNotFoundException("Meeting not found", null);
         }
 
+        String groupId = (String) params.get("groupId");
+        String siteId = (String) params.get("siteId");
         try {
-            String groupId = (String) params.get("groupId");
-            Map<String, Object> recordingsResponse = meetingManager.getRecordings(ref.getId(), groupId);
+            Map<String, Object> recordingsResponse = meetingManager.getRecordings(ref.getId(), groupId, siteId);
             return new ActionReturn(recordingsResponse);
         } catch (BBBException e) {
             return new ActionReturn(new HashMap<String, String>());

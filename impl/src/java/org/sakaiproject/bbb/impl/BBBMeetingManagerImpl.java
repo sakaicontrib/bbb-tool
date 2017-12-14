@@ -332,7 +332,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
     }
 
-    public Map<String, Object> getRecordings(String meetingID, String groupId)
+    public Map<String, Object> getRecordings(String meetingID, String groupId, String siteId)
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
 
@@ -354,14 +354,19 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         }
         recordings = bbbAPI.getRecordings(meetingIDs);
-        // Filter recordings
+        // Post-process recordings
         Object recordingList = recordings.get("recordings");
         if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
+            boolean recordingFilterEnabled = this.isRecordingFormatFilterEnabled();
+            User user = userDirectoryService.getCurrentUser();
+            String userId = user.getId();
             for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
                 // Add meeting ownerId to the recording
-                recordingsFilterAddOwnerID(recordingItem, ownerIDs);
-                // Validate formats not allowed to be shown
-                recordingsFilterValidateFormats(recordingItem);
+                recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+                // Filter formats that are not allowed to be shown, only if filter is enabled.
+                if (recordingFilterEnabled) {
+                    recordingsFilterFormats(recordingItem, siteId, userId);
+                }
             }
         }
         return recordings;
@@ -410,32 +415,54 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         Map<String, Object> recordings = bbbAPI.getRecordings(meetingIDs);
-        // Filter recordings
+        // Post-process recordings
         Object recordingList = recordings.get("recordings");
         if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
+            boolean recordingFilterEnabled = this.isRecordingFormatFilterEnabled();
+            User user = userDirectoryService.getCurrentUser();
+            String userId = user.getId();
             for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
                 // Add meeting ownerId to the recording
-                recordingsFilterAddOwnerID(recordingItem, ownerIDs);
-                // Validate formats not allowed to be shown
-                recordingsFilterValidateFormats(recordingItem);
+                recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+                // Filter formats that are not allowed to be shown, only if filter is enabled.
+                if (recordingFilterEnabled) {
+                    recordingsFilterFormats(recordingItem, siteId, userId);
+                }
             }
         }
         return recordings;
     }
 
-    private void recordingsFilterAddOwnerID(Map<String, Object> recordingItem, Map<String, String> ownerIDs) {
-        recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
-    }
-
-    private void recordingsFilterValidateFormats(Map<String, Object> recordingItem) {
-        User user = userDirectoryService.getCurrentUser();
+    private void recordingsFilterFormats(Map<String, Object> recordingItem, String siteId, String userId) {
         List<Map<String, Object>> playback = (List<Map<String, Object>>)recordingItem.get("playback");
         for (Iterator<Map<String, Object>> iterator = playback.iterator(); iterator.hasNext(); ) {
             Map<String, Object> format = iterator.next();
-            if ("statistics".equals((String)format.get("type")) && !recordingItem.get("ownerId").equals(user.getId())) {
+            if ( recordingsFilterFormatRemovable( (String)format.get("type"), siteId, (String)recordingItem.get("ownerId"), userId ) ) {
                 iterator.remove();
             }
         }
+    }
+
+    private boolean recordingsFilterFormatRemovable(String type, String siteId, String ownerId, String userId) {
+        // Validate if type is whitelisted.
+        List<String> whiltelist = Arrays.asList(this.getRecordingFormatFilterWhitelist().split(","));
+        if (whiltelist.contains(type)) {
+            // It is whitelisted, don't remove.
+            return false;
+        }
+        // Validate if user is allowed to view extended formats
+        if (ownerId.equals(userId)) {
+            if (isUserAllowedInLocation(userId, FN_RECORDING_EXTENDEDFORMATS_OWN, siteId)) {
+                // User allowed, don't remove.
+                return false;
+            }
+        }
+        if (isUserAllowedInLocation(userId, FN_RECORDING_EXTENDEDFORMATS_ANY, siteId)) {
+            // User allowed, don't remove.
+            return false;
+        }
+        // Remove it
+        return true;
     }
 
     public Map<String, Object> getAllRecordings()
