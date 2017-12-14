@@ -18,8 +18,8 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html  
-      xmlns="http://www.w3.org/1999/xhtml"  
+<html
+      xmlns="http://www.w3.org/1999/xhtml"
       xml:lang="${isoLanguage}"
       lang="${isoLanguage}">
 
@@ -67,7 +67,7 @@
 <!--  Templates Start -->
 <div id="bbb_toolbar_template" style="display:none;"><!--
 <ul id="bbb_toolbar_items" class="navIntraTool actionToolBar" role="menu">
-    
+
     <li class="firstToolBarItem" role="menuitem">
           <span><a id="bbb_home_link" title="${D}{bbb_home_tooltip}" href="javascript:;">${D}{bbb_home_label}</a></span>
     </li>
@@ -104,29 +104,29 @@
           {else}
               <span>${D}{m.name}</span>
           {/if}
-          
+
               <div class="itemAction" style="margin:0; padding:0;">
               <small>
                 {if m.canEdit}
                 <div id="edit_meeting" style="display: inline; margin:0; padding:0;">
                     <a href="javascript:;" onclick="return meetings.switchState('addUpdateMeeting',{'meetingId':'${D}{m.id}'});" title="${D}{bbb_action_edit_meeting_tooltip}">${D}{bbb_action_edit_meeting}</a>
-                </div> 
+                </div>
                 {/if}
                 {if m.canDelete}
                 <div id="delete_meeting" style="display: inline; margin:0; padding:0;">
                     &nbsp;|&nbsp;
                     <a href="javascript:;" onclick="return meetings.utils.deleteMeeting('${D}{escape(m.name)}','${D}{m.id}');" title="${D}{bbb_action_delete_meeting_tooltip}">${D}{bbb_action_delete_meeting}</a>
-                </div> 
+                </div>
                 {/if}
                 {if m.canEnd}
         		{var end_meetingClass = (m.groupActive || (m.joinable && m.joinableMode == 'inprogress'))? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
                 <div id="end_meeting_${D}{m.id}" class="${D}{end_meetingClass}" >
                     &nbsp;|&nbsp;
                     <a href="javascript:;" onclick="return meetings.utils.endMeeting('${D}{escape(m.name)}','${D}{m.id}');" title="${D}{bbb_action_end_meeting_tooltip}">${D}{bbb_action_end_meeting}</a>
-                </div> 
+                </div>
                 {/if}
               </small>
-              </div> 
+              </div>
         </td>
         {var statusClass = m.joinable ? 'status_joinable_' + m.joinableMode: (m.notStarted ? 'bbb_status_notstarted' : 'bbb_status_finished')}
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: m.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: m.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
@@ -135,7 +135,7 @@
         <td>${D}{m.endDate ? new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset) + ( (new Date()).dst() && !(new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? (3600000 * -1): 0 ) ).toISO8601String() : ''}</td>
         <td>${D}{m.ownerDisplayName}</td>
       </tr>
-    {/if}  
+    {/if}
 {/for}
       <tr>
         <td></td>
@@ -180,7 +180,7 @@
                     {if r.canEdit}
                 	  {if r.published == 'true'}
                     	<a href="javascript:;" onclick="return meetings.utils.unpublishRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{bbb_action_hide_tooltip}">${D}{bbb_action_hide}</a>
-                      {else}	
+                      {else}
                     	<a href="javascript:;" onclick="return meetings.utils.publishRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{bbb_action_show_tooltip}">${D}{bbb_action_show}</a>
                 	  {/if}
                     {/if}
@@ -199,7 +199,7 @@
                       {/if}
                     {/if}
                     </small>
-                </div> 
+                </div>
             </td>
             <td class="bbb_thumbnails">
                 <div class="bbb_preview_images">
@@ -331,7 +331,7 @@
             <input type="file" id="selectFile" name="selectFile" style="display:inline;"/>
             <span id="bbb_addFile_ajaxInd"></span>
             <input type="hidden" id="fileUrl" name="presentation" />
-            <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">    
+            <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">
                 <tr>
                     <td><a href="#" id="url" target="_blank"/></td>
                     <td><a href="javascript:;" id="removeUpload">${D}{bbb_info_remove}</a></td>
@@ -354,7 +354,7 @@
           {/if}
       {/if}
     </table>
-    
+
     <br/>
     <h3>${D}{bbb_participants}</h3>
     <p class="instruction">${D}{bbb_participants_instr}</p>
@@ -384,7 +384,7 @@
         </td>
       </tr>
     </table>
-    
+
     <br/>
     <h3>${D}{bbb_availability}</h3>
     <p class="instruction">${D}{bbb_availability_instr}</p>
@@ -419,7 +419,7 @@
         </td>
       </tr>
     </table>
-    
+
     <br/>
     <h3>${D}{bbb_notification}</h3>
     <p class="instruction">{if isNew}${D}{bbb_notification_instr}{else}${D}{bbb_notification_instr_edit}{/if}</p>
@@ -433,7 +433,7 @@
         </td>
       </tr>
     </table>
-    
+
     <input id="isNew" type="hidden" value="${D}{isNew}"/>
     <input id="siteId" name="siteId" type="hidden" value="${D}{siteId}"/>
     {if !isNew}<input id="meetingId" type="hidden" value="${D}{meeting.id}"/>{/if}
@@ -463,6 +463,10 @@
             <th>${D}{bbb_permissions_recordings_edit_any}</th>
             <th>${D}{bbb_permissions_recordings_delete_own}</th>
             <th>${D}{bbb_permissions_recordings_delete_any}</th>
+            {if recordingformatfilter_enabled}
+            <th>${D}{bbb_permissions_recordings_extendedformats_own}</th>
+            <th>${D}{bbb_permissions_recordings_extendedformats_any}</th>
+            {/if}
         </tr>
     </thead>
 <tbody>
@@ -480,6 +484,10 @@
     <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_edit_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.edit.any"/></td>
     <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_delete_own}checked="checked"{/if} id="${D}{p.role}:bbb.recording.delete.own"/></td>
     <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_delete_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.delete.any"/></td>
+    {if recordingformatfilter_enabled}
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_extendedformats_own}checked="checked"{/if} id="${D}{p.role}:bbb.recording.extendedformats.own"/></td>
+    <td><input type="checkbox" class="bbb_permission_checkbox" {if p.bbb_recording_extendedformats_any}checked="checked"{/if} id="${D}{p.role}:bbb.recording.extendedformats.any"/></td>
+    {/if}
 </tr>
 {/for}
 </tbody>

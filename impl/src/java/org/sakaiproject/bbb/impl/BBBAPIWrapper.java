@@ -97,6 +97,10 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbRecordingStatsEnabled = false;
     /** Sakai userid used for linking events with users when 'recording status' feature is enabled (default to eid) */
     private String bbbRecordingStatsUserId = "eid";
+    /** BBB flag to activate/deactivate 'recording format filter' feature for managing permissions on extended formats (default to true) */
+    private boolean bbbRecordingFormatFilterEnabled = true;
+    /** BBB list of formats allowed to be seen whotout applying a permissions filter (default to presentation,video) */
+    private String bbbRecordingFormatFilterWhitelist = "presentation,video";
 
     /** BBB API */
     private BBBAPI api = null;
@@ -169,7 +173,8 @@ public class BBBAPIWrapper/* implements Runnable */{
         bbbGroupSessionsEditable = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_EDITABLE, bbbGroupSessionsEditable);
         bbbGroupSessionsDefault = (boolean) config.getBoolean(BBBMeetingManager.CFG_GROUPSESSIONS_DEFAULT, bbbGroupSessionsDefault);
         bbbRecordingStatsEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGSTATS_ENABLED, bbbRecordingStatsEnabled);
-        bbbRecordingStatsUserId = (String) config.getString(BBBMeetingManager.CFG_RECORDINGSTATS_USERID, bbbRecordingStatsUserId);
+        bbbRecordingFormatFilterEnabled = (boolean) config.getBoolean(BBBMeetingManager.CFG_RECORDINGFORMATFILTER_ENABLED, bbbRecordingFormatFilterEnabled);
+        bbbRecordingFormatFilterWhitelist = (String) config.getString(BBBMeetingManager.CFG_RECORDINGFORMATFILTER_WHITELIST, bbbRecordingFormatFilterWhitelist);
     }
 
     public void destroy() {
@@ -452,6 +457,14 @@ public class BBBAPIWrapper/* implements Runnable */{
 
     public String getRecordingStatsUserId() {
         return bbbRecordingStatsUserId;
+    }
+
+    public boolean isRecordingFormatFilterEnabled() {
+        return bbbRecordingFormatFilterEnabled;
+    }
+
+    public String getRecordingFormatFilterWhitelist() {
+        return bbbRecordingFormatFilterWhitelist;
     }
 
     private Map<String, Object> responseError(String messageKey, String message) {

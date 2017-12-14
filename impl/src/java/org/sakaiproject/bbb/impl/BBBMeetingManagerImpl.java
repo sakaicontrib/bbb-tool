@@ -1469,6 +1469,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return groupIds;
     }
 
+    public boolean isRecordingFormatFilterEnabled() {
+        return bbbAPI.isRecordingFormatFilterEnabled();
+    }
+
+    public String getRecordingFormatFilterWhitelist() {
+        return "" + bbbAPI.getRecordingFormatFilterWhitelist();
+    }
+
     /**
      * Generate an iCal file in tmp dir, an return the file path on the
      * filesystem

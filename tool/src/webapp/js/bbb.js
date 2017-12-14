@@ -95,8 +95,8 @@ meetings.browserTimezoneOffset = 0;
     meetings.utils.getSettings(arg.siteId, settingsCallback);
 }) (jQuery);
 
-meetings.switchState = function (state, arg) {
 
+meetings.switchState = function (state, arg) {
 	if ( meetings.checkOneMeetingAvailabilityId != null ) clearInterval(meetings.checkOneMeetingAvailabilityId);
 	if ( meetings.checkAllMeetingAvailabilityId != null ) clearInterval(meetings.checkAllMeetingAvailabilityId);
 	if ( meetings.checkRecordingAvailabilityId != null ) clearInterval(meetings.checkRecordingAvailabilityId);
@@ -371,8 +371,11 @@ meetings.switchState = function (state, arg) {
 
     } else if ('permissions' === state) {
     	$("#bbb_permissions_link").parent().addClass('current');
-
-        meetings.utils.render('bbb_permissions_template', {'permissions': meetings.utils.getSitePermissions()}, 'bbb_content');
+        meetings.utils.render('bbb_permissions_template',
+            {
+              'permissions': meetings.utils.getSitePermissions(),
+              'recordingformatfilter_enabled': meetings.settings.config.recordingFormatFilterEnabled
+            }, 'bbb_content');
 
         if ($("table")) {
             $("table").each(function() {
@@ -402,11 +405,10 @@ meetings.switchState = function (state, arg) {
            meetings.utils.setSitePermissions('.bbb_permission_checkbox', function() {
                // success callback
                meetings.userPerms = new BBBPermissions(meetings.currentUser.permissions);
-               if (meetings.userPerms.bbbViewMeetingList)
+               if (meetings.userPerms.bbbViewMeetingList) {
                    meetings.setMeetingList();
-               meetings.switchState('currentMeetings');
-               if (meetings.userPerms.bbbViewMeetingList)
-                    meetings.utils.showMessage(bbb_permissions_saved, 'success');
+                   meetings.utils.showMessage(bbb_permissions_saved, 'success');
+                }
            })
         });
     } else if ('joinMeeting' === state || 'meetingInfo' === state) {

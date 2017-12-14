@@ -68,6 +68,8 @@ public interface BBBMeetingManager {
     public final static String CFG_GROUPSESSIONS_DEFAULT = "bbb.groupsessions.default";
     public final static String CFG_RECORDINGSTATS_ENABLED = "bbb.recordingstats.enabled";
     public final static String CFG_RECORDINGSTATS_USERID = "bbb.recordingstats.userid";
+    public final static String CFG_RECORDINGFORMATFILTER_ENABLED = "bbb.recordingformatfilter.enabled";
+    public final static String CFG_RECORDINGFORMATFILTER_WHITELIST = "bbb.recordingformatfilter.whitelist";
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";
@@ -82,10 +84,13 @@ public interface BBBMeetingManager {
     public static final String FN_RECORDING_EDIT_ANY = "bbb.recording.edit.any";
     public static final String FN_RECORDING_DELETE_OWN = "bbb.recording.delete.own";
     public static final String FN_RECORDING_DELETE_ANY = "bbb.recording.delete.any";
+    public static final String FN_RECORDING_EXTENDEDFORMATS_OWN = "bbb.recording.extendedformats.own";
+    public static final String FN_RECORDING_EXTENDEDFORMATS_ANY = "bbb.recording.extendedformats.any";
     public static final String[] FUNCTIONS = new String[] { FN_CREATE,
             FN_EDIT_OWN, FN_EDIT_ANY, FN_DELETE_OWN, FN_DELETE_ANY, FN_PARTICIPATE,
             FN_RECORDING_VIEW, FN_RECORDING_EDIT_OWN, FN_RECORDING_EDIT_ANY,
-            FN_RECORDING_DELETE_OWN, FN_RECORDING_DELETE_ANY };
+            FN_RECORDING_DELETE_OWN, FN_RECORDING_DELETE_ANY,
+            FN_RECORDING_EXTENDEDFORMATS_OWN, FN_RECORDING_EXTENDEDFORMATS_ANY };
     // Extra function used to enable admin interface in the client
     public static final String FN_ADMIN = "bbb.admin";
 
@@ -375,4 +380,7 @@ public interface BBBMeetingManager {
 
     public List<String> getUserGroupIdsInSite(String userId, String siteId);
 
+    public boolean isRecordingFormatFilterEnabled();
+
+    public String getRecordingFormatFilterWhitelist();
 }
