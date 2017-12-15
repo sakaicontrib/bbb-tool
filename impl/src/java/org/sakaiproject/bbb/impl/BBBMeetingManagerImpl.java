@@ -332,90 +332,143 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return bbbAPI.getMeetingInfo(meeting.getId(), meeting.getModeratorPassword());
     }
 
-    public Map<String, Object> getRecordings(String meetingID, String groupId)
+    public Map<String, Object> getRecordings(String meetingID, String groupId, String siteId)
             throws BBBException {
         BBBMeeting meeting = storageManager.getMeeting(meetingID);
 
-        if( meeting.getRecording() ) {
-            if(meeting.getGroupSessions() && groupId != "" && groupId != null)
-                return bbbAPI.getRecordings(meeting.getId() + "[" + groupId + "]");
-
-            return bbbAPI.getRecordings(meeting.getId());
-        } else {
+        Map<String, Object> recordings;
+        if (!meeting.getRecording()) {
             //Mimic empty recordings object
-            Map<String, Object> recordings = new HashMap<String, Object>();
+            recordings = new HashMap<String, Object>();
             recordings.put("recordings", "");
             return recordings;
         }
+
+        Map<String, String> ownerIDs = new HashMap<String, String>();
+        String ownerID =  meeting.getOwnerId();
+        ownerIDs.put(meetingID, ownerID);
+        String meetingIDs = meetingID;
+        if (meeting.getGroupSessions() && groupId != null && groupId != "") {
+            ownerIDs.put(meetingID + "[" + groupId + "]", ownerID);
+            meetingIDs += "," + meetingID + "[" + groupId + "]";
+
+        }
+        recordings = bbbAPI.getRecordings(meetingIDs);
+        // Post-process recordings
+        Object recordingList = recordings.get("recordings");
+        if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
+            boolean recordingFilterEnabled = this.isRecordingFormatFilterEnabled();
+            User user = userDirectoryService.getCurrentUser();
+            String userId = user.getId();
+            for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
+                // Add meeting ownerId to the recording
+                recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+                // Filter formats that are not allowed to be shown, only if filter is enabled.
+                if (recordingFilterEnabled) {
+                    recordingsFilterFormats(recordingItem, siteId, userId);
+                }
+            }
+        }
+        return recordings;
     }
 
     public Map<String, Object> getSiteRecordings(String siteId)
             throws SecurityException, Exception {
-
-        Map<String, Object> response = new HashMap<String, Object>();
-        //Set an empty List of recordings and a SUCCESS key as default response values
-        response.put("recordings", new ArrayList<Object>() );
-        response.put("returncode", "SUCCESS");
-        response.put("messageKey", "noRecordings");
-
-        String meetingIDs = "";
-
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
-        if ( meetings.size() > 0 && bbbAPI.isRecordingEnabled() ) {
-            for (BBBMeeting meeting : meetings) {
-                if ( meeting.getRecording() ) {
-                    if ( !meetingIDs.equals("") ) {
-                        meetingIDs += ",";
-                    }
-                    meetingIDs += meeting.getId();
-                    if ( meeting.getGroupSessions() ) {
-                        Site site;
-                        try {
-                            site = siteService.getSite(siteId);
-                            Collection<Group> userGroups = site.getGroups();
-                            for (Group g : userGroups) {
-                                meetingIDs += "," + meeting.getId() + "[" + g.getId() + "]";
-                            }
-                        } catch (IdUnusedException e) {
-                            logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
-                        }
-                    }
-                }
+        if (meetings.size() == 0 || !bbbAPI.isRecordingEnabled()) {
+            // Set an empty List of recordings and a SUCCESS key as default response values.
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("recordings", new ArrayList<Object>());
+            response.put("returncode", "SUCCESS");
+            response.put("messageKey", "noRecordings");
+            return response;
+        }
+
+        Map<String, String> ownerIDs = new HashMap<String, String>();
+        String meetingID;
+        String ownerID;
+        String meetingIDs = "";
+        for (BBBMeeting meeting : meetings) {
+            if (!meeting.getRecording()) {
+                // Meeting is not set to be recorded
+                continue;
             }
-
-            if ( !meetingIDs.equals("") ) {
-                Map<String, Object> recordingsResponse = bbbAPI.getSiteRecordings(meetingIDs);
-
-                String returncode = (String)recordingsResponse.get("returncode");
-                Object recordings = recordingsResponse.get("recordings");
-
-                if ( "SUCCESS".equals(returncode) && recordings!= null && recordings.getClass().equals(java.util.ArrayList.class) ){
-                    List<Map<String,Object>> recordingList = (List<Map<String,Object>>)recordingsResponse.get("recordings");
-                    for (Map<String,Object> recordingItem : recordingList) {
-                        recordingItem.put("ownerId", locateOwnerIdOnMeetingList((String)recordingItem.get("meetingID"), meetings));
+            meetingID = meeting.getId();
+            ownerID = meeting.getOwnerId();
+            ownerIDs.put(meetingID, ownerID);
+            if (!meetingIDs.equals("")) {
+                meetingIDs += ",";
+            }
+            meetingIDs += meetingID;
+            if (meeting.getGroupSessions()) {
+                try {
+                    Site site = siteService.getSite(siteId);
+                    Collection<Group> userGroups = site.getGroups();
+                    for (Group g : userGroups) {
+                        ownerIDs.put(meetingID + "[" + g.getId() + "]", ownerID);
+                        meetingIDs += "," + meetingID + "[" + g.getId() + "]";
                     }
-                    response = recordingsResponse;
+                } catch (IdUnusedException e) {
+                    logger.error("Unable to get recordings for group sessions in meeting '" + meeting.getName() + "'.", e);
                 }
             }
         }
 
-        return response;
+        Map<String, Object> recordings = bbbAPI.getRecordings(meetingIDs);
+        // Post-process recordings
+        Object recordingList = recordings.get("recordings");
+        if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
+            boolean recordingFilterEnabled = this.isRecordingFormatFilterEnabled();
+            User user = userDirectoryService.getCurrentUser();
+            String userId = user.getId();
+            for (Map<String, Object> recordingItem : (List<Map<String, Object>>)recordingList) {
+                // Add meeting ownerId to the recording
+                recordingItem.put("ownerId", ownerIDs.get((String)recordingItem.get("meetingID")));
+                // Filter formats that are not allowed to be shown, only if filter is enabled.
+                if (recordingFilterEnabled) {
+                    recordingsFilterFormats(recordingItem, siteId, userId);
+                }
+            }
+        }
+        return recordings;
     }
 
-    private String locateOwnerIdOnMeetingList(String meetingId, List<BBBMeeting> meetings){
-
-        for (BBBMeeting meeting : meetings) {
-            if( meetingId.equals(meeting.getId()) ){
-            	return meeting.getOwnerId();
+    private void recordingsFilterFormats(Map<String, Object> recordingItem, String siteId, String userId) {
+        List<Map<String, Object>> playback = (List<Map<String, Object>>)recordingItem.get("playback");
+        for (Iterator<Map<String, Object>> iterator = playback.iterator(); iterator.hasNext(); ) {
+            Map<String, Object> format = iterator.next();
+            if ( recordingsFilterFormatRemovable( (String)format.get("type"), siteId, (String)recordingItem.get("ownerId"), userId ) ) {
+                iterator.remove();
             }
         }
-        return "";
+    }
 
+    private boolean recordingsFilterFormatRemovable(String type, String siteId, String ownerId, String userId) {
+        // Validate if type is whitelisted.
+        List<String> whiltelist = Arrays.asList(this.getRecordingFormatFilterWhitelist().split(","));
+        if (whiltelist.contains(type)) {
+            // It is whitelisted, don't remove.
+            return false;
+        }
+        // Validate if user is allowed to view extended formats
+        if (ownerId.equals(userId)) {
+            if (isUserAllowedInLocation(userId, FN_RECORDING_EXTENDEDFORMATS_OWN, siteId)) {
+                // User allowed, don't remove.
+                return false;
+            }
+        }
+        if (isUserAllowedInLocation(userId, FN_RECORDING_EXTENDEDFORMATS_ANY, siteId)) {
+            // User allowed, don't remove.
+            return false;
+        }
+        // Remove it
+        return true;
     }
 
     public Map<String, Object> getAllRecordings()
-    		throws BBBException {
-    	return bbbAPI.getAllRecordings();
+        throws BBBException {
+        Map<String, Object> recordings = bbbAPI.getRecordings("");
+        return recordings;
     }
 
     public void logMeetingJoin(String meetingId) {
@@ -1441,6 +1494,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             }
         }
         return groupIds;
+    }
+
+    public boolean isRecordingFormatFilterEnabled() {
+        return bbbAPI.isRecordingFormatFilterEnabled();
+    }
+
+    public String getRecordingFormatFilterWhitelist() {
+        return "" + bbbAPI.getRecordingFormatFilterWhitelist();
     }
 
     /**

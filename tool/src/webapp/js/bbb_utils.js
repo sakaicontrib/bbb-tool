@@ -46,7 +46,7 @@
             async : false,
             success : function (data) {
                 meeting = data;
-                meetings.utils.setMeetingPermissionParams(meeting); 
+                meetings.utils.setMeetingPermissionParams(meeting);
             },
             error : function (xmlHttpRequest,status,error) {
                 meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
@@ -55,7 +55,7 @@
         });
         return meeting;
 	};
-	
+
 	// Get all site meetings
 	meetings.utils.getMeetingList = function (siteId) {
 
@@ -67,7 +67,7 @@
             success : function (m,status) {
             	list = m['bbb-tool_collection'];
                 if(!list) list = [];
-    
+
                 // Work out whether the current user is a moderator of any of the
                 // meetings. If so, mark the meeting with a moderator flag.
                 //for(var i=0,j=list.length;i<j;i++) {
@@ -148,8 +148,8 @@
         return response;
     }
 
-	// Create a json representation of the meeting and post it to new on the bbb-tool provider
-	meetings.utils.addUpdateMeeting = function () {
+    // Create a json representation of the meeting and post it to new on the bbb-tool provider
+    meetings.utils.addUpdateMeeting = function () {
 
         // Consolidate date + time fields
         var today = new Date();
@@ -229,7 +229,7 @@
         if(errors) return false;
 
         $('.bbb_site_member,.bbb_site_member_role').removeAttr('disabled');
-        
+
         // Submit!
         var isNew = $("#isNew").val() == true || $("#isNew").val() == 'true';
         var actionUrl = $("#bbb_add_update_form").attr('action');
@@ -247,7 +247,7 @@
             success : function (returnedMeetingId) {
             	var _meetingId = returnedMeetingId ? returnedMeetingId : meetingId;
                 var meeting = meetings.utils.getMeeting(_meetingId);
-                meetings.currentMeetings.addUpdateMeeting(meeting);                  
+                meetings.currentMeetings.addUpdateMeeting(meeting);
                 meetings.utils.hideAjaxIndicator('#bbb_addUpdate_ajaxInd');
                 meetings.switchState('currentMeetings');
             },
@@ -292,7 +292,7 @@
         });
         return meetingInfo;
     };
-    
+
     meetings.utils.getGroups = function (meeting) {
         var groups;
         jQuery.ajax( {
@@ -328,7 +328,7 @@
 
             //Extend the meetings that are present in the BBBMeetings array
             for(var j=0; j<BBBMeetings.length; j++) {
-                if(BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {                    
+                if(BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {
                     meetings.currentMeetings[i].hasBeenForciblyEnded = BBBMeetings[j].hasBeenForciblyEnded;
                     meetings.currentMeetings[i].participantCount = BBBMeetings[j].participantCount;
                     meetings.currentMeetings[i].running = BBBMeetings[j].running;
@@ -343,7 +343,7 @@
                 meetings.currentMeetings[i].unreachableServer = "true";
 
             //if joinable set the joinableMode
-    		meetings.currentMeetings[i].joinableMode = "nojoinable";
+            meetings.currentMeetings[i].joinableMode = "nojoinable";
             if( meetings.currentMeetings[i].joinable ){
                 if( meetings.currentMeetings[i].unreachableServer == null ){
                     meetings.currentMeetings[i].joinableMode = "";
@@ -383,52 +383,51 @@
         }
     }
 
-	meetings.utils.setMeetingInfoParams = function (meeting, meetingInfo) {
+    meetings.utils.setMeetingInfoParams = function (meeting, meetingInfo) {
+        // Clear attendees.
+        if (meeting.attendees && meeting.attendees.length > 0) {
+            delete meeting.attendees;
+        }
+        meeting.attendees = new Array();
+        meeting.hasBeenForciblyEnded = "false";
+        meeting.participantCount = 0;
+        meeting.moderatorCount = 0;
+        meeting.unreachableServer = "false";
 
-		//Clear attendees
-		if( meeting.attendees && meeting.attendees.length > 0 )
-			delete meeting.attendees;
-		meeting.attendees = new Array();
-		meeting.hasBeenForciblyEnded = "false";
-		meeting.participantCount = 0;
-		meeting.moderatorCount = 0;
-		meeting.unreachableServer = "false";
-
-		if ( meetingInfo != null && meetingInfo.returncode != null) {
-			if ( meetingInfo.returncode != 'FAILED' ) {
-				meeting.attendees = meetingInfo.attendees;
-				meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
-				meeting.participantCount = meetingInfo.participantCount;
-				meeting.moderatorCount = meetingInfo.moderatorCount;
+        if ( meetingInfo != null && meetingInfo.returncode != null) {
+            if ( meetingInfo.returncode != 'FAILED' ) {
+                meeting.attendees = meetingInfo.attendees;
+                meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
+                meeting.participantCount = meetingInfo.participantCount;
+                meeting.moderatorCount = meetingInfo.moderatorCount;
                 meeting.running = meetingInfo.running;
-			} else if (meetingInfo.messageKey != 'notFound'){
-				//Different errors can be handled here
-				meeting.unreachableServer = "true";
-			}
-		} else {
+            } else if (meetingInfo.messageKey != 'notFound'){
+                // Different errors can be handled here.
+                meeting.unreachableServer = "true";
+            }
+        } else {
             delete meeting.running;
         }
-	};
+    };
 
 	meetings.utils.setRecordingPermissionParams = function (recording) {
-
-        // specific recording permissions
+        // Specific recording permissions.
         var offset = meetings.settings.config.serverTimeInDefaultTimezone.timezoneOffset;
         recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
-        
         if(meetings.currentUser.id === recording.ownerId) {
             recording.canEdit = meetings.userPerms.bbbRecordingEditOwn || meetings.userPerms.bbbRecordingEditAny;
             recording.canDelete = meetings.userPerms.bbbRecordingDeleteOwn || meetings.userPerms.bbbRecordingDeleteAny;
+            recording.canViewExtendedFormats = meetings.userPerms.bbbRecordingExtendedFormatsOwn || meetings.userPerms.bbbRecordingExtendedFormatsAny;
         }else{
-        	recording.canEdit = meetings.userPerms.bbbRecordingEditAny;
-        	recording.canDelete = meetings.userPerms.bbbRecordingDeleteAny;
+            recording.canEdit = meetings.userPerms.bbbRecordingEditAny;
+            recording.canDelete = meetings.userPerms.bbbRecordingDeleteAny;
+            recording.canViewExtendedFormats = meetings.userPerms.bbbRecordingExtendedFormatsAny;
         }
 	};
-	
-	meetings.utils.setMeetingPermissionParams = function (meeting) {
 
-		// joinable only if on specified date interval (if any)
-		
+	meetings.utils.setMeetingPermissionParams = function (meeting) {
+		// Joinable only if on specified date interval (if any).
+
 		var serverTimeStamp = parseInt(meetings.settings.config.serverTimeInDefaultTimezone.timestamp);
 		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000);
 
@@ -438,7 +437,7 @@
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;
         meeting.joinable = startOk && endOk;
-        
+
         // specific meeting permissions
         if(meetings.currentUser.id === meeting.ownerId) {
             meeting.canEdit = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
@@ -493,7 +492,7 @@
             $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
         }
 	};
-	
+
 	// End the specified meeting. The name parameter is required for the confirm
 	// dialog
 	meetings.utils.endMeeting = function (name, meetingID, groupID, endAll) {
@@ -526,9 +525,9 @@
 	meetings.utils.deleteMeeting = function (name,meetingId) {
 
 		var question = bbb_action_delete_meeting_question(unescape(name));
-	
+
 		if(!confirm(question)) return;
-		
+
 		jQuery.ajax( {
 	 		url : "/direct/bbb-tool/" + meetingId,
 			dataType:'text',
@@ -550,15 +549,15 @@
 			}
 	  	});
 	};
-    
+
 	// Delete the specified recording from the BigBlueButton server. The name parameter is required for the confirm
 	// dialog
 	meetings.utils.deleteRecordings = function (meetingID, recordID, stateFunction, confirmationMsg) {
-	
+
 		var question = bbb_action_delete_recording_question(unescape(confirmationMsg));
 
 		if(!confirm(question)) return;
-		
+
 		jQuery.ajax( {
 	 		url : "/direct/bbb-tool/deleteRecordings?meetingID=" + meetingID + "&recordID=" + recordID,
 			dataType:'text',
@@ -576,18 +575,18 @@
 	  	});
 	};
 
-	// Publish the specified recording from the BigBlueButton server. 
+	// Publish the specified recording from the BigBlueButton server.
 	meetings.utils.publishRecordings = function (meetingID, recordID, stateFunction) {
 		meetings.utils.setRecordings(meetingID, recordID, "true", stateFunction);
 	};
 
-	// Unpublish the specified recording from the BigBlueButton server. 
+	// Unpublish the specified recording from the BigBlueButton server.
 	meetings.utils.unpublishRecordings = function (meetingID, recordID, stateFunction) {
 		meetings.utils.setRecordings(meetingID, recordID, "false", stateFunction);
-	
+
 	};
 
-	// Publish the specified recording from the BigBlueButton server. 
+	// Publish the specified recording from the BigBlueButton server.
 	meetings.utils.setRecordings = function (meetingID, recordID, action, stateFunction) {
 
 		jQuery.ajax( {
@@ -618,7 +617,7 @@
         meetings.utils.updateRecordings(meetingID, recordID, "false", stateFunction);
     }
 
-    // Protect the specified recording from the BigBlueButton server. 
+    // Protect the specified recording from the BigBlueButton server.
 	meetings.utils.updateRecordings = function (meetingID, recordID, action, stateFunction) {
 
         jQuery.ajax({
@@ -663,7 +662,7 @@
     }
 
     // Get meeting info from BBB server
-    meetings.utils.getMeetingInfo = function (meetingId, groupId, asynch) {  
+    meetings.utils.getMeetingInfo = function (meetingId, groupId, asynch) {
         var groupID = groupId ? "?groupId=" + groupId : "";
     	var meetingInfo = null;
         if (typeof asynch == 'undefined') asynch = true;
@@ -681,12 +680,12 @@
         });
         return meetingInfo;
     };
-    
+
     // Get site recordings from BBB server
     meetings.utils.getSiteRecordingList = function (siteId) {
 
     	if (siteId == null) siteId = "";
-    		
+
     	var response = Object();
         jQuery.ajax( {
             url: "/direct/bbb-tool/getSiteRecordings.json?siteId=" + siteId,
@@ -701,14 +700,14 @@
         });
         return response;
     };
-    
+
     // Get meeting recordings from BBB server
     meetings.utils.getMeetingRecordingList = function (meetingId, groupId) {
 
     	if (meetingId == null) meetingId = "";
-        
+
         var groupID = groupId ? "?groupId=" + groupId : "";
-        
+
     	var response = Object();
         jQuery.ajax( {
             url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json" + groupID,
@@ -795,7 +794,7 @@
             meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
         }
     };
-    
+
     // Check specific meeting availability and update meeting details page if appropriate
     meetings.utils.checkMeetingAvailability = function (meeting) {
 
@@ -811,7 +810,7 @@
                     }
                 }
                 // Update the actionbar on the list
-                if ( meeting.canEnd ){ 
+                if ( meeting.canEnd ){
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
@@ -844,7 +843,7 @@
                 $('#end_meeting_intermediate_'+meeting.id).toggleClass("bbb_end_meeting_shown").html(end_meetingTextIntermediate);
 
                 // Update the actionbar on the list
-                if ( meeting.canEnd ){ 
+                if ( meeting.canEnd ){
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_shown');
@@ -866,7 +865,7 @@
         	} else if ( meeting.joinableMode === "unavailable" ){
                 $('#meeting_joinlink_'+meeting.id).fadeOut();
                 // Update the actionbar on the list
-                if ( meeting.canEnd ){ 
+                if ( meeting.canEnd ){
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
@@ -892,7 +891,7 @@
         	} else if ( meeting.joinableMode === "unreachable" ){
                 $('#meeting_joinlink_'+meeting.id).fadeOut();
                 // Update the actionbar on the list
-                if ( meeting.canEnd ){ 
+                if ( meeting.canEnd ){
                     $('#end_meeting_'+meeting.id)
                     .removeClass()
                     .addClass('bbb_end_meeting_hidden');
@@ -927,10 +926,10 @@
                .removeClass()
                .addClass('status_finished')
                .text(bbb_status_finished);
-               
+
         }
     };
-    
+
     // Check ONE recording availability and update recording details page if appropriate
     meetings.utils.checkOneRecordingAvailability = function (meetingId) {
 
@@ -948,7 +947,7 @@
             meetings.utils.checkRecordingAvailability(meetings.currentMeetings[i]);
     	}
     };
-    
+
     meetings.utils.checkRecordingAvailability = function (meetingId, groupId) {
 
 		var recordings = meetings.utils.getMeetingRecordingList(meetingId, groupId).recordings;
@@ -1002,7 +1001,7 @@
 	        // 1. we want to first check individual user selection as it may
 	        // override all/group/role selection...
             for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'user' 
+                if(meeting.participants[i].selectionType == 'user'
                     && meeting.participants[i].selectionId == userId) {
                     return meeting.participants[i];
                 }
@@ -1010,7 +1009,7 @@
 
             // 2. ... then with group/role selection types...
             for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'role' 
+                if(meeting.participants[i].selectionType == 'role'
                     && meeting.participants[i].selectionId == role) {
                     return meeting.participants[i];
                 }
@@ -1033,7 +1032,7 @@
         }
         return null;
 	}
-    
+
     // Get user selection types
     meetings.utils.getUserSelectionTypes = function () {
 
@@ -1045,7 +1044,7 @@
     	};
     	return selTypes;
     };
-	
+
 	// Get user selection options from EB
     meetings.utils.getUserSelectionOptions = function () {
 
@@ -1065,7 +1064,7 @@
 
         return meetings.utils.bbbUserSelectionOptions;
     };
-	
+
     // Get the site permissions
     meetings.utils.getSitePermissions = function () {
         var perms = [];
@@ -1144,7 +1143,7 @@
 
 		return render;
 	};
-	
+
     /** Setup defaults for Ajax */
     meetings.utils.setupAjax = function () {
 
@@ -1155,7 +1154,7 @@
             complete: function (request, textStatus) {
                 try {
                     if (request.status
-                            && request.status != 200 && request.status != 201 
+                            && request.status != 200 && request.status != 201
                             && request.status != 204 && request.status != 404 && request.status != 1223){
                         if (request.status == 403) {
                             meetings.utils.handleError(bbb_err_no_permissions, request.status, request.statusText);
@@ -1166,9 +1165,9 @@
                    }
                 } catch (e) {}
             }
-        }); 
+        });
     };
-	
+
 	/** Handle communication errors */
 	meetings.utils.handleError = function (message, statusCode, statusMessage) {
 
@@ -1187,18 +1186,18 @@
 			meetings.utils.showMessage(description, severity);
 		}
 	};
-	
-	/** 
+
+	/**
 	 * Render a message with a specific severity
 	 * @argument msgBod: The message to be displayed
 	 * @argument severity: Message severity [optional, defaults to 'information')
-	 * @argument msgTitle: Message title [optional, defaults to nothing] 
+	 * @argument msgTitle: Message title [optional, defaults to nothing]
 	 */
     meetings.utils.showMessage = function (msgBody, severity, msgTitle, hideMsgBody) {
 
     	var useAlternateStyle = true;
     	if(typeof hideMsgBody == 'undefined' && msgTitle && msgBody) hideMsgBody = true;
-    	
+
     	if( !meetings.errorLog[msgBody] ){
 			meetings.errorLog[msgBody] = true;
 
@@ -1208,9 +1207,9 @@
 	            msgClass = !useAlternateStyle ? 'information' : 'messageInformation';
 	        else if(severity == 'success')
 	            msgClass = !useAlternateStyle ? 'success' : 'messageSuccess';
-	        else if(severity == 'warn' || severity == 'warning' || severity == 'error' || severity == 'fail') 
+	        else if(severity == 'warn' || severity == 'warning' || severity == 'error' || severity == 'fail')
 	            msgClass = !useAlternateStyle ? 'alertMessage' : 'messageError';
-	        
+
 	        // add contents
 	        var id = Math.floor(Math.random()*1000);
 	        var msgId = 'msg-'+id;
@@ -1227,15 +1226,15 @@
 	            message.append(msgBodyContent);
 	            if(hideMsgBody) msgBodyContent.hide();
 	        }
-	        
+
 	        // display, adjust frame height, scroll to top
 	        msgDiv.html(message);
 	        msgsDiv.fadeIn();
 	        $('html, body').animate({scrollTop:0}, 'slow');
-			
+
     	}
     };
-        
+
     /** Hide message box */
     meetings.utils.hideMessage = function (id) {
 
@@ -1247,7 +1246,7 @@
             $('#bbb_messages').empty().hide();
     	}
     };
-    
+
     /** Show an ajax indicator at the following DOM selector */
     meetings.utils.showAjaxIndicator = function (outputSelector) {
 
@@ -1260,7 +1259,7 @@
     meetings.utils.hideAjaxIndicator = function (outputSelector) {
     	$(outputSelector).hide();
     };
-    
+
     /** Transform a textarea element on to a CKEditor, uppon user click */
     meetings.utils.makeInlineCKEditor = function (textAreaId, toolBarSet, width, height) {
 
@@ -1302,10 +1301,10 @@
 
             // BBB-109
             // This override is to keep consistency in the way the function is called and at the same time,
-            // to suppport a Custom toolbar with less options that the ones offered by the Full template 
-            // which are not supported in the BigBlueButton welcome message, but more than the ones offered 
+            // to suppport a Custom toolbar with less options that the ones offered by the Full template
+            // which are not supported in the BigBlueButton welcome message, but more than the ones offered
             // by the Basic template which are needed.
-            // This approach should be replaced as soon Sakai offers the way to customize the toolbar 
+            // This approach should be replaced as soon Sakai offers the way to customize the toolbar
             // in the same call.
             sakai.editor.editors.launch = (function (targetId, config, w, h) {
                 var original = sakai.editor.launch;
@@ -1422,9 +1421,9 @@
                         basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/";
                         //To add extra plugins outside the plugins directory, add them here! (And in the variable)
                         (function () {
-                           CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
-                           CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
-                           CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 
+                           CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
+                           CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js');
+                           CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js');
                              /*
                               To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
                               and to extraPlugins. This also needs extra stylesheets.
@@ -1432,7 +1431,7 @@
                               You have to actually setup a server or get an API key
                               Hopefully this will get easier to configure soon.
                              */
-                             //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
+                             //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js');
                              //ckconfig.atd_rpc='/proxy/atd';
                              //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
                              //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';

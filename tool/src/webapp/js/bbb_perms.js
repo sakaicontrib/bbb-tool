@@ -18,7 +18,7 @@ function BBBPermissions(data) {
 
 	if(data) {
 		for(var i=0,j=data.length;i<j;i++) {
-			
+
 			// BBB specific permissions
 			if('bbb.admin' === data[i]) {
 				this.bbbAdmin = true;
@@ -49,8 +49,12 @@ function BBBPermissions(data) {
 				this.bbbRecordingDeleteOwn = true;
 			}else if('bbb.recording.delete.any' === data[i]) {
 				this.bbbRecordingDeleteAny = true;
+			}else if('bbb.recording.extendedformats.own' === data[i]) {
+				this.bbbRecordingExtendedFormatsOwn = true;
+			}else if('bbb.recording.extendedformats.any' === data[i]) {
+				this.bbbRecordingExtendedFormatsAny = true;
 			}
-			
+
 			// Sakai permissions
 			// Site Info:
 			else if('site.upd' === data[i]) {
@@ -70,5 +74,5 @@ function BBBPermissions(data) {
 				this.calendarDeleteAny = true;
 			}
 		}
-	}	
+	}
 }
