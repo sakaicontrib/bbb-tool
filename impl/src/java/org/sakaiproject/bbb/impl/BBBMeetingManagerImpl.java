@@ -1195,6 +1195,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
     }
 
+    private String getMeetingDescription(BBBMeeting meeting) {
+        return meeting.getProps().getWelcomeMessage().replaceAll("\\<.*?>","");
+    }
+
     @SuppressWarnings("deprecation")
     private boolean addEditCalendarEvent(BBBMeeting meeting) {
         logger.debug("addEditCalendarEvent");
@@ -1563,9 +1567,10 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         }
 
         // add description & url
+        String meetingDescription = getMeetingDescription(meeting);
         String meetingUrl = getDirectToolJoinUrl(meeting);
         try {
-            vEvent.getProperties().add(new Description(meeting.getProps().getWelcomeMessage()));
+            vEvent.getProperties().add(new Description(meetingDescription));
         } catch (Exception e1) {
             // ignore - no harm
         }
