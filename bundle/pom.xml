@@ -7,7 +7,7 @@
     <parent>
       <groupId>org.sakaiproject.bbb</groupId>
       <artifactId>bbb</artifactId>
-      <version>12-SNAPSHOT</version>
+      <version>11-SNAPSHOT</version>
     </parent>
 
     <name>BigBlueButton Bundles</name>
