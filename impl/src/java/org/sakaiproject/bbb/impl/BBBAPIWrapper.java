@@ -67,8 +67,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private boolean bbbRecordingReadyNotificationEnabled = false;
     /** BBB UX maximum length allowed for meeting description (default 2083) */
     private int bbbDescriptionMaxLength = 2048;
-    /** BBB UX textBox type for meeting description (default fckeditor) */
-    private String bbbDescriptionType = "fckeditor";
+    /** BBB UX textBox type for meeting description (default ckeditor) */
+    private String bbbDescriptionType = "ckeditor";
     /** BBB UX flag to activate/deactivate 'duration' box (default to false) */
     private boolean bbbDurationEnabled = false;
     /** BBB default value for 'duration' box (default 120 minutes) */

@@ -214,15 +214,21 @@
             }
         }
 
-        // Get description/welcome msg from CKEditor
-        meetings.utils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
+        var descriptionType = meetings.settings.config.addUpdateFormParameters.descriptionType;
+        if(descriptionType == 'ckeditor') {
+            // Get description/welcome msg from CKEditor
+            meetings.utils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
+        }
 
         // Validate description length
         var maxLength = meetings.settings.config.addUpdateFormParameters.descriptionMaxLength;
         var descriptionLength = $('#bbb_welcome_message_textarea').val().length;
         if( descriptionLength > maxLength ) {
             meetings.utils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
-            meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+            if(descriptionType == 'ckeditor') {
+                // Restore the CKEditor.
+                meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+            }
             errors = true;
         }
 

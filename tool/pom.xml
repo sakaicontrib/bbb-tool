@@ -13,87 +13,86 @@
   	<name>BigBlueButton Tool</name>
     <groupId>org.sakaiproject.bbb</groupId>
     <artifactId>bbb-tool</artifactId>
-  	
-  	<packaging>war</packaging>
 
-  	<dependencies>         
-        <!-- BBB -->
-        <dependency>
-            <groupId>org.sakaiproject.bbb</groupId>
-            <artifactId>bbb-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.sakaiproject.bbb</groupId>
-            <artifactId>bbb-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-			<groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-utils</artifactId>
-        </dependency>
-        
-        <dependency>
-			<groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-api</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        
-        <!-- Kernel -->
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-  
-        <!-- Others -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
-        </dependency>
-        <dependency>
-        	<groupId>org.projectlombok</groupId>
-        	<artifactId>lombok</artifactId>
-        </dependency> 
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <!-- JWT -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.7.0</version>
-        </dependency>
+    <packaging>war</packaging>
 
-	</dependencies>
-	
+    <dependencies>
+      <!-- BBB -->
+      <dependency>
+        <groupId>org.sakaiproject.bbb</groupId>
+        <artifactId>bbb-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sakaiproject.bbb</groupId>
+        <artifactId>bbb-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-utils</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+      </dependency>
+
+      <!-- Kernel -->
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-component-manager</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-util</artifactId>
+      </dependency>
+
+      <!-- Others -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>1.3</version>
+      </dependency>
+      <!-- JWT -->
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>0.7.0</version>
+      </dependency>
+    </dependencies>
+
 	<profiles>
         <profile>
             <id>release</id>
@@ -114,77 +113,77 @@
             </properties>
 		</profile>
 	</profiles>
-	
+
 	<build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-            </resource>
-        </resources>
-		<plugins>
-            <!-- Compress CSS Stylesheets and Javascript -->
-            <plugin>
-                <groupId>net.sf.alchim</groupId>
-                <artifactId>yuicompressor-maven-plugin</artifactId>
-                <version>0.7.1</version>
-                <executions>
-                    <execution>
-                    	<phase>${yuicompressor.phase}</phase>
-                        <goals>
-                            <goal>compress</goal>
-                        </goals>
-                    </execution>
-                </executions>        
-                <configuration>
-                	<sourceDirectory>${basedir}/src/webapp</sourceDirectory>
-                    <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-                    <nosuffix>true</nosuffix>
-                    <jswarn>false</jswarn>
-                    <excludes>
-                        <exclude>**/**/*.html</exclude>
-                        <exclude>**/**/*.xml</exclude>
-                        <exclude>**/**/*.xsl</exclude>
-                        <exclude>**/**/*.properties</exclude>
-                        <exclude>**/**/*.gif</exclude>            
-                        <exclude>**/**/*.png</exclude>            
-                        <exclude>**/**/*.jpg</exclude>
-                        <exclude>**/**/*.min.js</exclude>
-                        <exclude>**/**/*-min.js</exclude>
-                        <exclude>**/**/*minified.js</exclude>
-                        <exclude>**/**/*.pack.js</exclude>
-			<exclude>**/**/jquery.datepick.package-3.7.5/*</exclude>
-                        <exclude>**/**/unused/*.js</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <!-- Unpack resource bundles -->
-            <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-dependency-plugin</artifactId>
-                 <version>2.6</version>
-                 <executions>
-                   <execution>
-                     <id>unpack</id>
-                     <phase>process-resources</phase>
-                     <goals>
-                       <goal>unpack</goal>
-                     </goals>
-                     <configuration>
-                       <artifactItems>
-                         <artifactItem>
-                           <groupId>org.sakaiproject.bbb</groupId>
-                           <artifactId>bbb-bundle</artifactId>
-                           <type>jar</type>
-                           <overWrite>false</overWrite>
-                           <outputDirectory>${project.build.directory}/${project.build.finalName}/bundle</outputDirectory>
-                           <includes>**/*.properties</includes>
-                           <excludes></excludes>
-                         </artifactItem>
-                       </artifactItems>
-                     </configuration>
-                   </execution>
-                 </executions>
-             </plugin>
-        </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- Compress CSS Stylesheets and Javascript -->
+      <plugin>
+        <groupId>net.sf.alchim</groupId>
+        <artifactId>yuicompressor-maven-plugin</artifactId>
+        <version>0.7.1</version>
+        <executions>
+          <execution>
+            <phase>${yuicompressor.phase}</phase>
+            <goals>
+              <goal>compress</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <sourceDirectory>${basedir}/src/webapp</sourceDirectory>
+          <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+          <nosuffix>true</nosuffix>
+          <jswarn>false</jswarn>
+          <excludes>
+            <exclude>**/**/*.html</exclude>
+            <exclude>**/**/*.xml</exclude>
+            <exclude>**/**/*.xsl</exclude>
+            <exclude>**/**/*.properties</exclude>
+            <exclude>**/**/*.gif</exclude>
+            <exclude>**/**/*.png</exclude>
+            <exclude>**/**/*.jpg</exclude>
+            <exclude>**/**/*.min.js</exclude>
+            <exclude>**/**/*-min.js</exclude>
+            <exclude>**/**/*minified.js</exclude>
+            <exclude>**/**/*.pack.js</exclude>
+            <exclude>**/**/jquery.datepick.package-3.7.5/*</exclude>
+            <exclude>**/**/unused/*.js</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <!-- Unpack resource bundles -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.sakaiproject.bbb</groupId>
+                  <artifactId>bbb-bundle</artifactId>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/bundle</outputDirectory>
+                  <includes>**/*.properties</includes>
+                  <excludes></excludes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
 	</build>
 </project>

@@ -12,33 +12,32 @@
   	
   	<name>BigBlueButton API</name>
     <groupId>org.sakaiproject.bbb</groupId>
-  	<artifactId>bbb-api</artifactId>
-  	
-  	<packaging>jar</packaging>
-  	<properties>
-    	<deploy.target>shared</deploy.target>
-  	</properties>
-  	
-  	<dependencies>    	
-    	<!-- Kernel -->
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
-		
-		<!-- Others -->
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        
-        <dependency>
-        	<groupId>org.projectlombok</groupId>
-        	<artifactId>lombok</artifactId>
-        </dependency> 
-	</dependencies>
+    <artifactId>bbb-api</artifactId>
+
+    <packaging>jar</packaging>
+    <properties>
+      <deploy.target>shared</deploy.target>
+    </properties>
+
+    <dependencies>
+      <!-- Kernel -->
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-util</artifactId>
+      </dependency>
+
+      <!-- Others -->
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+      </dependency>
+    </dependencies>
 </project>

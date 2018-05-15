@@ -317,8 +317,11 @@ meetings.switchState = function (state, arg) {
         // Focus on meeting name/title
         $('#bbb_meeting_name_field').focus();
 
-        // Setup description/welcome msg editor. Test for CKEditor or FCKeditorAPI.
-        meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+        // Setup description/welcome msg editor. Test for CKEditor.
+        var descriptionType = meetings.settings.config.addUpdateFormParameters.descriptionType;
+        if(descriptionType == 'ckeditor' ) {
+            meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+        }
 
         // Setup dates
         var now = new Date();
