@@ -7,7 +7,7 @@
     <parent>
       <groupId>org.sakaiproject.bbb</groupId>
       <artifactId>bbb</artifactId>
-      <version>12-SNAPSHOT</version>
+      <version>13-SNAPSHOT</version>
     </parent>
 
     <name>BigBlueButton Component Pack</name>
@@ -23,19 +23,11 @@
       <!-- BBB -->
       <dependency>
         <groupId>org.sakaiproject.bbb</groupId>
-    	<artifactId>bbb</artifactId>
-    	<version>13-SNAPSHOT</version>
-  	</parent>
-  	
-  	<name>BigBlueButton Component Pack</name>
-  	<groupId>org.sakaiproject.bbb</groupId>
-  	<artifactId>bbb-pack</artifactId>
-  	
-  	<packaging>sakai-component</packaging>
-  	<properties>
-    	<deploy.target>components</deploy.target>
-  	</properties>
-  	
+        <artifactId>bbb-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+
     <build>
       <resources>
         <resource>
