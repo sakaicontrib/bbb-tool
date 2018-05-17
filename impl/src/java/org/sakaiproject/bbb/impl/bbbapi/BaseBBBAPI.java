@@ -213,20 +213,21 @@ public class BaseBBBAPI implements BBBAPI {
 
             SecurityAdvisor sa = editResourceSecurityAdvisor();
             // Preupload presentation.
-            String xml_presentation = "";
+            String presentationXML = "";
             String presentation = "";
-            if (preuploadpresentation && meeting.getPresentation() != "" && meeting.getPresentation() != null) {
-                presentation = URLDecoder.decode(meeting.getPresentation().substring(meeting.getPresentation().indexOf("/attachment")), "UTF-8");
+            String presentationName = meeting.getPresentation();
+            if (preuploadpresentation && presentationName != null && !presentationName.isEmpty()) {
+                presentation = URLDecoder.decode(presentationName.substring(presentationName.indexOf("/attachment")), "UTF-8");
                 m_securityService.pushAdvisor(sa);
                 // Open access to resource used as preuploaded presentation.
                 m_contentHostingService.setPubView(presentation, true);
                 // Set XML body.
                 StringBuilder presentationUrl = new StringBuilder(config.getServerUrl());
-                presentationUrl.append(meeting.getPresentation());
-                xml_presentation = "<?xml version='1.0' encoding='UTF-8'?><modules><module name=\"presentation\"><document url=\"" + presentationUrl + "\" /></module></modules>";
+                presentationUrl.append(presentationName);
+                presentationXML = "<?xml version='1.0' encoding='UTF-8'?><modules><module name=\"presentation\"><document url=\"" + presentationUrl + "\" /></module></modules>";
             }
             // Do API call.
-            Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString(), xml_presentation);
+            Map<String, Object> response = doAPICall(APICALL_CREATE, query.toString(), presentationXML);
             // Close access to resource used as preuploaded presentation.
             if (presentation != "") {
                 m_contentHostingService.setPubView(presentation, false);
