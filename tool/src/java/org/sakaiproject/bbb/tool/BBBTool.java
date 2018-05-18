@@ -103,6 +103,7 @@ public class BBBTool extends HttpServlet {
         ctx.put("state", state);
         ctx.put("timezoneOffset", sakaiProxy.getUserTimezoneOffset());
         ctx.put("sakaiVersion", sakaiProxy.getSakaiVersion());
+        ctx.put("maxFileSizeInBytes", sakaiProxy.getFileSizeMax());
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html");

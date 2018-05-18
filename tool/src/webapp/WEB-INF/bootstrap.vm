@@ -35,7 +35,8 @@
                 skin: '${skin}',
                 state: '${state}',
                 timezoneoffset: '${timezoneOffset}',
-                sakaiVersion: '${sakaiVersion}'
+                sakaiVersion: '${sakaiVersion}',
+                maxFileSizeInBytes: '${maxFileSizeInBytes}'
              }
         };
     </script>
