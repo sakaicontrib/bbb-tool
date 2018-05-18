@@ -36,7 +36,7 @@ public interface BBBMeetingManager {
     /** Meetings tool Webapp */
     public final static String TOOL_WEBAPP = "/bbb-tool";
 
-    // sakai.properties Settings
+    // Tool Settings in sakai.properties.
     public final static String CFG_URL = "bbb.url";
     public final static String CFG_SALT = "bbb.salt";
     public final static String CFG_AUTOCLOSE_WIN = "bbb.autocloseMeetingWindow";
@@ -70,6 +70,9 @@ public interface BBBMeetingManager {
     public final static String CFG_RECORDINGSTATS_USERID = "bbb.recordingstats.userid";
     public final static String CFG_RECORDINGFORMATFILTER_ENABLED = "bbb.recordingformatfilter.enabled";
     public final static String CFG_RECORDINGFORMATFILTER_WHITELIST = "bbb.recordingformatfilter.whitelist";
+
+    // System Settings in sakai.properties.
+    public final static String SYSTEM_UPLOAD_MAX = "content.upload.max";
 
     // Permissions
     public static final String FN_PREFIX = "bbb.";

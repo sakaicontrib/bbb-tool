@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 /**
  * Bootstraps the bbb tool by rendering a Velocity template with the apps JS
  * variables prebuilt.
- * 
+ *
  * @author Adrian Fish
  */
 public class BBBTool extends HttpServlet {
@@ -104,6 +104,7 @@ public class BBBTool extends HttpServlet {
         ctx.put("state", state);
         ctx.put("timezoneOffset", sakaiProxy.getUserTimezoneOffset());
         ctx.put("sakaiVersion", sakaiProxy.getSakaiVersion());
+        ctx.put("maxFileSizeInBytes", sakaiProxy.getFileSizeMax());
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html");
