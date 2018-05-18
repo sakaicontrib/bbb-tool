@@ -176,4 +176,8 @@ class SakaiProxy
 		bbbMeetingManager.checkPermissions(getCurrentSiteId());
 	}
 
+	public String getFileSizeMax() {
+		String maxFileSizeInBytes = serverConfigurationService.getString(BBBMeetingManager.SYSTEM_UPLOAD_MAX);
+		return maxFileSizeInBytes;
+	}
 }
