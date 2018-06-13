@@ -57,7 +57,6 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.util.UidGenerator;
-import net.fortuna.ical4j.validate.ValidationException;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.AuthzGroup;
