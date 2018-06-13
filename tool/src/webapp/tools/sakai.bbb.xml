@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <registration>
-    <tool id="sakai.bbb" 
-    	title="Meetings" 
-    	description="Sakai Interface onto the BigBlueButton conferencing tool"
-    	version="1.0.7">
-    
-    	<category name="course" />
+    <tool id="sakai.bbb"
+      title="Meetings"
+      description="Sakai Interface onto the BigBlueButton conferencing tool"
+      version="12-SNAPSHOT">
+        <category name="course" />
         <category name="project" />
     </tool>
 </registration>
