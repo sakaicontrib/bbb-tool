@@ -137,9 +137,11 @@
             <url>http://source.sakaiproject.org/maven2-snapshots</url>
             <releases>
                 <enabled>false</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
         </repository>
         <repository>
@@ -149,9 +151,11 @@
             <url>http://source.sakaiproject.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
         </repository>
         <repository>
