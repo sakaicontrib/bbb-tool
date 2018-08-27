@@ -279,22 +279,19 @@ public class BBBAPIWrapper/* implements Runnable */{
             throws BBBException {
         if (logger.isDebugEnabled()) logger.debug("getRecordings()");
 
-        Map<String, Object> recordingsResponse = new HashMap<String, Object>();
-
-        if ( api != null ) {
-            try{
-                recordingsResponse = api.getRecordings(meetingID);
-            } catch ( BBBException e) {
-                recordingsResponse = responseError(e.getMessageKey(), e.getMessage() );
-                logger.debug("getRecordings.BBBException: message=" + e.getMessage());
-            } catch ( Exception e) {
-                recordingsResponse = responseError(BBBException.MESSAGEKEY_GENERALERROR, e.getMessage() );
-                logger.debug("getRecordings.Exception: message=" + e.getMessage());
-            }
-        } else {
+        if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-
+        Map<String, Object> recordingsResponse = new HashMap<String, Object>();
+        try{
+            recordingsResponse = api.getRecordings(meetingID);
+        } catch ( BBBException e) {
+            recordingsResponse = responseError(e.getMessageKey(), e.getMessage() );
+            logger.debug("getRecordings.BBBException: message=" + e.getMessage());
+        } catch ( Exception e) {
+            recordingsResponse = responseError(BBBException.MESSAGEKEY_GENERALERROR, e.getMessage() );
+            logger.debug("getRecordings.Exception: message=" + e.getMessage());
+        }
         return recordingsResponse;
     }
 
@@ -305,7 +302,6 @@ public class BBBAPIWrapper/* implements Runnable */{
         if ( api == null ) {
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "Internal tool configuration error");
         }
-
         boolean endMeetingResponse = api.endMeeting(meetingID, password);
         return endMeetingResponse;
     }

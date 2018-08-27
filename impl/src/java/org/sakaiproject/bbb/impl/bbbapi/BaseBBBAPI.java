@@ -29,6 +29,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedHashMap;
@@ -314,30 +315,59 @@ public class BaseBBBAPI implements BBBAPI {
     /** Get recordings from BBB server */
     public Map<String, Object> getRecordings(String meetingID)
             throws BBBException {
-    	  try {
-            StringBuilder query = new StringBuilder();
-            query.append("meetingID=");
-            query.append(meetingID);
-            query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
-
-            Map<String, Object> response = null;
-
-            response = doAPICall(APICALL_GETRECORDINGS, query.toString());
-
-            //It makes sure that the date retrived is a unix timestamp
-            if( response.get("returncode").equals("SUCCESS") && response.get("messageKey") == null  ){
-            	for (Object recordingEntry : (List<Object>)response.get("recordings")) {
-            		Map<String,String> items = (Map<String,String>)recordingEntry;
-            		items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
-            		items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
-            	}
+        try {
+            // Paginate queries for fetching recordings.
+            List<String> meetingIDs = Arrays.asList(meetingID.split("\\s*,\\s*"));
+            int pages = meetingIDs.size() / 25 + 1;
+            // Fetch recordings in pages.
+            List<Object> recordings = new ArrayList<Object>();
+            int fromIndex, toIndex;
+            for (int page = 1; page <= pages; ++page) {
+                fromIndex = (page - 1) * 25;
+                toIndex = page * 25;
+                if (toIndex > meetingIDs.size()) {
+                    toIndex = meetingIDs.size();
+                }
+                List subMeetingIDs = meetingIDs.subList(fromIndex, toIndex);
+                recordings.addAll(getRecordings(subMeetingIDs));
             }
-
+            // Prepare and return response with recordings.
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("returncode", "SUCCESS");
+            response.put("recordings", recordings);
             return response;
         } catch (BBBException e) {
             logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
         }
+    }
+
+    /** Get recordings from BBB server */
+    protected List<Object> getRecordings(List meetingIDs)
+            throws BBBException {
+    	  try {
+            String meetingID = String.join(",", meetingIDs);
+            StringBuilder query = new StringBuilder();
+            query.append("meetingID=");
+            query.append(meetingID);
+            query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
+
+            Map<String, Object> response = doAPICall(APICALL_GETRECORDINGS, query.toString());
+
+            // Make sure that the date retrived is a unix timestamp.
+            if (response.get("returncode").equals("SUCCESS") && response.get("messageKey") == null) {
+                for (Object recordingEntry : (List<Object>)response.get("recordings")) {
+                    Map<String, String> items = (Map<String, String>)recordingEntry;
+                    items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
+                    items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
+                }
+                return (List<Object>)response.get("recordings");
+            }
+        } catch (BBBException e) {
+            logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
+            throw new BBBException(e.getMessageKey(), e.getMessage(), e);
+        }
+        return new ArrayList<Object>();
     }
 
     /** End/delete a meeting on BBB server */
