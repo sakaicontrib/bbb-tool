@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2010-2009 The Sakai Foundation
+/**
+ * Copyright (c) 2010 onwards - The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,140 +20,137 @@
 
     meetings.utils.bbbUserSelectionOptions = null;
 
-    // Get the current user from EB
+    // Get the current user from EB.
     meetings.utils.getSettings = function (siteId, callback) {
 
-        $.ajax( {
+        $.ajax({
             url: "/direct/bbb-tool/getSettings.json?siteId=" + siteId,
             dataType: "json",
             success: function (s) {
                 meetings.settings = s;
                 callback();
             },
-            error : function (xmlHttpRequest, status, error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_curr_user, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
     };
 
-	// Get a meeting
-	meetings.utils.getMeeting = function (meetingId) {
+    // Get a meeting.
+    meetings.utils.getMeeting = function (meetingId) {
 
-		var meeting = null;
-		$.ajax( {
-            url : "/direct/bbb-tool/" + meetingId + ".json",
-            dataType : "json",
-            async : false,
-            success : function (data) {
+        var meeting = null;
+        $.ajax({
+            url: "/direct/bbb-tool/" + meetingId + ".json",
+            dataType: "json",
+            async: false,
+            success: function (data) {
                 meeting = data;
                 meetings.utils.setMeetingPermissionParams(meeting);
             },
-            error : function (xmlHttpRequest,status,error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
                 return null;
             }
         });
         return meeting;
-	};
+    };
 
-	// Get all site meetings
-	meetings.utils.getMeetingList = function (siteId) {
+    // Get all site meetings.
+    meetings.utils.getMeetingList = function (siteId) {
 
-		var list = [];
-        $.ajax( {
-            url : "/direct/bbb-tool.json?siteId=" + siteId,
-            dataType : "json",
-            async : false,
-            success : function (m,status) {
-            	list = m['bbb-tool_collection'];
-                if(!list) list = [];
-
-                // Work out whether the current user is a moderator of any of the
-                // meetings. If so, mark the meeting with a moderator flag.
-                //for(var i=0,j=list.length;i<j;i++) {
-                //    meetings.utils.setMeetingPermissionParams(list[i]);
-                //}
+        var list = [];
+        $.ajax({
+            url: "/direct/bbb-tool.json?siteId=" + siteId,
+            dataType: "json",
+            async: false,
+            success: function (m, status) {
+                list = m['bbb-tool_collection'];
+                if (!list) {
+                    list = [];
+                }
             },
-            error : function (xmlHttpRequest,status,error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_meeting_list, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
         return list;
     };
 
-    //upload selected file
-    meetings.utils.doUpload = function(files) {
+    // Upload selected file.
+    meetings.utils.doUpload = function (files) {
         file = files.files[0];
         var fd = new FormData();
         fd.append('file', file);
         var url;
 
         jQuery.ajax({
-            url : '/direct/bbb-tool/doUpload?siteId=' + meetings.startupArgs.siteId,
-            data : fd,
-            processData : false,
-            contentType : false,
-            type : 'POST',
-            dataType : 'text',
-            beforeSend : function (xmlHttpRequest) {
-                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+            url: '/direct/bbb-tool/doUpload?siteId=' + meetings.startupArgs.siteId,
+            data: fd,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            dataType: 'text',
+            beforeSend: function (xmlHttpRequest) {
+                $('#bbb_save,#bbb_cancel').attr('disabled', 'disabled');
                 meetings.utils.showAjaxIndicator('#bbb_addFile_ajaxInd');
             },
-            success : function (data) {
+            success: function (data) {
                 url = data;
-                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                $('#bbb_save,#bbb_cancel').attr('disabled', false);
                 meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
                 $("#fileUrl").val(url.substring(url.indexOf('/access')));
                 $("#url").attr("href", url);
                 $("#url").text(url.substring(url.lastIndexOf("/") + 1));
                 $("#fileView").show();
             },
-            error : function (xmlHttpRequest, status, error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_do_upload, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                $('#bbb_save,#bbb_cancel').attr('disabled', false);
                 meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
             }
         });
         return url;
     };
 
-    //remove uploaded file
+    // Remove uploaded file.
     meetings.utils.removeUpload = function (url, meetingId) {
         var response;
         var meetingID = '';
         if (typeof meetingId != undefined)
             meetingID = '&meetingId=' + meetingId;
         jQuery.ajax({
-            url : '/direct/bbb-tool/removeUpload?url=' + url + meetingID,
-            dataType : 'text',
-            beforeSend : function (xmlHttpRequest) {
-                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+            url: '/direct/bbb-tool/removeUpload?url=' + url + meetingID,
+            dataType: 'text',
+            beforeSend: function (xmlHttpRequest) {
+                $('#bbb_save,#bbb_cancel').attr('disabled', 'disabled');
                 meetings.utils.showAjaxIndicator('#bbb_addFile_ajaxInd');
             },
-            success : function (data) {
+            success: function (data) {
                 response = data;
-                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                $('#bbb_save,#bbb_cancel').attr('disabled', false);
                 meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
                 $("#fileUrl").val('');
                 $("#selectFile").val('');
                 $("#selectFile").attr("disabled", false);
                 $("#fileView").hide();
             },
-            error : function (xmlHttpRequest, status, error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_remove_upload, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                $('#bbb_save,#bbb_cancel').attr('disabled',false);
+                $('#bbb_save,#bbb_cancel').attr('disabled', false);
                 meetings.utils.hideAjaxIndicator('#bbb_addFile_ajaxInd');
             }
         });
         return response;
     }
 
-    // Create a json representation of the meeting and post it to new on the bbb-tool provider
+    // Create a json representation of the meeting and post it to new on the bbb-tool provider.
     meetings.utils.addUpdateMeeting = function () {
 
-        // Consolidate date + time fields
+        // Consolidate date + time fields.
         var today = new Date();
-        var startMillis = 0, endMillis = 0;
+        var startMillis = 0,
+            endMillis = 0;
         if ($('#startDate1').prop('checked')) {
             var date = $('#startDate2').datepick('getDate');
             var time = $('#startTime').val().split(':');
@@ -181,114 +178,113 @@
             date.setTime(endMillis);
 
             $('#endDate').val(endMillis);
-        }else{
+        } else {
             $('#endDate').removeAttr('name');
             $('#endDate').val(null);
         }
 
-        // Validation
+        // Validation.
         meetings.utils.hideMessage();
         var errors = false;
 
-        // Validate title field
+        // Validate title field.
         var meetingTitle = $('#bbb_meeting_name_field').val().replace(/^\s+/, '').replace(/\s+$/, '');
-        if(meetingTitle == '') {
+        if (meetingTitle == '') {
             meetings.utils.showMessage(bbb_err_no_title, 'warning');
-        	errors = true;
+            errors = true;
         }
 
-        // Validate participants list
-        if($('#selContainer tbody tr').length == 0) {
+        // Validate participants list.
+        if ($('#selContainer tbody tr').length == 0) {
             meetings.utils.showMessage(bbb_err_no_participants, 'warning');
             errors = true;
         }
 
-        // Validate date fields
-        if($('#startDate1').prop('checked') && $('#endDate1').prop('checked')) {
-            if(endMillis == startMillis) {
+        // Validate date fields.
+        if ($('#startDate1').prop('checked') && $('#endDate1').prop('checked')) {
+            if (endMillis == startMillis) {
                 meetings.utils.showMessage(bbb_err_startdate_equals_enddate, 'warning');
                 errors = true;
-            }else if(endMillis < startMillis) {
+            } else if (endMillis < startMillis) {
                 meetings.utils.showMessage(bbb_err_startdate_after_enddate, 'warning');
                 errors = true;
             }
         }
 
         var descriptionType = meetings.settings.config.addUpdateFormParameters.descriptionType;
-        if(descriptionType == 'ckeditor') {
-            // Get description/welcome msg from CKEditor
+        if (descriptionType == 'ckeditor') {
+            // Get description/welcome msg from CKEditor.
             meetings.utils.updateFromInlineCKEditor('bbb_welcome_message_textarea');
         }
 
-        // Validate description length
+        // Validate description length.
         var maxLength = meetings.settings.config.addUpdateFormParameters.descriptionMaxLength;
         var descriptionLength = $('#bbb_welcome_message_textarea').val().length;
-        if( descriptionLength > maxLength ) {
+        if (descriptionLength > maxLength) {
             meetings.utils.showMessage(bbb_err_meeting_description_too_long(maxLength, descriptionLength), 'warning');
-            if(descriptionType == 'ckeditor') {
+            if (descriptionType == 'ckeditor') {
                 // Restore the CKEditor.
                 meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
             }
             errors = true;
         }
 
-        if(errors) return false;
+        if (errors) return false;
 
         $('.bbb_site_member,.bbb_site_member_role').removeAttr('disabled');
 
-        // Submit!
+        // Submit.
         var isNew = $("#isNew").val() == true || $("#isNew").val() == 'true';
         var actionUrl = $("#bbb_add_update_form").attr('action');
         var meetingId = $("#meetingId").val();
-        jQuery.ajax( {
-            url : actionUrl,
-            type : 'POST',
+        jQuery.ajax({
+            url: actionUrl,
+            type: 'POST',
             dataType: 'text',
-            data : $("#bbb_add_update_form").serializeArray(),
+            data: $("#bbb_add_update_form").serializeArray(),
             beforeSend: function (xmlHttpRequest) {
                 meetings.utils.hideMessage();
-                $('#bbb_save,#bbb_cancel').attr('disabled','disabled');
+                $('#bbb_save,#bbb_cancel').attr('disabled', 'disabled');
                 meetings.utils.showAjaxIndicator('#bbb_addUpdate_ajaxInd');
             },
-            success : function (returnedMeetingId) {
-            	var _meetingId = returnedMeetingId ? returnedMeetingId : meetingId;
+            success: function (returnedMeetingId) {
+                var _meetingId = returnedMeetingId ? returnedMeetingId : meetingId;
                 var meeting = meetings.utils.getMeeting(_meetingId);
                 meetings.currentMeetings.addUpdateMeeting(meeting);
                 meetings.utils.hideAjaxIndicator('#bbb_addUpdate_ajaxInd');
                 meetings.switchState('currentMeetings');
             },
-            error : function (xmlHttpRequest, status, error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.hideAjaxIndicator('#bbb_addUpdate_ajaxInd');
                 $('#bbb_save,#bbb_cancel').removeAttr('disabled');
-                if(isNew) {
+                if (isNew) {
                     meetings.utils.handleError(bbb_err_create_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                }else{
+                } else {
                     meetings.utils.handleError(bbb_err_update_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
                 }
             }
         });
     };
 
-    // Get meeting info from BBB server
+    // Get meeting info from BBB server.
     meetings.utils.setMeetingInfo = function (meeting, asyncmode, groupId) {
 
-        if(typeof(asyncmode)==='undefined') asyncmode = true;
+        if (typeof (asyncmode) === 'undefined') asyncmode = true;
 
         var meetingInfo = null;
         var groupID = groupId ? "?groupId=" + groupId : "";
-        jQuery.ajax( {
-            url : "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json" + groupID,
-            dataType : "json",
-            async : asyncmode,
-            timeout : 10000,
-            success : function (data) {
-            },
-            error : function (xmlHttpRequest,status,error) {
+        jQuery.ajax({
+            url: "/direct/bbb-tool/" + meeting.id + "/getMeetingInfo.json" + groupID,
+            dataType: "json",
+            async: asyncmode,
+            timeout: 10000,
+            success: function (data) {},
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
                 return null;
             },
-            complete : function (xmlHttpRequest,status){
-                if( xmlHttpRequest.responseText == null )
+            complete: function (xmlHttpRequest, status) {
+                if (xmlHttpRequest.responseText == null)
                     meetingInfo = {};
                 else
                     meetingInfo = JSON.parse(xmlHttpRequest.responseText);
@@ -301,15 +297,15 @@
 
     meetings.utils.getGroups = function (meeting) {
         var groups;
-        jQuery.ajax( {
-            url : "/direct/bbb-tool/getGroups.json?meetingID=" + meeting.id,
-            dataType : "json",
-            async : false,
-            timeout : 10000,
-            success : function (data) {
+        jQuery.ajax({
+            url: "/direct/bbb-tool/getGroups.json?meetingID=" + meeting.id,
+            dataType: "json",
+            async: false,
+            timeout: 10000,
+            success: function (data) {
                 groups = data;
             },
-            error : function (xmlHttpRequest, status, error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
                 return null;
             }
@@ -320,11 +316,11 @@
     meetings.utils.setMeetingsParams = function (meetingsInfo) {
         BBBMeetings = meetingsInfo.meetings ? meetingsInfo.meetings : [];
 
-        for(var i=0; i<meetings.currentMeetings.length; i++){
+        for (var i = 0; i < meetings.currentMeetings.length; i++) {
             //Clear attendees
-            if( meetings.currentMeetings[i].attendees && meetings.currentMeetings[i].attendees.length > 0 )
+            if (meetings.currentMeetings[i].attendees && meetings.currentMeetings[i].attendees.length > 0)
                 delete meetings.currentMeetings[i].attendees;
-            if( meetings.currentMeetings[i].running )
+            if (meetings.currentMeetings[i].running)
                 delete meetings.currentMeetings[i].running;
             meetings.currentMeetings[i].attendees = new Array();
             meetings.currentMeetings[i].hasBeenForciblyEnded = "false";
@@ -332,14 +328,14 @@
             meetings.currentMeetings[i].moderatorCount = 0;
             meetings.currentMeetings[i].unreachableServer = "false";
 
-            //Extend the meetings that are present in the BBBMeetings array
-            for(var j=0; j<BBBMeetings.length; j++) {
-                if(BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {
+            // Extend the meetings that are present in the BBBMeetings array.
+            for (var j = 0; j < BBBMeetings.length; j++) {
+                if (BBBMeetings[j].meetingID === meetings.currentMeetings[i].id) {
                     meetings.currentMeetings[i].hasBeenForciblyEnded = BBBMeetings[j].hasBeenForciblyEnded;
                     meetings.currentMeetings[i].participantCount = BBBMeetings[j].participantCount;
                     meetings.currentMeetings[i].running = BBBMeetings[j].running;
                 }
-                //Check if group session is active
+                // Check if group session is active.
                 else if ((BBBMeetings[j].meetingID).indexOf(meetings.currentMeetings[i].id) != -1 && BBBMeetings[j].participantCount != "0") {
                     meetings.currentMeetings[i].groupActive = true;
                 }
@@ -348,16 +344,16 @@
             if (meetingsInfo.returncode != 'SUCCESS')
                 meetings.currentMeetings[i].unreachableServer = "true";
 
-            //if joinable set the joinableMode
+            // If joinable set the joinableMode.
             meetings.currentMeetings[i].joinableMode = "nojoinable";
-            if( meetings.currentMeetings[i].joinable ){
-                if( meetings.currentMeetings[i].unreachableServer == null ){
+            if (meetings.currentMeetings[i].joinable) {
+                if (meetings.currentMeetings[i].unreachableServer == null) {
                     meetings.currentMeetings[i].joinableMode = "";
-                } else if( meetings.currentMeetings[i].unreachableServer == "false" ){
+                } else if (meetings.currentMeetings[i].unreachableServer == "false") {
                     meetings.currentMeetings[i].joinableMode = "available";
-                    if ( meetings.currentMeetings[i].hasBeenForciblyEnded == "true" ) {
+                    if (meetings.currentMeetings[i].hasBeenForciblyEnded == "true") {
                         meetings.currentMeetings[i].joinableMode = "unavailable";
-                    } else if ( meetings.currentMeetings[i].running ) {
+                    } else if (meetings.currentMeetings[i].running) {
                         meetings.currentMeetings[i].joinableMode = "inprogress";
                     }
                 } else {
@@ -365,26 +361,26 @@
                 }
             }
 
-            // Update status in the view
-            var statusClass = meetings.currentMeetings[i].joinable ? 'status_joinable_' + meetings.currentMeetings[i].joinableMode: (meetings.currentMeetings[i].notStarted ? 'status_notstarted' : 'status_finished')
-            var statusText = meetings.currentMeetings[i].joinable ? (meetings.currentMeetings[i].joinableMode == 'available'? bbb_status_joinable_available: meetings.currentMeetings[i].joinableMode == 'inprogress'? bbb_status_joinable_inprogress: meetings.currentMeetings[i].joinableMode == 'unavailable'? bbb_status_joinable_unavailable: meetings.currentMeetings[i].joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (meetings.currentMeetings[i].notStarted ? bbb_status_notstarted : bbb_status_finished);
-            //if status is 'available', but a group is active, set status to 'inprogress'
-            if(statusText === bbb_status_joinable_available && meetings.currentMeetings[i].groupActive)
+            // Update status in the view.
+            var statusClass = meetings.currentMeetings[i].joinable ? 'status_joinable_' + meetings.currentMeetings[i].joinableMode : (meetings.currentMeetings[i].notStarted ? 'status_notstarted' : 'status_finished')
+            var statusText = meetings.currentMeetings[i].joinable ? (meetings.currentMeetings[i].joinableMode == 'available' ? bbb_status_joinable_available : meetings.currentMeetings[i].joinableMode == 'inprogress' ? bbb_status_joinable_inprogress : meetings.currentMeetings[i].joinableMode == 'unavailable' ? bbb_status_joinable_unavailable : meetings.currentMeetings[i].joinableMode == 'unreachable' ? bbb_status_joinable_unreachable : '') : (meetings.currentMeetings[i].notStarted ? bbb_status_notstarted : bbb_status_finished);
+            // If status is 'available', but a group is active, set status to 'inprogress'.
+            if (statusText === bbb_status_joinable_available && meetings.currentMeetings[i].groupActive)
                 statusText = bbb_status_joinable_inprogress;
-            $('#meeting_status_'+meetings.currentMeetings[i].id).toggleClass(statusClass).html(statusText);
-            // If meeting can be ended, update end action link in the view
-            if( meetings.currentMeetings[i].canEnd ){
+            $('#meeting_status_' + meetings.currentMeetings[i].id).toggleClass(statusClass).html(statusText);
+            // If meeting can be ended, update end action link in the view.
+            if (meetings.currentMeetings[i].canEnd) {
                 var end_meetingClass = "bbb_end_meeting_hidden";
                 var end_meetingText = "";
-                if( meetings.currentMeetings[i].groupActive || (meetings.currentMeetings[i].joinable && meetings.currentMeetings[i].joinableMode == 'inprogress') ){
+                if (meetings.currentMeetings[i].groupActive || (meetings.currentMeetings[i].joinable && meetings.currentMeetings[i].joinableMode == 'inprogress')) {
                     end_meetingClass = "bbb_end_meeting_shown";
-                    if(meetings.currentMeetings[i].groupSessions){
-                        end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                    if (meetings.currentMeetings[i].groupSessions) {
+                        end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "', " + undefined + ", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                     } else {
                         end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meetings.currentMeetings[i].name) + "','" + meetings.currentMeetings[i].id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                     }
                 }
-                $('#end_meeting_'+meetings.currentMeetings[i].id).toggleClass(end_meetingClass).html(end_meetingText);
+                $('#end_meeting_' + meetings.currentMeetings[i].id).toggleClass(end_meetingClass).html(end_meetingText);
             }
         }
     }
@@ -400,14 +396,14 @@
         meeting.moderatorCount = 0;
         meeting.unreachableServer = "false";
 
-        if ( meetingInfo != null && meetingInfo.returncode != null) {
-            if ( meetingInfo.returncode != 'FAILED' ) {
+        if (meetingInfo != null && meetingInfo.returncode != null) {
+            if (meetingInfo.returncode != 'FAILED') {
                 meeting.attendees = meetingInfo.attendees;
                 meeting.hasBeenForciblyEnded = meetingInfo.hasBeenForciblyEnded;
                 meeting.participantCount = meetingInfo.participantCount;
                 meeting.moderatorCount = meetingInfo.moderatorCount;
                 meeting.running = meetingInfo.running;
-            } else if (meetingInfo.messageKey != 'notFound'){
+            } else if (meetingInfo.messageKey != 'notFound') {
                 // Different errors can be handled here.
                 meeting.unreachableServer = "true";
             }
@@ -416,204 +412,204 @@
         }
     };
 
-	meetings.utils.setRecordingPermissionParams = function (recording) {
+    meetings.utils.setRecordingPermissionParams = function (recording) {
         // Specific recording permissions.
         var offset = meetings.settings.config.serverTimeInDefaultTimezone.timezoneOffset;
-        recording.timezoneOffset = "GMT" + (offset > 0? "+": "") +(offset/3600000);
-        if(meetings.currentUser.id === recording.ownerId) {
+        recording.timezoneOffset = "GMT" + (offset > 0 ? "+" : "") + (offset / 3600000);
+        if (meetings.currentUser.id === recording.ownerId) {
             recording.canEdit = meetings.userPerms.bbbRecordingEditOwn || meetings.userPerms.bbbRecordingEditAny;
             recording.canDelete = meetings.userPerms.bbbRecordingDeleteOwn || meetings.userPerms.bbbRecordingDeleteAny;
             recording.canViewExtendedFormats = meetings.userPerms.bbbRecordingExtendedFormatsOwn || meetings.userPerms.bbbRecordingExtendedFormatsAny;
-        }else{
+        } else {
             recording.canEdit = meetings.userPerms.bbbRecordingEditAny;
             recording.canDelete = meetings.userPerms.bbbRecordingDeleteAny;
             recording.canViewExtendedFormats = meetings.userPerms.bbbRecordingExtendedFormatsAny;
         }
-	};
+    };
 
-	meetings.utils.setMeetingPermissionParams = function (meeting) {
-		// Joinable only if on specified date interval (if any).
+    meetings.utils.setMeetingPermissionParams = function (meeting) {
+        // Joinable only if on specified date interval (if any).
+        var serverTimeStamp = parseInt(meetings.settings.config.serverTimeInDefaultTimezone.timestamp);
+        serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000);
 
-		var serverTimeStamp = parseInt(meetings.settings.config.serverTimeInDefaultTimezone.timestamp);
-		serverTimeStamp = (serverTimeStamp - serverTimeStamp % 1000);
-
-		var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
+        var startOk = !meeting.startDate || meeting.startDate == 0 || serverTimeStamp >= meeting.startDate;
         var endOk = !meeting.endDate || meeting.endDate == 0 || serverTimeStamp < meeting.endDate;
 
         meeting.notStarted = !startOk && endOk;
         meeting.finished = startOk && !endOk;
         meeting.joinable = startOk && endOk;
 
-        // specific meeting permissions
-        if(meetings.currentUser.id === meeting.ownerId) {
+        // Specific meeting permissions.
+        if (meetings.currentUser.id === meeting.ownerId) {
             meeting.canEdit = meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny;
             meeting.canEnd = (meetings.userPerms.bbbEditOwn || meetings.userPerms.bbbEditAny) && (meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny);
             meeting.canDelete = meetings.userPerms.bbbDeleteOwn || meetings.userPerms.bbbDeleteAny;
-        }else{
+        } else {
             meeting.canEdit = meetings.userPerms.bbbEditAny;
             meeting.canEnd = meetings.userPerms.bbbEditAny && meetings.userPerms.bbbDeleteAny;
             meeting.canDelete = meetings.userPerms.bbbDeleteAny;
         }
-	};
+    };
 
-	meetings.utils.setMeetingJoinableModeParams = function (meeting) {
+    meetings.utils.setMeetingJoinableModeParams = function (meeting) {
 
-	    //if joinable set the joinableMode
-		meeting.joinableMode = "nojoinable";
-		if( meeting.joinable ){
-		    if( meeting.unreachableServer == null ){
-		        meeting.joinableMode = "";
-		    } else if( meeting.unreachableServer == "false" ){
-				meeting.joinableMode = "available";
+        // If joinable set the joinableMode.
+        meeting.joinableMode = "nojoinable";
+        if (meeting.joinable) {
+            if (meeting.unreachableServer == null) {
+                meeting.joinableMode = "";
+            } else if (meeting.unreachableServer == "false") {
+                meeting.joinableMode = "available";
                 $('#meetingStatus').show();
-				if ( meeting.hasBeenForciblyEnded == "true" ) {
-					meeting.joinableMode = "unavailable";
+                if (meeting.hasBeenForciblyEnded == "true") {
+                    meeting.joinableMode = "unavailable";
                     $('#meetingStatus').hide();
-				} else if ( meeting.running ) {
-					meeting.joinableMode = "inprogress";
+                } else if (meeting.running) {
+                    meeting.joinableMode = "inprogress";
                     if (!meeting.canEnd && (!meeting.multipleSessionsAllowed || !meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) && meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting))
                         $('#meetingStatus').hide();
-				}
-			} else {
-				meeting.joinableMode = "unreachable";
-			}
-		}
+                }
+            } else {
+                meeting.joinableMode = "unreachable";
+            }
+        }
 
-        // Update status in the view
-		var statusClass = meeting.joinable ? 'status_joinable_' + meeting.joinableMode: (meeting.notStarted ? 'status_notstarted' : 'status_finished')
-        var statusText = meeting.joinable ? (meeting.joinableMode == 'available'? bbb_status_joinable_available: meeting.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: meeting.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: meeting.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (meeting.notStarted ? bbb_status_notstarted : bbb_status_finished);
-        $('#meeting_status_'+meeting.id).toggleClass(statusClass).html(statusText);
-        // If meeting can be ended, update end action link in the view
-        if( meeting.canEnd ){
+        // Update status in the view.
+        var statusClass = meeting.joinable ? 'status_joinable_' + meeting.joinableMode : (meeting.notStarted ? 'status_notstarted' : 'status_finished')
+        var statusText = meeting.joinable ? (meeting.joinableMode == 'available' ? bbb_status_joinable_available : meeting.joinableMode == 'inprogress' ? bbb_status_joinable_inprogress : meeting.joinableMode == 'unavailable' ? bbb_status_joinable_unavailable : meeting.joinableMode == 'unreachable' ? bbb_status_joinable_unreachable : '') : (meeting.notStarted ? bbb_status_notstarted : bbb_status_finished);
+        $('#meeting_status_' + meeting.id).toggleClass(statusClass).html(statusText);
+        // If meeting can be ended, update end action link in the view.
+        if (meeting.canEnd) {
             var end_meetingClass = "bbb_end_meeting_hidden";
             var end_meetingText = "";
-            if( meeting.joinable && meeting.joinableMode == 'inprogress' ){
+            if (meeting.joinable && meeting.joinableMode == 'inprogress') {
                 end_meetingClass = "bbb_end_meeting_shown";
-                if(meeting.groupSessions){
-                    end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "', "+undefined+", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
+                if (meeting.groupSessions) {
+                    end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "', " + undefined + ", true);\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                 } else {
                     end_meetingText = "&nbsp;|&nbsp;&nbsp;" + "<a href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\">" + bbb_action_end_meeting + "</a>";
                 }
             }
-            $('#end_meeting_'+meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
+            $('#end_meeting_' + meeting.id).toggleClass(end_meetingClass).html(end_meetingText);
         }
-	};
+    };
 
-	// End the specified meeting. The name parameter is required for the confirm
-	// dialog
-	meetings.utils.endMeeting = function (name, meetingID, groupID, endAll) {
+    // End the specified meeting. The name parameter is required for the confirm dialog.
+    meetings.utils.endMeeting = function (name, meetingID, groupID, endAll) {
         var question;
-        if(endAll){
+        if (endAll) {
             question = bbb_action_end_all_meeting_question(unescape(name));
         } else {
-		    question = bbb_action_end_meeting_question(unescape(name));
+            question = bbb_action_end_meeting_question(unescape(name));
         }
-		if(!confirm(question)) return;
+        if (!confirm(question)) return;
 
-	    var groupId = groupID ? "&groupId=" + groupID : "";
+        var groupId = groupID ? "&groupId=" + groupID : "";
         var endAllMeetings = endAll ? "&endAll=true" : "";
-		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + groupId + endAllMeetings,
-			dataType:'text',
-			type:"GET",
-		   	success : function (result) {
+        jQuery.ajax({
+            url: "/direct/bbb-tool/endMeeting?meetingID=" + meetingID + groupId + endAllMeetings,
+            dataType: 'text',
+            type: "GET",
+            success: function (result) {
                 meetings.utils.checkOneMeetingAvailability(meetingID, groupID);
             },
-			error : function (xmlHttpRequest,status,error) {
+            error: function (xmlHttpRequest, status, error) {
                 var msg = bbb_err_end_meeting(name);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-	};
+            }
+        });
+    };
 
-	// Delete the specified meeting. The name parameter is required for the confirm
-	// dialog
-	meetings.utils.deleteMeeting = function (name,meetingId) {
+    // Delete the specified meeting. The name parameter is required for the confirm dialog.
+    meetings.utils.deleteMeeting = function (name, meetingId) {
 
-		var question = bbb_action_delete_meeting_question(unescape(name));
+        var question = bbb_action_delete_meeting_question(unescape(name));
 
-		if(!confirm(question)) return;
+        if (!confirm(question)) return;
 
-		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/" + meetingId,
-			dataType:'text',
-			type:"DELETE",
-		   	success : function (result) {
-				// Remove the meeting from the cached meeting array
-				for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
-					if(meetingId === meetings.currentMeetings[i].id) {
-						meetings.currentMeetings.splice(i,1);
+        jQuery.ajax({
+            url: "/direct/bbb-tool/" + meetingId,
+            dataType: 'text',
+            type: "DELETE",
+            success: function (result) {
+                // Remove the meeting from the cached meeting array.
+                for (var i = 0, j = meetings.currentMeetings.length; i < j; i++) {
+                    if (meetingId === meetings.currentMeetings[i].id) {
+                        meetings.currentMeetings.splice(i, 1);
                         break;
-					}
-				}
+                    }
+                }
 
-				meetings.switchState('currentMeetings');
-			},
-			error : function (xmlHttpRequest,status,error) {
+                meetings.switchState('currentMeetings');
+            },
+            error: function (xmlHttpRequest, status, error) {
                 var msg = bbb_err_end_meeting(name);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-	};
+            }
+        });
+    };
 
-	// Delete the specified recording from the BigBlueButton server. The name parameter is required for the confirm
-	// dialog
-	meetings.utils.deleteRecordings = function (meetingID, recordID, stateFunction, confirmationMsg) {
+    // Delete the specified recording from the BigBlueButton server. The name parameter is required for the confirm dialog.
+    meetings.utils.deleteRecordings = function (meetingID, recordID, stateFunction, confirmationMsg) {
 
-		var question = bbb_action_delete_recording_question(unescape(confirmationMsg));
+        var question = bbb_action_delete_recording_question(unescape(confirmationMsg));
 
-		if(!confirm(question)) return;
+        if (!confirm(question)) return;
 
-		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/deleteRecordings?meetingID=" + meetingID + "&recordID=" + recordID,
-			dataType:'text',
-			type:"GET",
-		   	success : function (result) {
-				if(stateFunction == 'recordings')
-					meetings.switchState('recordings');
-				else
-					meetings.switchState('recordings_meeting',{'meetingId':meetingID});
-			},
-			error : function (xmlHttpRequest,status,error) {
-                	var msg = bbb_err_delete_recording(recordID);
-                meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-	};
-
-	// Publish the specified recording from the BigBlueButton server.
-	meetings.utils.publishRecordings = function (meetingID, recordID, stateFunction) {
-		meetings.utils.setRecordings(meetingID, recordID, "true", stateFunction);
-	};
-
-	// Unpublish the specified recording from the BigBlueButton server.
-	meetings.utils.unpublishRecordings = function (meetingID, recordID, stateFunction) {
-		meetings.utils.setRecordings(meetingID, recordID, "false", stateFunction);
-
-	};
-
-	// Publish the specified recording from the BigBlueButton server.
-	meetings.utils.setRecordings = function (meetingID, recordID, action, stateFunction) {
-
-		jQuery.ajax( {
-	 		url : "/direct/bbb-tool/publishRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&publish=" + action,
-			dataType:'text',
-			type: "GET",
-		   	success : function (result) {
-				if(stateFunction == 'recordings')
-					meetings.switchState('recordings');
-				else
-					meetings.switchState('recordings_meeting',{'meetingId':meetingID});
-			},
-			error : function (xmlHttpRequest,status,error) {
-				if( action == 'true' )
-                	var msg = bbb_err_publish_recording(recordID);
+        jQuery.ajax({
+            url: "/direct/bbb-tool/deleteRecordings?meetingID=" + meetingID + "&recordID=" + recordID,
+            dataType: 'text',
+            type: "GET",
+            success: function (result) {
+                if (stateFunction == 'recordings')
+                    meetings.switchState('recordings');
                 else
-                	var msg = bbb_err_unpublish_recording(recordID);
+                    meetings.switchState('recordings_meeting', {
+                        'meetingId': meetingID
+                    });
+            },
+            error: function (xmlHttpRequest, status, error) {
+                var msg = bbb_err_delete_recording(recordID);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
-			}
-	  	});
-	};
+            }
+        });
+    };
+
+    // Publish the specified recording from the BigBlueButton server.
+    meetings.utils.publishRecordings = function (meetingID, recordID, stateFunction) {
+        meetings.utils.setRecordings(meetingID, recordID, "true", stateFunction);
+    };
+
+    // Unpublish the specified recording from the BigBlueButton server.
+    meetings.utils.unpublishRecordings = function (meetingID, recordID, stateFunction) {
+        meetings.utils.setRecordings(meetingID, recordID, "false", stateFunction);
+
+    };
+
+    // Publish the specified recording from the BigBlueButton server.
+    meetings.utils.setRecordings = function (meetingID, recordID, action, stateFunction) {
+
+        jQuery.ajax({
+            url: "/direct/bbb-tool/publishRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&publish=" + action,
+            dataType: 'text',
+            type: "GET",
+            success: function (result) {
+                if (stateFunction == 'recordings')
+                    meetings.switchState('recordings');
+                else
+                    meetings.switchState('recordings_meeting', {
+                        'meetingId': meetingID
+                    });
+            },
+            error: function (xmlHttpRequest, status, error) {
+                if (action == 'true')
+                    var msg = bbb_err_publish_recording(recordID);
+                else
+                    var msg = bbb_err_unpublish_recording(recordID);
+                meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            }
+        });
+    };
 
     meetings.utils.protectRecordings = function (meetingID, recordID, stateFunction) {
         meetings.utils.updateRecordings(meetingID, recordID, "true", stateFunction);
@@ -624,41 +620,42 @@
     }
 
     // Protect the specified recording from the BigBlueButton server.
-	meetings.utils.updateRecordings = function (meetingID, recordID, action, stateFunction) {
+    meetings.utils.updateRecordings = function (meetingID, recordID, action, stateFunction) {
 
         jQuery.ajax({
-            url : "/direct/bbb-tool/protectRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&protect=" + action,
-            dataType:'text',
+            url: "/direct/bbb-tool/protectRecordings?meetingID=" + meetingID + "&recordID=" + recordID + "&protect=" + action,
+            dataType: 'text',
             type: "GET",
-            success : function (result) {
-                if(stateFunction == 'recordings')
+            success: function (result) {
+                if (stateFunction == 'recordings')
                     meetings.switchState('recordings');
                 else
-                    meetings.switchState('recordings_meeting',{'meetingID':meetingID});
+                    meetings.switchState('recordings_meeting', {
+                        'meetingID': meetingID
+                    });
             },
-            error : function (xmlHttpRequest,status,error) {
-                if( action == 'true' )
+            error: function (xmlHttpRequest, status, error) {
+                if (action == 'true')
                     var msg = bbb_err_protect_recording(recordID);
                 else
                     var msg = bbb_err_unprotect_recording(recordID);
                 meetings.utils.handleError(msg, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
-	};
+    };
 
-    //Get meetings from BBB server
+    // Get meetings from BBB server.
     meetings.utils.getMeetings = function () {
         var meetingsInfo;
-        jQuery.ajax( {
+        jQuery.ajax({
             url: "/direct/bbb-tool/getMeetings.json",
-            dataType : "json",
-            success : function (data) {
-            },
-            error : function (xmlHttpRequest,status,error) {
+            dataType: "json",
+            success: function (data) {},
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
             },
-            complete : function (xmlHttpRequest,status) {
-                if( xmlHttpRequest.responseText == null )
+            complete: function (xmlHttpRequest, status) {
+                if (xmlHttpRequest.responseText == null)
                     meetingsInfo = {};
                 else
                     meetingsInfo = JSON.parse(xmlHttpRequest.responseText);
@@ -667,115 +664,115 @@
         });
     }
 
-    // Get meeting info from BBB server
+    // Get meeting info from BBB server.
     meetings.utils.getMeetingInfo = function (meetingId, groupId, asynch) {
         var groupID = groupId ? "?groupId=" + groupId : "";
-    	var meetingInfo = null;
+        var meetingInfo = null;
         if (typeof asynch == 'undefined') asynch = true;
-        jQuery.ajax( {
+        jQuery.ajax({
             url: "/direct/bbb-tool/" + meetingId + "/getMeetingInfo.json" + groupID,
-            dataType : "json",
-            async : asynch,
-            success : function (data) {
+            dataType: "json",
+            async: asynch,
+            success: function (data) {
                 meetingInfo = data;
             },
-            error : function (xmlHttpRequest,status,error) {
-            	meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            error: function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
                 return null;
             }
         });
         return meetingInfo;
     };
 
-    // Get site recordings from BBB server
+    // Get site recordings from BBB server.
     meetings.utils.getSiteRecordingList = function (siteId) {
 
-    	if (siteId == null) siteId = "";
+        if (siteId == null) siteId = "";
 
-    	var response = Object();
-        jQuery.ajax( {
+        var response = Object();
+        jQuery.ajax({
             url: "/direct/bbb-tool/getSiteRecordings.json?siteId=" + siteId,
-            dataType : "json",
-            async : false,
-            success : function (data) {
-        		response = data;
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                response = data;
             },
-            error : function (xmlHttpRequest,status,error) {
-            	meetings.utils.handleError(bbb_err_get_recording, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            error: function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_get_recording, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
         return response;
     };
 
-    // Get meeting recordings from BBB server
+    // Get meeting recordings from BBB server.
     meetings.utils.getMeetingRecordingList = function (meetingId, groupId) {
 
-    	if (meetingId == null) meetingId = "";
+        if (meetingId == null) meetingId = "";
 
         var groupID = groupId ? "?groupId=" + groupId : "";
 
-    	var response = Object();
-        jQuery.ajax( {
+        var response = Object();
+        jQuery.ajax({
             url: "/direct/bbb-tool/" + meetingId + "/getRecordings.json" + groupID,
-            dataType : "json",
-            async : false,
-            success : function (data) {
-    			response = data;
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                response = data;
             },
-            error : function (xmlHttpRequest,status,error) {
-            	meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
+            error: function (xmlHttpRequest, status, error) {
+                meetings.utils.handleError(bbb_err_get_meeting, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
         return response;
     };
 
-    // Log an event indicating user is joining meeting
+    // Log an event indicating user is joining meeting.
     meetings.utils.joinMeeting = function (meetingId, linkSelector, multipleSessionsAllowed, groupId, groupTitle) {
 
         var nonce = new Date().getTime();
-        var url = "/direct/bbb-tool/" + meetingId +"/joinMeeting?nonce=" + nonce;
+        var url = "/direct/bbb-tool/" + meetingId + "/joinMeeting?nonce=" + nonce;
         url += groupId ? "&groupId=" + groupId : "";
         url += groupTitle ? "&groupTitle=" + groupTitle : "";
         meetings.utils.hideMessage();
-        if(linkSelector) {
+        if (linkSelector) {
             $(linkSelector).attr('href', url);
-            if( !multipleSessionsAllowed ) {
+            if (!multipleSessionsAllowed) {
                 $('#meeting_joinlink_' + meetingId).hide();
                 $('#meetingStatus').hide();
             }
-            //After joining stop requesting periodic updates
+            //.After joining stop requesting periodic updates.
             clearInterval(meetings.checkOneMeetingAvailabilityId);
             clearInterval(meetings.checkRecordingAvailabilityId);
 
-            //After joining execute requesting updates only once
-            var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0? meetings.settings.config.autorefreshInterval.meetings: 15000;
+            // After joining execute requesting updates only once.
+            var onceAutorefreshInterval = meetings.settings.config.autorefreshInterval.meetings > 0 ? meetings.settings.config.autorefreshInterval.meetings : 15000;
             var groupID = groupId ? ", '" + groupId + "'" : "";
-            meetings.updateMeetingOnceTimeoutId = setTimeout( "meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + groupID + ")", onceAutorefreshInterval);
+            meetings.updateMeetingOnceTimeoutId = setTimeout("meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + groupID + ")", onceAutorefreshInterval);
         }
         return true;
     };
 
-    // Check if a user is already logged on a meeting
+    // Check if a user is already logged on a meeting.
     meetings.utils.isUserInMeeting = function (userName, meeting) {
 
-		for(var p=0; p<meeting.attendees.length; p++) {
-			if(meetings.currentUser.displayName === meeting.attendees[p].fullName) {
-				return true;
-			}
-		}
-		return false;
+        for (var p = 0; p < meeting.attendees.length; p++) {
+            if (meetings.currentUser.displayName === meeting.attendees[p].fullName) {
+                return true;
+            }
+        }
+        return false;
     };
 
-    // Check ONE meetings availability and update meeting details page if appropriate
+    // Check ONE meetings availability and update meeting details page if appropriate.
     meetings.utils.checkOneMeetingAvailability = function (meetingId, groupId) {
 
-        if(typeof(groupId)==='undefined'){
-            for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
-                if( meetings.currentMeetings[i].id == meetingId ) {
+        if (typeof (groupId) === 'undefined') {
+            for (var i = 0, j = meetings.currentMeetings.length; i < j; i++) {
+                if (meetings.currentMeetings[i].id == meetingId) {
                     meetings.utils.setMeetingInfo(meetings.currentMeetings[i], false);
                     meetings.utils.checkMeetingAvailability(meetings.currentMeetings[i]);
                     meetings.updateMeetingInfo(meetings.currentMeetings[i]);
-                    $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+meetings.currentMeetings[i].name+"', '"+meetings.currentMeetings[i].id+"');");
+                    $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('" + meetings.currentMeetings[i].name + "', '" + meetings.currentMeetings[i].id + "');");
                     return;
                 }
             }
@@ -784,16 +781,16 @@
             meetings.utils.setMeetingInfo(currentMeeting, false, groupId);
             meetings.utils.checkMeetingAvailability(currentMeeting);
             meetings.updateMeetingInfo(currentMeeting);
-            $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('"+currentMeeting.name+"','"+currentMeeting.id+"', '"+groupId+"');");
+            $("#end_session_link").attr("onclick", "return meetings.utils.endMeeting('" + currentMeeting.name + "','" + currentMeeting.id + "', '" + groupId + "');");
             return;
         }
     };
 
-    // Check ALL meetings availability and update meeting details page if appropriate
+    // Check ALL meetings availability and update meeting details page if appropriate.
     meetings.utils.checkAllMeetingAvailability = function () {
 
-        for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
-            if( !meetings.currentMeetings[i].joinable ) {
+        for (var i = 0, j = meetings.currentMeetings.length; i < j; i++) {
+            if (!meetings.currentMeetings[i].joinable) {
                 meetings.utils.setMeetingInfo(meetings.currentMeetings[i]);
             }
             meetings.utils.setMeetingJoinableModeParams(meetings.currentMeetings[i]);
@@ -801,168 +798,168 @@
         }
     };
 
-    // Check specific meeting availability and update meeting details page if appropriate
+    // Check specific meeting availability and update meeting details page if appropriate.
     meetings.utils.checkMeetingAvailability = function (meeting) {
 
-        if(meeting.joinable) {
-            if ( meeting.joinableMode === "available" ){
-                if( meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled ) {
-                    $('#meeting_joinlink_'+meeting.id).show();
+        if (meeting.joinable) {
+            if (meeting.joinableMode === "available") {
+                if (meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) {
+                    $('#meeting_joinlink_' + meeting.id).show();
                 } else {
-                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
-                        $('#meeting_joinlink_'+meeting.id).show();
+                    if (!meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting)) {
+                        $('#meeting_joinlink_' + meeting.id).show();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).hide();
+                        $('#meeting_joinlink_' + meeting.id).hide();
                     }
                 }
-                // Update the actionbar on the list
-                if ( meeting.canEnd ){
-                    $('#end_meeting_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_hidden');
-                    $('#end_meeting_intermediate_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_hidden');
+                // Update the actionbar on the list.
+                if (meeting.canEnd) {
+                    $('#end_meeting_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_hidden');
                 }
-                // Update for list
-                $('#meeting_status_'+meeting.id)
-                   .removeClass()
-                   .addClass('status_joinable_available')
-                   .text(bbb_status_joinable_available);
-                // Update for detail
-                $('#meeting_status_joinable_'+meeting.id)
+                // Update for list.
+                $('#meeting_status_' + meeting.id)
                     .removeClass()
                     .addClass('status_joinable_available')
                     .text(bbb_status_joinable_available);
-            } else if ( meeting.joinableMode === "inprogress" ){
+                // Update for detail.
+                $('#meeting_status_joinable_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_available')
+                    .text(bbb_status_joinable_available);
+            } else if (meeting.joinableMode === "inprogress") {
                 var end_meetingTextIntermediate = "&nbsp;|&nbsp;&nbsp;<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>&nbsp;<span><i class=\"fa fa-stop\"></i></span>";
-                if( meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled ) {
-                    $('#meeting_joinlink_'+meeting.id).show();
+                if (meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled) {
+                    $('#meeting_joinlink_' + meeting.id).show();
                 } else {
-                    if( !meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting) ) {
-                        $('#meeting_joinlink_'+meeting.id).show();
+                    if (!meetings.utils.isUserInMeeting(meetings.currentUser.displayName, meeting)) {
+                        $('#meeting_joinlink_' + meeting.id).show();
                     } else {
-                        $('#meeting_joinlink_'+meeting.id).hide();
+                        $('#meeting_joinlink_' + meeting.id).hide();
                         end_meetingTextIntermediate = "<a id=\"end_session_link\" href=\"javascript:;\" onclick=\"return meetings.utils.endMeeting('" + escape(meeting.name) + "','" + meeting.id + "');\" title=\"" + bbb_action_end_meeting_tooltip + "\" style=\"font-weight:bold\">" + bbb_action_end_meeting + "</a>&nbsp;<span><i class=\"fa fa-stop\"></i></span>";
                     }
                 }
-                $('#end_meeting_intermediate_'+meeting.id).toggleClass("bbb_end_meeting_shown").html(end_meetingTextIntermediate);
+                $('#end_meeting_intermediate_' + meeting.id).toggleClass("bbb_end_meeting_shown").html(end_meetingTextIntermediate);
 
-                // Update the actionbar on the list
-                if ( meeting.canEnd ){
-                    $('#end_meeting_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_shown');
-                    $('#end_meeting_intermediate_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_shown');
+                // Update the actionbar on the list.
+                if (meeting.canEnd) {
+                    $('#end_meeting_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_shown');
+                    $('#end_meeting_intermediate_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_shown');
                 }
-                // Update for list
-                $('#meeting_status_'+meeting.id)
-                   .removeClass()
-                   .addClass('status_joinable_inprogress')
-                   .text(bbb_status_joinable_inprogress);
-                // Update for detail
-                $('#meeting_status_joinable_'+meeting.id)
-                	.removeClass()
-                	.addClass('status_joinable_inprogress')
-                	.text(bbb_status_joinable_inprogress);
+                // Update for list.
+                $('#meeting_status_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_inprogress')
+                    .text(bbb_status_joinable_inprogress);
+                // Update for detail.
+                $('#meeting_status_joinable_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_inprogress')
+                    .text(bbb_status_joinable_inprogress);
 
-        	} else if ( meeting.joinableMode === "unavailable" ){
-                $('#meeting_joinlink_'+meeting.id).fadeOut();
-                // Update the actionbar on the list
-                if ( meeting.canEnd ){
-                    $('#end_meeting_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_hidden');
-                    $('#end_meeting_intermediate_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_hidden');
+            } else if (meeting.joinableMode === "unavailable") {
+                $('#meeting_joinlink_' + meeting.id).fadeOut();
+                // Update the actionbar on the list.
+                if (meeting.canEnd) {
+                    $('#end_meeting_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_hidden');
                 }
-                // Update for list
-                $('#meeting_status_'+meeting.id)
-                   .removeClass()
-                   .addClass('status_joinable_unavailable')
-                   .text(bbb_status_joinable_unavailable);
-                // Update for detail
-                $('#meeting_status_joinable_'+meeting.id)
-                	.removeClass()
-                	.addClass('status_joinable_unavailable')
-                	.text(bbb_status_joinable_unavailable);
+                // Update for list.
+                $('#meeting_status_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_unavailable')
+                    .text(bbb_status_joinable_unavailable);
+                // Update for detail.
+                $('#meeting_status_joinable_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_unavailable')
+                    .text(bbb_status_joinable_unavailable);
 
-    			$('#bbb_meeting_info_participants_count').html('0');
-    		    $('#bbb_meeting_info_participants_count_tr').fadeOut();
+                $('#bbb_meeting_info_participants_count').html('0');
+                $('#bbb_meeting_info_participants_count_tr').fadeOut();
                 $('#bbb_meeting_info_participants_count_tr').hide();
 
-        	} else if ( meeting.joinableMode === "unreachable" ){
-                $('#meeting_joinlink_'+meeting.id).fadeOut();
-                // Update the actionbar on the list
-                if ( meeting.canEnd ){
-                    $('#end_meeting_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_hidden');
-                    $('#end_meeting_intermediate_'+meeting.id)
-                    .removeClass()
-                    .addClass('bbb_end_meeting_hidden');
+            } else if (meeting.joinableMode === "unreachable") {
+                $('#meeting_joinlink_' + meeting.id).fadeOut();
+                // Update the actionbar on the list.
+                if (meeting.canEnd) {
+                    $('#end_meeting_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_hidden');
+                    $('#end_meeting_intermediate_' + meeting.id)
+                        .removeClass()
+                        .addClass('bbb_end_meeting_hidden');
                 }
-                // Update for list
-                $('#meeting_status_'+meeting.id)
-                   .removeClass()
-                   .addClass('status_joinable_unreachable')
-                   .text(bbb_status_joinable_unreachable);
-                // Update for detail
-                $('#meeting_status_joinable_'+meeting.id)
-                	.removeClass()
-                	.addClass('status_joinable_unreachable')
-                	.text(bbb_status_joinable_unreachable);
+                // Update for list.
+                $('#meeting_status_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_unreachable')
+                    .text(bbb_status_joinable_unreachable);
+                // Update for detail.
+                $('#meeting_status_joinable_' + meeting.id)
+                    .removeClass()
+                    .addClass('status_joinable_unreachable')
+                    .text(bbb_status_joinable_unreachable);
 
-    			$('#bbb_meeting_info_participants_count').html('0');
-    		    $('#bbb_meeting_info_participants_count_tr').fadeOut();
+                $('#bbb_meeting_info_participants_count').html('0');
+                $('#bbb_meeting_info_participants_count_tr').fadeOut();
                 $('#bbb_meeting_info_participants_count_tr').hide();
-        	}
-        } else if(meeting.notStarted) {
-            $('#meeting_joinlink_'+meeting.id).fadeOut();
-            $('#meeting_status_'+meeting.id)
-               .removeClass()
-               .addClass('status_notstarted')
-               .text(bbb_status_notstarted);
-        }else if(meeting.finished) {
-            $('#meeting_joinlink_'+meeting.id).fadeOut();
-            $('#meeting_status_'+meeting.id)
-               .removeClass()
-               .addClass('status_finished')
-               .text(bbb_status_finished);
+            }
+        } else if (meeting.notStarted) {
+            $('#meeting_joinlink_' + meeting.id).fadeOut();
+            $('#meeting_status_' + meeting.id)
+                .removeClass()
+                .addClass('status_notstarted')
+                .text(bbb_status_notstarted);
+        } else if (meeting.finished) {
+            $('#meeting_joinlink_' + meeting.id).fadeOut();
+            $('#meeting_status_' + meeting.id)
+                .removeClass()
+                .addClass('status_finished')
+                .text(bbb_status_finished);
 
         }
     };
 
-    // Check ONE recording availability and update recording details page if appropriate
+    // Check ONE recording availability and update recording details page if appropriate.
     meetings.utils.checkOneRecordingAvailability = function (meetingId) {
 
-    	for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
+        for (var i = 0, j = meetings.currentMeetings.length; i < j; i++) {
             var meeting = meetings.currentMeetings[i];
-    		if( meeting.id == meetingId )
-    			meetings.utils.checkRecordingAvailability(meeting);
-    	}
+            if (meeting.id == meetingId)
+                meetings.utils.checkRecordingAvailability(meeting);
+        }
     };
 
-    // Check ALL recording availability and update meeting details page if appropriate
+    // Check ALL recording availability and update meeting details page if appropriate.
     meetings.utils.checkAllRecordingAvailability = function () {
 
-    	for(var i=0,j=meetings.currentMeetings.length;i<j;i++) {
+        for (var i = 0, j = meetings.currentMeetings.length; i < j; i++) {
             meetings.utils.checkRecordingAvailability(meetings.currentMeetings[i]);
-    	}
+        }
     };
 
     meetings.utils.checkRecordingAvailability = function (meetingId, groupId) {
 
-		var recordings = meetings.utils.getMeetingRecordingList(meetingId, groupId).recordings;
-		if( recordings == null ){
+        var recordings = meetings.utils.getMeetingRecordingList(meetingId, groupId).recordings;
+        if (recordings == null) {
             meetings.utils.showMessage(bbb_err_get_recording, 'warning');
         } else {
-        	meetings.utils.hideMessage();
+            meetings.utils.hideMessage();
             var meetingRecordingEnabled = true;
-            for(var i=0; i<meetings.currentMeetings.length; i++){
+            for (var i = 0; i < meetings.currentMeetings.length; i++) {
                 if (meetings.currentMeetings[i].id === meetingId) {
                     meetingRecordingEnabled = meetings.currentMeetings[i].recording;
                 }
@@ -973,57 +970,57 @@
                 $('#meeting_recordings').show();
                 var htmlRecordings = "";
                 var groupID = groupId ? "', 'groupId':'" + groupId : "";
-                if(recordings.length > 0)
-                    htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\''+ meetingId + groupID +'\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
+                if (recordings.length > 0)
+                    htmlRecordings = '(<a href="javascript:;" onclick="return meetings.switchState(\'recordings_meeting\',{\'meetingId\':\'' + meetingId + groupID + '\'})" title="">' + bbb_meetinginfo_recordings(unescape(recordings.length)) + '</a>)&nbsp;&nbsp;';
                 else
                     htmlRecordings = "(" + bbb_meetinginfo_recordings(unescape(recordings.length)) + ")";
 
-                $('#recording_link_'+meetingId).html(htmlRecordings);
+                $('#recording_link_' + meetingId).html(htmlRecordings);
             }
         }
     };
 
-    // Get notice message to be displayed on the UI (first time access)
+    // Get notice message to be displayed on the UI (first time access).
     meetings.utils.addNotice = function () {
 
-        jQuery.ajax( {
+        jQuery.ajax({
             url: "/direct/bbb-tool/getNoticeText.json",
-            dataType : "json",
-            async : true,
-            success : function (notice) {
-                if(notice && notice.text) {
+            dataType: "json",
+            async: true,
+            success: function (notice) {
+                if (notice && notice.text) {
                     meetings.utils.showMessage(notice.text, notice.level);
                 }
             }
         });
     };
 
-    // Get the participant object associated with the current user
-	meetings.utils.getParticipantFromMeeting = function (meeting) {
+    // Get the participant object associated with the current user.
+    meetings.utils.getParticipantFromMeeting = function (meeting) {
 
-	    var userId = meetings.currentUser.id;
-        var role = meetings.currentUser.roles != null? meetings.currentUser.roles.role: null;
-		if(meeting && meeting.participants) {
-	        // 1. we want to first check individual user selection as it may
-	        // override all/group/role selection...
-            for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'user'
-                    && meeting.participants[i].selectionId == userId) {
+        var userId = meetings.currentUser.id;
+        var role = meetings.currentUser.roles != null ? meetings.currentUser.roles.role : null;
+        if (meeting && meeting.participants) {
+            // 1. we want to first check individual user selection as it may
+            // override all/group/role selection...
+            for (var i = 0; i < meeting.participants.length; i++) {
+                if (meeting.participants[i].selectionType == 'user' &&
+                    meeting.participants[i].selectionId == userId) {
                     return meeting.participants[i];
                 }
             }
 
             // 2. ... then with group/role selection types...
-            for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'role'
-                    && meeting.participants[i].selectionId == role) {
+            for (var i = 0; i < meeting.participants.length; i++) {
+                if (meeting.participants[i].selectionType == 'role' &&
+                    meeting.participants[i].selectionId == role) {
                     return meeting.participants[i];
                 }
             }
 
             // 3. ... then go with 'all' selection type
-            for(var i=0; i<meeting.participants.length; i++) {
-                if(meeting.participants[i].selectionType == 'all') {
+            for (var i = 0; i < meeting.participants.length; i++) {
+                if (meeting.participants[i].selectionType == 'all') {
                     return meeting.participants[i];
                 }
             }
@@ -1037,32 +1034,44 @@
             */
         }
         return null;
-	}
+    }
 
-    // Get user selection types
+    // Get user selection types.
     meetings.utils.getUserSelectionTypes = function () {
 
-    	var selTypes = {
-            all:    {id: 'all', title: bbb_seltype_all},
-            user:   {id: 'user', title: bbb_seltype_user},
-            group:  {id: 'group', title: bbb_seltype_group},
-            role:   {id: 'role', title: bbb_seltype_role}
-    	};
-    	return selTypes;
+        var selTypes = {
+            all: {
+                id: 'all',
+                title: bbb_seltype_all
+            },
+            user: {
+                id: 'user',
+                title: bbb_seltype_user
+            },
+            group: {
+                id: 'group',
+                title: bbb_seltype_group
+            },
+            role: {
+                id: 'role',
+                title: bbb_seltype_role
+            }
+        };
+        return selTypes;
     };
 
-	// Get user selection options from EB
+    // Get user selection options from EB.
     meetings.utils.getUserSelectionOptions = function () {
 
-        if(meetings.utils.bbbUserSelectionOptions == null) {
-            jQuery.ajax( {
-                url : "/direct/bbb-tool/getUserSelectionOptions.json?siteId=" + meetings.startupArgs.siteId,
-                dataType : "json",
-                async : false,
-                success : function (data) {
+        if (meetings.utils.bbbUserSelectionOptions == null) {
+            jQuery.ajax({
+                url: "/direct/bbb-tool/getUserSelectionOptions.json?siteId=" + meetings.startupArgs.siteId,
+                dataType: "json",
+                async: false,
+                success: function (data) {
                     meetings.utils.bbbUserSelectionOptions = data;
                 },
-                error : function (xmlHttpRequest,status,error) {
+                error: function (xmlHttpRequest, status, error) {
                     meetings.utils.handleError(bbb_err_user_sel_options, xmlHttpRequest.status, xmlHttpRequest.statusText);
                 }
             });
@@ -1071,26 +1080,28 @@
         return meetings.utils.bbbUserSelectionOptions;
     };
 
-    // Get the site permissions
+    // Get the site permissions.
     meetings.utils.getSitePermissions = function () {
         var perms = [];
-        jQuery.ajax( {
-            url : "/direct/site/" + meetings.startupArgs.siteId + "/perms/bbb.json",
-            dataType : "json",
-            async : false,
-            success : function (p) {
-                for(role in p.data) {
-                    var permSet = {'role':role};
+        jQuery.ajax({
+            url: "/direct/site/" + meetings.startupArgs.siteId + "/perms/bbb.json",
+            dataType: "json",
+            async: false,
+            success: function (p) {
+                for (role in p.data) {
+                    var permSet = {
+                        'role': role
+                    };
 
-                    for(var i=0,j=p.data[role].length;i<j;i++) {
-                        var perm = p.data[role][i].replace(/\./g,"_");
+                    for (var i = 0, j = p.data[role].length; i < j; i++) {
+                        var perm = p.data[role][i].replace(/\./g, "_");
                         eval("permSet." + perm + " = true");
                     }
 
                     perms.push(permSet);
                 }
             },
-            error : function (xmlHttpRequest,status,error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_get_permissions, xmlHttpRequest.status, xmlHttpRequest.statusText);
             }
         });
@@ -1098,59 +1109,59 @@
         return perms;
     }
 
-    // Set the site permissions
+    // Set the site permissions.
     meetings.utils.setSitePermissions = function (boxesSelector, successCallback, errorCallback) {
 
         var boxes = $(boxesSelector);
         var myData = {};
-        for(var i=0,j=boxes.length;i<j;i++) {
+        for (var i = 0, j = boxes.length; i < j; i++) {
             var box = boxes[i];
-            if(box.checked)
+            if (box.checked)
                 myData[box.id] = 'true';
             else
                 myData[box.id] = 'false';
         }
 
-        jQuery.ajax( {
-            url : "/direct/site/" + meetings.startupArgs.siteId + "/setPerms",
-            type : 'POST',
-            data : myData,
-            async : false,
+        jQuery.ajax({
+            url: "/direct/site/" + meetings.startupArgs.siteId + "/setPerms",
+            type: 'POST',
+            data: myData,
+            async: false,
             dataType: 'text',
-            success : function (data) {
-                if(successCallback) successCallback();
+            success: function (data) {
+                if (successCallback) successCallback();
             },
-            error : function (xmlHttpRequest,status,error) {
+            error: function (xmlHttpRequest, status, error) {
                 meetings.utils.handleError(bbb_err_set_permissions, xmlHttpRequest.status, xmlHttpRequest.statusText);
-                if(errorCallback) errorCallback();
+                if (errorCallback) errorCallback();
             }
         });
         return false;
     };
 
-	// Convenience function for rendering a trimpath template
-	meetings.utils.render = function (templateName, contextObject, output) {
+    // Convenience function for rendering a trimpath template.
+    meetings.utils.render = function (templateName, contextObject, output) {
 
-		contextObject._MODIFIERS = {};
-		var templateNode = document.getElementById(templateName);
-		var firstNode = templateNode.firstChild;
-		var template = '';
-		if ( firstNode && ( firstNode.nodeType === 8 || firstNode.nodeType === 4))
-  			template += templateNode.firstChild.data.toString();
-   	 	 else
-   			template += templateNode.innerHTML.toString();
+        contextObject._MODIFIERS = {};
+        var templateNode = document.getElementById(templateName);
+        var firstNode = templateNode.firstChild;
+        var template = '';
+        if (firstNode && (firstNode.nodeType === 8 || firstNode.nodeType === 4))
+            template += templateNode.firstChild.data.toString();
+        else
+            template += templateNode.innerHTML.toString();
 
-		var trimpathTemplate = TrimPath.parseTemplate(template,templateName);
+        var trimpathTemplate = TrimPath.parseTemplate(template, templateName);
 
-   		var render = trimpathTemplate.process(contextObject);
+        var render = trimpathTemplate.process(contextObject);
 
-		if (output)
-			document.getElementById(output).innerHTML = render;
+        if (output)
+            document.getElementById(output).innerHTML = render;
 
-		return render;
-	};
+        return render;
+    };
 
-    /** Setup defaults for Ajax */
+    // Setup defaults for Ajax.
     meetings.utils.setupAjax = function () {
 
         jQuery.ajaxSetup({
@@ -1159,150 +1170,151 @@
             timeout: 30000,
             complete: function (request, textStatus) {
                 try {
-                    if (request.status
-                            && request.status != 200 && request.status != 201
-                            && request.status != 204 && request.status != 404 && request.status != 1223){
+                    if (request.status &&
+                        request.status != 200 && request.status != 201 &&
+                        request.status != 204 && request.status != 404 && request.status != 1223) {
                         if (request.status == 403) {
                             meetings.utils.handleError(bbb_err_no_permissions, request.status, request.statusText);
-                        	$('#bbb_content').empty();
+                            $('#bbb_content').empty();
                         } else {
-                            // Handled by error() callbacks
+                            // Handled by error() callbacks.
                         }
-                   }
+                    }
                 } catch (e) {}
             }
         });
     };
 
-	/** Handle communication errors */
-	meetings.utils.handleError = function (message, statusCode, statusMessage) {
+    // Handle communication errors.
+    meetings.utils.handleError = function (message, statusCode, statusMessage) {
 
-		var severity = 'error';
-		var description = '';
-		if(statusCode || statusMessage) {
-			description += bbb_err_server_response + ': ';
-            if(statusMessage) description += statusMessage;
-            if(statusCode) description += ' ['+bbb_err_code+': ' + statusCode + ']';
-		}
-		if(message && (statusCode || statusMessage)) {
-		    meetings.utils.showMessage(description, severity, message);
-		}else if(message) {
-		    meetings.utils.showMessage(description, severity, message);
-		}else{
-			meetings.utils.showMessage(description, severity);
-		}
-	};
+        var severity = 'error';
+        var description = '';
+        if (statusCode || statusMessage) {
+            description += bbb_err_server_response + ': ';
+            if (statusMessage) description += statusMessage;
+            if (statusCode) description += ' [' + bbb_err_code + ': ' + statusCode + ']';
+        }
+        if (message && (statusCode || statusMessage)) {
+            meetings.utils.showMessage(description, severity, message);
+        } else if (message) {
+            meetings.utils.showMessage(description, severity, message);
+        } else {
+            meetings.utils.showMessage(description, severity);
+        }
+    };
 
-	/**
-	 * Render a message with a specific severity
-	 * @argument msgBod: The message to be displayed
-	 * @argument severity: Message severity [optional, defaults to 'information')
-	 * @argument msgTitle: Message title [optional, defaults to nothing]
-	 */
+    /**
+     * Render a message with a specific severity
+     * @argument msgBod: The message to be displayed
+     * @argument severity: Message severity [optional, defaults to 'information')
+     * @argument msgTitle: Message title [optional, defaults to nothing]
+     */
     meetings.utils.showMessage = function (msgBody, severity, msgTitle, hideMsgBody) {
 
-    	var useAlternateStyle = true;
-    	if(typeof hideMsgBody == 'undefined' && msgTitle && msgBody) hideMsgBody = true;
+        var useAlternateStyle = true;
+        if (typeof hideMsgBody == 'undefined' && msgTitle && msgBody) hideMsgBody = true;
 
-    	if( !meetings.errorLog[msgBody] ){
-			meetings.errorLog[msgBody] = true;
+        if (!meetings.errorLog[msgBody]) {
+            meetings.errorLog[msgBody] = true;
 
-	        // severity
-	        var msgClass = null;
-	        if(!severity || severity == 'info' || severity == 'information')
-	            msgClass = !useAlternateStyle ? 'information' : 'messageInformation';
-	        else if(severity == 'success')
-	            msgClass = !useAlternateStyle ? 'success' : 'messageSuccess';
-	        else if(severity == 'warn' || severity == 'warning' || severity == 'error' || severity == 'fail')
-	            msgClass = !useAlternateStyle ? 'alertMessage' : 'messageError';
+            // severity
+            var msgClass = null;
+            if (!severity || severity == 'info' || severity == 'information')
+                msgClass = !useAlternateStyle ? 'information' : 'messageInformation';
+            else if (severity == 'success')
+                msgClass = !useAlternateStyle ? 'success' : 'messageSuccess';
+            else if (severity == 'warn' || severity == 'warning' || severity == 'error' || severity == 'fail')
+                msgClass = !useAlternateStyle ? 'alertMessage' : 'messageError';
 
-	        // add contents
-	        var id = Math.floor(Math.random()*1000);
-	        var msgId = 'msg-'+id;
-	        var msgDiv = $('<div class="bbb_message" id="'+msgId+'"></div>');
-	        var msgsDiv = $('#bbb_messages').append(msgDiv);
-	        var message = $('<div class="'+msgClass+'"></div>');
-	        if(msgTitle && msgTitle != '') {
-	            message.append('<h4>'+msgTitle+'</h4>');
-	            if(hideMsgBody) message.append('<span id="msgShowDetails-'+id+'">&nbsp;<small>(<a href="#" onclick="$(\'#msgBody-'+id+'\').slideDown();$(\'#msgShowDetails-'+id+'\').hide();return false;">'+bbb_err_details+'</a>)</small></span>');
-	        }
-	        $('<p class="closeMe">  (x) </p>').click(function (){ meetings.utils.hideMessage(msgId); }).appendTo(message);
-	        if(msgBody) {
-	            var msgBodyContent = $('<div id="msgBody-'+id+'" class="content">'+msgBody+'</div>');
-	            message.append(msgBodyContent);
-	            if(hideMsgBody) msgBodyContent.hide();
-	        }
+            // add contents
+            var id = Math.floor(Math.random() * 1000);
+            var msgId = 'msg-' + id;
+            var msgDiv = $('<div class="bbb_message" id="' + msgId + '"></div>');
+            var msgsDiv = $('#bbb_messages').append(msgDiv);
+            var message = $('<div class="' + msgClass + '"></div>');
+            if (msgTitle && msgTitle != '') {
+                message.append('<h4>' + msgTitle + '</h4>');
+                if (hideMsgBody) message.append('<span id="msgShowDetails-' + id + '">&nbsp;<small>(<a href="#" onclick="$(\'#msgBody-' + id + '\').slideDown();$(\'#msgShowDetails-' + id + '\').hide();return false;">' + bbb_err_details + '</a>)</small></span>');
+            }
+            $('<p class="closeMe">  (x) </p>').click(function () {
+                meetings.utils.hideMessage(msgId);
+            }).appendTo(message);
+            if (msgBody) {
+                var msgBodyContent = $('<div id="msgBody-' + id + '" class="content">' + msgBody + '</div>');
+                message.append(msgBodyContent);
+                if (hideMsgBody) msgBodyContent.hide();
+            }
 
-	        // display, adjust frame height, scroll to top
-	        msgDiv.html(message);
-	        msgsDiv.fadeIn();
-	        $('html, body').animate({scrollTop:0}, 'slow');
+            // display, adjust frame height, scroll to top.
+            msgDiv.html(message);
+            msgsDiv.fadeIn();
+            $('html, body').animate({
+                scrollTop: 0
+            }, 'slow');
 
-    	}
+        }
     };
 
-    /** Hide message box */
+    // Hide message box.
     meetings.utils.hideMessage = function (id) {
 
-    	delete meetings.errorLog;
-    	meetings.errorLog = new Object();
-    	if(id) {
-    		$('#'+id).fadeOut();
-    	}else{
+        delete meetings.errorLog;
+        meetings.errorLog = new Object();
+        if (id) {
+            $('#' + id).fadeOut();
+        } else {
             $('#bbb_messages').empty().hide();
-    	}
+        }
     };
 
-    /** Show an ajax indicator at the following DOM selector */
+    // Show an ajax indicator at the following DOM selector.
     meetings.utils.showAjaxIndicator = function (outputSelector) {
 
-    	$(outputSelector).empty()
+        $(outputSelector).empty()
             .html('<img src="/bbb-tool/images/ajaxload.gif" alt="..." class="bbb_imgIndicator"/>')
             .show();
     };
 
-    /** Hide the ajax indicator at the following DOM selector */
+    // Hide the ajax indicator at the following DOM selector.
     meetings.utils.hideAjaxIndicator = function (outputSelector) {
-    	$(outputSelector).hide();
+        $(outputSelector).hide();
     };
 
-    /** Transform a textarea element on to a CKEditor, uppon user click */
+    // Transform a textarea element on to a CKEditor, uppon user click.
     meetings.utils.makeInlineCKEditor = function (textAreaId, toolBarSet, width, height) {
 
-        var textArea = $('#'+textAreaId);
+        var textArea = $('#' + textAreaId);
         var textAreaContents = $(textArea).text();
         var fakeTextAreaId = textAreaId + '-fake';
         var fakeTextAreaInstrId = textAreaId + '-fakeInstr';
-        if($('#'+fakeTextAreaId).length > 0) {
-            $('#'+fakeTextAreaId).remove();
+        if ($('#' + fakeTextAreaId).length > 0) {
+            $('#' + fakeTextAreaId).remove();
         }
         $(textArea).hide()
-           .before('<div id="'+fakeTextAreaId+'" class="bbb_inlineFCKEditor"><span id="'+fakeTextAreaInstrId+'" class="bbb_inlineFCKEditorInstr">'+bbb_click_to_edit+'</span>'+textAreaContents+'</div>');
+            .before('<div id="' + fakeTextAreaId + '" class="bbb_inlineFCKEditor"><span id="' + fakeTextAreaInstrId + '" class="bbb_inlineFCKEditorInstr">' + bbb_click_to_edit + '</span>' + textAreaContents + '</div>');
 
-        // Apply CKEditor
+        // Apply CKEditor.
         var applyCKEditor = function () {
-            $('#'+fakeTextAreaId).hide();
+            $('#' + fakeTextAreaId).hide();
             $(this).unbind('click');
-            $('#'+fakeTextAreaInstrId).unbind('mouseenter').unbind('mouseleave');
+            $('#' + fakeTextAreaInstrId).unbind('mouseenter').unbind('mouseleave');
             $('#bbb_meeting_name_field').unbind('keydown');
 
             toolbarSet = !toolBarSet ? 'Basic' : toolBarSet;
-            toolbarTemplate = toolbarSet == 'BBB'?
-                    [
-                        ['Source','-','Templates'],
-                        ['Cut','Copy','Paste','PasteText','PasteFromWord'],
-                        ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-                        ['NumberedList','BulletedList'], //,'-','Outdent','Indent','Blockquote','CreateDiv'
-                        '/',
-                        ['Bold','Italic','Underline','-','Subscript','Superscript'],
-                        ['atd-ckeditor'],
-                        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-                        ['BidiLtr', 'BidiRtl' ],
-                        ['Link','Unlink','Anchor'],
-                        ['TextColor','BGColor'],
-                        '/',
-                        ['Styles','Format','Font','FontSize']
-                    ]: null;
+            toolbarTemplate = toolbarSet == 'BBB' ? [
+                ['Source', '-', 'Templates'],
+                ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord'],
+                ['Undo', 'Redo', '-', 'Find', 'Replace', '-', 'SelectAll', 'RemoveFormat'],
+                ['NumberedList', 'BulletedList'],
+                '/', ['Bold', 'Italic', 'Underline', '-', 'Subscript', 'Superscript'],
+                ['atd-ckeditor'],
+                ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+                ['BidiLtr', 'BidiRtl'],
+                ['Link', 'Unlink', 'Anchor'],
+                ['TextColor', 'BGColor'],
+                '/', ['Styles', 'Format', 'Font', 'FontSize']
+            ] : null;
 
 
             // BBB-109
@@ -1315,16 +1327,15 @@
             sakai.editor.editors.launch = (function (targetId, config, w, h) {
                 var original = sakai.editor.launch;
 
-                if( toolbarSet == 'BBB') {
+                if (toolbarSet == 'BBB') {
                     return function (targetId, config, w, h) {
                         var folder = "";
 
                         var collectionId = "";
                         if (config != null && config.collectionId) {
-                            collectionId=config.collectionId;
-                        }
-                        else if (sakai.editor.collectionId) {
-                            collectionId=sakai.editor.collectionId
+                            collectionId = config.collectionId;
+                        } else if (sakai.editor.collectionId) {
+                            collectionId = sakai.editor.collectionId
                         }
 
                         if (collectionId) {
@@ -1339,12 +1350,12 @@
                             defaultLanguage: 'en',
                             language: language + (country ? '-' + country.toLowerCase() : ''),
                             height: 310,
-                            fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
+                            fileConnectorUrl: '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
 
-                            filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
-                            filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
-                            filebrowserFlashBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
-                                    extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
+                            filebrowserBrowseUrl: '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
+                            filebrowserImageBrowseUrl: '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
+                            filebrowserFlashBrowseUrl: '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '&' + folder,
+                            extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '') + '',
 
 
                             // These two settings enable the browser's native spell checking and context menus.
@@ -1354,38 +1365,32 @@
                             disableNativeSpellChecker: false,
                             browserContextMenuOnCtrl: true,
 
-                            toolbar_Basic:
-                            [
+                            toolbar_Basic: [
                                 ['Source', '-', 'Bold', 'Italic', 'Link', 'Unlink']
                             ],
-                            toolbar_Full:
-                            [
-                                ['Source','-','Templates'],
+                            toolbar_Full: [
+                                ['Source', '-', 'Templates'],
                                 // Uncomment the next line and comment the following to enable the default spell checker.
                                 // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
                                 //['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
-                                ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print'],
-                                ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-                                ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
-                                '/',
-                                ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-                                            ['atd-ckeditor'],
-                                ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-                                ['BidiLtr', 'BidiRtl' ],
-                                ['Link','Unlink','Anchor'],
-                                (sakai.editor.enableResourceSearch
-                                    ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                                    : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
-                                '/',
-                                ['Styles','Format','Font','FontSize'],
-                                ['TextColor','BGColor'],
+                                ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Print'],
+                                ['Undo', 'Redo', '-', 'Find', 'Replace', '-', 'SelectAll', 'RemoveFormat'],
+                                ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote', 'CreateDiv'],
+                                '/', ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript'],
+                                ['atd-ckeditor'],
+                                ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+                                ['BidiLtr', 'BidiRtl'],
+                                ['Link', 'Unlink', 'Anchor'],
+                                (sakai.editor.enableResourceSearch ? ['ResourceSearch', 'Image', 'Movie', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'fmath_formula'] : ['Image', 'Movie', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'fmath_formula']),
+                                '/', ['Styles', 'Format', 'Font', 'FontSize'],
+                                ['TextColor', 'BGColor'],
                                 ['Maximize', 'ShowBlocks']
                             ],
                             toolbar: 'Full',
                             resize_dir: 'vertical',
                             //SAK-23418
-                            pasteFromWordRemoveFontStyles : false,
-                            pasteFromWordRemoveStyles : false
+                            pasteFromWordRemoveFontStyles: false,
+                            pasteFromWordRemoveStyles: false
                         };
 
                         //NOTE: The height and width properties are handled discretely here.
@@ -1416,33 +1421,33 @@
 
                             if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
                                 ckconfig.toolbar = config.toolbarSet;
-                            } else if (config && config.toolbarSet && config.toolbarTemplate && config.toolbarTemplate != null ) {
+                            } else if (config && config.toolbarSet && config.toolbarTemplate && config.toolbarTemplate != null) {
                                 ckconfig['toolbar_' + config.toolbarSet] = config.toolbarTemplate;
                                 ckconfig.toolbar = config.toolbarSet;
                             }
                         }
-                        //get path of directory ckeditor
+                        // Get path of directory ckeditor.
                         //
                         var basePath = CKEDITOR.basePath;
-                        basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/";
+                        basePath = basePath.substr(0, basePath.indexOf("ckeditor/")) + "ckextraplugins/";
                         //To add extra plugins outside the plugins directory, add them here! (And in the variable)
                         (function () {
-                           CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
-                           CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js');
-                           CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js');
-                             /*
-                              To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
-                              and to extraPlugins. This also needs extra stylesheets.
-                              See readme for more info http://www.polishmywriting.com/atd-ckeditor/readme.html
-                              You have to actually setup a server or get an API key
-                              Hopefully this will get easier to configure soon.
-                             */
-                             //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js');
-                             //ckconfig.atd_rpc='/proxy/atd';
-                             //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
-                             //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
+                            CKEDITOR.plugins.addExternal('movieplayer', basePath + 'movieplayer/', 'plugin.js');
+                            CKEDITOR.plugins.addExternal('wordcount', basePath + 'wordcount/', 'plugin.js');
+                            CKEDITOR.plugins.addExternal('fmath_formula', basePath + 'fmath_formula/', 'plugin.js');
+                            /*
+                             To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
+                             and to extraPlugins. This also needs extra stylesheets.
+                             See readme for more info http://www.polishmywriting.com/atd-ckeditor/readme.html
+                             You have to actually setup a server or get an API key
+                             Hopefully this will get easier to configure soon.
+                            */
+                            //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js');
+                            //ckconfig.atd_rpc='/proxy/atd';
+                            //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
+                            //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
-                             ckconfig.extraPlugins+="movieplayer,wordcount,fmath_formula";
+                            ckconfig.extraPlugins += "movieplayer,wordcount,fmath_formula";
                         })();
 
                         CKEDITOR.replace(targetId, ckconfig);
@@ -1450,10 +1455,9 @@
                         CKEDITOR.on('dialogDefinition', function (e) {
                             var dialogName = e.data.name;
                             var dialogDefinition = e.data.definition;
-                            dialogDefinition.dialog.parts.dialog.setStyles(
-                              {
-                                  position : 'absolute'
-                              });
+                            dialogDefinition.dialog.parts.dialog.setStyles({
+                                position: 'absolute'
+                            });
                         });
 
                     }
@@ -1468,54 +1472,92 @@
             toolbarSet = !toolBarSet ? 'Basic' : toolBarSet;
             width = !width ? '600' : width;
             height = !height ? '320' : height;
-            //Make sure the editor doesn't exist
-            if( typeof CKEDITOR != "undefined" ) {
+            // Make sure the editor doesn't exist.
+            if (typeof CKEDITOR != "undefined") {
                 var editor = CKEDITOR.instances[textAreaId];
-                if ( editor != null ) {
+                if (editor != null) {
                     editor.destroy();
                 }
             }
-            //Launch the editor
-            sakai.editor.launch(textAreaId, {toolbarSet: toolbarSet, toolbarTemplate: toolbarTemplate}, width, height );
+            // Launch the editor.
+            sakai.editor.launch(textAreaId, {
+                toolbarSet: toolbarSet,
+                toolbarTemplate: toolbarTemplate
+            }, width, height);
         };
 
-        // events
-        $('#'+fakeTextAreaId).bind('mouseenter', function () {
-            $('#'+fakeTextAreaInstrId).fadeIn();
+        // Events.
+        $('#' + fakeTextAreaId).bind('mouseenter', function () {
+            $('#' + fakeTextAreaInstrId).fadeIn();
         }).bind('mouseleave', function () {
-            $('#'+fakeTextAreaInstrId).fadeOut();
+            $('#' + fakeTextAreaInstrId).fadeOut();
         }).one('click', applyCKEditor);
-        $('#bbb_meeting_name_field').bind('keydown', function (e){
-            if(e.keyCode == 9 ) { // TAB key
+        $('#bbb_meeting_name_field').bind('keydown', function (e) {
+            if (e.keyCode == 9) { // TAB key
                 applyCKEditor(textAreaId);
             }
         });
     };
 
-    /** Update data from inline FCKEditor */
+    // Update data from inline FCKEditor.
     meetings.utils.updateFromInlineCKEditor = function (textAreaId) {
 
-        if( typeof CKEDITOR != "undefined" ) {
+        if (typeof CKEDITOR != "undefined") {
             var editor = CKEDITOR.instances[textAreaId];
-            if ( editor != null ) {
-                if ( editor.checkDirty()) {
+            if (editor != null) {
+                if (editor.checkDirty()) {
                     editor.updateElement();
                     var ta_temp = document.createElement("textarea");
-                    ta_temp.innerHTML = editor.getData().replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                    ta_temp.innerHTML = editor.getData().replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     var decoded_html = ta_temp.value;
-                    $('#'+textAreaId).text(decoded_html);
+                    $('#' + textAreaId).text(decoded_html);
                 }
                 editor.destroy();
             }
         }
     };
-}) (jQuery);
+
+    meetings.utils.setNotifictionOptions = function () {
+
+        if ($('#notifyParticipants')[0].checked) {
+            $('#notifyParticipants_iCalAttach_span').empty()
+                .html('<br>' + bbb_notification_notify_ical + '&nbsp;<input id="iCalAttached" name="iCalAttached" type="checkbox" checked="checked" onclick="meetings.utils.setNotifictioniCalOptions();"/>&nbsp;<span id="notifyParticipants_iCalAlarm_span"></span>')
+                .show();
+            $('#notifyParticipants_iCalAlarm_span').empty()
+                .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
+                .show();
+        } else {
+            if ($('#iCalAttached')[0].checked) {
+                // Hide the iCalAlarm.
+                $('#notifyParticipants_iCalAlarm_span').empty().hide();
+                // Uncheck the iCalAttach checkbox.
+                $('#iCalAttached').removeAttr('checked');
+            }
+            // Hide the iCalAttach.
+            $('#notifyParticipants_iCalAttach_span').empty().hide();
+        }
+    };
+
+    meetings.utils.setNotifictioniCalOptions = function () {
+
+        if ($('#iCalAttached')[0].checked) {
+            $('#notifyParticipants_iCalAlarm_span').empty()
+                .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
+                .show();
+        } else {
+            // Hide the iCalAlarm.
+            $('#notifyParticipants_iCalAlarm_span').empty().hide();
+        }
+
+    };
+
+})(jQuery);
 
 /** Protoypes */
-if(!Array.prototype.indexOf) {
+if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (needle) {
-        for(var i = 0; i < this.length; i++) {
-            if(this[i] === needle) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] === needle) {
                 return i;
             }
         }
@@ -1525,24 +1567,24 @@ if(!Array.prototype.indexOf) {
 
 Array.prototype.indexOfMeeting = function (meeting) {
 
-    if(meeting && meeting.id) {
-        for (var i=0; i<this.length; i++){
-            if (this[i].id != null && this[i].id==meeting.id) return i;
+    if (meeting && meeting.id) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i].id != null && this[i].id == meeting.id) return i;
         }
     }
     return -1;
 };
 
-Array.prototype.addUpdateMeeting = function (meeting){
+Array.prototype.addUpdateMeeting = function (meeting) {
 
-    if(meeting && meeting.id) {
+    if (meeting && meeting.id) {
         var index = this.indexOfMeeting(meeting);
-        if(index >= 0) {
+        if (index >= 0) {
             this[index] = meeting;
-        }else{
+        } else {
             this.push(meeting);
         }
-    }else if(meeting) {
+    } else if (meeting) {
         this.push(meeting);
     }
 };
@@ -1577,7 +1619,9 @@ Date.prototype.toISO8601String = function (format, offset) {
        fraction of a second
        YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
     */
-    if (!format) { var format = 6; }
+    if (!format) {
+        var format = 6;
+    }
     if (!offset) {
         var offset = 'Z';
         var date = this;
@@ -1588,11 +1632,15 @@ Date.prototype.toISO8601String = function (format, offset) {
         var date = new Date(Number(Number(this) + (offsetnum * 60000)));
     }
 
-    var zeropad = function (num) { return ((num < 10) ? '0' : '') + num; }
+    var zeropad = function (num) {
+        return ((num < 10) ? '0' : '') + num;
+    }
 
     var str = "";
     str += date.getFullYear();
-    if (format > 1) { str += "-" + zeropad(date.getMonth() + 1); }
+    if (format > 1) {
+        str += "-" + zeropad(date.getMonth() + 1);
+    }
     if (format > 2) {
         if (format == 6) {
             str += "-" + zeropad(date.getDate());
@@ -1601,34 +1649,38 @@ Date.prototype.toISO8601String = function (format, offset) {
         }
     }
     if (format > 3) {
-        if(format == 6) {
+        if (format == 6) {
             str += " " + zeropad(date.getHours()) +
-                   ":" + zeropad(date.getMinutes());
-        }else{
+                ":" + zeropad(date.getMinutes());
+        } else {
             str += "T" + zeropad(date.getUTCHours()) +
-                   ":" + zeropad(date.getUTCMinutes());
+                ":" + zeropad(date.getUTCMinutes());
         }
     }
     if (format > 5) {
         var secs = Number(date.getUTCSeconds() + "." +
-                   ((date.getUTCMilliseconds() < 100) ? '0' : '') +
-                   zeropad(date.getUTCMilliseconds()));
+            ((date.getUTCMilliseconds() < 100) ? '0' : '') +
+            zeropad(date.getUTCMilliseconds()));
         str += ":" + zeropad(secs);
-    } else if (format > 4) { str += ":" + zeropad(date.getUTCSeconds()); }
+    } else if (format > 4) {
+        str += ":" + zeropad(date.getUTCSeconds());
+    }
 
-    if (format > 3 && format != 6) { str += offset; }
+    if (format > 3 && format != 6) {
+        str += offset;
+    }
     return str;
 }
 
 if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (elt /*, from*/) {
+    Array.prototype.indexOf = function (elt /*, from*/ ) {
 
         var len = this.length >>> 0;
 
         var from = Number(arguments[1]) || 0;
-        from = (from < 0)
-             ? Math.ceil(from)
-             : Math.floor(from);
+        from = (from < 0) ?
+            Math.ceil(from) :
+            Math.floor(from);
         if (from < 0) {
             from += len;
         }
@@ -1641,37 +1693,3 @@ if (!Array.prototype.indexOf) {
         return -1;
     };
 }
-
-meetings.utils.setNotifictionOptions = function () {
-
-    if ( $('#notifyParticipants')[0].checked ) {
-        $('#notifyParticipants_iCalAttach_span').empty()
-        .html('<br>' + bbb_notification_notify_ical + '&nbsp;<input id="iCalAttached" name="iCalAttached" type="checkbox" checked="checked" onclick="meetings.utils.setNotifictioniCalOptions();"/>&nbsp;<span id="notifyParticipants_iCalAlarm_span"></span>')
-        .show();
-        $('#notifyParticipants_iCalAlarm_span').empty()
-        .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
-        .show();
-    } else {
-        if ( $('#iCalAttached')[0].checked ) {
-            //Hide the iCalAlarm
-            $('#notifyParticipants_iCalAlarm_span').empty().hide();
-            //Uncheck the iCalAttach checkbox
-            $('#iCalAttached').removeAttr('checked');
-        }
-        //Hide the iCalAttach
-        $('#notifyParticipants_iCalAttach_span').empty().hide();
-    }
-};
-
-meetings.utils.setNotifictioniCalOptions = function () {
-
-    if ( $('#iCalAttached')[0].checked ) {
-        $('#notifyParticipants_iCalAlarm_span').empty()
-        .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
-        .show();
-    } else {
-        //Hide the iCalAlarm
-        $('#notifyParticipants_iCalAlarm_span').empty().hide();
-    }
-
-};

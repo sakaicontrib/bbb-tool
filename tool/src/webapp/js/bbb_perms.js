@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2010-2009 The Sakai Foundation
+/**
+ * Copyright (c) 2010 onwards - The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,63 +16,63 @@
 
 function BBBPermissions(data) {
 
-	if(data) {
-		for(var i=0,j=data.length;i<j;i++) {
+    if (data) {
+        for (var i = 0, j = data.length; i < j; i++) {
 
-			// BBB specific permissions
-			if('bbb.admin' === data[i]) {
-				this.bbbAdmin = true;
-			}else if('bbb.create' === data[i]) {
-				this.bbbCreate = true;
-			}else if('bbb.edit.own' === data[i]) {
-				this.bbbEditOwn = true;
-				this.bbbViewMeetingList = true;
-			}else if('bbb.edit.any' === data[i]) {
-				this.bbbEditAny = true;
-				this.bbbViewMeetingList = true;
-			}else if('bbb.delete.own' === data[i]) {
-				this.bbbDeleteOwn = true;
-				this.bbbViewMeetingList = true;
-			}else if('bbb.delete.any' === data[i]) {
-				this.bbbDeleteAny = true;
-				this.bbbViewMeetingList = true;
-			}else if('bbb.participate' === data[i]) {
-				this.bbbParticipate = true;
-				this.bbbViewMeetingList = true;
-			}else if('bbb.recording.view' === data[i]) {
-				this.bbbRecordingView = true;
-			}else if('bbb.recording.edit.own' === data[i]) {
-				this.bbbRecordingEditOwn = true;
-			}else if('bbb.recording.edit.any' === data[i]) {
-				this.bbbRecordingEditAny = true;
-			}else if('bbb.recording.delete.own' === data[i]) {
-				this.bbbRecordingDeleteOwn = true;
-			}else if('bbb.recording.delete.any' === data[i]) {
-				this.bbbRecordingDeleteAny = true;
-			}else if('bbb.recording.extendedformats.own' === data[i]) {
-				this.bbbRecordingExtendedFormatsOwn = true;
-			}else if('bbb.recording.extendedformats.any' === data[i]) {
-				this.bbbRecordingExtendedFormatsAny = true;
-			}
+            // BBB specific permissions.
+            if ('bbb.admin' === data[i]) {
+                this.bbbAdmin = true;
+            } else if ('bbb.create' === data[i]) {
+                this.bbbCreate = true;
+            } else if ('bbb.edit.own' === data[i]) {
+                this.bbbEditOwn = true;
+                this.bbbViewMeetingList = true;
+            } else if ('bbb.edit.any' === data[i]) {
+                this.bbbEditAny = true;
+                this.bbbViewMeetingList = true;
+            } else if ('bbb.delete.own' === data[i]) {
+                this.bbbDeleteOwn = true;
+                this.bbbViewMeetingList = true;
+            } else if ('bbb.delete.any' === data[i]) {
+                this.bbbDeleteAny = true;
+                this.bbbViewMeetingList = true;
+            } else if ('bbb.participate' === data[i]) {
+                this.bbbParticipate = true;
+                this.bbbViewMeetingList = true;
+            } else if ('bbb.recording.view' === data[i]) {
+                this.bbbRecordingView = true;
+            } else if ('bbb.recording.edit.own' === data[i]) {
+                this.bbbRecordingEditOwn = true;
+            } else if ('bbb.recording.edit.any' === data[i]) {
+                this.bbbRecordingEditAny = true;
+            } else if ('bbb.recording.delete.own' === data[i]) {
+                this.bbbRecordingDeleteOwn = true;
+            } else if ('bbb.recording.delete.any' === data[i]) {
+                this.bbbRecordingDeleteAny = true;
+            } else if ('bbb.recording.extendedformats.own' === data[i]) {
+                this.bbbRecordingExtendedFormatsOwn = true;
+            } else if ('bbb.recording.extendedformats.any' === data[i]) {
+                this.bbbRecordingExtendedFormatsAny = true;
+            }
 
-			// Sakai permissions
-			// Site Info:
-			else if('site.upd' === data[i]) {
-				this.siteUpdate = true;
-			}else if('site.viewRoster' === data[i]) {
-				this.siteViewRoster = true;
-			// Calendar:
-			}else if('calendar.new' === data[i]) {
-				this.calendarNew = true;
-			}else if('calendar.revise.own' === data[i]) {
-				this.calendarReviseOwn = true;
-			}else if('calendar.revise.any' === data[i]) {
-				this.calendarReviseAny = true;
-			}else if('calendar.delete.own' === data[i]) {
-				this.calendarDeleteOwn = true;
-			}else if('calendar.delete.any' === data[i]) {
-				this.calendarDeleteAny = true;
-			}
-		}
-	}
+            // Sakai permissions.
+            // Site Info:
+            else if ('site.upd' === data[i]) {
+                this.siteUpdate = true;
+            } else if ('site.viewRoster' === data[i]) {
+                this.siteViewRoster = true;
+                // Calendar:
+            } else if ('calendar.new' === data[i]) {
+                this.calendarNew = true;
+            } else if ('calendar.revise.own' === data[i]) {
+                this.calendarReviseOwn = true;
+            } else if ('calendar.revise.any' === data[i]) {
+                this.calendarReviseAny = true;
+            } else if ('calendar.delete.own' === data[i]) {
+                this.calendarDeleteOwn = true;
+            } else if ('calendar.delete.any' === data[i]) {
+                this.calendarDeleteAny = true;
+            }
+        }
+    }
 }

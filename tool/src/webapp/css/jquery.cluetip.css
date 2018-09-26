@@ -1,20 +1,25 @@
 /* global */
+
 #cluetip-close img {
   border: 0;
 }
+
 #cluetip-title {
   overflow: hidden;
 }
+
 #cluetip-title #cluetip-close {
   float: right;
   position: relative;
 }
+
 #cluetip-waitimage {
   width: 43px;
   height: 11px;
   position: absolute;
   background-image: url(wait.gif);
 }
+
 .cluetip-arrows {
   display: none;
   position: absolute;
@@ -25,22 +30,26 @@
   background-repeat: no-repeat;
   background-position: 0 0;
 }
+
 #cluetip-extra {
   display: none;
 }
+
 /***************************************
-   =cluetipClass: 'default' 
+   =cluetipClass: 'default'
 -------------------------------------- */
 
 .cluetip-default {
   /*background-color: #d9d9c2;*/
   background-color: #C2D2DB;
 }
+
 .cluetip-default #cluetip-outer {
   position: relative;
   margin: 0;
   background-color: #d9d9c2;
 }
+
 .cluetip-default h3#cluetip-title {
   margin: 0 0 5px;
   padding: 8px 10px 4px;
@@ -49,14 +58,17 @@
   background-color: #87876a;
   color: #fff;
 }
+
 .cluetip-default #cluetip-title a {
   color: #d9d9c2;
   font-size: 0.95em;
-}  
+}
+
 .cluetip-default #cluetip-inner {
   padding: 10px;
 }
-.cluetip-default div#cluetip-close { 
+
+.cluetip-default div#cluetip-close {
   text-align: right;
   margin: 0 5px 5px;
   color: #900;
@@ -67,19 +79,22 @@
 .clue-right-default .cluetip-arrows {
   background-image: url(images/darrowleft.gif);
 }
+
 .clue-left-default .cluetip-arrows {
   background-image: url(images/darrowright.gif);
   left: 100%;
   margin-right: -11px;
 }
+
 .clue-top-default .cluetip-arrows {
   background-image: url(images/darrowdown.gif);
   top: 100%;
   left: 50%;
   margin-left: -11px;
   height: 11px;
-  width: 22px;  
-}  
+  width: 22px;
+}
+
 .clue-bottom-default .cluetip-arrows {
   background-image: url(images/darrowup.gif);
   top: -11px;
@@ -92,9 +107,11 @@
 /***************************************
    =cluetipClass: 'jtip'
 -------------------------------------- */
+
 .cluetip-jtip {
   background-color: transparent;
 }
+
 .cluetip-jtip #cluetip-outer {
   border: 2px solid #ccc;
   position: relative;
@@ -114,7 +131,8 @@
   padding: 0 5px 5px;
   display: inline-block;
 }
-.cluetip-jtip div#cluetip-close { 
+
+.cluetip-jtip div#cluetip-close {
   text-align: right;
   margin: 0 5px 5px;
   color: #900;
@@ -125,19 +143,22 @@
 .clue-right-jtip .cluetip-arrows {
   background-image: url(images/arrowleft.gif);
 }
+
 .clue-left-jtip .cluetip-arrows {
   background-image: url(images/arrowright.gif);
   left: 100%;
   margin-right: -11px;
 }
+
 .clue-top-jtip .cluetip-arrows {
   background-image: url(images/arrowdown.gif);
   top: 100%;
   left: 50%;
   margin-left: -11px;
   height: 11px;
-  width: 22px;  
-}  
+  width: 22px;
+}
+
 .clue-bottom-jtip .cluetip-arrows {
   background-image: url(images/arrowup.gif);
   top: -11px;
@@ -168,6 +189,7 @@
   margin: 0 -12px 0 0;
   position: relative;
 }
+
 .cluetip-rounded #cluetip-extra {
   position: absolute;
   display: block;
@@ -178,6 +200,7 @@
   height: 30px;
   margin: -12px -12px 0 0;
 }
+
 .cluetip-rounded #cluetip-inner {
   background: url(images/br.gif) no-repeat 100% 100%;
   padding: 5px 12px 12px;
@@ -185,12 +208,13 @@
   position: relative;
 }
 
-.cluetip-rounded div#cluetip-close { 
+.cluetip-rounded div#cluetip-close {
   text-align: right;
   margin: 0 5px 5px;
   color: #009;
   background: transparent;
 }
+
 .cluetip-rounded div#cluetip-close a {
   color: #777;
 }
@@ -200,19 +224,22 @@
 .clue-right-rounded .cluetip-arrows {
   background-image: url(images/rarrowleft.gif);
 }
+
 .clue-left-rounded .cluetip-arrows {
   background-image: url(images/rarrowright.gif);
   left: 100%;
   margin-left: 12px;
 }
+
 .clue-top-rounded .cluetip-arrows {
   background-image: url(images/rarrowdown.gif);
   top: 100%;
   left: 50%;
   margin-left: -11px;
   height: 11px;
-  width: 22px;  
-}  
+  width: 22px;
+}
+
 .clue-bottom-rounded .cluetip-arrows {
   background-image: url(images/rarrowup.gif);
   top: -23px;
@@ -222,10 +249,8 @@
   width: 22px;
 }
 
-
-
 /* stupid IE6 HasLayout hack */
-.cluetip-rounded #cluetip-title,
-.cluetip-rounded #cluetip-inner {
+
+.cluetip-rounded #cluetip-title, .cluetip-rounded #cluetip-inner {
   zoom: 1;
 }
