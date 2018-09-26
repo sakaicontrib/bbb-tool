@@ -290,7 +290,7 @@ meetings.switchState = function (state, arg) {
             }
             var maxFileSize = meetings.startupArgs.maxFileSizeInBytes;
             if (this.files[0].size > maxFileSize * 1024 * 1024) {
-                meetings.utils.showMessage(bbb_warning_max_filesize(maxFileSize), 'warning',);
+                meetings.utils.showMessage(bbb_warning_max_filesize(maxFileSize), 'warning');
                 $(this).val('');
                 return;
             }
@@ -874,8 +874,6 @@ meetings.updateMeetingInfo = function (meeting) {
 meetings.setMeetingList = function () {
 
     meetings.currentMeetings = meetings.utils.getMeetingList(meetings.startupArgs.siteId);
-    if ( meetings.currentMeetings.length == null )
-        meetings.currentMeetings = Array();
 
     // watch for permissions changes, check meeting dates
     for(var i=0; i<meetings.currentMeetings.length; i++) {
