@@ -59,7 +59,7 @@
 	// Get all site meetings
 	meetings.utils.getMeetingList = function (siteId) {
 
-		var list = null;
+		var list = [];
         $.ajax( {
             url : "/direct/bbb-tool.json?siteId=" + siteId,
             dataType : "json",
