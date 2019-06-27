@@ -1087,7 +1087,12 @@
             url: "/direct/site/" + meetings.startupArgs.siteId + "/perms/bbb.json",
             dataType: "json",
             async: false,
-            success: function (p) {
+            success: function (data) {
+                // BBB-145: As the format for perms changed in version 19, convert to the old format for backward compatibility.
+                var p = data;
+                if (typeof data.data === "undefined") {
+                    p = {'data':data};
+                }
                 for (role in p.data) {
                     var permSet = {
                         'role': role
