@@ -151,7 +151,7 @@ public class BaseBBBAPI implements BBBAPI {
             // build query
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
-            query.append(meeting.getId());
+            query.append(URLEncoder.encode(meeting.getId(), getParametersEncoding()));
             query.append("&name=");
             query.append(URLEncoder.encode(meeting.getName(), getParametersEncoding()));
             query.append("&voiceBridge=");
@@ -254,7 +254,7 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
-            query.append(meetingID);
+            query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
             query.append(getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING, query.toString()));
 
             Map<String, Object> response = doAPICall(APICALL_ISMEETINGRUNNING, query.toString());
@@ -282,6 +282,7 @@ public class BaseBBBAPI implements BBBAPI {
 
             return response;
         } catch (Exception e) {
+            logger.debug("Exception: Message=" + e.getMessage() );
             throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
@@ -292,23 +293,23 @@ public class BaseBBBAPI implements BBBAPI {
         try {
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
-            query.append(meetingID);
+            query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
             query.append("&password=");
             query.append(password);
             query.append(getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, query.toString()));
-
             Map<String, Object> response = doAPICall(APICALL_GETMEETINGINFO, query.toString());
-
             // nullify password fields
             for (String key : response.keySet()) {
                 if ("attendeePW".equals(key) || "moderatorPW".equals(key))
                     response.put(key, null);
             }
-
             return response;
         } catch (BBBException e) {
             logger.debug("getMeetingInfo.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
+        } catch (Exception e) {
+            logger.debug("Exception: Message=" + e.getMessage() );
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
     }
 
@@ -349,11 +350,9 @@ public class BaseBBBAPI implements BBBAPI {
             String meetingID = String.join(",", meetingIDs);
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
-            query.append(meetingID);
+            query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
             query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
-
             Map<String, Object> response = doAPICall(APICALL_GETRECORDINGS, query.toString());
-
             // Make sure that the date retrived is a unix timestamp.
             if (response.get("returncode").equals("SUCCESS") && response.get("messageKey") == null) {
                 for (Object recordingEntry : (List<Object>)response.get("recordings")) {
@@ -366,6 +365,9 @@ public class BaseBBBAPI implements BBBAPI {
         } catch (BBBException e) {
             logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
             throw new BBBException(e.getMessageKey(), e.getMessage(), e);
+        } catch (Exception e) {
+            logger.debug("Exception: Message=" + e.getMessage() );
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
         return new ArrayList<Object>();
     }
@@ -373,26 +375,24 @@ public class BaseBBBAPI implements BBBAPI {
     /** End/delete a meeting on BBB server */
     public boolean endMeeting(String meetingID, String password)
             throws BBBException {
-
         StringBuilder query = new StringBuilder();
-        query.append("meetingID=");
-        query.append(meetingID);
-        query.append("&password=");
-        query.append(password);
-        query.append(getCheckSumParameterForQuery(APICALL_END, query.toString()));
-
         try {
+            query.append("meetingID=");
+            query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
+            query.append("&password=");
+            query.append(password);
+            query.append(getCheckSumParameterForQuery(APICALL_END, query.toString()));
             doAPICall(APICALL_END, query.toString());
-
         } catch (BBBException e) {
-			if(BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
-				// we can safely ignore this one: the meeting is not running
-				return true;
-			}else{
-				throw e;
-			}
+            if (BBBException.MESSAGEKEY_NOTFOUND.equals(e.getMessageKey())) {
+                // we can safely ignore this one: the meeting is not running
+                return true;
+            }
+            throw e;
+        } catch (Exception e) {
+            logger.debug("Exception: Message=" + e.getMessage() );
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, e.getMessage(), e);
         }
-
         return true;
     }
 
@@ -456,28 +456,28 @@ public class BaseBBBAPI implements BBBAPI {
 
     /** Build the join meeting url based on user role */
     public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password) {
-        StringBuilder joinQuery = new StringBuilder();
-        joinQuery.append("meetingID=");
-        joinQuery.append(meetingID);
+        StringBuilder query = new StringBuilder();
         if (userId != null) {
             try {
-                joinQuery.append("&userID=");
-                joinQuery.append(URLEncoder.encode(userId, getParametersEncoding()));
+                query.append("meetingID=");
+                query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
+                query.append("&userID=");
+                query.append(URLEncoder.encode(userId, getParametersEncoding()));
             } catch (UnsupportedEncodingException e) {
             }
         }
-        joinQuery.append("&fullName=");
+        query.append("&fullName=");
         if (userDisplayName == null) {
             userDisplayName = "user";
         }
         try {
-            joinQuery.append(URLEncoder.encode(userDisplayName, getParametersEncoding()));
+            query.append(URLEncoder.encode(userDisplayName, getParametersEncoding()));
         } catch (UnsupportedEncodingException e) {
-            joinQuery.append(userDisplayName);
+            query.append(userDisplayName);
         }
-        joinQuery.append("&password=");
-        joinQuery.append(password);
-        joinQuery.append(getCheckSumParameterForQuery(APICALL_JOIN, joinQuery.toString()));
+        query.append("&password=");
+        query.append(password);
+        query.append(getCheckSumParameterForQuery(APICALL_JOIN, query.toString()));
 
         StringBuilder url = new StringBuilder(bbbUrl);
         if (url.toString().endsWith("/api")) {
@@ -487,7 +487,7 @@ public class BaseBBBAPI implements BBBAPI {
         }
         url.append(APICALL_JOIN);
         url.append("?");
-        url.append(joinQuery);
+        url.append(query);
 
         return url.toString();
     }
