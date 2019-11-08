@@ -373,14 +373,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     public Map<String, Object> getSiteRecordings(String siteId)
             throws SecurityException, Exception {
+        Map<String, Object> recordings;
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
         if (meetings.size() == 0 || !bbbAPI.isRecordingEnabled()) {
             // Set an empty List of recordings and a SUCCESS key as default response values.
-            Map<String, Object> response = new HashMap<String, Object>();
-            response.put("recordings", new ArrayList<Object>());
-            response.put("returncode", "SUCCESS");
-            response.put("messageKey", "noRecordings");
-            return response;
+            recordings = new HashMap<String, Object>();
+            recordings.put("recordings", new ArrayList<Object>());
+            recordings.put("returncode", "SUCCESS");
+            recordings.put("messageKey", "noRecordings");
+            return recordings;
         }
 
         Map<String, String> ownerIDs = new HashMap<String, String>();
@@ -412,8 +413,17 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 }
             }
         }
-
-        Map<String, Object> recordings = bbbAPI.getRecordings(meetingIDs);
+        // Safety for BBB-148. Make sure meetingIDs is not empty.
+        if (meetingIDs.equals("")) {
+            // Set an empty List of recordings and a SUCCESS key as default response values.
+            recordings = new HashMap<String, Object>();
+            recordings.put("recordings", new ArrayList<Object>());
+            recordings.put("returncode", "SUCCESS");
+            recordings.put("messageKey", "noRecordings");
+            return recordings;
+        }
+        // Pull the recordings from BBB.
+        recordings = bbbAPI.getRecordings(meetingIDs);
         // Post-process recordings
         Object recordingList = recordings.get("recordings");
         if ("SUCCESS".equals(recordings.get("returncode")) && recordingList != null && recordingList.getClass().equals(ArrayList.class)) {
