@@ -6,3 +6,9 @@ components/target*
 impl/target*
 tool/target*
 assembly*
+.settings
+/api/bin
+/bundle/bin
+/components/bin
+/impl/bin
+/tool/bin
