@@ -457,14 +457,14 @@ public class BaseBBBAPI implements BBBAPI {
     /** Build the join meeting url based on user role */
     public String getJoinMeetingURL(String meetingID, String userId, String userDisplayName, String password) {
         StringBuilder query = new StringBuilder();
-        if (userId != null) {
-            try {
-                query.append("meetingID=");
-                query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
+        try {
+            query.append("meetingID=");
+            query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
+            if (userId != null) {
                 query.append("&userID=");
                 query.append(URLEncoder.encode(userId, getParametersEncoding()));
-            } catch (UnsupportedEncodingException e) {
             }
+        } catch (UnsupportedEncodingException e) {
         }
         query.append("&fullName=");
         if (userDisplayName == null) {
