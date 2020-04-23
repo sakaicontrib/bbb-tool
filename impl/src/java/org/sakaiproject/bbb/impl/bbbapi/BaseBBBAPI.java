@@ -347,6 +347,7 @@ public class BaseBBBAPI implements BBBAPI {
     protected List<Object> getRecordings(List meetingIDs)
             throws BBBException {
     	  try {
+            if (!meetingIDs.isEmpty()) {
             String meetingID = String.join(",", meetingIDs);
             StringBuilder query = new StringBuilder();
             query.append("meetingID=");
@@ -361,6 +362,7 @@ public class BaseBBBAPI implements BBBAPI {
                     items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
                 }
                 return (List<Object>)response.get("recordings");
+            }
             }
         } catch (BBBException e) {
             logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
