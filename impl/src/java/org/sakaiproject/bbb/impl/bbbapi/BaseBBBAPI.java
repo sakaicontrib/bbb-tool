@@ -346,21 +346,23 @@ public class BaseBBBAPI implements BBBAPI {
     /** Get recordings from BBB server */
     protected List<Object> getRecordings(List meetingIDs)
             throws BBBException {
-    	  try {
-            String meetingID = String.join(",", meetingIDs);
-            StringBuilder query = new StringBuilder();
-            query.append("meetingID=");
-            query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
-            query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
-            Map<String, Object> response = doAPICall(APICALL_GETRECORDINGS, query.toString());
-            // Make sure that the date retrived is a unix timestamp.
-            if (response.get("returncode").equals("SUCCESS") && response.get("messageKey") == null) {
-                for (Object recordingEntry : (List<Object>)response.get("recordings")) {
-                    Map<String, String> items = (Map<String, String>)recordingEntry;
-                    items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
-                    items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
+    	try {
+            if (!meetingIDs.isEmpty()) {
+                String meetingID = String.join(",", meetingIDs);
+                StringBuilder query = new StringBuilder();
+                query.append("meetingID=");
+                query.append(URLEncoder.encode(meetingID, getParametersEncoding()));
+                query.append(getCheckSumParameterForQuery(APICALL_GETRECORDINGS, query.toString()));
+                Map<String, Object> response = doAPICall(APICALL_GETRECORDINGS, query.toString());
+                // Make sure that the date retrived is a unix timestamp.
+                if (response.get("returncode").equals("SUCCESS") && response.get("messageKey") == null) {
+                    for (Object recordingEntry : (List<Object>)response.get("recordings")) {
+                        Map<String, String> items = (Map<String, String>)recordingEntry;
+                        items.put("startTime", getDateAsStringTimestamp(items.get("startTime")) );
+                        items.put("endTime", getDateAsStringTimestamp(items.get("endTime")) );
+                    }
+                    return (List<Object>)response.get("recordings");
                 }
-                return (List<Object>)response.get("recordings");
             }
         } catch (BBBException e) {
             logger.debug("getRecordings.Exception: MessageKey=" + e.getMessageKey() + ", Message=" + e.getMessage() );
