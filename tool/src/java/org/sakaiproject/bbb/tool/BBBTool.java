@@ -34,6 +34,9 @@ import org.apache.velocity.app.VelocityEngine;
 
 import org.apache.log4j.Logger;
 
+import org.sakaiproject.bbb.api.BBBMeetingManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 /**
@@ -51,10 +54,13 @@ public class BBBTool extends HttpServlet {
 
     private Template bootstrapTemplate = null;
 
+    private ServerConfigurationService serverConfigurationService;
+
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         logger.debug("init");
         try {
+            serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
             sakaiProxy = SakaiProxy.getInstance();
             VelocityEngine vengine = new VelocityEngine();
             vengine.setApplicationAttribute(ServletContext.class.getName(), config.getServletContext());
@@ -104,6 +110,7 @@ public class BBBTool extends HttpServlet {
         ctx.put("timezoneOffset", sakaiProxy.getUserTimezoneOffset());
         ctx.put("sakaiVersion", sakaiProxy.getSakaiVersion());
         ctx.put("maxFileSizeInBytes", sakaiProxy.getFileSizeMax());
+        ctx.put("checkICalOption", serverConfigurationService.getBoolean(BBBMeetingManager.CFG_CHECKICALOPTION, true));
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html");
