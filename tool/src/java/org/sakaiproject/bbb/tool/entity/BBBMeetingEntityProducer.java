@@ -300,7 +300,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
     /**
      * {@inheritDoc}
      */
-    public void transferCopyEntities(String fromContext, String toContext, List ids)
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions)
     {
         logger.debug("transferCopyEntities");
         try{
@@ -312,14 +312,14 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
             }
         } catch( Exception e) {
             logger.debug("Exception occurred " + e);
-
         }
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup) {
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
         try {
             if(cleanup == true) {
                 List<BBBMeeting> meetings = meetingManager.getSiteMeetings(toContext);
@@ -329,11 +329,12 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
 
             }
 
-            transferCopyEntities(fromContext, toContext, ids);
+            transferCopyEntities(fromContext, toContext, ids, transferOptions);
 
         } catch (Exception e) {
             logger.info("WebContent transferCopyEntities Error" + e);
         }
+        return null;
     }
 
     /// ContextObserver implementation

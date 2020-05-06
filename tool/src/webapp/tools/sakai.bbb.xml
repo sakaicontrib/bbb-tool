@@ -3,7 +3,7 @@
     <tool id="sakai.bbb"
       title="Meetings"
       description="Sakai Interface onto the BigBlueButton conferencing tool"
-      version="19-SNAPSHOT">
+      version="20-SNAPSHOT">
         <category name="course" />
         <category name="project" />
     </tool>
