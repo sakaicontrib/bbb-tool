@@ -1528,9 +1528,11 @@
             $('#notifyParticipants_iCalAttach_span').empty()
                 .html('<br>' + bbb_notification_notify_ical + '&nbsp;<input id="iCalAttached" name="iCalAttached" type="checkbox" ' + (meetings.startupArgs.checkICalOption ? 'checked="checked" ' : ' ') + 'onclick="meetings.utils.setNotifictioniCalOptions();"/>&nbsp;<span id="notifyParticipants_iCalAlarm_span"></span>')
                 .show();
-            $('#notifyParticipants_iCalAlarm_span').empty()
-                .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
-                .show();
+            if (meetings.startupArgs.checkICalOption) {
+              $('#notifyParticipants_iCalAlarm_span').empty()
+                  .html('<br>' + bbb_notification_notify_ical_alarm + '&nbsp;<input id="iCalAlarmMinutes" name="iCalAlarmMinutes" type="text" value="30" style="width: 35px;" />&nbsp;' + bbb_notification_notify_ical_alarm_units)
+                  .show();
+            }
         } else {
             if ($('#iCalAttached')[0].checked) {
                 // Hide the iCalAlarm.
