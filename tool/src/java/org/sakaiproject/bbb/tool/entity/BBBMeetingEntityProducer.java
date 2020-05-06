@@ -2,15 +2,11 @@ package org.sakaiproject.bbb.tool.entity;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Vector;
-import java.util.Map.Entry;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,16 +25,10 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -300,7 +290,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
     /**
      * {@inheritDoc}
      */
-    public void transferCopyEntities(String fromContext, String toContext, List ids)
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions)
     {
         logger.debug("transferCopyEntities");
         try{
@@ -312,14 +302,14 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
             }
         } catch( Exception e) {
             logger.debug("Exception occurred " + e);
-
         }
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup) {
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
         try {
             if(cleanup == true) {
                 List<BBBMeeting> meetings = meetingManager.getSiteMeetings(toContext);
@@ -329,11 +319,12 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
 
             }
 
-            transferCopyEntities(fromContext, toContext, ids);
+            transferCopyEntities(fromContext, toContext, ids, transferOptions);
 
         } catch (Exception e) {
             logger.info("WebContent transferCopyEntities Error" + e);
         }
+        return null;
     }
 
     /// ContextObserver implementation
