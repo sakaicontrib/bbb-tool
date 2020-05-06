@@ -70,6 +70,7 @@ public interface BBBMeetingManager {
     public final static String CFG_RECORDINGSTATS_USERID = "bbb.recordingstats.userid";
     public final static String CFG_RECORDINGFORMATFILTER_ENABLED = "bbb.recordingformatfilter.enabled";
     public final static String CFG_RECORDINGFORMATFILTER_WHITELIST = "bbb.recordingformatfilter.whitelist";
+    public final static String CFG_CHECKICALOPTION = "bbb.checkicaloption";
 
     // System Settings in sakai.properties.
     public final static String SYSTEM_UPLOAD_MAX = "content.upload.max";

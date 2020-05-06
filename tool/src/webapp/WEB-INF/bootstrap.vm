@@ -36,7 +36,8 @@
                 state: '${state}',
                 timezoneoffset: '${timezoneOffset}',
                 sakaiVersion: '${sakaiVersion}',
-                maxFileSizeInBytes: '${maxFileSizeInBytes}'
+                maxFileSizeInBytes: '${maxFileSizeInBytes}',
+                checkICalOption: ${checkICalOption},
              }
         };
     </script>
