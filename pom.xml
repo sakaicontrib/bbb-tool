@@ -307,7 +307,7 @@
                     <id>aggregate</id>
                     <configuration>
                       <aggregate>true</aggregate>
-                          <source>1.5</source>
+                          <source>1.8</source>
                       <encoding>UTF-8</encoding>
                         <links>
                         <link>http://java.sun.com/j2se/1.5.0/docs/api</link>

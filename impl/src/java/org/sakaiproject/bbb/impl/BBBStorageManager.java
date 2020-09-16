@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.bbb.api.BBBMeeting;
 import org.sakaiproject.bbb.api.Participant;
@@ -46,8 +48,8 @@ import org.sakaiproject.db.api.SqlService;
 public class BBBStorageManager {
     protected final Logger logger = Logger.getLogger(getClass());
 
-    public SqlService sqlService = null;
-    private ServerConfigurationService serverConfigurationService = null;
+    @Resource public SqlService sqlService = null;
+    @Resource private ServerConfigurationService serverConfigurationService = null;
 
     private SqlGenerator sqlGenerator = null;
 
@@ -69,14 +71,6 @@ public class BBBStorageManager {
             logger.warn("'" + dbVendor + "' not directly supported. Defaulting to DefaultSqlGenerator.");
             sqlGenerator = new DefaultSqlGenerator();
         }
-    }
-
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
-    }
-
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
     }
 
     // -----------------------------------------------------------------------
