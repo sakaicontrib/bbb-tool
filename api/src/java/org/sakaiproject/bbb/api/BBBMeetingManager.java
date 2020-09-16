@@ -16,6 +16,7 @@
 
 package org.sakaiproject.bbb.api;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -90,11 +91,11 @@ public interface BBBMeetingManager {
     public static final String FN_RECORDING_DELETE_ANY = "bbb.recording.delete.any";
     public static final String FN_RECORDING_EXTENDEDFORMATS_OWN = "bbb.recording.extendedformats.own";
     public static final String FN_RECORDING_EXTENDEDFORMATS_ANY = "bbb.recording.extendedformats.any";
-    public static final String[] FUNCTIONS = new String[] { FN_CREATE,
+    public static final List<String> FUNCTIONS = Arrays.asList(new String[] { FN_CREATE,
             FN_EDIT_OWN, FN_EDIT_ANY, FN_DELETE_OWN, FN_DELETE_ANY, FN_PARTICIPATE,
             FN_RECORDING_VIEW, FN_RECORDING_EDIT_OWN, FN_RECORDING_EDIT_ANY,
             FN_RECORDING_DELETE_OWN, FN_RECORDING_DELETE_ANY,
-            FN_RECORDING_EXTENDEDFORMATS_OWN, FN_RECORDING_EXTENDEDFORMATS_ANY };
+            FN_RECORDING_EXTENDEDFORMATS_OWN, FN_RECORDING_EXTENDEDFORMATS_ANY });
     // Extra function used to enable admin interface in the client
     public static final String FN_ADMIN = "bbb.admin";
 

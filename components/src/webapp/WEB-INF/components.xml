@@ -4,40 +4,19 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans
                 http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- BBB Meeting Manager -->
 	<bean id="org.sakaiproject.bbb.api.BBBMeetingManager"
     	class="org.sakaiproject.bbb.impl.BBBMeetingManagerImpl"
-    	init-method="init" scope="singleton">
-		<property name="storageManager" ref="org.sakaiproject.bbb.api.BBBStorageManager" />
-        <property name="bbbAPIWrapper" ref="org.sakaiproject.bbb.impl.BBBAPIWrapper" />
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />        
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
-        <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+    	init-method="init">
     </bean>
 
-    <!-- BBB API Wrapper -->
     <bean id="org.sakaiproject.bbb.impl.BBBAPIWrapper"
         class="org.sakaiproject.bbb.impl.BBBAPIWrapper" 
         destroy-method="destroy">
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="storageManager" ref="org.sakaiproject.bbb.api.BBBStorageManager" />
     </bean>
 
-    <!-- SQL: BBB Storage Manager -->
     <bean id="org.sakaiproject.bbb.api.BBBStorageManager"
         class="org.sakaiproject.bbb.impl.BBBStorageManager"
-        init-method="init" scope="singleton">
-        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        init-method="init">
     </bean>
     
 </beans>
