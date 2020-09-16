@@ -24,6 +24,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.bbb.api.BBBException;
 import org.sakaiproject.bbb.api.BBBMeeting;
@@ -108,14 +110,8 @@ public class BBBAPIWrapper/* implements Runnable */{
     private static String DEFAULT_BBB_URL = "http://test-install.blindsidenetworks.com/bigbluebutton";
     private static String DEFAULT_BBB_SALT = "8cd8ef52e8e101574e400365b55e11a6";
 
-    /** Sakai configuration service */
-    protected ServerConfigurationService config = null;
-
-    private BBBStorageManager storageManager = null;
-
-    public void setStorageManager(BBBStorageManager storageManager) {
-        this.storageManager = storageManager;
-    }
+    @Resource private ServerConfigurationService config = null;
+    @Resource private BBBStorageManager storageManager = null;
 
     // BBB API version check thread and semaphore
     private Thread bbbVersionCheckThread;
@@ -178,10 +174,6 @@ public class BBBAPIWrapper/* implements Runnable */{
     }
 
     public void destroy() {
-    }
-
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.config = serverConfigurationService;
     }
 
     // -----------------------------------------------------------------------
