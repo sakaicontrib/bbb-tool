@@ -559,8 +559,10 @@
                 (
                 <span id="meeting_joinlink_${D}{meeting.id}" style="${D}{displayLink}">
                         {var multiplesessions = meeting.multipleSessionsAllowed && meetings.settings.config.addUpdateFormParameters.multiplesessionsallowedEnabled}
-                        <a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return meetings.utils.joinMeeting('${D}{meeting.id}', '#joinMeetingLink', ${D}{multiplesessions});" title="${D}{bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${D}{bbb_meetinginfo_link}</a>
-                        <i class="fa fa-sign-in"></i>
+                        {if meeting.joinable && meetings.userPerms.bbbParticipate}
+                            <a id="joinMeetingLink" target="_blank" href="javascript:;" onclick="return meetings.utils.joinMeeting('${D}{meeting.id}', '#joinMeetingLink', ${D}{multiplesessions});" title="${D}{bbb_meetinginfo_launch_meeting_tooltip}" style="font-weight:bold">${D}{bbb_meetinginfo_link}</a>
+                            <i class="fa fa-sign-in"></i>
+                        {/if}
                 </span>
                 {if meeting.canEnd}
                 {var end_meetingClass = (meeting.joinable && meeting.joinableMode == 'inprogress')? "bbb_end_meeting_shown": "bbb_end_meeting_hidden" }
