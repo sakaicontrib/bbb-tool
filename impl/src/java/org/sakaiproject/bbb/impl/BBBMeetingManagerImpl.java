@@ -24,13 +24,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -55,6 +55,7 @@ import net.fortuna.ical4j.util.UidGenerator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.bbb.api.BBBException;
@@ -138,14 +139,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // -----------------------------------------------------------------------
     public BBBMeeting getMeeting(String meetingId)
     		throws SecurityException, Exception {
-        BBBMeeting meeting = storageManager.getMeeting(meetingId);
-        meeting = processMeeting(meeting);
-        return meeting;
+        return processMeeting(storageManager.getMeeting(meetingId));
     }
 
     public List<BBBMeeting> getSiteMeetings(String siteId)
             throws SecurityException, Exception {
-        List<BBBMeeting> filteredMeetings = new ArrayList<BBBMeeting>();
+
+        List<BBBMeeting> filteredMeetings = new ArrayList<>();
 
         // Grab all the meetings for this site
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, NOT_INCLUDE_DELETED_MEETINGS);
@@ -259,12 +259,12 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         Map<String, Object> recordings;
         if (!meeting.getRecording()) {
             //Mimic empty recordings object
-            recordings = new HashMap<String, Object>();
+            recordings = new HashMap<>();
             recordings.put("recordings", "");
             return recordings;
         }
 
-        Map<String, String> ownerIDs = new HashMap<String, String>();
+        Map<String, String> ownerIDs = new HashMap<>();
         String ownerID =  meeting.getOwnerId();
         ownerIDs.put(meetingID, ownerID);
         String meetingIDs = meetingID;
@@ -292,20 +292,33 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return recordings;
     }
 
+    private List<String> getActiveGroupMembers(AuthzGroup group) {
+
+        return group.getMembers().stream().filter(Member::isActive)
+                    .map(Member::getUserId).collect(Collectors.toList());
+    }
+
     public Map<String, Object> getSiteRecordings(String siteId)
             throws SecurityException, Exception {
         Map<String, Object> recordings;
         List<BBBMeeting> meetings = storageManager.getSiteMeetings(siteId, INCLUDE_DELETED_MEETINGS);
         if (meetings.size() == 0 || !bbbAPI.isRecordingEnabled()) {
             // Set an empty List of recordings and a SUCCESS key as default response values.
-            recordings = new HashMap<String, Object>();
+            recordings = new HashMap<>();
             recordings.put("recordings", new ArrayList<Object>());
             recordings.put("returncode", "SUCCESS");
             recordings.put("messageKey", "noRecordings");
             return recordings;
         }
 
-        Map<String, String> ownerIDs = new HashMap<String, String>();
+        Site site = null;
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.error("No site for id {}", siteId);
+        }
+
+        Map<String, String> ownerIDs = new HashMap<>();
         String meetingID;
         String ownerID;
         String meetingIDs = "";
@@ -314,6 +327,14 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 // Meeting is not set to be recorded
                 continue;
             }
+
+            List<String> permittedUserIds = getMeetingUsers(meeting, site).stream()
+                .map(User::getId).collect(Collectors.toList());
+            if (!permittedUserIds.contains(userDirectoryService.getCurrentUser().getId())) {
+                // The current user was not a participant in this meeting. Skip.
+                continue;
+            }
+
             meetingID = meeting.getId();
             ownerID = meeting.getOwnerId();
             ownerIDs.put(meetingID, ownerID);
@@ -323,21 +344,20 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             meetingIDs += meetingID;
             if (meeting.getGroupSessions()) {
                 try {
-                    Site site = siteService.getSite(siteId);
                     Collection<Group> userGroups = site.getGroups();
                     for (Group g : userGroups) {
                         ownerIDs.put(meetingID + "[" + g.getId() + "]", ownerID);
                         meetingIDs += "," + meetingID + "[" + g.getId() + "]";
                     }
-                } catch (IdUnusedException e) {
-                    log.error("Unable to get recordings for group sessions in meeting '{}'.", meeting.getName(), e);
+                } catch (Exception e) {
+                    log.error("Unable to get recordings for group sessions in meeting '{}'.", meeting.getName());
                 }
             }
         }
         // Safety for BBB-148. Make sure meetingIDs is not empty.
         if (meetingIDs.equals("")) {
             // Set an empty List of recordings and a SUCCESS key as default response values.
-            recordings = new HashMap<String, Object>();
+            recordings = new HashMap<>();
             recordings.put("recordings", new ArrayList<Object>());
             recordings.put("returncode", "SUCCESS");
             recordings.put("messageKey", "noRecordings");
@@ -687,7 +707,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     // -----------------------------------------------------------------------
     public Map<String, Object> getServerTimeInUserTimezone() {
 
-        Map<String, Object> responseMap = new HashMap<String,Object>();
+        Map<String, Object> responseMap = new HashMap<>();
 
         Preferences prefs = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
         TimeZone timeZone = TimeZone.getDefault();
@@ -711,7 +731,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     public Map<String, Object> getServerTimeInDefaultTimezone() {
 
-        Map<String, Object> responseMap = new HashMap<String,Object>();
+        Map<String, Object> responseMap = new HashMap<>();
 
         TimeZone timeZone = TimeZone.getDefault();
 
@@ -760,7 +780,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     public Map<String, Object> getToolVersion() {
 
-        Map<String, Object> responseMap = new HashMap<String,Object>();
+        Map<String, Object> responseMap = new HashMap<>();
 
         ResourceLoader toolParameters = new ResourceLoader("Tool");
         responseMap.put("version", toolParameters.getString("bbb_version") );
@@ -957,61 +977,69 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         return null;
     }
 
+    private List<User> getMeetingUsers(BBBMeeting meeting, Site site) {
+
+        List<User> meetingUsers = new ArrayList<>();
+
+        for (Participant p : meeting.getParticipants()) {
+            switch (p.getSelectionType()) {
+                case Participant.SELECTION_ALL:
+                    for (String userId : site.getUsers()) {
+                        try {
+                            meetingUsers.add(userDirectoryService.getUser(userId));
+                        } catch (UserNotDefinedException e) {
+                            log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName());
+                        }
+                    }
+                    break;
+                case Participant.SELECTION_GROUP:
+                    Group group = site.getGroup(p.getSelectionId());
+                    for (String userId : group.getUsers()) {
+                        try {
+                            meetingUsers.add(userDirectoryService.getUser(userId));
+                        } catch (UserNotDefinedException e) {
+                            log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName());
+                        }
+                    }
+                    break;
+                case Participant.SELECTION_ROLE:
+                    for (String userId : site.getUsersHasRole(p.getSelectionId())) {
+                        try {
+                            meetingUsers.add(userDirectoryService.getUser(userId));
+                        } catch (UserNotDefinedException e) {
+                            log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName());
+                        }
+                    }
+                    break;
+                case Participant.SELECTION_USER:
+                    String userId = p.getSelectionId();
+                    try {
+                        meetingUsers.add(userDirectoryService.getUser(userId));
+                    } catch (UserNotDefinedException e) {
+                        log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName());
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return meetingUsers;
+    }
+
     private void notifyParticipants(BBBMeeting meeting, boolean isNewMeeting, boolean iCalAttached, long iCalAlarmMinutes, boolean recordingReady) {
         // Site title, url and directtool (universal) url for joining meeting
         Site site;
         try {
             site = siteService.getSite(meeting.getSiteId());
         } catch (IdUnusedException e) {
-            log.error("Unable to send notifications for '{}' meeting participants", meeting.getName(), e);
+            log.error("Unable to send notifications for '{}' meeting participants", meeting.getName());
             return;
         }
         String siteTitle = site.getTitle();
         String directToolJoinUrl = getDirectToolJoinUrl(meeting);
         // Meeting participants
-        Set<User> meetingUsers = new HashSet<User>();
-        for (Participant p : meeting.getParticipants()) {
-            if (Participant.SELECTION_ALL.equals(p.getSelectionType())) {
-                Set<String> siteUserIds = site.getUsers();
-                for (String userId : siteUserIds) {
-                    try {
-                        meetingUsers.add(userDirectoryService.getUser(userId));
-                    } catch (UserNotDefinedException e) {
-                        log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName(), e);
-                    }
-                }
-                break;
-            }
-            if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
-                Group group = site.getGroup(p.getSelectionId());
-                Set<String> groupUserIds = group.getUsers();
-                for (String userId : groupUserIds) {
-                    try {
-                        meetingUsers.add(userDirectoryService.getUser(userId));
-                    } catch (UserNotDefinedException e) {
-                        log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName(), e);
-                    }
-                }
-            }
-            if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
-                Set<String> roleUserIds = site.getUsersHasRole(p.getSelectionId());
-                for (String userId : roleUserIds) {
-                    try {
-                        meetingUsers.add(userDirectoryService.getUser(userId));
-                    } catch (UserNotDefinedException e) {
-                        log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName(), e);
-                    }
-                }
-            }
-            if (Participant.SELECTION_USER.equals(p.getSelectionType())) {
-                String userId = p.getSelectionId();
-                try {
-                    meetingUsers.add(userDirectoryService.getUser(userId));
-                } catch (UserNotDefinedException e) {
-                    log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName(), e);
-                }
-            }
-        }
+        List<User> meetingUsers = getMeetingUsers(meeting, site);
 
         ResourceLoader msgs = null;
         // iterate over all user locales found
@@ -1252,7 +1280,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     public Participant getParticipantFromMeeting(BBBMeeting meeting, String userId) {
         // 1. we want to first check individual user selection as it may
         // override all/group/role selection...
-        List<Participant> unprocessed1 = new ArrayList<Participant>();
+        List<Participant> unprocessed1 = new ArrayList<>();
         for (Participant p : meeting.getParticipants()) {
             if (Participant.SELECTION_USER.equals(p.getSelectionType())) {
                 if (userId.equals(p.getSelectionId()))
@@ -1265,7 +1293,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         // 2. ... then with group/role selection types...
         String userRole = getUserRoleInSite(userId, meeting.getSiteId());
         List<String> userGroups = getUserGroupIdsInSite(userId, meeting.getSiteId());
-        List<Participant> unprocessed2 = new ArrayList<Participant>();
+        List<Participant> unprocessed2 = new ArrayList<>();
         for (Participant p : unprocessed1) {
             if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
                 if (userRole != null && userRole.equals(p.getSelectionId()))
@@ -1416,7 +1444,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     }
 
     public List<String> getUserGroupIdsInSite(String userId, String siteId) {
-        List<String> groupIds = new ArrayList<String>();
+        List<String> groupIds = new ArrayList<>();
         if (siteId != null) {
             try {
                 Site site = siteService.getSite(siteId);
@@ -1553,7 +1581,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
     //Get participant permissions converted to a User Map
     private Map<String, User> getUsersParticipating(String selectionType, String selectionId, Site site) {
-        Map<String, User> response = new HashMap<String, User>();
+        Map<String, User> response = new HashMap<>();
 
         if( selectionType.equals(Participant.SELECTION_USER)){
             try{
