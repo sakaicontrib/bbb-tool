@@ -1,5 +1,7 @@
 .classpath
 .project
+.idea
+*.iml
 .settings
 /api/bin/
 /api/target*
