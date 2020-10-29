@@ -142,6 +142,9 @@ meetings.switchState = function (state, arg) {
             // Set meeting list.
             meetings.setMeetingList();
 
+            meetings.currentMeetings.forEach(m => m.formattedStartDate = m.startDate ? new Date(m.startDate).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "");
+            meetings.currentMeetings.forEach(m => m.formattedEndDate = m.endDate ? new Date(m.endDate).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }): "");
+
             // Show meeting list.
             meetings.utils.render('bbb_rooms_template', {
                 'meetings': meetings.currentMeetings,
