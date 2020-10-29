@@ -133,7 +133,7 @@
         {var statusClass = m.joinable ? 'status_joinable_' + m.joinableMode: (m.notStarted ? 'bbb_status_notstarted' : 'bbb_status_finished')}
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: m.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: m.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
         <td id="meeting_status_${D}{m.id}" class="${D}{statusClass}">${D}{statusText}</td>
-        <td>${D}{m.startDate ? new Date( parseInt(m.startDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset) + ( (new Date()).dst() && !(new Date( parseInt(m.startDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(m.startDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? (3600000 * -1): 0 ) ).toISO8601String() : ''}</td>
+        <td>${D}{m.formattedStartDate}</td>
         <td>${D}{m.endDate ? new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset) + ( (new Date()).dst() && !(new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? (3600000 * -1): 0 ) ).toISO8601String() : ''}</td>
         <td>${D}{m.ownerDisplayName}</td>
       </tr>
