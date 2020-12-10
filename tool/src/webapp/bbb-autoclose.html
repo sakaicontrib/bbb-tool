@@ -26,13 +26,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <script type="text/javascript" language="JavaScript" src="/bbb-tool/lib/jquery-1.3.2.min.js"></script> 
 <script type="text/javascript" language="JavaScript">
-$(document).ready(function(){
-    closeWindow(); closeWindowAlternative();
-});
+
 
 function closeWindow() {
-    var objWindow = window.open(location.href, "_self");
-    objWindow.close(); 
+    var myWindow = window.open('', '_self', '');
+    myWindow.close();
 }
 function closeWindowAlternative() {
     window.opener = 'bbb-tool';
@@ -40,9 +38,11 @@ function closeWindowAlternative() {
 }
 </script>
 </head>
-<body style="width:99.5%">
-    <span style="margin:50px auto">
-        <a href="javascript:;" onclick="closeWindow();closeWindowAlternative();">Close this window</a>
+<body onload="closeWindow()" style="width:99.5%">
+    <span style="margin:50px auto; font-size: x-large">
+        <p>You left the meeting</p>
+        <p>Your browser does not allow the automatic closing of tabs </p>
+        <b><p>Please close it manually</p></b>
     </span>
 </body>
 </html>
