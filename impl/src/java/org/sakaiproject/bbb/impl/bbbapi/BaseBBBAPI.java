@@ -166,7 +166,7 @@ public class BaseBBBAPI implements BBBAPI {
                 query.append("&logoutURL=");
                 StringBuilder logoutUrl = new StringBuilder(config.getServerUrl());
                 logoutUrl.append(BBBMeetingManager.TOOL_WEBAPP);
-                logoutUrl.append("/bbb-autoclose.html");
+                logoutUrl.append("/bbb-autoclose.jsp");
                 query.append(URLEncoder.encode(logoutUrl.toString(), getParametersEncoding()));
             }
 
