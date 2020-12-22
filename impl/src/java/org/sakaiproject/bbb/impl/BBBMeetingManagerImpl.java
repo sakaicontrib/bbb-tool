@@ -108,7 +108,8 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
     @Resource private SiteService siteService = null;
     @Resource private EmailService emailService = null;
     @Resource private EventTrackingService eventTrackingService = null;
-    @Resource private SecurityService securityService = null;
+    @Resource(name = "org.sakaiproject.authz.api.SecurityService")
+    private SecurityService securityService = null;
     @Resource private AuthzGroupService authzGroupService = null;
     @Resource private SessionManager sessionManager = null;
     @Resource private FunctionManager functionManager = null;
