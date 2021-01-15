@@ -331,8 +331,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
             List<String> permittedUserIds = getMeetingUsers(meeting, site).stream()
                 .map(User::getId).collect(Collectors.toList());
-            if (!permittedUserIds.contains(userDirectoryService.getCurrentUser().getId())) {
-                // The current user was not a participant in this meeting. Skip.
+
+            if (!securityService.isSuperUser()
+                && !permittedUserIds.contains(userDirectoryService.getCurrentUser().getId())) {
                 continue;
             }
 
@@ -1297,11 +1298,13 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         List<Participant> unprocessed2 = new ArrayList<>();
         for (Participant p : unprocessed1) {
             if (Participant.SELECTION_ROLE.equals(p.getSelectionType())) {
-                if (userRole != null && userRole.equals(p.getSelectionId()))
+                if (userRole != null && userRole.equals(p.getSelectionId())) {
                     return p;
+                }
             } else if (Participant.SELECTION_GROUP.equals(p.getSelectionType())) {
-                if (userGroups.contains(p.getSelectionId()))
+                if (userGroups.contains(p.getSelectionId())) {
                     return p;
+                }
             } else {
                 unprocessed2.add(p);
             }
@@ -1309,8 +1312,9 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         // 3. ... then go with 'all' selection type
         for (Participant p : unprocessed2) {
-            if (Participant.SELECTION_ALL.equals(p.getSelectionType()))
+            if (Participant.SELECTION_ALL.equals(p.getSelectionType())) {
                 return p;
+            }
         }
 
         // 4. If not found, just check if is superuser
