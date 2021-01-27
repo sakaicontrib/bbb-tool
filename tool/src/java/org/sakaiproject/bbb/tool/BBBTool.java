@@ -27,17 +27,23 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.annotation.Resource;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import org.apache.log4j.Logger;
-
 import org.sakaiproject.bbb.api.BBBMeetingManager;
+import org.sakaiproject.bbb.api.SakaiProxy;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Bootstraps the bbb tool by rendering a Velocity template with the apps JS
@@ -45,23 +51,27 @@ import org.sakaiproject.velocity.util.SLF4JLogChute;
  *
  * @author Adrian Fish
  */
+@Slf4j
 public class BBBTool extends HttpServlet {
+
     private static final long serialVersionUID = 2801227086525605150L;
 
-    private Logger logger = Logger.getLogger(BBBTool.class);
+    @Autowired
+    private SakaiProxy sakaiProxy;
 
-    private transient SakaiProxy sakaiProxy;
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
     private Template bootstrapTemplate = null;
 
-    private ServerConfigurationService serverConfigurationService;
-
     public void init(ServletConfig config) throws ServletException {
+
         super.init(config);
-        logger.debug("init");
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,config.getServletContext());
+        log.debug("init");
         try {
-            serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
-            sakaiProxy = SakaiProxy.getInstance();
+            //serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+            //sakaiProxy = SakaiProxy.getInstance();
             VelocityEngine vengine = new VelocityEngine();
             vengine.setApplicationAttribute(ServletContext.class.getName(), config.getServletContext());
             vengine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
@@ -74,7 +84,8 @@ public class BBBTool extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.debug("doGet()");
+
+        log.debug("doGet()");
         // check if Sakai proxy was successfully initialized
         if (sakaiProxy == null)
             throw new ServletException("sakaiProxy MUST be initialized.");
