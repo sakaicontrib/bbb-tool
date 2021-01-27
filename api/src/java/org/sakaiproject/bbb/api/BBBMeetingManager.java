@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.bbb.api.BBBException;
+import org.sakaiproject.bbb.api.storage.BBBMeeting;
+import org.sakaiproject.bbb.api.storage.BBBMeetingParticipant;
 import org.sakaiproject.user.api.User;
 /**
  * BBBMeetingManager is the API for managing BigBlueButton meetings.
@@ -28,6 +30,7 @@ import org.sakaiproject.user.api.User;
  * @author Adrian Fish, Nuno Fernandes
  */
 public interface BBBMeetingManager {
+
     /** Entity prefix */
     public static final String ENTITY_PREFIX = "bbb-tool";
 
@@ -131,8 +134,7 @@ public interface BBBMeetingManager {
     /**
      * Get the meeting identified by the supplied meetingId
      */
-    public BBBMeeting getMeeting(String meetingId)
-    		throws SecurityException, Exception;
+    BBBMeeting getMeeting(String meetingId) throws SecurityException, Exception;
 
     /**
      * Returns the meetings for the supplied site that the current Sakai user
@@ -142,8 +144,7 @@ public interface BBBMeetingManager {
      *            The site to retrieve meetings for
      * @return A list of BBBMeeting objects
      */
-    public List<BBBMeeting> getSiteMeetings(String siteId)
-            throws SecurityException, Exception;
+    List<BBBMeeting> getSiteMeetings(String siteId) throws SecurityException, Exception;
 
     /**
      * Creates a meeting using the passed in object. Populates the id, password
@@ -151,7 +152,7 @@ public interface BBBMeetingManager {
      *
      * @param meeting
      */
-    public boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
+    boolean createMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes)
             throws SecurityException, BBBException;
 
     /**
@@ -160,87 +161,65 @@ public interface BBBMeetingManager {
      *
      * @param meeting
      */
-    public boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes, boolean meetingOnly)
+    boolean updateMeeting(BBBMeeting meeting, boolean notifyParticipants, boolean addToCalendar, boolean iCalAttached, Long iCalAlarmMinutes, boolean meetingOnly)
             throws SecurityException, BBBException;
 
     /**
      * Check the BigBlueButton server to see if the meeting is running (i.e.
      * there is someone in the meeting)
      */
-    public boolean isMeetingRunning(String meetingID)
-            throws BBBException;
-
-    /**
-     * Get all meetings from BBB server.
-     */
-    public Map<String, Object> getMeetings()
-            throws BBBException;
+    boolean isMeetingRunning(String meetingID) throws BBBException;
 
     /**
      * Get live meeting details from BBB server.
      */
-    public Map<String, Object> getMeetingInfo(String meetingID, String groupId)
-            throws BBBException;
+    Map<String, Object> getMeetingInfo(String meetingID, String groupId) throws BBBException;
 
     /**
      * Get playback recordings from BBB server.
      */
-    public Map<String, Object> getRecordings(String meetingID, String groupId, String siteId)
-            throws BBBException;
-
-    /**
-     * Get ALL playback recordings from BBB server.
-     */
-    public Map<String, Object> getAllRecordings()
-			throws BBBException;
+    Map<String, Object> getRecordings(String meetingID, String groupId, String siteId) throws BBBException;
 
     /**
      * Get ALL playback recordings from BBB server for the current Site.
      */
-    public Map<String, Object> getSiteRecordings(String siteId)
-            throws SecurityException, Exception;
+    Map<String, Object> getSiteRecordings(String siteId) throws SecurityException, Exception;
 
     /**
      * Log an event indicating that the current user joined the specified
      * meeting
      */
-    public void logMeetingJoin(String meetingID);
+    void logMeetingJoin(String meetingID);
 
     /**
      * Currently clears up the Sakai records and endMeeting.
      */
-    public boolean deleteMeeting(String id)
-            throws SecurityException, BBBException;
+    boolean deleteMeeting(String id) throws SecurityException, BBBException;
 
     /**
      * Only executes endMeeting.
      */
-    public boolean endMeeting(String id, String groupId, boolean endAll)
-            throws SecurityException, BBBException;
+    boolean endMeeting(String id, String groupId, boolean endAll) throws SecurityException, BBBException;
 
     /**
      * Deletes a recording on the BBB server
      */
-    public boolean deleteRecordings(String meetingID, String recordID)
-            throws SecurityException, BBBException;
+    boolean deleteRecordings(String recordID) throws SecurityException, BBBException;
 
     /**
      * Publish and unpublish recordings using the publishRecordings api command
      */
-    public boolean publishRecordings(String meetingID, String recordID,
-            String publish) throws SecurityException, BBBException;
+    boolean publishRecordings(String recordID, String publish) throws SecurityException, BBBException;
 
     /**
      * Protect and unprotect recordings using the *_______________* api command
      */
-    public boolean protectRecordings(String meetingID, String recordID,
-            String protect) throws SecurityException, BBBException;
+    boolean protectRecordings(String recordID, String protect) throws SecurityException, BBBException;
 
     /**
      * Check if meeting is ready to be joined.
      */
-    public void checkJoinMeetingPreConditions(BBBMeeting meeting)
-            throws BBBException;
+    void checkJoinMeetingPreConditions(BBBMeeting meeting) throws BBBException;
 
     // -----------------------------------------------------------------------
     // --- BBB Security related methods --------------------------------------
@@ -250,42 +229,42 @@ public interface BBBMeetingManager {
      * Returns true if the current user is a participant in the supplied
      * meeting.
      */
-    public boolean isMeetingParticipant(BBBMeeting meeting);
+    boolean isMeetingParticipant(BBBMeeting meeting);
 
     /**
      * Returns true if the current user can create meetings in the supplied
      * site.
      */
-    public boolean getCanCreate(String siteId);
+    boolean getCanCreate(String siteId);
 
     /**
      * Returns true if the current user can edit the specified meeting in the
      * supplied site.
      */
-    public boolean getCanEdit(String siteId, BBBMeeting meeting);
+    boolean getCanEdit(String siteId, BBBMeeting meeting);
 
     /**
      * Returns true if the current user can delete the specified meeting in the
      * supplied site.
      */
-    public boolean getCanDelete(String siteId, BBBMeeting meeting);
+    boolean getCanDelete(String siteId, BBBMeeting meeting);
 
     /**
      * Returns true if the current user can participate on meetings in the
      * supplied site.
      */
-    public boolean getCanParticipate(String siteId);
+    boolean getCanParticipate(String siteId);
 
     /**
      * Returns true if the current user can view recordings in the supplied site
      */
-    public boolean getCanView(String siteId);
+    boolean getCanViewSiteRecordings(String siteId);
 
     /**
      * Checks tool permissions in site, apply defaults if no perms set and
      * defaults set on sakai.properties.
      */
-    public void checkPermissions(String siteId);
+    void checkPermissions(String siteId);
 
     // -----------------------------------------------------------------------
     // --- Public utility methods --------------------------------------------
@@ -294,98 +273,97 @@ public interface BBBMeetingManager {
     /**
      * Returns current server time (in milliseconds) in user timezone.
      */
-    public Map<String, Object> getServerTimeInUserTimezone();
+    Map<String, Object> getServerTimeInUserTimezone();
 
     /**
      * Returns current server time (in milliseconds) in user timezone.
      */
-    public Map<String, Object> getServerTimeInDefaultTimezone();
+    Map<String, Object> getServerTimeInDefaultTimezone();
 
     /**
      * Returns server version.
      */
-    public Map<String, Object> getToolVersion();
+    Map<String, Object> getToolVersion();
 
     /**
      * Returns the text notice (if any) to be displayed on the first time the
      * tool is accessed by an user.
      */
-    public String getNoticeText();
+    String getNoticeText();
 
     /**
      * Returns the text notice level to be used when displaying the notice text
      * (info | warn | success).
      */
-    public String getNoticeLevel();
+    String getNoticeLevel();
 
     /**
      * Returns the url for joining to a meeting
      */
-    public String getJoinUrl(BBBMeeting meeting, User user)
-            throws SecurityException, Exception;
+    String getJoinUrl(BBBMeeting meeting, User user) throws SecurityException, Exception;
 
     /**
      * Returns true if participants were notified when recording was ready
      */
-    public boolean recordingReady(String meetingId);
+    boolean recordingReady(String meetingId);
 
     /**
      * Returns bbb.autorefresh.meetings parameter set up on sakai.properties or the one set up by default.
      */
-    public String getAutorefreshForMeetings();
+    String getAutorefreshForMeetings();
 
     /**
      * Returns bbb.autorefresh.recordings parameter set up on sakai.properties or the one set up by default.
      */
-    public String getAutorefreshForRecordings();
+    String getAutorefreshForRecordings();
 
-    public String isRecordingEnabled();
+    String isRecordingEnabled();
 
-    public String isRecordingEditable();
+    String isRecordingEditable();
 
-    public String getRecordingDefault();
+    String getRecordingDefault();
 
-    public String isDurationEnabled();
+    String isDurationEnabled();
 
-    public String getDurationDefault();
+    String getDurationDefault();
 
-    public String isWaitModeratorEnabled();
+    String isWaitModeratorEnabled();
 
-    public String isWaitModeratorEditable();
+    String isWaitModeratorEditable();
 
-    public String getWaitModeratorDefault();
+    String getWaitModeratorDefault();
 
-    public String isMultipleSessionsAllowedEnabled();
+    String isMultipleSessionsAllowedEnabled();
 
-    public String isMultipleSessionsAllowedEditable();
+    String isMultipleSessionsAllowedEditable();
 
-    public String getMultipleSessionsAllowedDefault();
+    String getMultipleSessionsAllowedDefault();
 
-    public String isPreuploadPresentationEnabled();
+    String isPreuploadPresentationEnabled();
 
-    public String isGroupSessionsEnabled();
+    String isGroupSessionsEnabled();
 
-    public String isGroupSessionsEditable();
+    String isGroupSessionsEditable();
 
-    public String getGroupSessionsDefault();
+    String getGroupSessionsDefault();
 
-    public String getMaxLengthForDescription();
+    String getMaxLengthForDescription();
 
-    public String getTextBoxTypeForDescription();
+    String getTextBoxTypeForDescription();
 
-    public boolean databaseStoreMeeting(BBBMeeting meeting);
+    boolean databaseStoreMeeting(BBBMeeting meeting);
 
-    public boolean databaseDeleteMeeting(BBBMeeting meeting);
+    boolean databaseDeleteMeeting(BBBMeeting meeting);
 
-    public Participant getParticipantFromMeeting(BBBMeeting meeting, String userId);
+    BBBMeetingParticipant getParticipantFromMeeting(BBBMeeting meeting, String userId);
 
-    public boolean isUserAllowedInLocation(String userId, String permission, String locationId);
+    boolean isUserAllowedInLocation(String userId, String permission, String locationId);
 
-    public String getUserRoleInSite(String userId, String siteId);
+    String getUserRoleInSite(String userId, String siteId);
 
-    public List<String> getUserGroupIdsInSite(String userId, String siteId);
+    List<String> getUserGroupIdsInSite(String userId, String siteId);
 
-    public boolean isRecordingFormatFilterEnabled();
+    boolean isRecordingFormatFilterEnabled();
 
-    public String getRecordingFormatFilterWhitelist();
+    String getRecordingFormatFilterWhitelist();
 }

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
   	<parent>
       <groupId>org.sakaiproject.bbb</groupId>
@@ -10,66 +10,71 @@
       <version>19-SNAPSHOT</version>
   	</parent>
 
-  	<name>BigBlueButton Implementation</name>
+    <name>BigBlueButton Implementation</name>
     <groupId>org.sakaiproject.bbb</groupId>
-  	<artifactId>bbb-impl</artifactId>
+    <artifactId>bbb-impl</artifactId>
 
-  	<packaging>jar</packaging>
+    <!--packaging>jar</packaging-->
+    <packaging>sakai-component</packaging>
 
-  	<dependencies>
-  		<!-- BBB -->
-    	<dependency>
-        <groupId>org.sakaiproject.bbb</groupId>
-        <artifactId>bbb-api</artifactId>
-        <version>${project.version}</version>
-    	</dependency>
-      <dependency>
-        <groupId>org.sakaiproject.bbb</groupId>
-        <artifactId>bbb-bundle</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-    	<!-- Kernel -->
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-api</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-component-manager</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-util</artifactId>
-      </dependency>
-      <!-- EntityBroker -->
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-api</artifactId>
-      </dependency>
-      <!-- Apache Commons -->
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>commons-betwixt</groupId>
-        <artifactId>commons-betwixt</artifactId>
-      </dependency>
-      <!-- Others -->
-      <dependency>
-        <groupId>org.mnode.ical4j</groupId>
-        <artifactId>ical4j</artifactId>
-      </dependency>
+    <dependencies>
+        <!-- BBB -->
+        <dependency>
+            <groupId>org.sakaiproject.bbb</groupId>
+            <artifactId>bbb-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.bbb</groupId>
+            <artifactId>bbb-bundle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-betwixt</groupId>
+            <artifactId>commons-betwixt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mnode.ical4j</groupId>
+            <artifactId>ical4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
-      <resources>
-        <resource>
-          <directory>${basedir}/src/bundle</directory>
-          <includes>
-            <include>**/*.properties</include>
-          </includes>
-        </resource>
-      </resources>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>

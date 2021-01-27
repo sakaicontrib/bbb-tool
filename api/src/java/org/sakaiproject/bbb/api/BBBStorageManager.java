@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.sakaiproject.bbb.api;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.sakaiproject.bbb.api.storage.BBBMeeting;
 
+public interface BBBStorageManager {
 
-/**
- * Additional properties for the BigBlueButton meeting model object.
- * @author Adrian Fish,Nuno Fernandes
- */
-@Getter @Setter
-public class Props implements Serializable {
-	private static final long	serialVersionUID	= 1L;
-
-	private String				welcomeMessage		= null;
-	private String				calendarEventId		= null;
-
+    boolean storeMeeting(BBBMeeting meeting);
+    boolean updateMeeting(BBBMeeting meeting, boolean updateParticipants);
+    List<BBBMeeting> getSiteMeetings(String siteId, boolean includeDeleted);
+    BBBMeeting getMeeting(String meetingId);
+    boolean deleteMeeting(String meetingId);
+    boolean deleteMeeting(String meetingId, boolean fullDelete);
+    String getMeetingHost(String meetingId);
+    List<BBBMeeting> getAllMeetings();
+    boolean setMeetingHost(String meetingId, String hostUrl);
 }
