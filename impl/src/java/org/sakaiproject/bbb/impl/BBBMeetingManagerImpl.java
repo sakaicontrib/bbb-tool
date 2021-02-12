@@ -926,7 +926,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                 return false;
             }
             Group group = site.getGroup(groupID);
+            if (group == null) {
+                log.warn("Null group for id {}. Maybe the group was deleted?", groupID);
+            } else {
             meeting.setName(meeting.getName() + " (" + group.getTitle() + ")");
+            }
         } else {
             meeting = storageManager.getMeeting(meetingId);
         }
@@ -995,11 +999,15 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
                     break;
                 case Participant.SELECTION_GROUP:
                     Group group = site.getGroup(p.getSelectionId());
-                    for (String userId : group.getUsers()) {
-                        try {
-                            meetingUsers.add(userDirectoryService.getUser(userId));
-                        } catch (UserNotDefinedException e) {
-                            log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName());
+                    if (group == null) {
+                        log.warn("Null group for id {}. Maybe the group was deleted?", p.getSelectionId());
+                    } else {
+                        for (String userId : group.getUsers()) {
+                            try {
+                                meetingUsers.add(userDirectoryService.getUser(userId));
+                            } catch (UserNotDefinedException e) {
+                                log.warn("Unable to notify user '{}' about '{}' meeting", userId, meeting.getName());
+                            }
                         }
                     }
                     break;
