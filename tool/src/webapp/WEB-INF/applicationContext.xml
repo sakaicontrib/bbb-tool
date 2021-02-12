@@ -4,30 +4,15 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans
                 http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
-	<!-- Sakai Proxy bean: abstracts out the Sakai bits -->
-    <bean id="org.sakaiproject.bbb.tool.SakaiProxy"
-        class="org.sakaiproject.bbb.tool.SakaiProxy"
-        init-method="init">
-        <property name="BBBMeetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    </bean>
-    
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProvider">
-        <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        class="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProvider">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
-
-    <bean id="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer" 
-        class="org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer"
-        init-method="init">
-        <property name="meetingManager" ref="org.sakaiproject.bbb.api.BBBMeetingManager" />
-    </bean>
 
 </beans>

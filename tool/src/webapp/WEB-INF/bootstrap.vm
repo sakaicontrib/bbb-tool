@@ -223,7 +223,7 @@
                     ${D}{bbb_recording_status_hidden}
                   {/if}
                 </td>
-                <td class="bbb_startDate">${D}{r.startTime ? (new Date(parseInt(r.startTime)).toISO8601String()) + ' ' + r.timezoneOffset: ''}</td>
+                <td class="bbb_startDate">${D}{r.formattedStartTime}</td>
                 <td>
                   {for p in r.playback}
                     {var recType = bbb_recording_type[p.type] === undefined ? p.type : bbb_recording_type[p.type]}
@@ -276,7 +276,7 @@
       <tr>
         <td class="bbb_lbl">${D}{bbb_info_description}</td>
         <td>
-            <textarea class="bbb_welcome_message_textarea" id="bbb_welcome_message_textarea" name="props.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${D}{bbb_default_welcome_description}{else}${D}{meeting.props.welcomeMessage}{/if}</textarea>
+            <textarea class="bbb_welcome_message_textarea" id="bbb_welcome_message_textarea" name="properties.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${D}{bbb_default_welcome_description}{else}${D}{meeting.properties.welcomeMessage}{/if}</textarea>
         </td>
       </tr>
       {if recordingEnabled}
@@ -401,7 +401,7 @@
                 <input id="startTime" type="text" class="time-picker-field"/>
                 <input id="startDate" name="startDate" type="hidden"/>
                 {if (isNew && meetings.userPerms.calendarNew) || (!isNew && ( (meeting.ownerId == meetings.currentUser.id && meetings.userPerms.calendarReviseOwn) || (meeting.ownerId != meetings.currentUser.id && meetings.userPerms.calendarReviseAny) ))}
-                    {var addToCalendar = isNew ? true : meeting.props.calendarEventId != null}
+                    {var addToCalendar = isNew ? true : meeting.properties.calendarEventId != null}
                     <input id="addToCalendar" type="checkbox" name="addToCalendar" {if addToCalendar}checked{/if}/>
                     <span>${D}{bbb_availability_addtocal}</span>
                 {/if}
@@ -524,7 +524,7 @@
       </tr>
       <tr>
         <td><h5>${D}{bbb_info_description}</h5></td>
-        <td>${D}{meeting.props.welcomeMessage}</td>
+        <td>${D}{meeting.properties.welcomeMessage}</td>
       </tr>
       {if meeting.startDate}
       <tr>

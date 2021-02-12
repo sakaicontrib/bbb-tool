@@ -17,28 +17,32 @@
 
     <packaging>jar</packaging>
     <properties>
-      <deploy.target>shared</deploy.target>
+        <deploy.target>shared</deploy.target>
     </properties>
 
     <dependencies>
-      <!-- Kernel -->
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-api</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-util</artifactId>
-      </dependency>
+        <!-- Kernel -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
 
-      <!-- Others -->
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-      </dependency>
+        <!-- Others -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
     </dependencies>
 </project>
