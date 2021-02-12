@@ -514,21 +514,6 @@ meetings.switchState = function (state, arg) {
             // Get recording list.
             meetings.refreshRecordingList();
 
-            // Watch for permissions changes, check meeting dates.
-            meetings.currentRecordings.forEach(r => {
-
-                r.formattedStartTime = r.startTime ? new Date(parseInt(r.startTime)).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "";
-                meetings.utils.setRecordingPermissionParams(r);
-                var images = [];
-                r.playback.forEach(p => {
-                    if (p.preview && p.preview.length > images.length) {
-                        images = p.preview;
-                    }
-                });
-                if (images.length) {
-                    r.images = images;
-                }
-            });
             meetings.utils.render('bbb_recordings_template', {
                 'recordings': meetings.currentRecordings,
                 'stateFunction': 'recordings'
@@ -626,21 +611,6 @@ meetings.switchState = function (state, arg) {
                 // Get meeting list.
                 meetings.refreshRecordingList(arg.meetingId, arg.groupId);
 
-                // Watch for permissions changes, check meeting dates.
-                for (var i = 0; i < meetings.currentRecordings.length; i++) {
-                    meetings.currentRecordings[i].ownerId = "";
-                    meetings.utils.setRecordingPermissionParams(meetings.currentRecordings[i]);
-
-                    var images = [];
-                    for (var j = 0; j < meetings.currentRecordings[i].playback.length; j++) {
-                        if (meetings.currentRecordings[i].playback[j].preview && meetings.currentRecordings[i].playback[j].preview.length > images.length) {
-                            images = meetings.currentRecordings[i].playback[j].preview;
-                        }
-                    }
-                    if (images.length) {
-                        meetings.currentRecordings[i].images = images;
-                    }
-                }
                 meetings.utils.render('bbb_recordings_template', {
                     'recordings': meetings.currentRecordings,
                     'stateFunction': 'recordings_meeting',
@@ -935,20 +905,40 @@ meetings.setMeetingList = function () {
 };
 
 meetings.refreshRecordingList = function (meetingId, groupId) {
-    var getRecordingResponse = (meetingId == null) ? meetings.utils.getSiteRecordingList(meetings.startupArgs.siteId) : meetings.utils.getMeetingRecordingList(meetingId, groupId);
 
-    if (getRecordingResponse.returncode == 'SUCCESS') {
-        meetings.currentRecordings = getRecordingResponse.recordings;
-    } else {
-        //Something went wrong
-        meetings.currentRecordings = new Array();
+  const getRecordingResponse = (meetingId == null) ? meetings.utils.getSiteRecordingList(meetings.startupArgs.siteId) : meetings.utils.getMeetingRecordingList(meetingId, groupId);
 
-        if (getRecordingResponse.messageKey != null) {
-            meetings.utils.showMessage(getRecordingResponse.messageKey + ":" + getRecordingResponse.message, 'warning');
-        } else {
-            meetings.utils.showMessage(bbb_warning_no_server_response, 'warning');
+  if (getRecordingResponse.returncode == 'SUCCESS') {
+    meetings.currentRecordings = getRecordingResponse.recordings;
+    meetings.currentRecordings.forEach(r => {
+
+      let length = parseInt(r.endTime) - parseInt(r.startTime);
+      r.formattedDuration = Math.round(length / 60000);
+
+      r.formattedStartTime = r.startTime ? new Date(parseInt(r.startTime)).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "";
+      r.ownerId = "";
+      meetings.utils.setRecordingPermissionParams(r);
+
+      let images = [];
+      r.playback.forEach(p => {
+        if (p.preview && p.preview.length > images.length) {
+          images = p.preview;
         }
+      });
+
+      if (images.length) {
+        r.images = images;
+      }
+    });
+  } else {
+    meetings.currentRecordings = [];
+
+    if (getRecordingResponse.messageKey != null) {
+      meetings.utils.showMessage(getRecordingResponse.messageKey + ":" + getRecordingResponse.message, 'warning');
+    } else {
+      meetings.utils.showMessage(bbb_warning_no_server_response, 'warning');
     }
+  }
 };
 
 meetings.sortDropDown = function (dropDownId) {
