@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.bbb.api.SakaiProxy"
+        class="org.sakaiproject.bbb.impl.SakaiProxyImpl">
+    </bean>
+
+    <bean id="org.sakaiproject.bbb.api.BBBMeetingManager"
+        class="org.sakaiproject.bbb.impl.BBBMeetingManagerImpl"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.bbb.impl.BBBMeetingEntityProducer"
+        class="org.sakaiproject.bbb.impl.BBBMeetingEntityProducer"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.bbb.api.BBBAPI"
+        class="org.sakaiproject.bbb.impl.BaseBBBAPI"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.bbb.impl.BBBAPIWrapper"
+        class="org.sakaiproject.bbb.impl.BBBAPIWrapper"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.bbb.api.BBBStorageManager"
+        class="org.sakaiproject.bbb.impl.BBBStorageManagerImpl">
+    </bean>
+
+    <bean id="bigbluebuttonHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.bbb.api.storage.BBBMeeting</value>
+                <value>org.sakaiproject.bbb.api.storage.BBBMeetingParticipant</value>
+            </list>
+        </property>
+    </bean>
+</beans>

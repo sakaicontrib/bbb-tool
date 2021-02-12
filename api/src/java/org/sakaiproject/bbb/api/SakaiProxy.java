@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.bbb.impl.sql;
+package org.sakaiproject.bbb.api;
 
-/**
- * MySQL Database implementation for Sakai BigBlueButton persistence.
- * @author Adrian Fish, Nuno Fernandes
- */
-public class MySQLGenerator extends DefaultSqlGenerator
-{
-	public MySQLGenerator()
-	{
-	}
-	
-	public String getShowTableStatement(String table)
-	{
-		return "SHOW TABLES like '" + table + "'";
-	}
+import org.sakaiproject.user.api.User;
+
+public interface SakaiProxy {
+
+	User getCurrentUser();
+
+	String getCurrentSiteId();
+	String getCurrentToolId();
+	String getUserLanguageCode();
+
+    String getSakaiVersion();
+	String getSakaiSkin();
+	long getServerTimeInUserTimezone();
+    long getUserTimezoneOffset();
+    String getUserTimezone();
+    void checkPermissions();
+	String getFileSizeMax();
 }

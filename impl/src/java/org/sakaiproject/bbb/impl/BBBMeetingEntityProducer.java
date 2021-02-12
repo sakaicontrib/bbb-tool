@@ -1,4 +1,4 @@
-package org.sakaiproject.bbb.tool.entity;
+package org.sakaiproject.bbb.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,39 +7,32 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import javax.annotation.Resource;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import org.apache.log4j.Logger;
-
-import org.sakaiproject.bbb.api.BBBMeeting;
+import org.sakaiproject.bbb.api.storage.BBBMeeting;
 import org.sakaiproject.bbb.api.BBBMeetingManager;
 
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferrer, ContextObserver {
-
-    private Logger logger = Logger.getLogger(BBBMeetingEntityProducer.class);
-    //private final Logger logger = Logger.getLogger(getClass());
-
-    //private static BBBMeetingEntityProducer entityProducer = null;
 
     private static final String ARCHIVE_VERSION = "1.0.8"; // in case new features are added in future exports
     private static final String VERSION_ATTR = "version";
@@ -53,83 +46,59 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
     public static final String APPLICATION = "bbb-tool";
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
+    @Resource private BBBMeetingManager meetingManager;
+    @Resource private EntityManager entityManager;
+    @Resource private ServerConfigurationService serverConfigurationService;
+    @Resource private SiteService siteService;
 
-    @Setter @Getter
-    private BBBMeetingManager meetingManager;
+    public void init() {
 
-    public void init()
-    {
-        logger.debug(APPLICATION + " init()");
+        log.debug(APPLICATION + " init()");
 
         try {
-            EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
-         }
-         catch (Exception e) {
-            logger.warn("Error registering " + APPLICATION + " Entity Producer", e);
-         }
-
-         try {
-             ComponentManager.loadComponent("org.sakaiproject.bbb.tool.entity.BBBMeetingEntityProducer", this);
-         } catch (Exception e) {
-             logger.warn("Error registering " + APPLICATION + " Entity Producer with Spring. " + APPLICATION + " will work, but " + APPLICATION + " tools won't be imported from site archives. This normally happens only if you redeploy " + APPLICATION + ". Suggest restarting Sakai", e);
-         }
-
+            entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+        } catch (Exception e) {
+            log.warn("Error registering " + APPLICATION + " Entity Producer", e);
+        }
     }
 
-    public void destroy()
-    {
-        logger.debug("destroy");
-
-    }
-
-    /**
-     * Get the service name for this class
-     * @return
-     */
     protected String serviceName() {
        return BBBMeetingEntityProducer.class.getName();
     }
 
 
-    // EntityProducer implementation
     /**
      * {@inheritDoc}
      */
-    public HttpAccess getHttpAccess()
-    {
+    public HttpAccess getHttpAccess() {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Collection getEntityAuthzGroups(Reference ref, String userId)
-    {
-       //TODO implement this
+    public Collection getEntityAuthzGroups(Reference ref, String userId) {
        return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getEntityUrl(Reference ref)
-    {
+    public String getEntityUrl(Reference ref) {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Entity getEntity(Reference ref)
-    {
+    public Entity getEntity(Reference ref) {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResourceProperties getEntityResourceProperties(Reference ref)
-    {
+    public ResourceProperties getEntityResourceProperties(Reference ref) {
         return null;
     }
 
@@ -158,10 +127,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
      *      java.util.Set)
      */
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-            Set userListAllowImport)
-    {
-        logger.debug("trying to merge " + APPLICATION);
-
+            Set userListAllowImport) {
         return null;
     }
 
@@ -177,7 +143,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
         StringBuilder results = new StringBuilder();
 
         try {
-            Site site = SiteService.getSite(siteId);
+            Site site = siteService.getSite(siteId);
             // start with an element with our very own (service) name
             Element element = doc.createElement(serviceName());
             element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
@@ -206,7 +172,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
                     if (url == null && props != null) {
                         String urlProp = props.getProperty("urlProp", null);
                         if (urlProp != null) {
-                            url = ServerConfigurationService.getString(urlProp);
+                            url = serverConfigurationService.getString(urlProp);
                         }
                     }
 
@@ -242,7 +208,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
 
             stack.pop();
         } catch (Exception any) {
-            logger.warn("archive: exception archiving service: " + serviceName());
+            log.warn("archive: exception archiving service: " + serviceName());
         }
 
         stack.pop();
@@ -255,24 +221,21 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
      *
      * @see org.sakaiproject.service.legacy.entity.ResourceService#getLabel()
      */
-    public String getLabel()
-    {
+    public String getLabel() {
       return APPLICATION;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean willArchiveMerge()
-    {
+    public boolean willArchiveMerge() {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean willImport()
-    {
+    public boolean willImport() {
         return true;
     }
 
@@ -281,19 +244,17 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
     /**
      * {@inheritDoc}
      */
-    public String[] myToolIds()
-    {
-        String[] toolIds = { APPLICATION_ID, "sakai.bbb" };
-        return toolIds;
+    public String[] myToolIds() {
+        return new String[] { APPLICATION_ID, "sakai.bbb" };
     }
 
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions)
-    {
-        logger.debug("transferCopyEntities");
-        try{
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
+
+        log.debug("transferCopyEntities");
+        try {
             List<BBBMeeting> meetings = meetingManager.getSiteMeetings(fromContext);
             for (BBBMeeting meeting : meetings) {
                 meeting.setId(null);
@@ -301,7 +262,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
                 meetingManager.databaseStoreMeeting(meeting);
             }
         } catch( Exception e) {
-            logger.debug("Exception occurred " + e);
+            log.debug("Exception occurred " + e);
         }
         return null;
     }
@@ -310,8 +271,9 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
      * {@inheritDoc}
      */
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
+
         try {
-            if(cleanup == true) {
+            if (cleanup == true) {
                 List<BBBMeeting> meetings = meetingManager.getSiteMeetings(toContext);
                 for (BBBMeeting meeting : meetings) {
                     meetingManager.databaseDeleteMeeting(meeting);
@@ -322,7 +284,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
             transferCopyEntities(fromContext, toContext, ids, transferOptions);
 
         } catch (Exception e) {
-            logger.info("WebContent transferCopyEntities Error" + e);
+            log.info("WebContent transferCopyEntities Error" + e);
         }
         return null;
     }
@@ -342,8 +304,7 @@ public class BBBMeetingEntityProducer implements EntityProducer, EntityTransferr
                 meetingManager.databaseDeleteMeeting(meeting);
             }
         } catch (Exception e) {
-            logger.info(APPLICATION + " contextDeleted Error: " + e);
+            log.info(APPLICATION + " contextDeleted Error: " + e);
         }
     }
-
 }
