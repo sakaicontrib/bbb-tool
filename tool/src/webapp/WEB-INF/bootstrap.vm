@@ -235,7 +235,15 @@
                     {/if}
                   {/for}
                 </td>
-                <td>${D}{r.formattedDuration}</td>
+                <td>
+                  {var fLength=false}
+                  {for p in r.playback}
+                    {if !fLength && p.length }
+                      ${D}{p.length}
+                      {var fLength=true}
+                    {/if}
+                  {/for}
+                </td>
             </tr>
           {/if}
         {/for}
