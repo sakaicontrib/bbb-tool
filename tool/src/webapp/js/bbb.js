@@ -151,6 +151,9 @@ meetings.switchState = function (state, arg) {
                 'timezoneoffset': meetings.startupArgs.timezoneoffset
             }, 'bbb_content');
 
+            // Update meeting list.
+            meetings.refreshMeetingList();
+
             // Show tool footer message only if site maintainer.
             if (meetings.userPerms.siteUpdate) {
                 bbbToolVersion = meetings.settings.toolVersion;
@@ -331,8 +334,11 @@ meetings.switchState = function (state, arg) {
         // Focus on meeting name/title.
         $('#bbb_meeting_name_field').focus();
 
-        // Setup description/welcome msg editor.
-        meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+        // Setup description/welcome msg editor. Test for CKEditor.
+        var descriptionType = meetings.settings.config.addUpdateFormParameters.descriptionType;
+        if (descriptionType == 'ckeditor') {
+            meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
+        }
 
         // Setup dates.
         var now = new Date();
@@ -515,20 +521,19 @@ meetings.switchState = function (state, arg) {
             meetings.refreshRecordingList();
 
             // Watch for permissions changes, check meeting dates.
-            meetings.currentRecordings.forEach(r => {
+            for (var i = 0; i < meetings.currentRecordings.length; i++) {
+                meetings.utils.setRecordingPermissionParams(meetings.currentRecordings[i]);
 
-                r.formattedStartTime = r.startTime ? new Date(parseInt(r.startTime)).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "";
-                meetings.utils.setRecordingPermissionParams(r);
                 var images = [];
-                r.playback.forEach(p => {
-                    if (p.preview && p.preview.length > images.length) {
-                        images = p.preview;
+                for (var j = 0; j < meetings.currentRecordings[i].playback.length; j++) {
+                    if (meetings.currentRecordings[i].playback[j].preview && meetings.currentRecordings[i].playback[j].preview.length > images.length) {
+                        images = meetings.currentRecordings[i].playback[j].preview;
                     }
-                });
-                if (images.length) {
-                    r.images = images;
                 }
-            });
+                if (images.length) {
+                    meetings.currentRecordings[i].images = images;
+                }
+            }
             meetings.utils.render('bbb_recordings_template', {
                 'recordings': meetings.currentRecordings,
                 'stateFunction': 'recordings'
@@ -932,6 +937,10 @@ meetings.setMeetingList = function () {
         }
         meetings.utils.setMeetingJoinableModeParams(meetings.currentMeetings[i]);
     }
+};
+
+meetings.refreshMeetingList = function () {
+    meetings.utils.getMeetings();
 };
 
 meetings.refreshRecordingList = function (meetingId, groupId) {
