@@ -148,19 +148,11 @@
     meetings.utils.addUpdateMeeting = function () {
 
         // Consolidate date + time fields.
-        var today = new Date();
-        var startMillis = 0,
-            endMillis = 0;
+        let startMillis = 0;
+        let endMillis = 0;
         if ($('#startDate1').prop('checked')) {
-            var date = $('#startDate2').datepick('getDate');
-            var time = $('#startTime').val().split(':');
+            const date = $('#startDate2').datepicker('getDate');
             startMillis = date.getTime();
-            startMillis += time[0] * 60 * 60 * 1000;
-            startMillis += time[1] * 60 * 1000;
-            startMillis -= date.getTimezoneOffset() * 60 * 1000;
-            startMillis += (parseInt(meetings.startupArgs.timezoneoffset) * -1);
-            date.setTime(startMillis);
-
             $('#startDate').val(startMillis);
         } else {
             $('#startDate').removeAttr('name');
@@ -168,15 +160,8 @@
             $('#addToCalendar').removeAttr('checked');
         }
         if ($('#endDate1').attr('checked')) {
-            var date = $('#endDate2').datepick('getDate');
-            var time = $('#endTime').val().split(':');
+            const date = $('#endDate2').datepicker('getDate');
             endMillis = date.getTime();
-            endMillis += time[0] * 60 * 60 * 1000;
-            endMillis += time[1] * 60 * 1000;
-            endMillis -= date.getTimezoneOffset() * 60 * 1000;
-            endMillis += (parseInt(meetings.startupArgs.timezoneoffset) * -1);
-            date.setTime(endMillis);
-
             $('#endDate').val(endMillis);
         } else {
             $('#endDate').removeAttr('name');
