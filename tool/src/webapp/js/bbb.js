@@ -356,7 +356,7 @@ meetings.switchState = function (state, arg) {
             useTime: 1,
             val: startDate,
             parseFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
-					  ashidden:{
+            ashidden:{
               iso8601: "startDate"
             },
         });
@@ -368,7 +368,7 @@ meetings.switchState = function (state, arg) {
             useTime: 1,
             val: endDate,
             parseFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
-					  ashidden:{
+            ashidden:{
               iso8601: "endDate"
             },
         });
