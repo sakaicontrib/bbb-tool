@@ -22,7 +22,6 @@ meetings.checkAllMeetingAvailabilityId = null;
 meetings.checkRecordingAvailabilityId = null;
 meetings.refreshRecordingListId = null;
 meetings.errorLog = new Object();
-meetings.browserTimezoneOffset = 0;
 
 (function ($) {
 
@@ -73,9 +72,6 @@ meetings.browserTimezoneOffset = 0;
 
         meetings.currentUser = meetings.settings.currentUser;
         meetings.userPerms = new BBBPermissions(meetings.currentUser.permissions);
-        meetings.startupArgs.timezoneoffset = arg.timezoneoffset;
-        var d = new Date();
-        meetings.browserTimezoneOffset = d.getTimezoneOffset() * 60 * 1000 * -1;
 
         // Now switch into the requested state.
         if (meetings.currentUser != null) {
@@ -142,13 +138,15 @@ meetings.switchState = function (state, arg) {
             // Set meeting list.
             meetings.setMeetingList();
 
-            meetings.currentMeetings.forEach(m => m.formattedStartDate = m.startDate ? new Date(m.startDate).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "");
-            meetings.currentMeetings.forEach(m => m.formattedEndDate = m.endDate ? new Date(m.endDate).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }): "");
+            meetings.currentMeetings.forEach(m => {
+
+              m.formattedStartDate = m.startDate ? new Date(m.startDate).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "";
+              m.formattedEndDate = m.endDate ? new Date(m.endDate).toLocaleString(portal.locale, { dateStyle: "short", timeStyle: "short" }) : "";
+            });
 
             // Show meeting list.
             meetings.utils.render('bbb_rooms_template', {
                 'meetings': meetings.currentMeetings,
-                'timezoneoffset': meetings.startupArgs.timezoneoffset
             }, 'bbb_content');
 
             // Show tool footer message only if site maintainer.
@@ -241,8 +239,13 @@ meetings.switchState = function (state, arg) {
 
         var isNew = !(arg && arg.meetingId);
         var meeting = isNew ? {} : meetings.utils.getMeeting(arg.meetingId);
+        const showStartDate = isNew ? false : meeting.startDate && meeting.startDate > 0;
+        const showEndDate = isNew ? false : meeting.endDate && meeting.endDate > 0;
         var contextData = {
             'isNew': isNew,
+            'showStartDate': showStartDate,
+            'showEndDate': showEndDate,
+            "canAddCalendar": (isNew && meetings.userPerms.calendarNew) || (!isNew && ( (meeting.ownerId == meetings.currentUser.id && meetings.userPerms.calendarReviseOwn) || (meeting.ownerId != meetings.currentUser.id && meetings.userPerms.calendarReviseAny) )),
             'meeting': meeting,
             'selTypes': meetings.utils.getUserSelectionTypes(),
             'selOptions': meetings.utils.getUserSelectionOptions(),
@@ -270,10 +273,13 @@ meetings.switchState = function (state, arg) {
         $('#startDate1').change(function (e) {
 
             if ($(this).prop('checked')) {
-                $('#startDateBox').show();
+                $('#startDate2').prop("disabled", false);
+                $('#startDate2 + button').prop("disabled", false);
+                $('#addToCalendar').prop("disabled", false);
             } else {
-                $('#startDateBox').hide();
-                $('.time-picker').hide();
+                $('#startDate2').prop("disabled", true);
+                $('#startDate2 + button').prop("disabled", true);
+                $('#addToCalendar').prop("disabled", true);
             }
         });
 
@@ -321,10 +327,11 @@ meetings.switchState = function (state, arg) {
         $('#endDate1').change(function (e) {
 
             if ($(this).prop('checked')) {
-                $('#endDateBox').show();
+                $('#endDate2').prop("disabled", false);
+                $('#endDate2 + button').prop("disabled", false);
             } else {
-                $('#endDateBox').hide();
-                $('.time-picker').hide();
+                $('#endDate2').prop("disabled", true);
+                $('#endDate2 + button').prop("disabled", true);
             }
         });
 
@@ -334,38 +341,39 @@ meetings.switchState = function (state, arg) {
         // Setup description/welcome msg editor.
         meetings.utils.makeInlineCKEditor('bbb_welcome_message_textarea', 'BBB', '480', '200');
 
-        // Setup dates.
-        var now = new Date();
-        var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-        var now_local = new Date(parseInt(now_utc.getTime()) + parseInt(meetings.startupArgs.timezoneoffset));
-        var now_local_plus_1 = new Date(parseInt(now_utc.getTime()) + parseInt(meetings.startupArgs.timezoneoffset) + 3600000);
-
-        var startDate = (!isNew && meeting.startDate) ? new Date(parseInt(meeting.startDate) - parseInt(meetings.browserTimezoneOffset) + parseInt(meetings.startupArgs.timezoneoffset) + ((new Date()).dst() && !(new Date(parseInt(meeting.startDate) - parseInt(meetings.browserTimezoneOffset) + parseInt(meetings.startupArgs.timezoneoffset))).dst() ? 3600000 : !(new Date()).dst() && (new Date(parseInt(meeting.startDate) - parseInt(meetings.browserTimezoneOffset) + parseInt(meetings.startupArgs.timezoneoffset))).dst() ? (3600000 * -1) : 0)) : now_local;
-        var endDate = (!isNew && meeting.endDate) ? new Date(parseInt(meeting.endDate) - parseInt(meetings.browserTimezoneOffset) + parseInt(meetings.startupArgs.timezoneoffset) + ((new Date()).dst() && !(new Date(parseInt(meeting.endDate) - parseInt(meetings.browserTimezoneOffset) + parseInt(meetings.startupArgs.timezoneoffset))).dst() ? 3600000 : !(new Date()).dst() && (new Date(parseInt(meeting.endDate) - parseInt(meetings.browserTimezoneOffset) + parseInt(meetings.startupArgs.timezoneoffset))).dst() ? (3600000 * -1) : 0)) : now_local_plus_1;
-
-        // Setup time picker.
-        var zeropad = function (num) {
-            return ((num < 10) ? '0' : '') + num;
+        let startDate = new Date().toISOString();
+        if (!isNew && meeting.startDate) {
+          startDate = new Date(meeting.startDate).toISOString();
         }
-        jQuery('#startTime').val(zeropad(startDate.getHours()) + ':' + zeropad(startDate.getMinutes()));
-        jQuery('#endTime').val(zeropad(endDate.getHours()) + ':' + zeropad(endDate.getMinutes()));
-        jQuery(".time-picker").remove();
-        jQuery("#startTime, #endTime").timePicker({
-            separator: ':'
+
+        let endDate = new Date().toISOString();
+        if (!isNew && meeting.endDate) {
+          endDate = new Date(meeting.endDate).toISOString();
+        }
+
+        localDatePicker({
+            input: '#startDate2',
+            useTime: 1,
+            val: startDate,
+            parseFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
+            ashidden:{
+              iso8601: "startDate"
+            },
         });
 
-        // Setup date picker.
-        jQuery.datepick.setDefaults({
-            dateFormat: jQuery.datepick.W3C,
-            defaultDate: '+0',
-            showDefault: true,
-            showOn: 'both',
-            buttonImageOnly: true,
-            buttonImage: '/library/calendar/images/calendar/cal.gif'
+        $('#startDate2 + button').prop("disabled", !showStartDate);
+
+        localDatePicker({
+            input: '#endDate2',
+            useTime: 1,
+            val: endDate,
+            parseFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
+            ashidden:{
+              iso8601: "endDate"
+            },
         });
-        jQuery('#startDate2, #endDate2').datepick();
-        jQuery('#startDate2').datepick('setDate', startDate);
-        jQuery('#endDate2').datepick('setDate', endDate);
+
+        $('#endDate2 + button').prop("disabled", !showEndDate);
 
         // Add meeting participants.
         meetings.addParticipantSelectionToUI(meeting, isNew);
@@ -455,7 +463,6 @@ meetings.switchState = function (state, arg) {
                 }
                 meetings.utils.render('bbb_meeting-info_template', {
                     'meeting': meeting,
-                    'timezoneoffset': meetings.startupArgs.timezoneoffset,
                     'groups': groups
                 }, 'bbb_content');
 
