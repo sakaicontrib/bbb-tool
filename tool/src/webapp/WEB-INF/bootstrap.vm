@@ -27,7 +27,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <script type="text/javascript">
         var d = new Date();
-        var browserTimezoneOffset = (d.getTimezoneOffset() * 60 * 1000 * -1).toString();
         var meetings = {
             startupArgs: {
                 language: '${language}',
@@ -44,16 +43,17 @@
     ${sakaiHtmlHead}
     <link rel="stylesheet" type="text/css" href="/bbb-tool/css/bbb.css" />
     <link rel="stylesheet" type="text/css" href="/bbb-tool/lib/jquery.datepick.package-3.7.5/redmond.datepick.css" />
-    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script>includeLatestJQuery("bigbluebutton");</script>
     <script type="text/javascript" src="/library/js/trimpath-template-latest.js"></script>
     <script type="text/javascript" src="/library/js/jquery/i18n-properties/1.0.9/jquery.i18n.properties-min-1.0.9.js"></script>
     <script type="text/javascript" src="/bbb-tool/lib/jquery.tablesorter.min.js"></script>
-    <script type="text/javascript" src="/bbb-tool/lib/jquery.datepick.package-3.7.5/jquery.datepick.pack.js"></script>
+    <!--script type="text/javascript" src="/bbb-tool/lib/jquery.datepick.package-3.7.5/jquery.datepick.pack.js"></script-->
     <script type="text/javascript" src="/bbb-tool/lib/jquery.browser.min.js"></script>
-    <script type="text/javascript" src="/bbb-tool/lib/jquery.timePicker.js"></script>
+    <!--script type="text/javascript" src="/bbb-tool/lib/jquery.timePicker.js"></script-->
     <script type="text/javascript" src="/bbb-tool/lib/jquery.tipTip.minified.js"></script>
     <script type="text/javascript" src="/bbb-tool/js/bbb_utils.js"></script>
     <script type="text/javascript" src="/bbb-tool/js/bbb_perms.js"></script>
+    <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 </head>
 <body>
 
@@ -134,7 +134,7 @@
         {var statusText = m.joinable ? (m.joinableMode == 'available'? bbb_status_joinable_available: m.joinableMode == 'inprogress'? bbb_status_joinable_inprogress: m.joinableMode == 'unavailable'? bbb_status_joinable_unavailable: m.joinableMode == 'unreachable'? bbb_status_joinable_unreachable: '' ) : (m.notStarted ? bbb_status_notstarted : bbb_status_finished)}
         <td id="meeting_status_${D}{m.id}" class="${D}{statusClass}">${D}{statusText}</td>
         <td>${D}{m.formattedStartDate}</td>
-        <td>${D}{m.endDate ? new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset) + ( (new Date()).dst() && !(new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? 3600000: !(new Date()).dst() && (new Date( parseInt(m.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset))).dst()? (3600000 * -1): 0 ) ).toISO8601String() : ''}</td>
+        <td>${D}{m.formattedEndDate}</td>
         <td>${D}{m.ownerDisplayName}</td>
       </tr>
     {/if}
@@ -386,30 +386,17 @@
       <tr>
         <td class="bbb_lbl">${D}{bbb_availability_startdate}</td>
         <td>
-            {var showStartDate = isNew ? false : meeting.startDate && meeting.startDate > 0}
             <input id="startDate1" type="checkbox" {if showStartDate}checked{/if} />
-            <span id="startDateBox" style="{if !showStartDate}display:none;{/if}">
-                <input id="startDate2" type="text" class="date-picker-field"/>
-                <input id="startTime" type="text" class="time-picker-field"/>
-                <input id="startDate" name="startDate" type="hidden"/>
-                {if (isNew && meetings.userPerms.calendarNew) || (!isNew && ( (meeting.ownerId == meetings.currentUser.id && meetings.userPerms.calendarReviseOwn) || (meeting.ownerId != meetings.currentUser.id && meetings.userPerms.calendarReviseAny) ))}
-                    {var addToCalendar = isNew ? true : meeting.properties.calendarEventId != null}
-                    <input id="addToCalendar" type="checkbox" name="addToCalendar" {if addToCalendar}checked{/if}/>
-                    <span>${D}{bbb_availability_addtocal}</span>
-                {/if}
-            </span>
+            <input id="startDate2" name="startDate2" class="datepicker" value="" {if !showStartDate}disabled{/if}/>
+            <input id="addToCalendar" type="checkbox" name="addToCalendar" checked style="{if !canAddCalendar}display:none;{/if}"/ {if !showStartDate}disabled{/if} />
+            <span style="{if !canAddCalendar}display:none;{/if}">${D}{bbb_availability_addtocal}</span>
         </td>
       </tr>
       <tr>
         <td class="bbb_lbl">${D}{bbb_availability_enddate}</td>
         <td>
-            {var showEndDate = isNew ? false : meeting.endDate && meeting.endDate > 0}
             <input id="endDate1" type="checkbox" {if showEndDate}checked{/if} />
-            <span id="endDateBox" style="{if !showEndDate}display:none;{/if}">
-                <input id="endDate2" type="text" class="date-picker-field"/>
-                <input id="endTime" type="text" class="time-picker-field"/>
-                <input id="endDate" name="endDate" type="hidden"/>
-            </span>
+            <input id="endDate2" name="endDate2" class="datepicker" value="" disabled/>
         </td>
       </tr>
     </table>
@@ -521,13 +508,13 @@
       {if meeting.startDate}
       <tr>
         <td><h5>${D}{bbb_availability_startdate}</h5></td>
-        <td>${D}{new Date(parseInt(meeting.startDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset)).toISO8601String()}</td>
+        <td>${D}{meeting.formattedStartDate}</td>
       </tr>
       {/if}
       {if meeting.endDate}
       <tr>
         <td><h5>${D}{bbb_availability_enddate}</h5></td>
-        <td>${D}{new Date(parseInt(meeting.endDate) - parseInt(browserTimezoneOffset) + parseInt(timezoneoffset)).toISO8601String()}</td>
+        <td>${D}{meeting.formattedEndDate}</td>
       </tr>
       {/if}
       <tr>
