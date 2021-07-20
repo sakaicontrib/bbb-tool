@@ -658,8 +658,7 @@ public class BaseBBBAPI implements BBBAPI {
     }
 
     protected Map<String, Object> processNode(Node _node) {
-
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         NodeList responseNodes = _node.getChildNodes();
         int images = 1; //counter for images (i.e image1, image2, image3)
         for (int i = 0; i < responseNodes.getLength(); i++) {
@@ -687,21 +686,30 @@ public class BaseBBBAPI implements BBBAPI {
                     && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE
                     && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
-            } else if ( node.getChildNodes().getLength() >= 1
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
 
-                List<Object> list = new ArrayList<>();
-                for (int c = 0; c < node.getChildNodes().getLength(); c++) {
-                    Node n = node.getChildNodes().item(c);
-                    list.add(processNode(n));
+            } else if ( node.getChildNodes().getLength() >= 1) {
+                if( (node.getChildNodes().item(0) != null) &&  (node.getChildNodes().item(0).getChildNodes().item(0) != null) ) {
+
+                    if(  node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                            && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
+                        List<Object> list = new ArrayList<Object>();
+                        for (int c = 0; c < node.getChildNodes().getLength(); c++) {
+                            Node n = node.getChildNodes().item(c);
+                            list.add(processNode(n));
+                        }
+                        if (nodeName == "preview"){
+                            Node n = node.getChildNodes().item(0);
+                            map.put(nodeName, new ArrayList<Object>(processNode(n).values()));
+                        }else{
+                            map.put(nodeName, list);
+                        }
+                    }
+
+                }else {
+                    map.put(nodeName, "");
                 }
-                if (nodeName == "preview"){
-                    Node n = node.getChildNodes().item(0);
-                    map.put(nodeName, new ArrayList<Object>(processNode(n).values()));
-                } else {
-                    map.put(nodeName, list);
-                }
+
+
             } else {
                 map.put(nodeName, processNode(node));
             }
