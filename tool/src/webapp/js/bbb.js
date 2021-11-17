@@ -208,6 +208,9 @@ meetings.switchState = function (state, arg) {
                 cssAsc: 'bbb_sortable_table_header_sortup',
                 cssDesc: 'bbb_sortable_table_header_sortdown',
                 headers: {
+                    0: {
+                        sorter: 'text'
+                    },
                     2: {
                         sorter: 'bbbDateTimeFormat'
                     },
