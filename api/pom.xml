@@ -45,4 +45,16 @@
             <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+      <resources>
+        <resource>
+          <directory>${basedir}/src/resources</directory>
+          <filtering>true</filtering>
+          <includes>
+            <include>**/*.properties</include>
+          </includes>
+        </resource>
+      </resources>
+    </build>
 </project>

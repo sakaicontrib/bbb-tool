@@ -104,7 +104,6 @@
 
     <modules>
         <module>api</module>
-        <module>bundle</module>
         <module>impl</module>
         <module>tool</module>
     </modules>
