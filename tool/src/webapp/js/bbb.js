@@ -35,7 +35,7 @@ meetings.errorLog = new Object();
     // load I18N files.
     jQuery.i18n.properties({
         name: 'ToolMessages',
-        path: '/bbb-tool/bundle/',
+        path: '/bbb-tool/bundle/org/sakaiproject/bbb/bundle/',
         language: arg.language,
         mode: 'vars'
     });
