@@ -178,7 +178,7 @@ public class BaseBBBAPI implements BBBAPI {
             // BSN: Ends
 
             // Composed Welcome message
-            ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
+            ResourceLoader toolMessages = new ResourceLoader("org.sakaiproject.bbb.bundle.ToolMessages");
             String welcomeMessage = toolMessages.getFormattedMessage("bbb_welcome_message_opening", new Object[] { "<b>%%CONFNAME%%</b>" } );
             String welcomeDescription = meeting.getProperties().get("welcomeMessage");
             if (!"<br />".equals(welcomeDescription)) {

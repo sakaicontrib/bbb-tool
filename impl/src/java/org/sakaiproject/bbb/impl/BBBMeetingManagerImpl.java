@@ -514,7 +514,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
         Map<String, String> tmpMeta = meeting.getMeta();
         if( !tmpMeta.containsKey("origin")) tmpMeta.put("origin", "Sakai");
         if( !tmpMeta.containsKey("originVersion")) tmpMeta.put("originVersion", serverConfigurationService.getString("version.sakai", ""));
-        ResourceLoader toolParameters = new ResourceLoader("Tool");
+        ResourceLoader toolParameters = new ResourceLoader("org.sakaiproject.bbb.bundle.Tool");
         if( !tmpMeta.containsKey("originServerCommonName")) tmpMeta.put("originServerCommonName", serverConfigurationService.getServerName() );
         if( !tmpMeta.containsKey("originServerUrl")) tmpMeta.put("originServerUrl", serverConfigurationService.getServerUrl().toString() );
         if( !tmpMeta.containsKey("originTag")) tmpMeta.put("originTag", "Sakai[" + serverConfigurationService.getString("version.sakai", "") + "]" + BBBMeetingManager.TOOL_WEBAPP + "[" + toolParameters.getString("bbb_version") + '_' + toolParameters.getString("bbb_buildSerial") + "]" );
@@ -766,7 +766,7 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
 
         Map<String, Object> responseMap = new HashMap<>();
 
-        ResourceLoader toolParameters = new ResourceLoader("Tool");
+        ResourceLoader toolParameters = new ResourceLoader("org.sakaiproject.bbb.bundle.Tool");
         responseMap.put("version", toolParameters.getString("bbb_version") );
         responseMap.put("buildSerial", toolParameters.getString("bbb_buildSerial") );
 
@@ -1042,11 +1042,11 @@ public class BBBMeetingManagerImpl implements BBBMeetingManager {
             String userLocale = getUserLocale(userId);
 
             if (true == isNewMeeting) {
-                msgs = new ResourceLoader(userId, "EmailNotification");
+                msgs = new ResourceLoader(userId, "org.sakaiproject.bbb.bundle.EmailNotification");
             } else if (true == recordingReady){
-                msgs = new ResourceLoader(userId, "EmailNotificationRecordingReady");
+                msgs = new ResourceLoader(userId, "org.sakaiproject.bbb.bundle.EmailNotificationRecordingReady");
             } else {
-                msgs = new ResourceLoader(userId, "EmailNotificationUpdate");
+                msgs = new ResourceLoader(userId, "org.sakaiproject.bbb.bundle.EmailNotificationUpdate");
             }
 
             // Email message
