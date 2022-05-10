@@ -71,36 +71,10 @@
         </developer>
     </developers>
 
-    <properties>
-        <!-- Build tracking  -->
-        <maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
-        <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
-        <buildSerial>2019042001</buildSerial>
-        <!-- Regular properties -->
-        <!-- entitybroker.version can be set to any version from 1.3.9 to 1.3.20,
-        by default it has been set up to 1.3.19, the one used with Sakai 2.8.2 -->
-        <commons-betwixt.version>0.8</commons-betwixt.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <scm>
-	<connection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</connection>
-	<developerConnection>scm:git:git@github.com:blindsidenetworks/bigbluebutton-sakai.git</developerConnection>
-	<url>https://github.com/blindsidenetworks/bigbluebutton-sakai.git</url>
-    </scm>
-
     <issueManagement>
         <system>JIRA</system>
         <url>http://jira.sakaiproject.org/jira/browse/BBB</url>
     </issueManagement>
-
-    <licenses>
-        <license>
-            <name>Educational Community License, Version 2.0</name>
-            <url>http://www.osedu.org/licenses/ECL-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <modules>
         <module>api</module>
@@ -108,68 +82,6 @@
         <module>impl</module>
         <module>tool</module>
     </modules>
-
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai Release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/bbb/${project.version}</url>
-        </site>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <profiles>
         <profile>
@@ -211,11 +123,6 @@
                 <type>jar</type>
             </dependency>
             <dependency>
-                <groupId>commons-betwixt</groupId>
-                <artifactId>commons-betwixt</artifactId>
-                <version>${commons-betwixt.version}</version>
-            </dependency>
-            <dependency>
               <groupId>org.apache.velocity</groupId>
               <artifactId>velocity</artifactId>
               <version>1.6.4</version>
@@ -242,120 +149,7 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.5.0</version>
-                <configuration>
-                    <basedir>${basedir}</basedir>
-                    <!-- THIS IS A BRITTLE; IMPLEMENT REMOTE RESOURCE PLUGIN TO GET THIS FILE -->
-                    <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
-                    <!-- <header>${user.home}/.m2/license-template.txt</header> -->
-                    <quiet>false</quiet>
-                    <failIfMissing>true</failIfMissing>
-                    <aggregate>false</aggregate>
-                    <includes>
-                        <include>src/**/*.java</include>
-                        <include>**/test/**/*.java</include>
-                        <include>src/webapp/**/*.css</include>
-                        <include>src/webapp/**/*.html</include>
-                        <include>src/webapp/**/*.js</include>
-                        <include>src/webapp/**/*.jsp</include>
-                    </includes>
-                    <excludes>
-                        <exclude>target/**</exclude>
-                        <exclude>m2-target/**</exclude>
-                        <exclude>**/*.properties</exclude>
-                        <exclude>**/*.sql</exclude>
-                        <exclude>**/*.TXT</exclude>
-                        <exclude>**/*.xml</exclude>
-                        <exclude>**/jquery*.*</exclude>
-                        <exclude>src/webapp/**/lib/**/*</exclude>
-                    </excludes>
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <useDefaultMapping>true</useDefaultMapping>
-                    <properties>
-                        <!-- <name>${project.name}</name> -->
-                        <year>${project.inceptionYear}-2012</year>
-                        <holder>The Sakai Foundation</holder>
-                        <!-- <contact>info@sakaiproject.org</contact> -->
-                    </properties>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>check-headers</id>
-                        <phase>${licenseplugin.phase}</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <!-- JavaDocs: mvn javadoc:javadoc -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <reportSets>
-                  <reportSet>
-                    <id>aggregate</id>
-                    <configuration>
-                      <aggregate>true</aggregate>
-                          <source>1.8</source>
-                      <encoding>UTF-8</encoding>
-                        <links>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-                        <link>http://java.sun.com/products/servlet/2.3/javadoc/</link>
-                      </links>
-                      <breakiterator>true</breakiterator>
-                      <verbose>false</verbose>
-                      <maxmemory>512m</maxmemory>
-                      <additionalJOption>
-                        -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
-                      </additionalJOption>
-                    </configuration>
-                    <reports>
-                      <report>aggregate</report>
-                    </reports>
-                  </reportSet>
-                </reportSets>
-            </plugin>
-            <!-- FindBugs: mvn findbugs:findbugs -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-            <!-- CheckStyle: mvn checkstyle:checkstyle -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <outputFileFormat>xml</outputFileFormat>
-                </configuration>
-            </plugin>
-            <!-- Cobertura: mvn cobertura:cobertura -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 
 </project>
