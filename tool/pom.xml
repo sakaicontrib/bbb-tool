@@ -177,7 +177,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>org.sakaiproject.bbb</groupId>
-                  <artifactId>bbb-bundle</artifactId>
+                  <artifactId>bbb-api</artifactId>
                   <type>jar</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${project.build.directory}/${project.build.finalName}/bundle</outputDirectory>
