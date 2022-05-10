@@ -923,7 +923,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
     }
 
     private String getHtmlForJoining(String joinUrl, String meetingId, boolean waitformoderator, String groupId){
-        ResourceLoader toolMessages = new ResourceLoader("ToolMessages");
+        ResourceLoader toolMessages = new ResourceLoader("org.sakaiproject.bbb.bundle.ToolMessages");
         Locale locale = (new ResourceLoader()).getLocale();
         toolMessages.setContextLocale(locale);
         String waiting_for_moderator_tooltip = toolMessages.getString("bbb_meetinginfo_waiting_for_moderator_tooltip");
@@ -1294,7 +1294,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
 
     public Map<String, String> getEventNames(Locale locale) {
         Map<String, String> localeEventNames = new HashMap<String, String>();
-        ResourceLoader msgs = new ResourceLoader("Events");
+        ResourceLoader msgs = new ResourceLoader("org.sakaiproject.bbb.bundle.Events");
         msgs.setContextLocale(locale);
         for (int i = 0; i < BBBMeetingManager.EVENT_KEYS.length; i++) {
             localeEventNames.put(BBBMeetingManager.EVENT_KEYS[i], msgs.getString(BBBMeetingManager.EVENT_KEYS[i]));
