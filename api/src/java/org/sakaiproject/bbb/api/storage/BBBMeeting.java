@@ -108,7 +108,7 @@ public class BBBMeeting {
     @Column(name = "VOICE_BRIDGE")
 	private Integer voiceBridge;
 
-    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BBBMeetingParticipant> participants;
 
     @Transient
