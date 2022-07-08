@@ -357,7 +357,13 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             // update participants
             String meetingOwnerId = meeting.getOwnerId();
             List<BBBMeetingParticipant> participants = extractParticipants(params, meetingOwnerId);
-            meeting.setParticipants(participants);
+            meeting.getParticipants().clear();
+            meetingManager.updateMeeting(meeting, false, false, false, 0L, false);
+            meeting = meetingManager.getMeeting(ref.getId());
+            for (BBBMeetingParticipant p : participants) {
+                p.setMeeting(meeting);
+            }
+            meeting.getParticipants().addAll(participants);
 
             // store meeting
             String addToCalendarStr = (String) params.get("addToCalendar");
