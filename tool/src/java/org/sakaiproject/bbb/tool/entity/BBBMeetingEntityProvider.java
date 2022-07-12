@@ -708,9 +708,35 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
             logger.debug("getMeetings");
 
         try {
-            return new ActionReturn(meetingManager.getMeetings());
+            Map<String, Object> response = meetingManager.getMeetings();
+            checkPermissionsMeetings(response);
+            return new ActionReturn(response);
         } catch (BBBException e) {
             return new ActionReturn(new HashMap<String, String>());
+        }
+    }
+
+    private void checkPermissionsMeetings( Map<String, Object> response)  {
+        try{
+            Object meetings = response.get("meetings");
+            if(meetings != "" && response.get("returncode").equals("SUCCESS")){
+                List list =(List) meetings;
+                List listTmp =  new ArrayList<>(list);
+                for(int i = 0; i < listTmp.size(); i++ ) {
+                    Map<String, Object> map = (Map) listTmp.get(i);
+                    String meetingID = (String) map.get("meetingID");
+                    BBBMeeting bbbMeeting =  meetingManager.getMeeting(meetingID);
+                    if(bbbMeeting == null){
+                        list.remove(map);
+                    }
+                }
+            }
+        }catch(ClassCastException | NullPointerException | IndexOutOfBoundsException  e){
+            logger.error(e.getMessage(), e);
+        } catch (SecurityException e) {
+            logger.error(e.getMessage(), e);
+        }catch (Exception e){
+            logger.error(e.getMessage(), e);
         }
     }
 
