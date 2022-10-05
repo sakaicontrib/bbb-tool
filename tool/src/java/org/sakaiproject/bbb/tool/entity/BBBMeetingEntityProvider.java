@@ -972,7 +972,7 @@ public class BBBMeetingEntityProvider extends AbstractEntityProvider implements
                    "                    if( parseInt(meetingInfo.moderatorCount) == 0 ){\n" +
                    "                        setTimeout(worker, 5000);\n" +
                    "                    } else {\n" +
-                   "                        if (typeof window.opener != 'undefined') {\n" +
+                   "                        if (window.opener) {\n" +
                    "                           window.opener.setTimeout(\"meetings.utils.checkOneMeetingAvailability('" + meetingId + "'" + (groupId.equals("") ? "" : ", '" + groupId + "'") + ")\", 15000 );\n" +
                    "                        }\n" +
                    "                        window.location.reload();\n" +
