@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.sakaiproject.bbb</groupId>
         <artifactId>bbb</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>24-SNAPSHOT</version>
     </parent>
 
     <name>BigBlueButton API</name>
